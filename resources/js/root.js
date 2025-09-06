@@ -1,5 +1,3 @@
-import theme from "./theme";
-
 const modules = import.meta.glob('./**/*.js', { eager: true });
 
 for (const [path, module] of Object.entries(modules)) {
@@ -10,5 +8,3 @@ for (const [path, module] of Object.entries(modules)) {
 }
 
 theme.applyTheme();
-
-const currentBaseUrl = window.location.origin;

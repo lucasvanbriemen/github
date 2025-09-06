@@ -10,5 +10,7 @@
         <h2 class="name">{{ $organization->name }}</h2>
       </a>
     @endforeach
+
+    <button class="update-organizations">Update organizations</button>
   </div>
 </x-app-layout>

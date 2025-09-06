@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrganizationController;
+use App\Http\Middleware\IsLoggedIn;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::patch("/organizations", [OrganizationController::class, "updateOrganizations"])->middleware(IsLoggedIn::class)->name("organizations.update");

@@ -20,5 +20,7 @@ class OrganizationController extends Controller
         ]
       );
     }
+
+    return response()->json(["message" => "Organizations updated successfully"], 200);
   }
 }
