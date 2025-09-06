@@ -9,8 +9,6 @@ class OrganizationController extends Controller
   public static function updateOrganizations()
   {
     $apiOrgs = ApiHelper::githubApi("/user/orgs");
-
-    
     
     foreach ($apiOrgs as $apiOrg) {
       Organization::updateOrCreate(
