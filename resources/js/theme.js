@@ -1,5 +1,5 @@
 export default (() => {
-  const themeUrl = "https://components.lucasvanbriemen.nl/api/colors";
+  const themeUrl = "https://components.lucasvanbriemen.nl/api/colors?theme=THEME_NAME";
   const selectedTheme = "auto";
 
   const getTheme = () => {
@@ -13,13 +13,12 @@ export default (() => {
 
   const applyTheme = async () => {
     document.documentElement.setAttribute("data-theme", getTheme());
+    const url = themeUrl.replace("THEME_NAME", getTheme());
+    const colors = await api.get(url);
 
-    try {
-      const colors = await api.get(themeUrl);
-      console.log(colors);
-    } catch (err) {
-      console.error("Failed to fetch theme colors:", err);
-    }
+    colors.forEach(color => {
+      document.documentElement.style.setProperty(`--${color.name}`, color.value);
+    });
   };
 
   return { getTheme, applyTheme };

@@ -1,5 +1,5 @@
 <x-app-layout>
-  <x-slot:navbar>
-    test
+  <x-slot:header>
+    {{ __("Dashboard") }}
   </x-slot>
 </x-app-layout>
