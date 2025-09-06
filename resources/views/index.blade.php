@@ -1,1 +1,1 @@
-<h1>{{ __('Hello world') }}</h1>
+{{ __('Hello world') }}
