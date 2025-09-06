@@ -18,6 +18,10 @@
 </head>
 
 <body class='{{ $class ?? "" }}'>
+  <header>
+    {{ $navbar ?? "" }}
+  </header>
+
   <main>
     {{ $slot }}
   </main>
