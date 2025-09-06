@@ -1,4 +1,12 @@
 .header {
   height: 3.5rem;
   background-color: var(--background-color-one);
+
+  display: flex;
+  align-items: center;
+
+  h1 {
+    font-size: 1.25rem;
+    margin-left: 1rem;
+  }
 }
