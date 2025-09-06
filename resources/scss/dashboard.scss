@@ -1,0 +1,21 @@
+.dashboard-page {
+  .organizations {
+    width: 50%;
+    margin: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+
+    .organization-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      img {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+      }
+    }
+  }
+}

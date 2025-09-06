@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\OrganizationController;
+use App\Models\Organization;
 
 class DashboardController extends Controller
 {
   public function index()
   {
 
-    OrganizationController::updateOrganizations();
+    $organizations = Organization::all();
 
-    return view("dashboard.index");
+    return view("dashboard.index", compact("organizations"));
   }
 }
