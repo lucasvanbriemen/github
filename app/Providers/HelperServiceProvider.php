@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Helpers\GeneralHelper;
+use App\Helpers\ApiHelper;
 
 class HelperServiceProvider extends ServiceProvider
 {
@@ -20,7 +20,7 @@ class HelperServiceProvider extends ServiceProvider
     private function registerHelperFunctions()
     {
         $helperClasses = [
-            GeneralHelper::class,
+            ApiHelper::class,
         ];
 
         foreach ($helperClasses as $class) {

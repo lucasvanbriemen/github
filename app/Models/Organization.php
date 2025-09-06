@@ -16,4 +16,11 @@ class Organization extends Model
       $organization->id = (string) Str::uuid();
     });
   }
+
+  public $fillable = [
+    "organization_id",
+    "name",
+    "description",
+    "avatar_url",
+  ];
 }
