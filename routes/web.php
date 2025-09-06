@@ -5,3 +5,4 @@ use App\Http\Middleware\IsLoggedIn;
 use App\Http\Controllers\DashboardController;
 
 Route::get("/", [DashboardController::class, "index"])->middleware(IsLoggedIn::class)->name("dashboard");
+Route::get("/", [DashboardController::class, "index"])->middleware(IsLoggedIn::class)->name("organization.show");

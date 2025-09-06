@@ -5,11 +5,10 @@
 
   <div class="organizations">
     @foreach ($organizations as $organization)
-      <div class="organization-card">
+      <a class="organization-card" href="{{ route("organization.show", $organization) }}">
         <img src="{{ $organization->avatar_url }}" alt="{{ $organization->name }}">
-        <h2>{{ $organization->name }}</h2>
-        <p>{{ $organization->description }}</p>
-      </div>
+        <h2 class="name">{{ $organization->name }}</h2>
+      </a>
     @endforeach
   </div>
 </x-app-layout>
