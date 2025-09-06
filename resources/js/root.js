@@ -10,3 +10,5 @@ for (const [path, module] of Object.entries(modules)) {
 }
 
 theme.applyTheme();
+
+const currentBaseUrl = window.location.origin;

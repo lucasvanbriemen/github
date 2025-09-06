@@ -8,9 +8,7 @@ class DashboardController extends Controller
 {
   public function index()
   {
-
     $organizations = Organization::all();
-
     return view("dashboard.index", compact("organizations"));
   }
 }
