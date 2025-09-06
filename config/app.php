@@ -122,9 +122,4 @@ return [
         "driver" => env("APP_MAINTENANCE_DRIVER", "file"),
         "store" => env("APP_MAINTENANCE_STORE", "database"),
     ],
-
-    "gitub" => [
-        "access_token" => env("GITHUB_ACCESS_TOKEN"),
-    ],
-
 ];
