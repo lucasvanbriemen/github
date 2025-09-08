@@ -12,7 +12,7 @@ class Organization extends Model
 
   public function repositories()
   {
-    return $this->hasMany(Repository::class, "id", "organization_id");
+    return $this->hasMany(Repository::class, "organization_id");
   }
 
   public static function booted()

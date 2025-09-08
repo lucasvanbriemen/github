@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('repositories', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        Schema::create("repositories", function (Blueprint $table) {
+            $table->uuid("id")->primary();
             $table->timestamps();
 
             // personal reposos dont have organization id
-            $table->uuid('organization_id')->nullable();
+            $table->uuid("organization_id")->nullable();
 
-            $table->string('name');
-            $table->string('full_name');
-            $table->boolean('private');
+            $table->string("name");
+            $table->string("full_name");
+            $table->boolean("private");
             $table->dateTime("last_updated");
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('repositories');
+        Schema::dropIfExists("repositories");
     }
 };
