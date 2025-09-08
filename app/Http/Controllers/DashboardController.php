@@ -13,6 +13,6 @@ class DashboardController extends Controller
     $organizations = Organization::all();
     $repositories = Repository::orderBy("last_updated", "desc")->get();
 
-    return view("dashboard.index", compact("organizations", "repositories"));
+    return view("dashboard.show", compact("organizations", "repositories"));
   }
 }

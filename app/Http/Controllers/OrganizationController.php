@@ -23,4 +23,10 @@ class OrganizationController extends Controller
 
     return response()->json(["message" => "Organizations updated successfully"], 200);
   }
+
+  public function show(Organization $organization)
+  {
+    $organization->load("repositories");
+    return view("organization.show", compact("organization"));
+  }
 }
