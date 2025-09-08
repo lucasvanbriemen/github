@@ -11,6 +11,6 @@
       </a>
     @endforeach
 
-    <button class="update-organizations">{{ __("Update organizations") }}</button>
+    <button class="button-primary update-organizations">{{ __("Update organizations") }}</button>
   </div>
 </x-app-layout>

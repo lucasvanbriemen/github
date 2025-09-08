@@ -5,7 +5,7 @@ export default (() => {
     const url = window.location.origin + "/api/organizations";
 
     api.patch(url).then((data) => {
-      console.log(data);
+      window.location.reload();
     });
   });
 })();
