@@ -5,7 +5,7 @@
 
   <div class="organizations">
     @foreach ($organizations as $organization)
-      <a class="organization-card" href="{{ route("organization.show", $organization->name) }}">
+      <a class="organization-card card" href="{{ route("organization.show", $organization->name) }}">
         <img src="{{ $organization->avatar_url }}" alt="{{ $organization->name }}">
         <h2 class="name">{{ $organization->name }}</h2>
       </a>
@@ -16,7 +16,7 @@
 
   <div class="repositories">
     @foreach ($repositories as $repository)
-      <a class="repository-card" href="{{ route("repository.show", $repository->name) }}">
+      <a class="repository-card card" href="{{ route("repository.show", $repository->name) }}">
         <h2 class="name">{{ $repository->full_name }}</h2>
       </a>
     @endforeach

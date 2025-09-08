@@ -6,7 +6,7 @@
 
   <div class="repositories">
     @foreach ($repositories as $repository)
-      <a class="repository-card" href="{{ route("repository.show", $repository->name) }}">
+      <a class="repository-card card" href="{{ route("repository.show", $repository->name) }}">
         <h2>{{ $repository->name }}</h2>
       </a>
     @endforeach
