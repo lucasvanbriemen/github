@@ -45,6 +45,24 @@ class RepositoryController extends Controller
     }
   }
 
+  public function show($organizationName, $repositoryName)
+  {
+    // User repositories have "user" as organization name in the URL, while being null in the DB
+    if ($organizationName === "user") {
+      $organizationName = null;
+    }
+
+    $organization = Organization::where("name", $organizationName)->first();
+    
+    $query = Repository::where("name", $repositoryName);
+    if ($organization) {
+      $query->where("organization_id", $organization->id);
+    }
+    $repository = $query->firstOrFail();
+
+    return view("repository.show", compact("organization", "repository"));
+  }
+
   private static function updateApiRepository($organization, $apiRepo)
   {
     Repository::updateOrCreate(
