@@ -11,10 +11,7 @@ class DashboardController extends Controller
   public function index()
   {
     $organizations = Organization::all();
-
-    RepositoryController::updateRepositories();
-
-    $repositories = Repository::all();
+    $repositories = Repository::orderBy("last_updated", "desc")->get();
 
     return view("dashboard.index", compact("organizations", "repositories"));
   }
