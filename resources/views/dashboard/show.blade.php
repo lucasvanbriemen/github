@@ -23,4 +23,6 @@
 
     <button class="button-primary update-repositories">{{ __("Update repositories") }}</button>
   </div>
+
+  <script>window.start = "dashboard";</script>
 </x-app-layout>
