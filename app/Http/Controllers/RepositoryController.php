@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Helpers\ApiHelper;
 use App\Models\Organization;
 use App\Models\Repository;
+use Carbon\Carbon;
 
 class RepositoryController extends Controller
 {
@@ -24,7 +24,7 @@ class RepositoryController extends Controller
         [
           "full_name" => $apiRepo->full_name,
           "private" => $apiRepo->private,
-          "last_updated" => $apiRepo->updated_at,
+          "last_updated" => Carbon::parse($apiRepo->updated_at)->format('Y-m-d H:i:s'),
         ]
       );
     }
@@ -42,7 +42,7 @@ class RepositoryController extends Controller
           [
             "full_name" => $apiRepo->full_name,
             "private" => $apiRepo->private,
-            "last_updated" => $apiRepo->updated_at,
+            "last_updated" => Carbon::parse($apiRepo->updated_at)->format('Y-m-d H:i:s'),
           ]
         );
       }

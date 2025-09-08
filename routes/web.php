@@ -7,3 +7,4 @@ use App\Http\Controllers\OrganizationController;
 
 Route::get("/", [DashboardController::class, "index"])->middleware(IsLoggedIn::class)->name("dashboard");
 Route::get("/organization/{organization}", [OrganizationController::class, "show"])->middleware(IsLoggedIn::class)->name("organization.show");
+Route::get("/repository/{repository}", [OrganizationController::class, "show"])->middleware(IsLoggedIn::class)->name("repository.show");
