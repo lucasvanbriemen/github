@@ -24,5 +24,6 @@ class Repository extends Model
     "name",
     "full_name",
     "private",
+    "last_updated",
   ];
 }

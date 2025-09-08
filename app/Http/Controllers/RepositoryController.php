@@ -24,6 +24,7 @@ class RepositoryController extends Controller
         [
           "full_name" => $apiRepo->full_name,
           "private" => $apiRepo->private,
+          "last_updated" => $apiRepo->updated_at,
         ]
       );
     }
@@ -41,6 +42,7 @@ class RepositoryController extends Controller
           [
             "full_name" => $apiRepo->full_name,
             "private" => $apiRepo->private,
+            "last_updated" => $apiRepo->updated_at,
           ]
         );
       }

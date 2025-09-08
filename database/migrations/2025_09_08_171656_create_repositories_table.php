@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('full_name');
             $table->boolean('private');
+            $table->dateTime("last_updated");
         });
     }
 
