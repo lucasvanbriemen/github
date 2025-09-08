@@ -1,5 +1,6 @@
 <x-app-layout class="organization-page">
   <x-slot:header>
-    <h1>{{ __("Dashboard") }}</h1>
+    <img class="logo" src="{{ $organization->avatar_url }}" alt="{{ $organization->name }}">
+    <h1>{{ $organization->name }}</h1>
   </x-slot>
 </x-app-layout>
