@@ -11,7 +11,14 @@ class DashboardController extends Controller
   public function index()
   {
     $organizations = Organization::all();
+
+
+    // Update repositories
+    RepositoryController::updateRepositories();
+
     $repositories = Repository::all();
+
+    dump($repositories);
 
     return view("dashboard.index", compact("organizations", "repositories"));
   }

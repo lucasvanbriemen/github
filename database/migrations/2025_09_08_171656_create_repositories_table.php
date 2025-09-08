@@ -19,7 +19,7 @@ return new class extends Migration
             $table->uuid('organization_id')->nullable();
 
             $table->string('name');
-            $table->string('full_name')->unique();
+            $table->string('full_name');
             $table->boolean('private');
         });
     }

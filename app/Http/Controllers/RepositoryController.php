@@ -26,5 +26,17 @@ class RepositoryController extends Controller
         );
       }
     }
+
+    // Get current user repositories
+    $apiRepos = ApiHelper::githubApi("/user/repos");
+    foreach ($apiRepos as $apiRepo) {
+      Repository::updateOrCreate(
+        ["organization_id" => null, "name" => $apiRepo->name],
+        [
+          "full_name" => $apiRepo->full_name,
+          "private" => $apiRepo->private,
+        ]
+      );
+    }
   }
 }
