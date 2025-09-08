@@ -24,6 +24,7 @@ class RepositoryController extends Controller
       if ($apiRepo->owner->type === "Organization") {
         $organization = Organization::where("name", $apiRepo->owner->login)->first();
       } else {
+        // It's a user repo, set organization to null
         $organization = new Organization();
         $organization->id = null;
       }
