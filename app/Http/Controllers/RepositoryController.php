@@ -11,23 +11,12 @@ class RepositoryController extends Controller
 {
   public static function updateRepositories()
   {
-    $organizations = Organization::all();
+    self::updateOrganizationRepositories();
+    self::updateUserRepositories();
+  }
 
-    foreach ($organizations as $organization) {
-      $apiRepos = ApiHelper::githubApi("/orgs/{$organization->name}/repos");
-
-      foreach ($apiRepos as $apiRepo) {
-        Repository::updateOrCreate(
-          ["organization_id" => $organization->name, "name" => $apiRepo->name],
-          [
-            "full_name" => $apiRepo->full_name,
-            "private" => $apiRepo->private,
-          ]
-        );
-      }
-    }
-
-    // Get current user repositories
+  public static function updateUserRepositories()
+  {
     $apiRepos = ApiHelper::githubApi("/user/repos");
     foreach ($apiRepos as $apiRepo) {
       Repository::updateOrCreate(
@@ -37,6 +26,24 @@ class RepositoryController extends Controller
           "private" => $apiRepo->private,
         ]
       );
+    }
+  }
+
+  public static function updateOrganizationRepositories()
+  {
+    $organizations = Organization::all();
+
+    foreach ($organizations as $organization) {
+      $apiRepos = ApiHelper::githubApi("/orgs/{$organization->name}/repos");
+      foreach ($apiRepos as $apiRepo) {
+        Repository::updateOrCreate(
+          ["organization_id" => $organization->name, "name" => $apiRepo->name],
+          [
+            "full_name" => $apiRepo->full_name,
+            "private" => $apiRepo->private,
+          ]
+        );
+      }
     }
   }
 }
