@@ -19,24 +19,16 @@ class RepositoryController extends Controller
   {
     $apiRepos = ApiHelper::githubApi("/user/repos");
     foreach ($apiRepos as $apiRepo) {
-      $organizationId = null;
 
       // If the repo belongs to an organization you own, find its ID
-      if ($apiRepo->owner->type === 'Organization') {
-        $org = Organization::where('name', $apiRepo->owner->login)->first();
-        if ($org) {
-          $organizationId = $org->id;
-        }
+      if ($apiRepo->owner->type === "Organization") {
+        $organization = Organization::where("name", $apiRepo->owner->login)->first();
+      } else {
+        $organization = new Organization();
+        $organization->id = null;
       }
 
-      Repository::updateOrCreate(
-        ["organization_id" => $organizationId, "name" => $apiRepo->name],
-        [
-          "full_name" => $apiRepo->full_name,
-          "private" => $apiRepo->private,
-          "last_updated" => Carbon::parse($apiRepo->updated_at)->format('Y-m-d H:i:s'),
-        ]
-      );
+      self::updateApiRepository($organization, $apiRepo);
     }
   }
 
@@ -47,15 +39,20 @@ class RepositoryController extends Controller
     foreach ($organizations as $organization) {
       $apiRepos = ApiHelper::githubApi("/orgs/{$organization->name}/repos");
       foreach ($apiRepos as $apiRepo) {
-        Repository::updateOrCreate(
-          ["organization_id" => $organization->id, "name" => $apiRepo->name],
-          [
-            "full_name" => $apiRepo->full_name,
-            "private" => $apiRepo->private,
-            "last_updated" => Carbon::parse($apiRepo->updated_at)->format('Y-m-d H:i:s'),
-          ]
-        );
+        self::updateApiRepository($organization, $apiRepo);
       }
     }
+  }
+
+  private static function updateApiRepository($organization, $apiRepo)
+  {
+    Repository::updateOrCreate(
+      ["organization_id" => $organization->id, "name" => $apiRepo->name],
+      [
+        "full_name" => $apiRepo->full_name,
+        "private" => $apiRepo->private,
+        "last_updated" => Carbon::parse($apiRepo->updated_at)->format("Y-m-d H:i:s"),
+      ]
+    );
   }
 }
