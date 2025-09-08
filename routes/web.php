@@ -9,4 +9,4 @@ use App\Http\Controllers\RepositoryController;
 
 Route::get("/", [DashboardController::class, "index"])->middleware(IsLoggedIn::class)->name("dashboard");
 Route::get("/organization/{organization}", [OrganizationController::class, "show"])->middleware(IsLoggedIn::class)->name("organization.show");
-Route::get("/repository/{repository}", [RepositoryController::class, "show"])->middleware(IsLoggedIn::class)->name("repository.show");
+Route::get("/organization/{organization}/{repository}", [RepositoryController::class, "show"])->middleware(IsLoggedIn::class)->name("repository.show");
