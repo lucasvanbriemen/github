@@ -1,12 +1,17 @@
 .dashboard-page {
-  .organizations {
+  display: flex;
+
+  .organizations, .repositories {
     width: calc(50% - 2rem);
     margin: 1rem;
     display: flex;
     gap: 1rem;
     flex-direction: column;
 
-    .organization-card {
+    height: calc(100vh - 5rem);
+    overflow-y: auto;
+
+    .organization-card, .repository-card {
       display: flex;
       align-items: center;
       gap: 1rem;

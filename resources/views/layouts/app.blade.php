@@ -14,12 +14,12 @@
   @vite(["resources/scss/root.scss", "resources/js/root.js"])
 </head>
 
-<body class="{{ $class ?? "" }}">
+<body>
   <header class="header">
     {{ $header ?? "" }}
   </header>
 
-  <main>
+  <main class="{{ $class ?? "" }}">
     {{ $slot }}
   </main>
 </body>
