@@ -26,7 +26,7 @@ class OrganizationController extends Controller
 
   public function show(Organization $organization)
   {
-    $organization->load("repositories");
-    return view("organization.show", compact("organization"));
+    $repositories = $organization->repositories;
+    return view("organization.show", compact("organization", "repositories"));
   }
 }

@@ -10,6 +10,11 @@ class Organization extends Model
   protected $keyType = "string";
   public $incrementing = false;
 
+  public function repositories()
+  {
+    return $this->hasMany(Repository::class, "id", "organization_id");
+  }
+
   public static function booted()
   {
     static::creating(function ($organization) {

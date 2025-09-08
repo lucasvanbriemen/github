@@ -19,6 +19,11 @@ class Repository extends Model
     });
   }
 
+  public function organization()
+  {
+    return $this->belongsTo(Organization::class, "organization_id", "id");
+  }
+
   public $fillable = [
     "organization_id",
     "name",
