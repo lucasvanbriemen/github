@@ -12,10 +12,10 @@
 
   @if (empty($filecontent))
     @include("repository.no_content")
-  @else
+  @elseif (!$isFile)
     <div class="file-list">
       @foreach ($filecontent as $file)
-        <a class="file" href="{{ route('repository.show', [$organization->name, $repository->name, $file->path]) }}">
+        <a class="file"href="{{ route('repository.show', [$organization->name, $repository->name, $file->path, 'isFile' => ($file->type === "file")]) }}">
           <h2 class="name">{{ $file->name }}</h2>
         </a>
       @endforeach

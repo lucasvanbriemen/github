@@ -6,6 +6,7 @@ use App\Helpers\ApiHelper;
 use App\Models\Organization;
 use App\Models\Repository;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class RepositoryController extends Controller
 {
@@ -45,7 +46,7 @@ class RepositoryController extends Controller
     }
   }
 
-  public function show($organizationName, $repositoryName, $filePath = null)
+  public function show(Request $request, $organizationName, $repositoryName, $filePath = null)
   {
     // User repositories have "user" as organization name in the URL, while being null in the DB
     if ($organizationName === "user") {
@@ -60,9 +61,13 @@ class RepositoryController extends Controller
     }
     $repository = $query->firstOrFail();
 
-    $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
+    $isFile = $request->query("isFile", false);
 
-    return view("repository.show", compact("organization", "repository", "filecontent"));
+    if (!$isFile) {
+      $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
+    }
+
+    return view("repository.show", compact("organization", "repository", "filecontent", "isFile"));
   }
 
   private static function updateApiRepository($organization, $apiRepo)
