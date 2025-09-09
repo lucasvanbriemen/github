@@ -16,7 +16,8 @@
 
   <div class="repositories">
     @foreach ($repositories as $repository)
-      <a class="repository-card card" href="{{ route('repository.show', [$repository->organization->name ?? 'user', $repository->name]) }}">
+      @php $owner = explode('/', $repository->full_name)[0] ?? 'user'; @endphp
+      <a class="repository-card card" href="{{ route('repository.show', [$owner, $repository->name]) }}">
         <h2 class="name">{{ $repository->full_name }}</h2>
       </a>
     @endforeach
