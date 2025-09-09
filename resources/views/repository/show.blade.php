@@ -6,9 +6,9 @@
     <h1>{{ $repository->full_name }}</h1>
   </x-slot>
 
-  @if (!empty($filecontent))
+  @if (empty($filecontent))
     @include("repository.no_content")
+  @else
+    {{ $filecontent[0]->name }}
   @endif
-  
-  {{-- {{ $filecontent[0]->name }} --}}
 </x-app-layout>
