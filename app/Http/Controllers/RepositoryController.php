@@ -60,7 +60,9 @@ class RepositoryController extends Controller
     }
     $repository = $query->firstOrFail();
 
-    return view("repository.show", compact("organization", "repository"));
+    $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents");
+
+    return view("repository.show", compact("organization", "repository", "filecontent"));
   }
 
   private static function updateApiRepository($organization, $apiRepo)

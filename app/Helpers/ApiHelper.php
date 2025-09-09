@@ -42,7 +42,7 @@ class ApiHelper
 	{
 		$formatted = [];
 		foreach (self::$headers as $key => $value) {
-				$formatted[] = $key . ": " . $value;
+			$formatted[] = $key . ": " . $value;
 		}
 		return $formatted;
 	}
