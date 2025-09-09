@@ -45,7 +45,7 @@ class RepositoryController extends Controller
     }
   }
 
-  public function show($organizationName, $repositoryName)
+  public function show($organizationName, $repositoryName, $filePath = null)
   {
     // User repositories have "user" as organization name in the URL, while being null in the DB
     if ($organizationName === "user") {
@@ -60,7 +60,7 @@ class RepositoryController extends Controller
     }
     $repository = $query->firstOrFail();
 
-    $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents");
+    $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
 
     return view("repository.show", compact("organization", "repository", "filecontent"));
   }

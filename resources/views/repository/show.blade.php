@@ -15,9 +15,9 @@
   @else
     <div class="file-list">
       @foreach ($filecontent as $file)
-        <div class="file">
+        <a class="file" href="{{ route('repository.show', [$organization->name, $repository->name, $file->path]) }}">
           <h2 class="name">{{ $file->name }}</h2>
-        </div>
+        </a>
       @endforeach
     </div>
   @endif
