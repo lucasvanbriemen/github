@@ -12,7 +12,8 @@ class Organization extends Model
 
   public function repositories()
   {
-    return $this->hasMany(Repository::class, "organization_id");
+    return $this->hasMany(Repository::class, "organization_id")
+      ->orderBy("last_updated", "desc");
   }
 
   public static function booted()
