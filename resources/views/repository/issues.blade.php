@@ -12,8 +12,12 @@
 
   <div class="issues-list">
     @foreach ($issues as $issue)
-      <div class="issue-wrapper">
-      </div>
+      <a class="issue-wrapper" href={{ route("repository.issues.show", [$organization->name, $repository->name, $issue->number]) }}>
+        <div class="issue">
+          <a href="{{ $issue->html_url }}"><h2>#{{ $issue->number }} - {{ $issue->title }}</h2></a>
+          <p>Opened by {{ $issue->user->login }} - {{ $issue->state }}</p>
+        </div>
+      </a>
     @endforeach
   </div>
 </x-app-layout>

@@ -25,3 +25,11 @@ Route::get(
 ->where('file_path', '.*')
 ->middleware(IsLoggedIn::class)
 ->name('repository.issues.show');
+
+Route::get(
+    '/organization/{organization}/{repository}/issue/{issue}',
+    [RepositoryController::class, 'issue']
+)
+->where('file_path', '.*')
+->middleware(IsLoggedIn::class)
+->name('repository.issue.show');
