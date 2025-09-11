@@ -10,5 +10,5 @@ Route::patch("/organizations", [OrganizationController::class, "updateOrganizati
 Route::patch("/organizations/repositories", [RepositoryController::class, "updateRepositories"])->middleware(IsLoggedIn::class)->name("organizations.repositories.update");
 Route::get("/organization/{organization}/{repository}/tree/{file_path?}", [RepositoryController::class, "show_file_tree"])
   ->middleware(IsLoggedIn::class)
-  ->name("organizations.repositories.show")
+  ->name("api.repositories.show")
   ->where('file_path', '.*');

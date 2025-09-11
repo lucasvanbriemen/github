@@ -7,16 +7,17 @@ export default {
     });
 
     const fileList = document.querySelector(".file-list");
-    fileList.addEventListener("click", (event) => {
-      if (event.target.classList.contains("file")) {
-        event.preventDefault();
-        const url = new URL(event.target.href);
-        history.pushState({}, "", url);
-        window.api.get(window.location.origin + `/api${url.pathname}/`).then((data) => {
-          console.log(data);
-          document.querySelector(".file-list").innerHTML = data;
-        });
-      }
-    });
+    fileList.addEventListener("click", this.updateFileList);
+  },
+
+  updateFileList(event) {
+    if (event.target.classList.contains("file")) {
+      event.preventDefault();
+      const url = new URL(event.target.dataset.url);
+      history.pushState({}, "", url);
+      window.api.get(event.target.dataset.apiUrl).then((data) => {
+        document.querySelector(".file-list").innerHTML = data;
+      });
+    }
   }
 };
