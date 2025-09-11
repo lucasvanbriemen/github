@@ -8,9 +8,8 @@
     <a href="{{ route('repository.show', [$organization->name, $repository->name]) }}"><h1>{{ $repository->full_name }}</h1></a>
   </x-slot>
 
-  <div class="navigation">
-    <a href="{{ route('organization.show', $organization->name) }}">Back to {{ $organization->login }}</a>
-  </div>
+  @include("repository.sidebar")
+  
 
   @if (empty($filecontent))
     @include("repository.no_content")
