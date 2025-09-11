@@ -1,3 +1,5 @@
+import app from "./app";
+
 const modules = import.meta.glob('./**/*.js', { eager: true });
 
 for (const [path, module] of Object.entries(modules)) {
@@ -8,6 +10,7 @@ for (const [path, module] of Object.entries(modules)) {
 }
 
 theme.applyTheme();
+app.setLoading(false);
 
 if (window.start) {
   window[window.start].init();

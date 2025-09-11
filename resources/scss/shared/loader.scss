@@ -10,27 +10,27 @@
   opacity: 1;
   visibility: visible;
   gap: 1rem;
-}
 
-.loading-wrapper.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 
-.loading-wrapper .loading-spinner {
-  width: 64px;
-  height: 64px;
-  border: 6px solid var(--text-color-secondary);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-  margin-bottom: 0.5rem;
-}
+  .loading-spinner {
+    width: 64px;
+    height: 64px;
+    border: 6px solid var(--text-color-secondary);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin-bottom: 0.5rem;
+  }
 
-.loading-wrapper .loading-text {
-  color: var(--text-color);
-  font-weight: 600;
+  .loading-text {
+    color: var(--text-color);
+    font-weight: 600;
+  }
 }
 
 @keyframes spin {
