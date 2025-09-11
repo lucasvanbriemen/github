@@ -48,17 +48,17 @@ class RepositoryController extends Controller
   }
 
   public function show(Request $request, $organizationName, $repositoryName, $filePath = null)
-  {
+{
     // User repositories have "user" as organization name in the URL, while being null in the DB
     if ($organizationName === "user") {
-      $organizationName = null;
+        $organizationName = null;
     }
 
     $organization = Organization::where("name", $organizationName)->first();
     
     $query = Repository::where("name", $repositoryName);
     if ($organization) {
-      $query->where("organization_id", $organization->id);
+        $query->where("organization_id", $organization->id);
     }
     $repository = $query->firstOrFail();
 
@@ -66,13 +66,23 @@ class RepositoryController extends Controller
 
     $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
     if ($isFile) {
-      $filecontent = file_get_contents($filecontent->download_url);
-      $hl = new Highlighter();
-      $filecontent = $hl->highlightAuto($filecontent)->value;
+        $filecontent = file_get_contents($filecontent->download_url);
+        $hl = new Highlighter();
+        $filecontent = $hl->highlightAuto($filecontent)->value;
+    } else {
+        if (is_array($filecontent)) {
+            usort($filecontent, function ($a, $b) {
+                if ($a->type === $b->type) {
+                    return strcasecmp($a->name, $b->name); // alphabetically within same type
+                }
+                return $a->type === "dir" ? -1 : 1; // dirs first, then files
+            });
+        }
     }
 
     return view("repository.show", compact("organization", "repository", "filecontent", "isFile"));
-  }
+}
+
 
   private static function updateApiRepository($organization, $apiRepo)
   {
