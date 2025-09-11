@@ -1,10 +1,10 @@
-const defaultHeaders = {
-  "Content-Type": "application/json",
-  Accept: "application/json",
-  "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-};
-
 export default {
+  defaultHeaders: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+  },
+
   get(url, headers = {}) {
     return this.makeRequest("GET", url, null, headers);
   },
@@ -17,7 +17,7 @@ export default {
     const options = {
       method,
       headers: {
-        ...defaultHeaders,
+        ...this.defaultHeaders,
         ...headers,
       },
     };
