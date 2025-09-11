@@ -1,9 +1,11 @@
 <x-app-layout class="repository-page">
   <x-slot:header>
     @if ($organization)
-      <img class="logo" src="{{ $organization->avatar_url }}" alt="{{ $organization->name }}">
+      <a href="{{ route('organization.show', $organization->name) }}">  
+        <img class="logo" src="{{ $organization->avatar_url }}" alt="{{ $organization->name }}">
+      </a>
     @endif
-    <h1>{{ $repository->full_name }}</h1>
+    <a href="{{ route('repository.show', [$organization->name, $repository->name]) }}">{{ $repository->full_name }}</a>
   </x-slot>
 
   <div class="navigation">
