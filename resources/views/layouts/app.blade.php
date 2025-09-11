@@ -16,6 +16,9 @@
 </head>
 
 <body>
+
+  @include("layouts.loader")
+
   <header class="header">
     {{ $header ?? "" }}
   </header>

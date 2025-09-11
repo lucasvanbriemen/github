@@ -13,8 +13,7 @@ export default {
   updateFileList(event) {
     if (event.target.classList.contains("file")) {
       event.preventDefault();
-      const url = new URL(event.target.dataset.url);
-      history.pushState({}, "", url);
+      app.setUrl(event.target.dataset.url);
       window.api.get(event.target.dataset.apiUrl).then((data) => {
         document.querySelector(".file-list").innerHTML = data;
       });
