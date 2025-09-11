@@ -30,6 +30,6 @@
       @endforeach
     </div>
   @else
-    <pre><code class="hljs">{!! $filecontent !!}</code></pre>
+    <div class="file-list"><pre>{!! $filecontent !!}</pre></div>
   @endif
 </x-app-layout>
