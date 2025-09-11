@@ -26,7 +26,7 @@ class RepositoryController extends Controller
       if ($apiRepo->owner->type === "Organization") {
         $organization = Organization::where("name", $apiRepo->owner->login)->first();
       } else {
-        // It's a user repo, set organization to null
+        // It"s a user repo, set organization to null
         $organization = new Organization();
         $organization->id = null;
       }
@@ -93,9 +93,9 @@ class RepositoryController extends Controller
     $sortedFolders = [];
     $sortedFiles = [];
     foreach ($apiObject as $item) {
-      if ($item->type === 'dir') {
+      if ($item->type === "dir") {
         $sortedFolders[] = $item;
-      } elseif ($item->type === 'file') {
+      } elseif ($item->type === "file") {
         $sortedFiles[] = $item;
       }
     }
