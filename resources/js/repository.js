@@ -1,7 +1,8 @@
 export default {
   init() {
     const path = window.location.pathname;
-    window.api.get(window.location.origin + `/api${path}/`).then((data) => {
+    const IfFileParam = window.location.search.includes("isFile=1") ? "?isFile=1" : "";
+    window.api.get(window.location.origin + `/api${path}?${IfFileParam}`).then((data) => {
       document.querySelector(".file-list").innerHTML = data;
     });
 

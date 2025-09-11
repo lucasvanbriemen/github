@@ -14,6 +14,7 @@ export default {
   },
 
   makeRequest(method, url, data = null, headers = {}) {
+    app.setLoading(true);
     const options = {
       method,
       headers: {
@@ -25,10 +26,11 @@ export default {
     if (data) {
       options.body = JSON.stringify(data);
     }
-
+    
     return fetch(url, options)
-      .then(async (response) => {
-        if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
+    .then(async (response) => {
+      if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
+        app.setLoading(false);
         return response.text();
       })
       .then((data) => {
