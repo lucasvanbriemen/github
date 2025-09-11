@@ -9,6 +9,6 @@ for (const [path, module] of Object.entries(modules)) {
 
 theme.applyTheme();
 
-if (window.start) {
-  eval(window.start)();
+if (window.repository) {
+  window.repository.init();
 }

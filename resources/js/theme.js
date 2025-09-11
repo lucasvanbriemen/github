@@ -14,7 +14,7 @@ export default (() => {
   const applyTheme = async () => {
     document.documentElement.setAttribute("data-theme", getTheme());
     const url = themeUrl.replace("THEME_NAME", getTheme());
-    const colors = await api.get(url);
+    const colors = await window.api.get(url);
 
     colors.forEach(color => {
       document.documentElement.style.setProperty(`--${color.name}`, color.value);

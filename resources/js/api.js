@@ -1,11 +1,11 @@
-export default (() => {
-  const defualtHeaders = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-  };
+const defualtHeaders = {
+  "Content-Type": "application/json",
+  Accept: "application/json",
+  "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+};
 
-  const get = (url, headers = {}) => {
+export default {
+  get(url, headers = {}) {
     return fetch(url, {
       method: "GET",
       headers: {
@@ -24,9 +24,9 @@ export default (() => {
       .then((data) => {
         return data;
       });
-  };
+  },
 
-  const patch = (url, data, headers = {}) => {
+  patch(url, data, headers = {}) {
     return fetch(url, {
       method: "PATCH",
       headers: {
@@ -39,7 +39,5 @@ export default (() => {
       .then((data) => {
         return data;
       });
-  };
-
-  return { get, patch };
-})();
+  }
+};
