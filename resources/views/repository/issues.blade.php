@@ -13,14 +13,25 @@
   <div class="issues-list">
     @foreach ($issues as $issue)
       <a class="issue-wrapper" href={{ route("repository.issue.show", [$organization->name, $repository->name, $issue->number]) }}>
-        <div class="issue">
-          <h2>#{{ $issue->number }} - {{ $issue->title }}</h2>
-          <p>{{ $issue->user->login }} -  <img class="avatar" src="{{ $issue->user->avatar_url }}" alt="{{ $issue->user->login }}"></p>
-          <div class="assignees">
-            @foreach ($issue->assignees as $assignee)
-              <img class="avatar" src="{{ $assignee->avatar_url }}" alt="{{ $assignee->login }}">
+        <div class="issue-info">
+          <h2>{{ $issue->title }}</h2>
+          <p>
+            <img class="avatar" src="{{ $issue->user->avatar_url }}" alt="{{ $issue->user->login }}">
+
+            {{ $issue->created_at }}
+
+            @foreach ($issue->labels as $label)
+              <span class="label" style="background-color: #{{ $label->color }}; color: {{ (hexdec(substr($label->color, 0, 2)) * 0.299 + hexdec(substr($label->color, 2, 2)) * 0.587 + hexdec(substr($label->color, 4, 2)) * 0.114) > 186 ? '#000' : '#fff' }};">
+                {{ $label->name }}
+              </span>
             @endforeach
-          </div>
+          </p>
+        </div>
+
+        <div class="assignees">
+          @foreach ($issue->assignees as $assignee)
+            <img class="avatar" src="{{ $assignee->avatar_url }}" alt="{{ $assignee->login }}">
+          @endforeach
         </div>
       </a>
     @endforeach
