@@ -63,7 +63,6 @@ class RepositoryController extends Controller
     $repository = $query->firstOrFail();
 
     $isFile = $request->query("isFile", false);
-
     $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
     if ($isFile) {
         $filecontent = file_get_contents($filecontent->download_url);
@@ -74,6 +73,27 @@ class RepositoryController extends Controller
     }
 
     return view("repository.show", compact("organization", "repository", "filecontent", "isFile"));
+  }
+
+  public function issues($organizationName, $repositoryName)
+  {
+    // User repositories have "user" as organization name in the URL, while being null in the DB
+    if ($organizationName === "user") {
+      $organizationName = null;
+    }
+
+    $organization = Organization::where("name", $organizationName)->first();
+    
+    $query = Repository::where("name", $repositoryName);
+    if ($organization) {
+        $query->where("organization_id", $organization->id);
+    }
+    $repository = $query->firstOrFail();
+
+    $page = request()->query("page", 1);
+    $issues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=30");
+
+    return view("repository.issues", compact("organization", "repository", "issues"));
   }
 
   private static function updateApiRepository($organization, $apiRepo)
