@@ -12,10 +12,15 @@
 
   <div class="issues-list">
     @foreach ($issues as $issue)
-      <a class="issue-wrapper" href={{ route("repository.issues.show", [$organization->name, $repository->name, $issue->number]) }}>
+      <a class="issue-wrapper" href={{ route("repository.issue.show", [$organization->name, $repository->name, $issue->number]) }}>
         <div class="issue">
-          <a href="{{ $issue->html_url }}"><h2>#{{ $issue->number }} - {{ $issue->title }}</h2></a>
-          <p>Opened by {{ $issue->user->login }} - {{ $issue->state }}</p>
+          <h2>#{{ $issue->number }} - {{ $issue->title }}</h2>
+          <p>{{ $issue->user->login }} -  <img class="avatar" src="{{ $issue->user->avatar_url }}" alt="{{ $issue->user->login }}"></p>
+          <div class="assignees">
+            @foreach ($issue->assignees as $assignee)
+              <img class="avatar" src="{{ $assignee->avatar_url }}" alt="{{ $assignee->login }}">
+            @endforeach
+          </div>
         </div>
       </a>
     @endforeach
