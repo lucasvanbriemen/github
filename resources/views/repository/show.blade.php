@@ -10,11 +10,5 @@
 
   @include("repository.sidebar")
 
-  @if (empty($filecontent))
-    @include("repository.no_content")
-  @elseif (!$isFile)
-    @include("repository.file_navigation")
-  @else
-    <div class="file-list"><pre>{!! $filecontent !!}</pre></div>
-  @endif
+  @include("repository.file_display")
 </x-app-layout>

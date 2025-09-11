@@ -51,28 +51,46 @@ class RepositoryController extends Controller
   {
     // User repositories have "user" as organization name in the URL, while being null in the DB
     if ($organizationName === "user") {
-        $organizationName = null;
+      $organizationName = null;
     }
 
     $organization = Organization::where("name", $organizationName)->first();
     
     $query = Repository::where("name", $repositoryName);
     if ($organization) {
-        $query->where("organization_id", $organization->id);
+      $query->where("organization_id", $organization->id);
+    }
+    $repository = $query->firstOrFail();
+
+    return view("repository.show", compact("organization", "repository"));
+  }
+
+  public function show_file_tree(Request $request, $organizationName, $repositoryName, $filePath = null)
+  {
+    // User repositories have "user" as organization name in the URL, while being null in the DB
+    if ($organizationName === "user") {
+      $organizationName = null;
+    }
+
+    $organization = Organization::where("name", $organizationName)->first();
+    
+    $query = Repository::where("name", $repositoryName);
+    if ($organization) {
+      $query->where("organization_id", $organization->id);
     }
     $repository = $query->firstOrFail();
 
     $isFile = $request->query("isFile", false);
     $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
     if ($isFile) {
-        $filecontent = file_get_contents($filecontent->download_url);
-        $hl = new Highlighter();
-        $filecontent = $hl->highlightAuto($filecontent)->value;
+      $filecontent = file_get_contents($filecontent->download_url);
+      $hl = new Highlighter();
+      $filecontent = $hl->highlightAuto($filecontent)->value;
     } else {
       $filecontent = self::sortApiContent($filecontent);
     }
 
-    return view("repository.show", compact("organization", "repository", "filecontent", "isFile"));
+    return view("repository.file_display", compact("organization", "repository", "filecontent", "isFile"));
   }
 
   public function issues($organizationName, $repositoryName)
