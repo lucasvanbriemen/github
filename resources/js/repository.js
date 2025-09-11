@@ -2,7 +2,6 @@ export default {
   init() {
     const path = window.location.pathname;
     window.api.get(window.location.origin + `/api${path}/`).then((data) => {
-      console.log(data);
       document.querySelector(".file-list").innerHTML = data;
     });
 

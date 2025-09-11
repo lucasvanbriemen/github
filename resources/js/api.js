@@ -1,5 +1,3 @@
-import app from "./app";
-
 export default {
   defaultHeaders: {
     "Content-Type": "application/json",
@@ -16,7 +14,6 @@ export default {
   },
 
   makeRequest(method, url, data = null, headers = {}) {
-    app.setLoading(true);
     const options = {
       method,
       headers: {
@@ -35,7 +32,6 @@ export default {
         return response.text();
       })
       .then((data) => {
-        app.setLoading(false);
         return data;
       });
   },

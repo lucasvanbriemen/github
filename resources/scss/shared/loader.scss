@@ -1,7 +1,7 @@
 .loading-wrapper {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.35);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,6 +9,7 @@
   z-index: 9999;
   opacity: 1;
   visibility: visible;
+  gap: 1rem;
 }
 
 .loading-wrapper.hidden {
@@ -20,7 +21,7 @@
 .loading-wrapper .loading-spinner {
   width: 64px;
   height: 64px;
-  border: 6px solid rgba(255, 255, 255, 0.35);
+  border: 6px solid var(--text-color-secondary);
   border-top-color: var(--primary-color);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
@@ -28,7 +29,7 @@
 }
 
 .loading-wrapper .loading-text {
-  color: #fff;
+  color: var(--text-color);
   font-weight: 600;
 }
 

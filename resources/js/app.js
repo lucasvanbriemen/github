@@ -6,9 +6,9 @@ export default {
   setLoading(isLoading) {
     const loadingIndicator = document.querySelector(".loading-wrapper");
     if (isLoading) {
-      loadingIndicator.classList.add("active");
+      loadingIndicator.classList.add("hidden");
     } else {
-      loadingIndicator.classList.remove("active");
+      loadingIndicator.classList.remove("hidden");
     }
   }
 };
