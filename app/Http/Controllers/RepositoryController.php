@@ -48,7 +48,7 @@ class RepositoryController extends Controller
   }
 
   public function show(Request $request, $organizationName, $repositoryName, $filePath = null)
-{
+  {
     // User repositories have "user" as organization name in the URL, while being null in the DB
     if ($organizationName === "user") {
         $organizationName = null;
@@ -70,19 +70,11 @@ class RepositoryController extends Controller
         $hl = new Highlighter();
         $filecontent = $hl->highlightAuto($filecontent)->value;
     } else {
-        if (is_array($filecontent)) {
-            usort($filecontent, function ($a, $b) {
-                if ($a->type === $b->type) {
-                    return strcasecmp($a->name, $b->name); // alphabetically within same type
-                }
-                return $a->type === "dir" ? -1 : 1; // dirs first, then files
-            });
-        }
+      $filecontent = self::sortApiContent($filecontent);
     }
 
     return view("repository.show", compact("organization", "repository", "filecontent", "isFile"));
-}
-
+  }
 
   private static function updateApiRepository($organization, $apiRepo)
   {
@@ -94,5 +86,30 @@ class RepositoryController extends Controller
         "last_updated" => Carbon::parse($apiRepo->updated_at)->format("Y-m-d H:i:s"),
       ]
     );
+  }
+
+  private static function sortApiContent($apiObject) {
+    // Sort directories first, then files, both alphabetically
+    $sortedFolders = [];
+    $sortedFiles = [];
+    foreach ($apiObject as $item) {
+      if ($item->type === 'dir') {
+        $sortedFolders[] = $item;
+      } elseif ($item->type === 'file') {
+        $sortedFiles[] = $item;
+      }
+    }
+
+    // Sort alphabetically within each type
+    usort($sortedFolders, function ($a, $b) {
+      return strcasecmp($a->name, $b->name);
+    });
+
+    // Sort alphabetically within each type
+    usort($sortedFiles, function ($a, $b) {
+      return strcasecmp($a->name, $b->name);
+    });
+
+    return array_merge($sortedFolders, $sortedFiles);
   }
 }
