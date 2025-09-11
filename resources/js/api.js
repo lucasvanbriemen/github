@@ -6,13 +6,27 @@ const defualtHeaders = {
 
 export default {
   get(url, headers = {}) {
-    return fetch(url, {
-      method: "GET",
+    return this.makeRequest("GET", url, null, headers);
+  },
+
+  patch(url, data, headers = {}) {
+    return this.makeRequest("PATCH", url, data, headers);
+  },
+
+  makeRequest(method, url, data = null, headers = {}) {
+    const options = {
+      method,
       headers: {
         ...defualtHeaders,
         ...headers,
       },
-    })
+    };
+
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+
+    return fetch(url, options)
       .then(async (response) => {
         if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
         return response.text();
@@ -21,19 +35,4 @@ export default {
         return data;
       });
   },
-
-  patch(url, data, headers = {}) {
-    return fetch(url, {
-      method: "PATCH",
-      headers: {
-        ...defualtHeaders,
-        ...headers,
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        return data;
-      });
-  }
 };
