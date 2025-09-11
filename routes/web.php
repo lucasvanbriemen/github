@@ -11,13 +11,6 @@ Route::get("/", [DashboardController::class, "index"])->middleware(IsLoggedIn::c
 Route::get("/organization/{organization}", [OrganizationController::class, "show"])->middleware(IsLoggedIn::class)->name("organization.show");
 
 Route::get(
-    '/organization/{organization}/{repository}',
-    [RepositoryController::class, 'show']
-)
-->middleware(IsLoggedIn::class)
-->name('repository.show.root');
-
-Route::get(
     '/organization/{organization}/{repository}/tree/{file_path?}',
     [RepositoryController::class, 'show']
 )

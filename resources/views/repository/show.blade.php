@@ -10,5 +10,9 @@
 
   @include("repository.sidebar")
 
-  @include("repository.file_display")
+  <div class="file-list">
+    @include("repository.file_display")
+  </div>
+
+  <script>window.start = "repository";</script>
 </x-app-layout>

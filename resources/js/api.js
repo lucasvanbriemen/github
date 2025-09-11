@@ -13,7 +13,14 @@ export default (() => {
         ...headers,
       },
     })
-      .then((response) => response.json())
+      .then(async (response) => {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          return response.json();
+        } else {
+          return response.text();
+        }
+      })
       .then((data) => {
         return data;
       });
