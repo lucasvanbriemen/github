@@ -12,6 +12,7 @@
 
   <!-- Scripts -->
   @vite(["resources/scss/root.scss", "resources/js/root.js"])
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 </head>
 
 <body>

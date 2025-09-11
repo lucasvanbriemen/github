@@ -20,5 +20,7 @@
         </a>
       @endforeach
     </div>
+  @else
+    <pre><code class="hljs">{!! $filecontent !!}</code></pre>
   @endif
 </x-app-layout>

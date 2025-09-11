@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
 use App\Models\Organization;
+use Highlight\Highlighter;
 use App\Models\Repository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -63,8 +64,11 @@ class RepositoryController extends Controller
 
     $isFile = $request->query("isFile", false);
 
-    if (!$isFile) {
-      $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
+    $filecontent = ApiHelper::githubApi("/repos/{$repository->full_name}/contents/" . ($filePath ?? ""));
+    if ($isFile) {
+      $filecontent = file_get_contents($filecontent->download_url);
+      $hl = new Highlighter();
+      $filecontent = $hl->highlightAuto($filecontent)->value;
     }
 
     return view("repository.show", compact("organization", "repository", "filecontent", "isFile"));
