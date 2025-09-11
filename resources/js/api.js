@@ -14,12 +14,8 @@ export default {
       },
     })
       .then(async (response) => {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          return response.json();
-        } else {
-          return response.text();
-        }
+        if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
+        return response.text();
       })
       .then((data) => {
         return data;
