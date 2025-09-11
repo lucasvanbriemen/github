@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Helpers\ApiHelper;
+use App\Helpers\SvgHelper;
 
 class HelperServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,7 @@ class HelperServiceProvider extends ServiceProvider
     {
         $helperClasses = [
             ApiHelper::class,
+            SvgHelper::class,
         ];
 
         foreach ($helperClasses as $class) {

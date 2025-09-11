@@ -24,6 +24,7 @@
     .file {
       display: flex;
       padding: 1rem;
+      gap: 0.5rem;
       border-radius: 1rem;
       background-color: var(--background-color-two);
       transition: all 0.3s ease;
@@ -31,6 +32,15 @@
       &:hover {
         background-color: var(--primary-color);
         cursor: pointer;
+      }
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+
+        path {
+          stroke: var(--text-color);
+        }
       }
     }
   }
