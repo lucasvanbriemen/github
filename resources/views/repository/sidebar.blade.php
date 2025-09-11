@@ -1,3 +1,6 @@
-<div class="navigation">
-  <a href="{{ route("organization.show", $organization->name) }}" class="navigation-item">Back to {{ $organization->name }}</a>
+<div class="sidebar">
+  <a href="{{ route("organization.show", $organization->name) }}" class="sidebar-item">Show org</a>
+  <a href="{{ route("organization.show", $organization->name) }}" class="sidebar-item">Show org</a>
+  <a href="{{ route("organization.show", $organization->name) }}" class="sidebar-item">Show org</a>
+  <a href="{{ route("organization.show", $organization->name) }}" class="sidebar-item">Show org</a>
 </div>

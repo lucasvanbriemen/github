@@ -6,7 +6,9 @@
 
 @import "dashboard";
 @import "organization";
-@import "repository";
+@import "repository/repository";
+@import "repository/sidebar";
+
 body { 
   background-color: var(--background-color);
 }

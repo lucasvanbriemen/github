@@ -1,0 +1,27 @@
+.repository-page .sidebar {
+  width: 20%;
+  overflow-y: auto;
+  border-radius: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  // This makes it align with the files in the filelist (that contaoner has 1rem padding)
+  margin-top: 1rem;
+
+  .sidebar-item {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: var(--background-color-one);
+    transition: all 0.3s ease;
+    text-decoration: none;
+
+    &:hover {
+      background-color: var(--primary-color);
+      cursor: pointer;
+      color: var(--text-color);
+      text-decoration: none;
+    }
+  }
+}

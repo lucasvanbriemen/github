@@ -1,17 +1,12 @@
 .repository-page {
   display: flex;
   gap: 1rem;
-
-  .navigation {
-    margin: 1rem;
-    width: 20%;
-  }
+  padding: 1rem;
 
   .file-list {
     width: 100%;
     height: calc(100vh - 5.5rem);
     overflow-y: auto;
-    margin: 1rem;
     padding: 1rem;
     border-radius: 1rem;
 
