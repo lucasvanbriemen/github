@@ -14,6 +14,13 @@ return new class extends Migration
         Schema::create('issue', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->integer('github_id')->unique();
+            $table->string('repository_full_name');
+            $table->unsignedBigInteger('number');
+            $table->string('title')->nullable();
+            $table->text('body')->nullable();
+            $table->datetime('last_updated')->nullable();
+            $table->string('state')->default('open');
         });
     }
 
