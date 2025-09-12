@@ -130,6 +130,9 @@ class RepositoryController extends Controller
         "full_name" => $apiRepo->full_name,
         "private" => $apiRepo->private,
         "last_updated" => Carbon::parse($apiRepo->updated_at)->format("Y-m-d H:i:s"),
+        "description" => $apiRepo->description,
+        "pr_count" => ApiHelper::githubApi("/search/issues?q=repo:{$apiRepo->full_name}+is:pr+is:open")->total_count ?? 0,
+        "issue_count" => ApiHelper::githubApi("/search/issues?q=repo:{$apiRepo->full_name}+is:issue+is:open")->total_count ?? 0,
       ]
     );
   }
