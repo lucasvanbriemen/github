@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\IsLoggedIn;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IssueController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 
@@ -31,7 +32,7 @@ Route::get(
 
 Route::get(
     '/organization/{organization}/{repository}/issues',
-    [RepositoryController::class, 'issues']
+    [IssueController::class, 'index']
 )
 ->where('file_path', '.*')
 ->middleware(IsLoggedIn::class)
@@ -39,7 +40,7 @@ Route::get(
 
 Route::get(
     '/organization/{organization}/{repository}/issue/{issue}',
-    [RepositoryController::class, 'issue']
+    [IssueController::class, 'show']
 )
 ->where('file_path', '.*')
 ->middleware(IsLoggedIn::class)
