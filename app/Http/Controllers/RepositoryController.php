@@ -104,7 +104,7 @@ class RepositoryController extends Controller
     
     $query = Repository::where("name", $repositoryName);
     if ($organization) {
-        $query->where("organization_id", $organization->id);
+      $query->where("organization_id", $organization->id);
     }
     $repository = $query->firstOrFail();
 
