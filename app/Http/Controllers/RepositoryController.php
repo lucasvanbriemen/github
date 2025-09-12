@@ -111,6 +111,7 @@ class RepositoryController extends Controller
     $page = request()->query("page", 1);
     $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=60");
 
+    $issues = [];
     foreach ($apiIssues as $issue) {
       if (property_exists($issue, "pull_request")) {
         // It"s a pull request, skip it
@@ -119,7 +120,7 @@ class RepositoryController extends Controller
       $issues[] = $issue;
     }
 
-    return view("repository.issues", compact("organization", "repository", "issues"));
+    return view("repository.issues", compact("organization", "repository", "issues", "apiIssues"));
   }
 
   private static function updateApiRepository($organization, $apiRepo)
