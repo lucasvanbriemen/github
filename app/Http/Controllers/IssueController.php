@@ -52,8 +52,17 @@ class IssueController extends Controller
                     // It"s a pull request, skip it
                     continue;
                 }
-                // Process the issue (e.g., save to database)
-                // Example: Issue::updateOrCreate([...]);
+                Issue::updateOrCreate(
+                    ["github_id" => $issue->id],
+                    [
+                        "repository_full_name" => $repository->full_name,
+                        "number" => $issue->number,
+                        "title" => $issue->title,
+                        "body" => $issue->body,
+                        "last_updated" => $issue->updated_at,
+                        "state" => $issue->state,
+                    ]
+                );
             }
         }
     }

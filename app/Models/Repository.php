@@ -24,6 +24,12 @@ class Repository extends Model
     return $this->belongsTo(Organization::class, "organization_id", "organization_id");
   }
 
+  public function issues()
+  {
+    return $this->hasMany(Issue::class, "repository_full_name", "full_name")
+      ->orderBy("last_updated", "desc");
+  }
+
   public $fillable = [
     "organization_id",
     "name",
