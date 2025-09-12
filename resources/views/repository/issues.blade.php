@@ -18,7 +18,7 @@
           <p>
             <img class="avatar" src="{{ $issue->user->avatar_url }}" alt="{{ $issue->user->login }}">
 
-            {{ $issue->created_at }}
+            {{ timeAgo($issue->created_at) }}
 
             @foreach ($issue->labels as $label)
               <span class="label" style="background-color: #{{ $label->color }}; color: {{ (hexdec(substr($label->color, 0, 2)) * 0.299 + hexdec(substr($label->color, 2, 2)) * 0.587 + hexdec(substr($label->color, 4, 2)) * 0.114) > 186 ? '#000' : '#fff' }};">

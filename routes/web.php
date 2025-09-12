@@ -19,6 +19,17 @@ Route::get(
 ->name('repository.show');
 
 Route::get(
+    '/organization/{organization}/{repository}',
+    // Redirect to repository.show
+    function ($organization, $repository) {
+        return redirect()->route('repository.show', [
+            'organization' => $organization,
+            'repository' => $repository,
+        ]);
+    }
+);
+
+Route::get(
     '/organization/{organization}/{repository}/issues',
     [RepositoryController::class, 'issues']
 )
