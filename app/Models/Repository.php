@@ -30,5 +30,8 @@ class Repository extends Model
     "full_name",
     "private",
     "last_updated",
+    "description",
+    "pr_count",
+    "issue_count",
   ];
 }

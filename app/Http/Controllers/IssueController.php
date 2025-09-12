@@ -22,40 +22,18 @@ class IssueController extends Controller
         if ($organization) {
             $query->where("organization_id", $organization->id);
         }
-        $repository = $query->firstOrFail();
 
-        $page = request()->query("page", 1);
-        $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=60");
-
-        $issues = [];
-        foreach ($apiIssues as $issue) {
-            if (property_exists($issue, "pull_request")) {
-                // It's a pull request, skip it
-                continue;
-            }
-            $issues[] = $issue;
-        }
-
-        return view("repository.issues", compact("organization", "repository", "issues", "apiIssues"));
-    }
-
-    public function show($organizationName, $repositoryName, $issueNumber)
-    {
-        // User repositories have "user" as organization name in the URL, while being null in the DB
-        if ($organizationName === "user") {
-            $organizationName = null;
-        }
-
-        $organization = Organization::where("name", $organizationName)->first();
         
-        $query = Repository::where("name", $repositoryName);
-        if ($organization) {
-            $query->where("organization_id", $organization->id);
-        }
-        $repository = $query->firstOrFail();
-
-        $issue = ApiHelper::githubApi("/repos/{$repository->full_name}/issues/{$issueNumber}");
-
-        return view("repository.issue", compact("organization", "repository", "issue"));
     }
+
+    public function updateIssues() {
+        $repositories = Repository::all();
+        $repoCanidates = [];
+        foreach ($repositories as $repository) {
+            if ($repository->last_updated < now()->subMinutes(60)) {
+                $repoCanidates[] = $repository;
+            }
+        }
+    }
+
 }

@@ -31,5 +31,5 @@ Artisan::command("repositories:update", function () {
 // Schedule the command to run every other day at 2 AM
 Schedule::command("organizations:update")->cron("0 2 */2 * *");
 
-// Schedule the command to run every day at 2 AM
-Schedule::command("repositories:update")->cron("0 2 * * *");
+// Schedule the command to run every hour (we need this so issues and PRs are updated more frequently)
+Schedule::command("repositories:update")->cron("0 * * * *");
