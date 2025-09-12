@@ -23,7 +23,12 @@ class IssueController extends Controller
             $query->where("organization_id", $organization->id);
         }
 
-        
+        $repository = $query->firstOrFail();
+
+        $page = request()->query("page", 1);
+        $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=60");
+
+        dd($apiIssues);
     }
 
     public function updateIssues() {
