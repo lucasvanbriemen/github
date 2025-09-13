@@ -74,8 +74,8 @@ class IssueController extends Controller
                             "state" => $issue->state,
                             "opened_by" => $issue->user->login,
                             "opened_by_image" => $issue->user->avatar_url,
-                            "labels" => $issue->labels,
-                            "assignees" => $issue->assignees,
+                            "labels" => json_encode($issue->labels),
+                            "assignees" => json_encode($issue->assignees),
                         ]
                     );
                 }
