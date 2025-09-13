@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('issues', function (Blueprint $table) {
             //
             $table->string('opened_by')->nullable();
-            $table->timestamp('opened_by_image')->nullable();
+            $table->string('opened_by_image')->nullable();
 
             $table->json('labels')->nullable();
             $table->json('assignees')->nullable();
