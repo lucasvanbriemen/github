@@ -26,7 +26,7 @@ class IssueController extends Controller
 
         $repository = $query->firstOrFail();
 
-        $issues = $repository->issues();
+        $issues = $repository->issues()->paginate(30);
 
         return view("repository.issues", [
             "organization" => $organization,

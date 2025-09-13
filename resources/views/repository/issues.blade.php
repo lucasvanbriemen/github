@@ -11,6 +11,10 @@
   @include("repository.sidebar")
 
   <div class="issues-list">
-   
+    @foreach ($issues as $issue)
+    @include("repository.issue_card")
+    @endforeach
+
+    {{ $issues->links() }}
   </div>
 </x-app-layout>
