@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('issue', function (Blueprint $table) {
+        Schema::create('issues', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->integer('github_id')->unique();
+            $table->unsignedBigInteger('github_id')->unique();
             $table->string('repository_full_name');
             $table->unsignedBigInteger('number');
             $table->string('title')->nullable();
