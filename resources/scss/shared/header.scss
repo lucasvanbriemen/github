@@ -1,6 +1,7 @@
 .header {
   height: 3.5rem;
   background-color: var(--background-color-one);
+  position: relative;
 
   display: flex;
   align-items: center;
@@ -15,5 +16,27 @@
   h1 {
     font-size: 1.5rem;
     margin-left: 1rem;
+  }
+
+  .header-right {
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+
+    transform: translateY(-50%);
+    text-align: right;
+
+    .api-rate-bar {
+      width: 10rem;
+      height: 0.5rem;
+      background-color: var(--text-color-secondary);
+      border-radius: 1rem;
+
+      .api-rate-bar-fill {
+        height: 100%;
+        background-color: var(--primary-color-value);
+        border-radius: 1rem;
+      }
+    }
   }
 }

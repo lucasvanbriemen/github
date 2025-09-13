@@ -2,8 +2,13 @@
 
 namespace App\Helpers;
 
+use App\Models\SystemInfo;
+
 class ApiHelper
 {
+
+	public static $MAX_CALLS_PER_HOUR = 5000;
+
 	public static $base = "https://api.github.com";
 	public static $token;
 	public static $headers = [];
@@ -21,7 +26,9 @@ class ApiHelper
 
 	public static function githubApi($route)
 	{
-		ApiHelper::init();
+		self::init();
+		self::updateApiCount();
+
 		$fullUrl = self::$base . $route;
 
 		$ch = curl_init($fullUrl);
@@ -36,6 +43,17 @@ class ApiHelper
 		} else {
 			return null;
 		}
+	}
+
+	private static function updateApiCount()
+	{
+		$systemInfo = SystemInfo::first();
+		if (!$systemInfo) {
+				$systemInfo = new SystemInfo();
+				$systemInfo->api_count = 0;
+		}
+		$systemInfo->api_count += 1;
+		$systemInfo->save();
 	}
 
 	private static function formatHeaders()
