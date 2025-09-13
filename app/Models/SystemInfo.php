@@ -9,6 +9,12 @@ class SystemInfo extends Model
     protected $table = 'system_info';
 
     public $fillable = [
-        'api_count',
+        "api_url",
+        "expires_at",
     ];
+
+    public static function tokens_used(): int
+    {
+        return self::where('expires_at', '>', now()->subHour())->count();
+    }
 }

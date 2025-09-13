@@ -27,7 +27,7 @@ class ApiHelper
 	public static function githubApi($route)
 	{
 		self::init();
-		self::updateApiCount();
+		self::updateSystemInfo(self::$base . $route);
 
 		$fullUrl = self::$base . $route;
 
@@ -45,14 +45,12 @@ class ApiHelper
 		}
 	}
 
-	private static function updateApiCount()
+	private static function updateSystemInfo($url)
 	{
-		$systemInfo = SystemInfo::first();
-		if (!$systemInfo) {
-				$systemInfo = new SystemInfo();
-				$systemInfo->api_count = 0;
-		}
-		$systemInfo->api_count += 1;
+		$systemInfo = new SystemInfo([
+				"api_url" => $url,
+				"expires_at" => now()->addHours(1),
+		]);
 		$systemInfo->save();
 	}
 
