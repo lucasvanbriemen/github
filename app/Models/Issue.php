@@ -25,4 +25,9 @@ class Issue extends Model
     "labels",
     "assignees"
   ];
+
+  protected $casts = [
+    "labels" => "array",
+    "assignees" => "array",
+  ];
 }
