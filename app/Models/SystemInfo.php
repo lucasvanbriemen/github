@@ -17,4 +17,9 @@ class SystemInfo extends Model
     {
         return self::where('expires_at', '>', now()->subHour())->count();
     }
+
+    public static function removeExpired(): void
+    {
+        self::where('expires_at', '<=', now()->subHour())->delete();
+    }
 }
