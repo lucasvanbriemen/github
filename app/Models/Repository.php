@@ -30,6 +30,13 @@ class Repository extends Model
       ->orderBy("last_updated", "desc");
   }
 
+  public function openIssues()
+  {
+    return $this->hasMany(Issue::class, "repository_full_name", "full_name")
+      ->where("state", "open")
+      ->orderBy("last_updated", "desc");
+  }
+
   public $fillable = [
     "organization_id",
     "name",

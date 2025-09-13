@@ -6,6 +6,7 @@ use App\Helpers\ApiHelper;
 use App\Models\Organization;
 use App\Models\Repository;
 use App\Models\Issue;
+use Carbon\Carbon;
 
 class IssueController extends Controller
 {
@@ -25,21 +26,22 @@ class IssueController extends Controller
 
         $repository = $query->firstOrFail();
 
-        $page = request()->query("page", 90);
-        $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all");
+        $issues = $repository->issues();
 
-        self::updateIssues();
-
-        dd($apiIssues[2]);
+        return view("repository.issues", [
+            "organization" => $organization,
+            "repository" => $repository,
+            "issues" => $issues,
+        ]);
     }
 
     public function updateIssues() {
         $repositories = Repository::all();
         $repoCanidates = [];
         foreach ($repositories as $repository) {
-            // if ($repository->last_updated > now()->subMinutes(60)) {
-            //     continue;
-            // }
+            if ($repository->last_updated > now()->subMinutes(60)) {
+                continue;
+            }
 
             $repoCanidates[] = $repository;
         }
@@ -51,7 +53,7 @@ class IssueController extends Controller
             $max_page = 99;
 
             for ($page = 1; $page <= $max_page; $page++) {
-                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all");
+                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all&since={$last_update_after}");
                 if (empty($apiIssues)) {
                     break;
                 }
@@ -67,7 +69,7 @@ class IssueController extends Controller
                             "number" => $issue->number,
                             "title" => $issue->title,
                             "body" => $issue->body,
-                            "last_updated" => $issue->updated_at,
+                            "last_updated" => Carbon::parse($issue->updated_at)->format('Y-m-d H:i:s'),
                             "state" => $issue->state,
                         ]
                     );
