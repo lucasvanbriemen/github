@@ -26,7 +26,7 @@ class IssueController extends Controller
 
         $repository = $query->firstOrFail();
 
-        $issues = $repository->issues()->paginate(30);
+        $issues = $repository->openIssues()->paginate(30);
 
         return view("repository.issues", [
             "organization" => $organization,
@@ -62,6 +62,7 @@ class IssueController extends Controller
                         // It's a pull request, skip it
                         continue;
                     }
+
                     Issue::updateOrCreate(
                         ["github_id" => $issue->id],
                         [
@@ -71,6 +72,10 @@ class IssueController extends Controller
                             "body" => $issue->body,
                             "last_updated" => Carbon::parse($issue->updated_at)->format('Y-m-d H:i:s'),
                             "state" => $issue->state,
+                            "opened_by" => $issue->user->login,
+                            "opened_by_image" => $issue->user->avatar_url,
+                            "labels" => $issue->labels,
+                            "assignees" => $issue->assignees,
                         ]
                     );
                 }

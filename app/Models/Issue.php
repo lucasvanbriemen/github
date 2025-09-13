@@ -19,6 +19,10 @@ class Issue extends Model
     "title",
     "body",
     "last_updated",
-    "state"
+    "state",
+    "opened_by",
+    "opened_by_image",
+    "labels",
+    "assignees"
   ];
 }
