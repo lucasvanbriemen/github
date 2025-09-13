@@ -47,13 +47,13 @@ class IssueController extends Controller
         }
 
         foreach ($repoCanidates as $repository) {
-            // $last_update_after = now()->subHours(6)->toIso8601String();
+            $last_update_after = now()->subHours(6)->toIso8601String();
             
             // Github stops at page 100
             $max_page = 99;
 
             for ($page = 1; $page <= $max_page; $page++) {
-                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all");
+                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all&since={$last_update_after}");
                 if (empty($apiIssues)) {
                     break;
                 }
