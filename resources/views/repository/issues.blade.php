@@ -8,8 +8,6 @@
     <a href="{{ route('repository.show', [$organization->name, $repository->name]) }}"><h1>{{ $repository->full_name }}</h1></a>
   </x-slot>
 
-  <div class="compoment" data-component="pagination"></div>
-
   @include("repository.sidebar")
 
   <div class="issues-list">

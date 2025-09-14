@@ -15,7 +15,3 @@ app.setLoading(false);
 if (window.start) {
   window[window.start].init();
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-  components.init();
-});
