@@ -1,5 +1,5 @@
 <div class="sidebar">
-  <a href="{{ route("repository.show", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs('repository.show.*') ? 'active' : '' }}">
+  <a href="{{ route("repository.show", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs('repository.show') ? 'active' : '' }}">
     Code
   </a>
   

@@ -20,4 +20,10 @@
     </h3>
     <span class='opened-by'>Opened by {{ $issue->opened_by }} <img src="{{ $issue->opened_by_image }}" alt="{{ $issue->opened_by }}"> on {{ $issue->created_at->format('M d, Y') }}</span>
   </div>
+
+  <div class="side-info">
+    @foreach ($issue->assignees as $assignee)
+      <img src="{{ $assignee['avatar_url'] }}">      
+    @endforeach
+  </div>
 </a>
