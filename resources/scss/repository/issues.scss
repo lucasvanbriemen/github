@@ -9,6 +9,11 @@
     background-color: var(--background-color);
     position: relative;
 
+    &:hover {
+      background-color: var(--primary-color-dark);
+      cursor: pointer;
+    }
+
     .main-info {
       display: flex;
       flex-direction: column;
