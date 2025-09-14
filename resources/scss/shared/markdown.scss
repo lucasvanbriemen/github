@@ -28,4 +28,10 @@
     border-radius: 1rem;
     margin: 1rem 0;
   }
+
+  p>code {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    color: var(--text-color) !important;
+  }
 }
