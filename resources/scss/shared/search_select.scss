@@ -51,6 +51,10 @@
     cursor: pointer;
   }
 
+  .option-item.is-hidden {
+    display: none;
+  }
+
   .option-item:hover {
     background: var(--background-color-two);
   }
