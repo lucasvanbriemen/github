@@ -3,7 +3,6 @@ export default {
 
   init() {
     const compoments = document.querySelectorAll('[data-component]');
-    console.log('Found components:', compoments);
     compoments.forEach(compoment => {
       const name = compoment.getAttribute('data-component');
       const data = compoment.getAttribute('data-component-data');
@@ -17,29 +16,17 @@ export default {
   },
 
   renderComponent(name, target, data = {}) {
-    fetch(`${this.baseURL}/${name}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-    })
-    .then(response => response.json())
+    api.get(`${this.baseURL}/${name}`)
     .then(data => {
       target.innerHTML = data.view;
       eval(data.js);
 
-      if (data.scss) {
-        const style = document.createElement('style');
-        style.textContent = data.scss;
-        document.head.appendChild(style);
-      }
+      const style = document.createElement('style');
+      style.textContent = data.scss;
+      document.head.appendChild(style);
 
       target.setAttribute('data-component-loaded', 'loaded');
+      app.setLoading(false);
     })
-    .catch(error => {
-      console.error('Error loading component:', error);
-      target.setAttribute('data-component-loaded', 'error');
-    });
   }
 };
