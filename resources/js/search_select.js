@@ -43,7 +43,7 @@ export default {
         const text = opt.querySelector('.main-text')?.textContent?.toLowerCase() ?? '';
         const val = (opt.dataset.value || '').toLowerCase();
         const match = !q || text.includes(q) || val.includes(q);
-        opt.style.display = match ? '' : 'none';
+        opt.classList.toggle('is-hidden', !match);
       });
     });
 
@@ -61,7 +61,7 @@ export default {
         });
 
         if (!target) {
-          target = options.find((opt) => opt.style.display !== 'none') || options[0];
+          target = options.find((opt) => !opt.classList.contains('is-hidden')) || options[0];
         }
 
         if (target) this.selectOption(select, input, target);
