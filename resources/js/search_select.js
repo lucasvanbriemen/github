@@ -6,49 +6,11 @@ export default {
 
   enhance(wrapper) {
     const select = wrapper.querySelector('select.search-select');
-    let ui = wrapper.querySelector('.select-ui-wrapper');
-    if (!select) return;
+    const ui = wrapper.querySelector('.select-ui-wrapper');
+    const input = ui?.querySelector('input.search-input');
+    const options = Array.from(ui?.querySelectorAll('.option-item') || []);
 
-    // Auto-generate UI from native select if missing
-    if (!ui) {
-      ui = document.createElement('div');
-      ui.className = 'select-ui-wrapper';
-
-      const inputEl = document.createElement('input');
-      inputEl.type = 'text';
-      inputEl.className = 'search-input';
-      inputEl.setAttribute('placeholder', 'Filter options...');
-
-      const list = document.createElement('div');
-      list.className = 'option-wrapper';
-
-      Array.from(select.options).forEach((opt) => {
-        const item = document.createElement('div');
-        item.className = 'option-item';
-        item.dataset.value = opt.value;
-
-        const main = document.createElement('div');
-        main.className = 'main-text';
-        main.textContent = opt.textContent;
-
-        const sub = document.createElement('div');
-        sub.className = 'sub-text';
-        sub.textContent = '';
-
-        item.appendChild(main);
-        item.appendChild(sub);
-        list.appendChild(item);
-      });
-
-      ui.appendChild(inputEl);
-      ui.appendChild(list);
-      wrapper.appendChild(ui);
-    }
-
-    const input = ui.querySelector('input.search-input');
-    const options = Array.from(ui.querySelectorAll('.option-item'));
-
-    if (!input || options.length === 0) return;
+    if (!select || !ui || !input || options.length === 0) return;
 
     // Initialize input to current selection text
     const selected = select.options[select.selectedIndex];

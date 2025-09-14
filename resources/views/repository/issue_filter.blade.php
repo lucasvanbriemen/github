@@ -25,8 +25,8 @@
     </div>
   </div>
 
-  <div>
-    <select name="assignee">
+  <div class="search-select-wrapper">
+    <select name="assignee" class="search-select">
       <option value="" {{ empty($filters['assignee']) ? 'selected' : '' }}>Any</option>
       <option value="unassigned" {{ ($filters['assignee'] ?? '') === 'unassigned' ? 'selected' : '' }}>Unassigned</option>
       @foreach(($assignees) as $a)
@@ -35,7 +35,22 @@
         </option>
       @endforeach
     </select>
+
+    <div class="select-ui-wrapper">
+      <input type="text" name="search" value="{{ $filters['assignee'] ?? "any" }}" class="search-input">
+      <div class='option-wrapper'>
+        @foreach($assignees as $assignee)
+          <div class='option-item' data-value='{{ $assignee->name }}'>
+            <div class="main-text">{{ $assignee->name }}</div>
+            <div class="sub-text">
+              <img src='{{ $assignee->avatar_url }}' alt='{{ $assignee->name }}' style='width:16px; height:16px; border-radius:50%; vertical-align:middle; margin-right:4px;'>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
   </div>
+
 
   <button type="submit" class="btn">Apply</button>
 </form>

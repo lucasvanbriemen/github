@@ -38,7 +38,9 @@
   }
 
   .open .option-wrapper {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .option-item {
@@ -49,27 +51,27 @@
     padding: 6px 8px;
     border-radius: 6px;
     cursor: pointer;
-  }
 
-  .option-item.is-hidden {
-    display: none;
-  }
+    &:hover {
+      background: var(--background-color-two);
+    }
 
-  .option-item:hover {
-    background: var(--background-color-two);
-  }
+    &.active {
+      background: var(--primary-color-dark);
+      outline: 1px solid var(--primary-color);
+    }
 
-  .option-item.active {
-    background: var(--primary-color-dark);
-    outline: 1px solid var(--primary-color);
-  }
+    &.is-hidden {
+      display: none;
+    }
 
-  .option-item .main-text {
-    font-weight: 600;
-  }
+    .main-text {
+      font-weight: 600;
+    }
 
-  .option-item .sub-text {
-    font-size: 12px;
-    color: var(--subtext-color);
+    .sub-text {
+      font-size: 12px;
+      color: var(--subtext-color);
+    }
   }
 }
