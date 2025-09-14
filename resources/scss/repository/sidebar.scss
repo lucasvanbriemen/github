@@ -24,7 +24,7 @@
     }
 
     &.active {
-      border-color: var(--primary-color-value);
+      border-color: var(--primary-color-dark);
       color: var(--text-color);
     }
 
@@ -33,7 +33,7 @@
       right: 0.5rem;
       top: 50%;
       transform: translateY(-50%);
-      background-color: var(--primary-color-value);
+      background-color: var(--primary-color-dark);
       color: var(--text-color);
       border-radius: 1rem;
       padding: 0.25rem 0.5rem;
