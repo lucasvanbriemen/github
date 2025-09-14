@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schedule;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\IssueController;
+use App\Http\Controllers\RepositoryUserController;
 use App\Models\SystemInfo;
 use App\Models\Console;
 
@@ -55,12 +56,28 @@ Artisan::command("system:remove_expired", function () {
     Console::create(["command" => "system:remove_expired", "successful" => true, "executed_at" => now()]);
 })->purpose("Remove expired system info from the database");
 
+Artisan::command("repository_users:update", function () {
+    $this->info("Updating repository users from GitHub API...");
+
+    try {
+        RepositoryUserController::updateRepositoryUsers();
+        $this->info("Repository users updated successfully!");
+        Console::create(["command" => "repository_users:update", "successful" => true, "executed_at" => now()]);
+    } catch (\Exception $e) {
+        $this->error("Failed to update repository users: " . $e->getMessage());
+        Console::create(["command" => "repository_users:update", "successful" => false, "executed_at" => now()]);
+    }
+})->purpose("Update repository users from GitHub API");
+
 // Schedule the command to run every other day at 2 AM
 Schedule::command("organizations:update")->cron("0 2 */2 * *");
 
 // Schedule the command to run every hour (we need this so issues and PRs are updated more frequently)
 Schedule::command("repositories:update")->cron("0 * * * *");
 Schedule::command("issues:update")->cron("0 * * * *");
+
+// Schedule the command to run daily at 1 AM to update repository users
+Schedule::command("repository_users:update")->dailyAt("1:00");
 
 // Schedule the command to run daily at 3 AM to clean up expired system info
 Schedule::command("system:remove_expired")->dailyAt("3:30");
