@@ -23,7 +23,7 @@
 
   <div class="side-info">
     @foreach ($issue->assignees as $assignee)
-      <img src="{{ $assignee['avatar_url'] }}">      
+      <img src="{{ $assignee['avatar_url'] }}">
     @endforeach
   </div>
 </a>

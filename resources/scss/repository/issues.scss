@@ -1,5 +1,33 @@
 .repository-page .issues-list {
   .issue-card {
     background-color: var(--background-color);
+
+    .main-info {
+      display: flex;
+      flex-direction: column;
+
+      .issue-title {
+        font-size: 1.25rem;
+
+        .label {
+          margin: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 1rem;
+          font-size: 0.75rem;
+        }
+      }
+
+      .opened-by {
+        font-size: 0.8rem;
+        color: var(--text-color-secondary);
+        display: flex;
+
+        img {
+          width: 1.24rem;
+          height: 1.25rem;
+          margin: 0rem 0.25rem;
+        }
+      }
+    }
   }
 }
