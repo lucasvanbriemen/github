@@ -3,6 +3,10 @@
     color: var(--text-color);
     font-weight: 600;
     margin-top: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    width: fit-content;
+    min-width: 50%;
+    margin-bottom: 0.5rem;
   }
 
   h1 {
