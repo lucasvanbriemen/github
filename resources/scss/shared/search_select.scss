@@ -1,0 +1,71 @@
+.search-select-wrapper {
+  position: relative;
+  display: inline-block;
+
+  select {
+    display: none;
+  }
+
+  .select-ui-wrapper {
+    position: relative;
+    width: 220px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--background-color);
+    color: var(--text-color);
+    outline: none;
+  }
+
+  .option-wrapper {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    max-height: 240px;
+    overflow: auto;
+    padding: 4px;
+    display: none;
+    z-index: 20;
+  }
+
+  .open .option-wrapper {
+    display: block;
+  }
+
+  .option-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .option-item:hover {
+    background: var(--hover-background-color);
+  }
+
+  .option-item.active {
+    background: var(--accent-background-color);
+    outline: 1px solid var(--accent-color);
+  }
+
+  .option-item .main-text {
+    font-weight: 600;
+  }
+
+  .option-item .sub-text {
+    font-size: 12px;
+    color: var(--subtext-color);
+  }
+}

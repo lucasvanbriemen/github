@@ -19,4 +19,5 @@
 
     {{ $issues->links() }}
   </div>
+  <script>window.start = "search_select";</script>
 </x-app-layout>
