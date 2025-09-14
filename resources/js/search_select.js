@@ -17,6 +17,9 @@ export default {
     const selectedValue = selected?.value ?? '';
     const selectedItem = options.find(o => o.dataset.value === selectedValue);
     input.value = selectedItem?.querySelector('.main-text')?.textContent?.trim() || selected?.text || '';
+    if (selectedItem) {
+      selectedItem.classList.add('active');
+    }
 
     // Open/close behavior
     const open = () => ui.classList.add('open');
@@ -91,4 +94,3 @@ export default {
     optionEl.classList.add('active');
   },
 };
-
