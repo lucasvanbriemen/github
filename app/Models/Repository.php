@@ -24,6 +24,11 @@ class Repository extends Model
     return $this->belongsTo(Organization::class, "organization_id", "organization_id");
   }
 
+  public function users()
+  {
+    return $this->hasMany(RepositoryUser::class);
+  }
+
   public function issues($state = null, $assignee = null)
   {
     $relation = $this->hasMany(Issue::class, "repository_full_name", "full_name")
