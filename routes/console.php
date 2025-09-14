@@ -41,6 +41,10 @@ Artisan::command("issues:update", function () {
     }
 });
 
+Artisan::command("inspire", function () {
+    $this->comment(Inspiring::quote());
+})->purpose("Display an inspiring quote");
+
 Artisan::command("system:remove_expired", function () {
     $this->info("Removing expired system info from the database...");
     SystemInfo::removeExpired();
