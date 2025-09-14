@@ -24,17 +24,32 @@ class Repository extends Model
     return $this->belongsTo(Organization::class, "organization_id", "organization_id");
   }
 
-  public function issues()
+  public function issues($state = null, $assignee = null)
   {
-    return $this->hasMany(Issue::class, "repository_full_name", "full_name")
+    $relation = $this->hasMany(Issue::class, "repository_full_name", "full_name")
       ->orderBy("last_updated", "desc");
+
+    if ($state && in_array($state, ["open", "closed"])) {
+      $relation->where("state", $state);
+    }
+
+    if ($assignee !== null && $assignee !== "") {
+      if ($assignee === "unassigned") {
+        $relation->where(function ($q) {
+          $q->whereNull('assignees')
+            ->orWhereRaw('JSON_LENGTH(assignees) = 0');
+        });
+      } else {
+        $relation->whereJsonContains('assignees', ['login' => $assignee]);
+      }
+    }
+
+    return $relation;
   }
 
   public function openIssues()
   {
-    return $this->hasMany(Issue::class, "repository_full_name", "full_name")
-      ->where("state", "open")
-      ->orderBy("last_updated", "desc");
+    return $this->issues('open');
   }
 
   public $fillable = [

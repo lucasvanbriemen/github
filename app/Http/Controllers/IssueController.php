@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
+use Illuminate\Http\Request;
 use App\Models\Organization;
 use App\Models\Repository;
 use App\Models\Issue;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 
 class IssueController extends Controller
 {
-    public function index($organizationName, $repositoryName)
+    public function index($organizationName, $repositoryName, Request $request)
     {
         // User repositories have "user" as organization name in the URL, while being null in the DB
         if ($organizationName === "user") {
@@ -26,12 +27,40 @@ class IssueController extends Controller
 
         $repository = $query->firstOrFail();
 
-        $issues = $repository->openIssues()->paginate(30);
+        // Filters
+        $state = $request->query('state', 'open'); // open | closed | all
+        $assignee = $request->query('assignee');   // username | unassigned | null
+
+        $stateParam = $state === 'all' ? null : $state;
+        $issues = $repository->issues($stateParam, $assignee)
+            ->paginate(30)
+            ->appends($request->query());
+
+        // Build assignee options from all issues in repository
+        $allAssignees = [];
+        $repository->issues()->select('assignees')->chunk(500, function ($rows) use (&$allAssignees) {
+            foreach ($rows as $row) {
+                if (empty($row->assignees) || !is_array($row->assignees)) continue;
+                foreach ($row->assignees as $a) {
+                    if (!isset($a['login'])) continue;
+                    $allAssignees[$a['login']] = [
+                        'login' => $a['login'],
+                        'avatar_url' => $a['avatar_url'] ?? null,
+                    ];
+                }
+            }
+        });
+        ksort($allAssignees);
 
         return view("repository.issues", [
             "organization" => $organization,
             "repository" => $repository,
             "issues" => $issues,
+            "filters" => [
+                'state' => $state,
+                'assignee' => $assignee,
+            ],
+            "assignees" => array_values($allAssignees),
         ]);
     }
 
