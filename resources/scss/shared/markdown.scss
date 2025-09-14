@@ -19,10 +19,13 @@
 
   code, pre {
     background-color: var(--background-color-two) !important;
+    width: fit-content;
+    min-width: 50%;
   }
   
   pre {
     padding: 1rem;
     border-radius: 1rem;
+    margin: 1rem 0;
   }
 }
