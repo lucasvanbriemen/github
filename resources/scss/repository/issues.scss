@@ -1,4 +1,9 @@
 .repository-page .issues-list {
+  .filters {
+    background-color: var(--background-color-two);
+    justify-content: flex-end;
+  }
+
   .issue-card {
     background-color: var(--background-color);
     position: relative;

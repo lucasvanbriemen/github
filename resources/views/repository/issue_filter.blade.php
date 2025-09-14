@@ -52,5 +52,5 @@
   </div>
 
 
-  <button type="submit" class="btn">Apply</button>
+  <button type="submit" class="button-primary">Apply</button>
 </form>
