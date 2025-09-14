@@ -27,8 +27,8 @@ export default {
 
     input.addEventListener('focus', open);
     input.addEventListener('click', (e) => {
-      // toggle if already open and clicking the input
-      if (ui.classList.contains('open')) { close(); } else { open(); }
+      // Always open on click to avoid focus+click toggle close on first click
+      open();
       e.stopPropagation();
     });
 
