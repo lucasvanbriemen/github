@@ -56,3 +56,8 @@ Schedule::command("issues:update")->cron("0 * * * *");
 
 // Schedule the command to run daily at 3 AM to clean up expired system info
 Schedule::command("system:remove_expired")->dailyAt("3:00");
+
+Schedule::command("inspire")
+    ->hourly()
+    ->sendOutputTo(storage_path("logs/inspire.log"))
+    ->appendOutputTo(storage_path("logs/inspire.log"));
