@@ -1,6 +1,7 @@
 .repository-page .issues-list {
   .issue-card {
     background-color: var(--background-color);
+    position: relative;
 
     .main-info {
       display: flex;
@@ -28,6 +29,17 @@
           margin: 0rem 0.25rem;
         }
       }
+    }
+
+    .side-info {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+
+      display: flex;
+
+      gap: 0.5rem;
+
     }
   }
 }
