@@ -36,21 +36,8 @@ class IssueController extends Controller
             ->paginate(30)
             ->appends($request->query());
 
-        // Build assignee options from all issues in repository
-        $allAssignees = [];
-        $repository->issues()->select('assignees')->chunk(500, function ($rows) use (&$allAssignees) {
-            foreach ($rows as $row) {
-                if (empty($row->assignees) || !is_array($row->assignees)) continue;
-                foreach ($row->assignees as $a) {
-                    if (!isset($a['login'])) continue;
-                    $allAssignees[$a['login']] = [
-                        'login' => $a['login'],
-                        'avatar_url' => $a['avatar_url'] ?? null,
-                    ];
-                }
-            }
-        });
-        ksort($allAssignees);
+
+        $assignees = $repository->users;
 
         return view("repository.issues", [
             "organization" => $organization,
@@ -60,7 +47,7 @@ class IssueController extends Controller
                 'state' => $state,
                 'assignee' => $assignee,
             ],
-            "assignees" => array_values($allAssignees),
+            "assignees" => $assignees,
         ]);
     }
 

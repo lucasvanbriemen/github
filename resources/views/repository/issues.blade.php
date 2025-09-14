@@ -26,9 +26,9 @@
         <select name="assignee">
           <option value="" {{ empty($filters['assignee']) ? 'selected' : '' }}>Any</option>
           <option value="unassigned" {{ ($filters['assignee'] ?? '') === 'unassigned' ? 'selected' : '' }}>Unassigned</option>
-          @foreach(($assignees ?? []) as $a)
-            <option value="{{ $a['login'] }}" {{ ($filters['assignee'] ?? '') === $a['login'] ? 'selected' : '' }}>
-              {{ $a['login'] }}
+          @foreach(($assignees) as $a)
+            <option value="{{ $a->name }}" {{ ($filters['assignee'] ?? '') === $a->name ? 'selected' : '' }}>
+              {{ $a->name }}
             </option>
           @endforeach
         </select>
