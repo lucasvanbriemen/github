@@ -12,32 +12,39 @@ class RepositoryUserController extends Controller
     {
         // Fetch all repositories
         $repositories = Repository::all();
-        $repoCanidates = [];
+        $repoCanidates = $repositories;
         
         foreach ($repositories as $repository) {
-            $repoCanidates[] = $repository;
+
+            if (!$repository->organization) {
+                continue;
+            }
+
+            $repoCanidates[] = $repositories;
         }
 
 
         foreach ($repoCanidates as $repository) {
-                // Fetch contributors from GitHub API
+            // Fetch contributors from GitHub API
             $contributors = githubApi("/repos/" . $repository->full_name . "/contributors");
+
+            if (!$contributors) {
+                continue;
+            }
 
             foreach ($contributors as $contributor) {
                 // Update or create repository user
                 RepositoryUser::updateOrCreate(
                     [
                         'repository_id' => $repository->id,
-                        'user_id' => $contributor['id'],
+                        'user_id' => $contributor->id,
                     ],
                     [
-                        'name' => $contributor['login'],
-                        'avatar_url' => $contributor['avatar_url'],
+                        'name' => $contributor->login,
+                        'avatar_url' => $contributor->avatar_url,
                     ]
                 );
             }
-
         }
-        
     }
 }
