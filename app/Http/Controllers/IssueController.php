@@ -36,7 +36,6 @@ class IssueController extends Controller
             ->paginate(30)
             ->appends($request->query());
 
-
         $assignees = $repository->users;
 
         return view("repository.issues", [
@@ -48,6 +47,33 @@ class IssueController extends Controller
                 'assignee' => $assignee,
             ],
             "assignees" => $assignees,
+        ]);
+    }
+
+    public static function show($organizationName, $repositoryName, $issueNumber)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === "user") {
+            $organizationName = null;
+        }
+
+        $organization = Organization::where("name", $organizationName)->first();
+        
+        $query = Repository::where("name", $repositoryName);
+        if ($organization) {
+            $query->where("organization_id", $organization->id);
+        }
+
+        $repository = $query->firstOrFail();
+
+        $issue = Issue::where("repository_full_name", $repository->full_name)
+            ->where("number", $issueNumber)
+            ->firstOrFail();
+
+        return view("repository.issue", [
+            "organization" => $organization,
+            "repository" => $repository,
+            "issue" => $issue,
         ]);
     }
 
