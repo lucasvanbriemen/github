@@ -62,6 +62,6 @@ Schedule::command("issues:update")->cron("0 * * * *");
 Schedule::command("system:remove_expired")->dailyAt("3:00");
 
 Schedule::command("inspire")
-    ->hourly()
+    ->everyFifteenSeconds()
     ->sendOutputTo(storage_path("logs/inspire.log"))
     ->appendOutputTo(storage_path("logs/inspire.log"));
