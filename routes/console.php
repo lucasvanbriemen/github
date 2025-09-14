@@ -59,7 +59,7 @@ Schedule::command("repositories:update")->cron("0 * * * *");
 Schedule::command("issues:update")->cron("0 * * * *");
 
 // Schedule the command to run daily at 3 AM to clean up expired system info
-Schedule::command("system:remove_expired")->dailyAt("3:00");
+Schedule::command("system:remove_expired")->dailyAt("3:30");
 
 Schedule::command("inspire")
     ->everyFifteenSeconds()
