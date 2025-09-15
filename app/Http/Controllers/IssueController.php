@@ -141,12 +141,17 @@ class IssueController extends Controller
         $repo = $issue->repository;
         if (!$repo) return;
 
-        $timelineData = ApiHelper::githubApiPaginated("/repos/{$repo->full_name}/issues/{$issue->number}/timeline");
+        // Github stops at page 100
+        $max_page = 99;
 
-        if (!$timelineData) return;
-
-        foreach ($timelineData as $event) {
-            self::processTimelineEvent($issue, $event);
+        for ($page = 1; $page <= $max_page; $page++) {
+            $timelineData = ApiHelper::githubApi("/repos/{$repo->full_name}/issues/{$issue->number}/timeline?page={$page}&per_page=100");
+            if (empty($timelineData)) {
+                break;
+            }
+            foreach ($timelineData as $event) {
+                self::processTimelineEvent($issue, $event);
+            }
         }
     }
 
