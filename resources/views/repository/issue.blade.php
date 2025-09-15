@@ -12,5 +12,10 @@
 
   <div class="issues-list">
     <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
+
+    <div class="timeline-section">
+      <h3>Timeline</h3>
+      @dump($issue->timeline)
+    </div>
   </div>
 </x-app-layout>

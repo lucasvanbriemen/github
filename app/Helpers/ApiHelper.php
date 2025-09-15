@@ -45,6 +45,29 @@ class ApiHelper
 		}
 	}
 
+	public static function githubApiPaginated($route, $perPage = 100)
+	{
+		$allData = [];
+		$page = 1;
+
+		do {
+			$separator = strpos($route, '?') !== false ? '&' : '?';
+			$paginatedRoute = $route . $separator . "page={$page}&per_page={$perPage}";
+
+			$pageData = self::githubApi($paginatedRoute);
+
+			if (!$pageData || !is_array($pageData)) {
+				break;
+			}
+
+			$allData = array_merge($allData, $pageData);
+			$page++;
+
+		} while (count($pageData) == $perPage);
+
+		return $allData;
+	}
+
 	private static function updateSystemInfo($url)
 	{
 		$systemInfo = new SystemInfo([

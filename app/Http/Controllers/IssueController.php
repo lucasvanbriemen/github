@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
+use App\Models\GitHubUser;
+use App\Models\Timeline;
 use Illuminate\Http\Request;
 use App\Models\Organization;
 use App\Models\Repository;
@@ -123,5 +125,75 @@ class IssueController extends Controller
                 }
             }
         }
+    }
+
+    public static function updateTimelines() {
+        $lastHour = Carbon::now()->subCenturies(1);
+        $issues = Issue::where('last_updated', '>=', $lastHour)->get();
+
+        foreach ($issues as $issue) {
+            self::fetchTimelineForIssue($issue);
+        }
+    }
+
+    private static function fetchTimelineForIssue(Issue $issue)
+    {
+        $repo = $issue->repository;
+        if (!$repo) return;
+
+        $timelineData = ApiHelper::githubApiPaginated("/repos/{$repo->full_name}/issues/{$issue->number}/timeline");
+
+        if (!$timelineData) return;
+
+        foreach ($timelineData as $event) {
+            self::processTimelineEvent($issue, $event);
+        }
+    }
+
+    private static function processTimelineEvent(Issue $issue, $event)
+    {
+        $actorGithubId = null;
+
+        // Check if event has an ID (some events like cross-referenced don't have IDs)
+        if (!isset($event->id)) {
+            return;
+        }
+
+        if (isset($event->actor) && isset($event->actor->id)) {
+            $actorData = [
+                'id' => $event->actor->id,
+                'login' => $event->actor->login,
+                'name' => $event->actor->name ?? null,
+                'avatar_url' => $event->actor->avatar_url,
+                'type' => $event->actor->type ?? 'User'
+            ];
+            $githubUser = GitHubUser::createOrUpdate($actorData);
+            $actorGithubId = $githubUser->github_id;
+        }
+
+        Timeline::updateOrCreate(
+            ['github_id' => $event->id],
+            [
+                'issue_id' => $issue->id,
+                'event' => $event->event,
+                'actor_github_id' => $actorGithubId,
+                'data' => self::extractEventData($event),
+                'created_at_github' => Carbon::parse($event->created_at)
+            ]
+        );
+    }
+
+    private static function extractEventData($event)
+    {
+        $data = [];
+        $relevantFields = ['label', 'assignee', 'milestone', 'rename', 'body', 'commit_id', 'commit_url'];
+
+        foreach ($relevantFields as $field) {
+            if (isset($event->$field)) {
+                $data[$field] = $event->$field;
+            }
+        }
+
+        return $data;
     }
 }
