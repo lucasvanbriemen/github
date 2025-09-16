@@ -83,7 +83,7 @@ class IssueController extends Controller
         $repositories = Repository::all();
         
         foreach ($repositories as $repository) {
-            $last_update_after = now()->subHours(6)->toIso8601String();
+            $last_update_after = now()->subHours(168)->toIso8601String();
             $last_update_after = urlencode($last_update_after);
 
             // Github stops at page 100
