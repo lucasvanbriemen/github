@@ -23,7 +23,7 @@
     <div class="timeline-section">
       <h3>Timeline</h3>
       @foreach ($issue->timeline as $event)
-        {!! timelineView($event, $event->data, $event->actor) !!}
+        {!! timelineView($event, $event->data, $event->actor, $issue) !!}
       @endforeach
     </div>
   </div>

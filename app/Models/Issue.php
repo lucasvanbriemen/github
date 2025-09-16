@@ -28,11 +28,14 @@ class Issue extends Model
     "opened_by",
     "opened_by_image",
     "labels",
-    "assignees"
+    "assignees",
+    "state_reason",
+    "closed_by"
   ];
 
   protected $casts = [
     "labels" => "array",
     "assignees" => "array",
+    "closed_by" => "array",
   ];
 }
