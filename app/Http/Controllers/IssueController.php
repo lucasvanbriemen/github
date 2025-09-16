@@ -85,6 +85,10 @@ class IssueController extends Controller
         foreach ($repositories as $repository) {
             $last_update_after = now()->subHours(6)->toIso8601String();
             
+            dump($last_update_after);
+
+            continue;
+
             // Github stops at page 100
             $max_page = 99;
 
