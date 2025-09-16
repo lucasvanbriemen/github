@@ -3,7 +3,11 @@
   <div class='main-info'>
     <h3 class='issue-title'>
       {{ $issue->title }}
-      @foreach ($issue->labels as $label)
+      
+      @php
+        $labels = is_string($issue->labels) ? json_decode($issue->labels, true) : $issue->labels;
+      @endphp
+      @foreach ($labels as $label)
         @php
           $hex = ltrim($label['color'], '#');
           $r = hexdec(substr($hex, 0, 2));
@@ -22,7 +26,13 @@
   </div>
 
   <div class="side-info">
-    @foreach ($issue->assignees as $assignee)
+
+    @php
+      $assignees = is_string($issue->assignees) ? json_decode($issue->assignees, true) : $issue->assignees;
+    @endphp
+
+
+    @foreach ($assignees as $assignee)
       <img src="{{ $assignee['avatar_url'] }}">
     @endforeach
   </div>
