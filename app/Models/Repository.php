@@ -67,4 +67,9 @@ class Repository extends Model
     "pr_count",
     "issue_count",
   ];
+
+  protected $casts = [
+    "private" => "boolean",
+    "last_updated" => "datetime",
+  ];
 }

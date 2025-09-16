@@ -81,16 +81,8 @@ class IssueController extends Controller
 
     public static function updateIssues() {
         $repositories = Repository::all();
-        $repoCanidates = [];
+        
         foreach ($repositories as $repository) {
-            if ($repository->last_updated > now()->subMinutes(60)) {
-                continue;
-            }
-
-            $repoCanidates[] = $repository;
-        }
-
-        foreach ($repoCanidates as $repository) {
             $last_update_after = now()->subHours(6)->toIso8601String();
             
             // Github stops at page 100
