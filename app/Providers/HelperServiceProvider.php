@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Helpers\ApiHelper;
 use App\Helpers\SvgHelper;
 use App\Helpers\DatetimeHelper;
+use App\Helpers\IssueHelper;
 
 class HelperServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,7 @@ class HelperServiceProvider extends ServiceProvider
             ApiHelper::class,
             SvgHelper::class,
             DatetimeHelper::class,
+            IssueHelper::class,
         ];
 
         foreach ($helperClasses as $class) {

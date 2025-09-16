@@ -87,7 +87,7 @@ Schedule::command("organizations:update")->cron("0 2 */2 * *");
 
 // Schedule the command to run every hour (we need this so issues and PRs are updated more frequently)
 Schedule::command("repositories:update")->cron("0 * * * *");
-Schedule::command("issues:update")->cron("0 * * * *");
+Schedule::command("issues:update")->cron("20 * * * *");
 
 // Schedule the command to run daily at 1 AM to update repository users
 Schedule::command("repository_users:update")->dailyAt("1:00");
@@ -96,4 +96,4 @@ Schedule::command("repository_users:update")->dailyAt("1:00");
 Schedule::command("system:remove_expired")->dailyAt("3:30");
 
 // Schedule timeline fetching every hour at :30
-Schedule::command("timelines:fetch")->cron("30 * * * *");
+Schedule::command("timelines:fetch")->cron("40 * * * *");
