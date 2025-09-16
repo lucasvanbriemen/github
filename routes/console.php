@@ -96,4 +96,4 @@ Schedule::command("repository_users:update")->dailyAt("1:00");
 Schedule::command("system:remove_expired")->dailyAt("3:30");
 
 // Schedule timeline fetching every hour at :30
-Schedule::command("timelines:fetch")->cron("40 * * * *");
+// Schedule::command("timelines:fetch")->cron("40 * * * *");
