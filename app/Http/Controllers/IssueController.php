@@ -128,8 +128,9 @@ class IssueController extends Controller
     }
 
     public static function updateTimelines() {
-        $lastHour = Carbon::now()->subCenturies(1);
-        $issues = Issue::where('last_updated', '>=', $lastHour)->get();
+        $lastHour = Carbon::now()->subHour();
+        $issues = Issue::where('last_updated', '>=', $lastHour)
+            ->orderBy('last_updated', 'desc')->get();
 
         foreach ($issues as $issue) {
             self::fetchTimelineForIssue($issue);
