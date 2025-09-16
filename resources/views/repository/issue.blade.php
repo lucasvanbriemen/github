@@ -1,4 +1,4 @@
-<x-app-layout class="repository-page">
+<x-app-layout class="repository-page issue-page">
   <x-slot:header>
     @if ($organization)
       <a href="{{ route('organization.show', $organization->name) }}">
@@ -10,12 +10,21 @@
 
   @include("repository.sidebar")
 
-  <div class="issues-list">
+  <div class="issue-list">
+    <div class="issue-header">
+      <span>{{ $issue->title }}</span>
+      <div class="opened-by">
+        <span class="author"><img src="{{ $issue->opened_by_image }}" alt="{{ $issue->opened_by }}"> {{ $issue->opened_by }}</span>
+        <span class="created-at">{{ $issue->created_at->diffForHumans() }}</span>
+      </div>
+    </div>
     <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
 
     <div class="timeline-section">
       <h3>Timeline</h3>
-      @dump($issue->timeline)
+      @foreach ($issue->timeline as $event)
+        <span class="event-action">{{ $event->event }}</span>
+      @endforeach
     </div>
   </div>
 </x-app-layout>

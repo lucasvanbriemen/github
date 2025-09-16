@@ -1,0 +1,42 @@
+.issue-page {
+  .issue-header {
+    background-color: var(--background-color-two);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 1rem;
+
+    span, .created-at {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .opened-by {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+
+      .created-at {
+        margin-left: 0.5rem;
+        color: var(--text-color-secondary);
+        font-size: 0.9rem;
+      }
+
+      .author {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        font-size: 1;
+      }
+
+      img {
+        width: 1.24rem;
+        height: 1.25rem;
+        margin: 0rem 0.25rem;
+        border-radius: 50%;
+      }
+    }
+  }
+}
