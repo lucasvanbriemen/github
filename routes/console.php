@@ -36,19 +36,6 @@ Artisan::command("repositories:update", function () {
     }
 })->purpose("Update repositories from GitHub API");
 
-Artisan::command("issues:update", function () {
-    $this->info("Updating issues from GitHub API...");
-
-    try {
-        IssueController::updateIssues();
-        $this->info("Issues updated successfully!");
-        Console::create(["command" => "issues:update", "successful" => true, "executed_at" => now()]);
-    } catch (\Exception $e) {
-        $this->error("Failed to update issues: " . $e->getMessage());
-        Console::create(["command" => "issues:update", "successful" => false, "executed_at" => now()]);
-    }
-});
-
 Artisan::command("system:remove_expired", function () {
     $this->info("Removing expired system info from the database...");
     SystemInfo::removeExpired();
