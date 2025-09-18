@@ -17,21 +17,21 @@ class IncomingWebhookController extends Controller
         
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
         
-        // if (in_array($eventType, $this->ISSUE_RELATED)) {
-        //     $this->issue($payload);
-        // }
+        if (in_array($eventType, $this->ISSUE_RELATED)) {
+            $this->issue($payload);
+        }
         
         return response()->json(["message" => "received", "event" => $eventType], 200);
     }
 
     public function issue($payload)
     {
+        return true;
         $issueData = $payload->issue;
         $repositoryData = $payload->repository;
 
         $userData = $issueData->user;
 
-        return true;
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
