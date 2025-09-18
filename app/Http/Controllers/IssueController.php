@@ -70,9 +70,12 @@ class IssueController extends Controller
             ->where("number", $issueNumber)
             ->firstOrFail();
 
+        $timeline = ApiHelper::githubApi("/repos/{$repository->full_name}/issues/{$issueNumber}/timeline");
+
         return view("repository.issue", [
             "organization" => $organization,
             "repository" => $repository,
+            "timeline" => $timeline,
             "issue" => $issue,
         ]);
     }
@@ -80,17 +83,17 @@ class IssueController extends Controller
     public static function updateIssues() {
         $repositories = Repository::all();
         
-        $count = 0;
         foreach ($repositories as $repository) {
-            $last_update_after = now()->subHours(168)->toIso8601String();
-            $last_update_after = urlencode($last_update_after);
+            // Fetch all issues instead of just recent ones
+            // $last_update_after = now()->subHours(168)->toIso8601String();
+            // $last_update_after = urlencode($last_update_after);
 
             // Github stops at page 100
             $max_page = 99;
 
 
             for ($page = 1; $page <= $max_page; $page++) {
-                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all&since={$last_update_after}");
+                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all");
                 if (empty($apiIssues)) {
                     break;
                 }
@@ -99,8 +102,6 @@ class IssueController extends Controller
                         // It's a pull request, skip it
                         continue;
                     }
-
-                    $count++;
 
                     Issue::updateOrCreate(
                         ["github_id" => $issue->id],
@@ -121,6 +122,5 @@ class IssueController extends Controller
             }
 
         }
-        dd("Updated {$count} issues");
     }
 }

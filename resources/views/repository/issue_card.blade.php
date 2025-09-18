@@ -22,7 +22,7 @@
         </span>
       @endforeach
     </h3>
-    <span class='opened-by'>Opened by {{ $issue->opened_by }} <img src="{{ $issue->opened_by_image }}" alt="{{ $issue->opened_by }}"> on {{ $issue->created_at->format('M d, Y') }}</span>
+    <span class='opened-by'>Opened by {{ $issue->opened_by }} <img src="{{ $issue->opened_by_image }}" alt="{{ $issue->opened_by }}"> {{ $issue->created_at->diffForHumans() }}</span>
   </div>
 
   <div class="side-info">
