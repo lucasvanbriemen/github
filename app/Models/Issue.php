@@ -14,23 +14,19 @@ class Issue extends Model
 
   public $fillable = [
     "github_id",
-    "repository_full_name",
+    "repository_id",
+    "opened_by_id",
     "number",
     "title",
     "body",
     "last_updated",
     "state",
-    "opened_by",
-    "opened_by_image",
     "labels",
     "assignees",
-    "state_reason",
-    "closed_by"
   ];
 
   protected $casts = [
     "labels" => "array",
     "assignees" => "array",
-    "closed_by" => "array",
   ];
 }
