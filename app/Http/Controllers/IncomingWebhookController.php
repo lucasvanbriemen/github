@@ -12,6 +12,7 @@ class IncomingWebhookController extends Controller
 
     public function index(Request $request)
     {
+        return response()->json(["message" => "received", "event" => $eventType], 200);
         $headers = $request->headers->all();
         $payload = (object) json_decode($request->getContent(), false) ?? [];
 
@@ -21,7 +22,6 @@ class IncomingWebhookController extends Controller
             $this->issue($payload);
         }
 
-        return response()->json(["message" => "received", "event" => $eventType], 200);
     }
 
     public function issue($payload)
