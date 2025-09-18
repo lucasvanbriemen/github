@@ -32,7 +32,7 @@ return new class extends Migration
 
             // Add repository_id
             if (!Schema::hasColumn('issues', 'repository_id')) {
-                $table->unsignedBigInteger('repository_id')->nullable()->after('id');
+                $table->uuid('repository_id')->nullable()->after('id');
                 $table->foreign('repository_id')->references('id')->on('repositories')->onDelete('cascade');
             }
 

@@ -15,9 +15,8 @@ class Issue extends Model
   }
 
   protected $fillable = [
-    "github_id",
     "repository_id",
-    "opened_by_id",
+    "github_id",
     "number",
     "title",
     "body",
@@ -25,6 +24,7 @@ class Issue extends Model
     "state",
     "labels",
     "assignees",
+    "opened_by_id",
   ];
 
   protected $casts = [
