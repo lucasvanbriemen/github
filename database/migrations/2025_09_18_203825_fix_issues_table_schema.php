@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::table('issues', function (Blueprint $table) {
             // Ensure all columns exist and have correct types
             if (!Schema::hasColumn('issues', 'repository_id')) {
-                $table->unsignedBigInteger('repository_id')->nullable();
+                $table->char('repository_id', 36)->nullable();
+                $table->foreign('repository_id')->references('id')->on('repositories')->onDelete('cascade');
             }
             if (!Schema::hasColumn('issues', 'opened_by_id')) {
                 $table->unsignedBigInteger('opened_by_id')->nullable();

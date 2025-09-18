@@ -79,48 +79,4 @@ class IssueController extends Controller
             "issue" => $issue,
         ]);
     }
-
-    public static function updateIssues() {
-        $repositories = Repository::all();
-        
-        foreach ($repositories as $repository) {
-            // Fetch all issues instead of just recent ones
-            // $last_update_after = now()->subHours(168)->toIso8601String();
-            // $last_update_after = urlencode($last_update_after);
-
-            // Github stops at page 100
-            $max_page = 99;
-
-
-            for ($page = 1; $page <= $max_page; $page++) {
-                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all");
-                if (empty($apiIssues)) {
-                    break;
-                }
-                foreach ($apiIssues as $issue) {
-                    if (property_exists($issue, "pull_request")) {
-                        // It's a pull request, skip it
-                        continue;
-                    }
-
-                    Issue::updateOrCreate(
-                        ["github_id" => $issue->id],
-                        [
-                            "repository_full_name" => $repository->full_name,
-                            "number" => $issue->number,
-                            "title" => $issue->title,
-                            "body" => $issue->body,
-                            "last_updated" => Carbon::parse($issue->updated_at)->format('Y-m-d H:i:s'),
-                            "state" => $issue->state,
-                            "opened_by" => $issue->user->login,
-                            "opened_by_image" => $issue->user->avatar_url,
-                            "labels" => json_encode($issue->labels),
-                            "assignees" => json_encode($issue->assignees),
-                        ]
-                    );
-                }
-            }
-
-        }
-    }
 }
