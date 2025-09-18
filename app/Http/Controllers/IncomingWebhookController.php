@@ -22,7 +22,7 @@ class IncomingWebhookController extends Controller
         // }
 
         // if (empty((array)$payload)) {
-            return dd($request->all());
+            return var_dump($request->all());
         // }
         
         return response()->json(["message" => "received", "event" => $eventType, "payload" => $payload], 200);
