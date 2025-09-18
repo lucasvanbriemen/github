@@ -13,7 +13,6 @@ Route::get("/organization/{organization}/{repository}/tree/{file_path?}", [Repos
   ->name("api.repositories.show")
   ->where('file_path', '.*');
 
-
 Route::get("incoming_hook", function (Request $request) {
     return response()->json(["message" => "received"], 200);
 })->name("api.webhook.get");
