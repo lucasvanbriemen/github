@@ -7,12 +7,14 @@ use Illuminate\Support\Str;
 
 class Issue extends Model
 {
+  public $timestamps = true;
+
   public function repository()
   {
-    return $this->belongsTo(Repository::class, "repository_full_name", "full_name");
+    return $this->belongsTo(Repository::class, "repository_id", "id");
   }
 
-  public $fillable = [
+  protected $fillable = [
     "github_id",
     "repository_id",
     "opened_by_id",
@@ -28,5 +30,6 @@ class Issue extends Model
   protected $casts = [
     "labels" => "array",
     "assignees" => "array",
+    "last_updated" => "datetime",
   ];
 }
