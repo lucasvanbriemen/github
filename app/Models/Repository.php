@@ -31,7 +31,7 @@ class Repository extends Model
 
   public function issues($state = null, $assignee = null)
   {
-    $relation = $this->hasMany(Issue::class, "repository_full_name", "full_name")
+    $relation = $this->hasMany(Issue::class, "repository_id", "github_id")
       ->orderBy("last_updated", "desc");
 
     if ($state && in_array($state, ["open", "closed"])) {

@@ -23,18 +23,18 @@ Artisan::command("organizations:update", function () {
     }
 })->purpose("Update organizations from GitHub API");
 
-Artisan::command("repositories:update", function () {
-    $this->info("Updating repositories from GitHub API...");
+// Artisan::command("repositories:update", function () {
+//     $this->info("Updating repositories from GitHub API...");
 
-    try {
-        RepositoryController::updateRepositories();
-        $this->info("Organizations updated successfully!");
-        Console::create(["command" => "repositories:update", "successful" => true, "executed_at" => now()]);
-    } catch (\Exception $e) {
-        $this->error("Failed to update repositories: " . $e->getMessage());
-        Console::create(["command" => "repositories:update", "successful" => false, "executed_at" => now()]);
-    }
-})->purpose("Update repositories from GitHub API");
+//     try {
+//         RepositoryController::updateRepositories();
+//         $this->info("Organizations updated successfully!");
+//         Console::create(["command" => "repositories:update", "successful" => true, "executed_at" => now()]);
+//     } catch (\Exception $e) {
+//         $this->error("Failed to update repositories: " . $e->getMessage());
+//         Console::create(["command" => "repositories:update", "successful" => false, "executed_at" => now()]);
+//     }
+// })->purpose("Update repositories from GitHub API");
 
 Artisan::command("system:remove_expired", function () {
     $this->info("Removing expired system info from the database...");
@@ -60,7 +60,7 @@ Artisan::command("repository_users:update", function () {
 Schedule::command("organizations:update")->cron("0 2 */2 * *");
 
 // Schedule the command to run every hour (we need this so issues and PRs are updated more frequently)
-Schedule::command("repositories:update")->cron("0 * * * *");
+// Schedule::command("repositories:update")->cron("0 * * * *");
 Schedule::command("issues:update")->cron("20 * * * *");
 
 // Schedule the command to run daily at 1 AM to update repository users

@@ -11,7 +11,7 @@ class Issue extends Model
 
   public function repository()
   {
-    return $this->belongsTo(Repository::class, "repository_id", "id");
+    return $this->belongsTo(Repository::class, "repository_id", "github_id");
   }
 
   protected $fillable = [
