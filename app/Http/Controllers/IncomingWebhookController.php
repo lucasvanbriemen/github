@@ -13,7 +13,7 @@ class IncomingWebhookController extends Controller
     public function index(Request $request)
     {
         $headers = $request->headers->all();
-        $payload = json_decode($request->getContent(), false);
+        $payload = (object) json_decode($request->getContent(), false) ?? [];
 
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
 
@@ -31,10 +31,10 @@ class IncomingWebhookController extends Controller
 
         $userData = $issueData->user;
 
+        return true;
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
-        return true;
 
         // Create the issue in the database using the repository's github_id instead of UUID
         Issue::updateOrCreate(
