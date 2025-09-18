@@ -99,6 +99,7 @@ class RepositoryController extends Controller
     Repository::updateOrCreate(
       ["organization_id" => $organization->id, "name" => $apiRepo->name],
       [
+        "github_id" => $apiRepo->id,
         "full_name" => $apiRepo->full_name,
         "private" => $apiRepo->private,
         "last_updated" => Carbon::parse($apiRepo->updated_at)->format("Y-m-d H:i:s"),

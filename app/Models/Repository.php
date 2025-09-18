@@ -52,14 +52,10 @@ class Repository extends Model
     return $relation;
   }
 
-  public function openIssues()
-  {
-    return $this->issues('open');
-  }
-
   public $fillable = [
     "organization_id",
     "name",
+    "github_id",
     "full_name",
     "private",
     "last_updated",
