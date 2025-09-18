@@ -13,18 +13,15 @@ class IncomingWebhookController extends Controller
     public function index(Request $request)
     {
         $headers = $request->headers->all();
-        $payload = (object) json_decode($request->getContent(), false) ?? [];
+        $payload = $request->all();
+        $payload = json_decode($payload['payload'] ?? '{}');
         
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
-        
-        // if (in_array($eventType, $this->ISSUE_RELATED)) {
-        //     $this->issue($payload);
-        // }
 
-        // if (empty((array)$payload)) {
-            return var_dump($request->all());
-        // }
-        
+        if (in_array($eventType, $this->ISSUE_RELATED)) {
+            $this->issue($payload);
+        }
+
         return response()->json(["message" => "received", "event" => $eventType, "payload" => $payload], 200);
     }
 
