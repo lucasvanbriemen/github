@@ -12,9 +12,7 @@ class IncomingWebookController extends Controller
     public function index(Request $request)
     {
         $headers = $request->headers->all();
-        $payload = $request->all();
-        // Turn payload into object
-        $payload = json_decode(json_encode($payload));
+        $payload = (object) $request->all();
 
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
 
@@ -40,7 +38,8 @@ class IncomingWebookController extends Controller
                 'body' => $issueData->body,
                 'last_updated' => $issueData->updated_at,
                 'state' => $issueData->state,
-                'labels' => array_map(fn($label) => $label->name, $issueData->labels),
+                'labels' => array_map(fn($label) => $label->name, $issueData->labels) ?? [],
+                'assignees' => array_map(fn($assignee) => ['login' => $assignee->login, 'id' => $assignee->id], $issueData->assignees) ?? [],
             ]
         );
     }
