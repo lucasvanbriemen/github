@@ -25,10 +25,11 @@ class IncomingWebhookController extends Controller
     public function issue($payload)
     {
         $issueData = $payload->issue;
+        $repositoryData = $payload->repository;
         $userData = $issueData->user;
 
         // Ensure repository exists first
-        $repository = Repository::where("github_id", $payload->repository->id);
+        $repository = self::update_repo($repositoryData);
 
         // Create the issue in the database using the repository's UUID id
         Issue::updateOrCreate(
@@ -46,5 +47,18 @@ class IncomingWebhookController extends Controller
         );
 
         return true;
+    }
+
+    public static function update_repo($repo) {
+        return Repository::updateOrCreate(
+            ['github_id' => $repo->id],
+            [
+                'name' => $repo->name,
+                'full_name' => $repo->full_name,
+                'private' => $repo->private,
+                'description' => $repo->description ?? '',
+                'last_updated' => now(),
+            ]
+        );
     }
 }
