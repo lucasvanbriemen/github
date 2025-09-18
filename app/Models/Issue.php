@@ -12,11 +12,6 @@ class Issue extends Model
     return $this->belongsTo(Repository::class, "repository_full_name", "full_name");
   }
 
-  public function timeline()
-  {
-    return $this->hasMany(Timeline::class)->orderBy('created_at_github');
-  }
-
   public $fillable = [
     "github_id",
     "repository_full_name",

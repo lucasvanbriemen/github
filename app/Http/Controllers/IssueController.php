@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
-use App\Models\GitHubUser;
-use App\Models\Timeline;
 use Illuminate\Http\Request;
 use App\Models\Organization;
 use App\Models\Repository;
@@ -82,12 +80,14 @@ class IssueController extends Controller
     public static function updateIssues() {
         $repositories = Repository::all();
         
+        $count = 0;
         foreach ($repositories as $repository) {
             $last_update_after = now()->subHours(168)->toIso8601String();
             $last_update_after = urlencode($last_update_after);
 
             // Github stops at page 100
             $max_page = 99;
+
 
             for ($page = 1; $page <= $max_page; $page++) {
                 $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all&since={$last_update_after}");
@@ -99,6 +99,8 @@ class IssueController extends Controller
                         // It's a pull request, skip it
                         continue;
                     }
+
+                    $count++;
 
                     Issue::updateOrCreate(
                         ["github_id" => $issue->id],
@@ -117,82 +119,8 @@ class IssueController extends Controller
                     );
                 }
             }
+
         }
-    }
-
-    public static function updateTimelines() {
-        $lastHour = Carbon::now()->subHour();
-        $issues = Issue::where('last_updated', '>=', $lastHour)
-            ->orderBy('last_updated', 'desc')->get();
-
-        foreach ($issues as $issue) {
-            self::fetchTimelineForIssue($issue);
-        }
-    }
-
-    private static function fetchTimelineForIssue(Issue $issue)
-    {
-        $repo = $issue->repository;
-        if (!$repo) return;
-
-        // Github stops at page 100
-        $max_page = 99;
-
-        for ($page = 1; $page <= $max_page; $page++) {
-            $timelineData = ApiHelper::githubApi("/repos/{$repo->full_name}/issues/{$issue->number}/timeline?page={$page}&per_page=100");
-            if (empty($timelineData)) {
-                break;
-            }
-            foreach ($timelineData as $event) {
-                self::processTimelineEvent($issue, $event);
-            }
-        }
-    }
-
-    private static function processTimelineEvent(Issue $issue, $event)
-    {
-        $actorGithubId = null;
-
-        // Check if event has an ID (some events like cross-referenced don't have IDs)
-        if (!isset($event->id)) {
-            return;
-        }
-
-        if (isset($event->actor) && isset($event->actor->id)) {
-            $actorData = [
-                'id' => $event->actor->id,
-                'login' => $event->actor->login,
-                'name' => $event->actor->name ?? null,
-                'avatar_url' => $event->actor->avatar_url,
-                'type' => $event->actor->type ?? 'User'
-            ];
-            $githubUser = GitHubUser::createOrUpdate($actorData);
-            $actorGithubId = $githubUser->github_id;
-        }
-
-        Timeline::updateOrCreate(
-            ['github_id' => $event->id],
-            [
-                'issue_id' => $issue->id,
-                'event' => $event->event,
-                'actor_github_id' => $actorGithubId,
-                'data' => self::extractEventData($event),
-                'created_at_github' => Carbon::parse($event->created_at)
-            ]
-        );
-    }
-
-    private static function extractEventData($event)
-    {
-        $data = [];
-        $relevantFields = ['label', 'assignee', 'milestone', 'rename', 'body', 'commit_id', 'commit_url'];
-
-        foreach ($relevantFields as $field) {
-            if (isset($event->$field)) {
-                $data[$field] = $event->$field;
-            }
-        }
-
-        return $data;
+        dd("Updated {$count} issues");
     }
 }

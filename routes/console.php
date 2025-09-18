@@ -69,19 +69,6 @@ Artisan::command("repository_users:update", function () {
     }
 })->purpose("Update repository users from GitHub API");
 
-Artisan::command("timelines:fetch", function () {
-    $this->info("Fetching issue timelines from GitHub API...");
-
-    try {
-        IssueController::updateTimelines();
-        $this->info("Timeline fetch completed successfully!");
-        Console::create(["command" => "timelines:fetch", "successful" => true, "executed_at" => now()]);
-    } catch (\Exception $e) {
-        $this->error("Failed to fetch timelines: " . $e->getMessage());
-        Console::create(["command" => "timelines:fetch", "successful" => false, "executed_at" => now()]);
-    }
-})->purpose("Fetch issue timelines from GitHub API");
-
 // Schedule the command to run every other day at 2 AM
 Schedule::command("organizations:update")->cron("0 2 */2 * *");
 
@@ -96,4 +83,3 @@ Schedule::command("repository_users:update")->dailyAt("1:00");
 Schedule::command("system:remove_expired")->dailyAt("3:30");
 
 // Schedule timeline fetching every hour at :30
-// Schedule::command("timelines:fetch")->cron("40 * * * *");
