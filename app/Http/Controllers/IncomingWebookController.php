@@ -7,7 +7,8 @@ use App\Models\Issue;
 
 class IncomingWebookController extends Controller
 {
-    //
+    public $ISSUE_RELATED = ["issues"];
+
     public function index(Request $request)
     {
         $headers = $request->headers->all();
@@ -16,6 +17,8 @@ class IncomingWebookController extends Controller
         $payload = json_decode(json_encode($payload));
 
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
+
+        if (in_array($eventType, $this->ISSUE_RELATED)) {$this->issue($payload);}
 
         return response()->json(["message" => "received", "event" => $eventType], 200);
     }
