@@ -28,7 +28,6 @@ class IncomingWebhookController extends Controller
     public function issue($payload)
     {
         $issueData = $payload->issue;
-        return true;
         $repositoryData = $payload->repository;
 
         $userData = $issueData->user;
