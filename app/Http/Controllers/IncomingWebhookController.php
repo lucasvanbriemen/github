@@ -37,8 +37,8 @@ class IncomingWebhookController extends Controller
                 'title' => $issueData->title,
                 'body' => $issueData->body ?? '',
                 'state' => $issueData->state,
-                'labels' => [],
-                'assignees' => [],
+                'labels' => json_encode($issueData->labels ?? []),
+                'assignees' => json_encode($issueData->assignees ?? []),
             ]
         );
 
