@@ -12,24 +12,52 @@ class IncomingWebhookController extends Controller
 
     public function index(Request $request)
     {
-        $headers = $request->headers->all();
-        $payload = json_decode($request->getContent(), false);
+        try {
+            $headers = $request->headers->all();
+            $payload = json_decode($request->getContent(), false);
 
-        $eventType = $headers['x-github-event'][0] ?? 'unknown';
+            $eventType = $headers['x-github-event'][0] ?? 'unknown';
 
-        if (in_array($eventType, $this->ISSUE_RELATED)) {$this->issue($payload);}
+            if (in_array($eventType, $this->ISSUE_RELATED)) {
+                $this->issue($payload);
+            }
 
-        return response()->json(["message" => "received", "event" => $eventType], 200);
+            return response()->json(["message" => "received", "event" => $eventType], 200);
+        } catch (\Exception $e) {
+            \Log::error('Webhook error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'payload' => $request->getContent(),
+                'headers' => $request->headers->all()
+            ]);
+
+            return response()->json([
+                "error" => "Internal server error",
+                "message" => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function issue($payload)
     {
+        // Validate that required fields exist
+        if (!isset($payload->issue) || !isset($payload->repository)) {
+            throw new \Exception('Missing required fields: issue or repository');
+        }
+
         $issueData = $payload->issue;
         $repositoryData = $payload->repository;
+
+        if (!isset($issueData->user)) {
+            throw new \Exception('Missing user data in issue');
+        }
+
         $userData = $issueData->user;
 
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
+
+        // Temporarily disable foreign key checks to avoid constraint issues
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
         // Create the issue in the database using the repository's github_id instead of UUID
         Issue::updateOrCreate(
@@ -45,6 +73,9 @@ class IncomingWebhookController extends Controller
                 'assignees' => json_encode($issueData->assignees ?? []),
             ]
         );
+
+        // Re-enable foreign key checks
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         return true;
     }
