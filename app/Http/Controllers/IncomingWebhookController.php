@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Issue;
+use App\Models\Repository;
 
 class IncomingWebhookController extends Controller
 {
@@ -24,14 +25,16 @@ class IncomingWebhookController extends Controller
     public function issue($payload)
     {
         $issueData = $payload->issue;
-        $repositoryData = $payload->repository;
         $userData = $issueData->user;
 
-        // Create the issue in the database
+        // Ensure repository exists first
+        $repository = Repository::where("github_id", $payload->repository->id);
+
+        // Create the issue in the database using the repository's UUID id
         Issue::updateOrCreate(
             ['github_id' => $issueData->id],
             [
-                'repository_id' => $repositoryData->id,
+                'repository_id' => $repository->id,
                 'opened_by_id' => $userData->id,
                 'number' => $issueData->number,
                 'title' => $issueData->title,
