@@ -3,11 +3,6 @@
     <h1>{{ __("Dashboard") }}</h1>
   </x-slot>
 
-  <div class="user-profile">
-    <img src="{{ gravatar() }}" alt="{{ currentUser()->name }}" class="avatar">
-    <h2 class="name">{{ currentUser()->name }}</h2>
-  </div>
-
   <div class="repositories">
     @foreach ($repositories as $repository)
       @php $owner = explode("/", $repository->full_name)[0] ?? "user"; @endphp
