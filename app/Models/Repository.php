@@ -29,27 +29,10 @@ class Repository extends Model
     return $this->hasMany(RepositoryUser::class);
   }
 
-  public function issues($state = null, $assignee = null)
+  public function issues()
   {
-    $relation = $this->hasMany(Issue::class, "repository_id", "github_id")
+    return $this->hasMany(Issue::class, "repository_id", "id")
       ->orderBy("last_updated", "desc");
-
-    if ($state && in_array($state, ["open", "closed"])) {
-      $relation->where("state", $state);
-    }
-
-    if ($assignee !== null && $assignee !== "") {
-      if ($assignee === "unassigned") {
-        $relation->where(function ($q) {
-          $q->whereNull('assignees')
-            ->orWhereRaw('JSON_LENGTH(assignees) = 0');
-        });
-      } else {
-        $relation->whereJsonContains('assignees', ['login' => $assignee]);
-      }
-    }
-
-    return $relation;
   }
 
   public $fillable = [
