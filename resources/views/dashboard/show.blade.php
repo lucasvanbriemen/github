@@ -21,8 +21,6 @@
         <h2 class="name">{{ $repository->full_name }}</h2>
       </a>
     @endforeach
-
-    <button class="button-primary update-repositories">{{ __("Update repositories") }}</button>
   </div>
 
   <script>window.start = "dashboard";</script>
