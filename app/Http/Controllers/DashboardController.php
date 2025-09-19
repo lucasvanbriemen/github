@@ -9,6 +9,9 @@ class DashboardController extends Controller
 {
   public function index()
   {
+
+    dd(current_user());
+
     $organizations = Organization::all();
     $repositories = Repository::with('organization')->orderBy("last_updated", "desc")->get();
 
