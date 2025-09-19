@@ -9,7 +9,7 @@
 <body>
   <form id="myForm" method="POST" action="{{ route('api.webhook') }}">
     @csrf
-    <input type="text" name="payload" value='{
+    <input type="text" name="payload" id='payload' value='{
   "action": "opened",
   "issue": {
     "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/3",
@@ -273,20 +273,23 @@
     <button type="submit">Send</button>
   </form>
 
-  <script>
-  document.getElementById('myForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const formData = new FormData(this);
+   <script>
+    document.getElementById('myForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const payload = document.getElementById('payload').value;
 
-    await fetch("{{ route('api.webhook') }}", {
-      method: "POST",
-      headers: {
-        "X-github-event": "issues",
-        "Accept": "application/json"
-      },
-      body: formData
+      await fetch("{{ route('api.webhook') }}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-github-event": "issues",
+          "Accept": "application/json",
+          "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+        },
+        body: payload
+      });
     });
-  });
   </script>
+
 </body>
 </html>

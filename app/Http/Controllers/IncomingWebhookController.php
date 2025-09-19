@@ -14,8 +14,8 @@ class IncomingWebhookController extends Controller
     public function index(Request $request)
     {
         $headers = $request->headers->all();
-        $payload = $request->all();
-        $payload = json_decode($payload['payload'] ?? '{}');
+        $payload = $request->getContent();
+        $payload = json_decode($payload ?? '{}');
         
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
         Console::create(["command" => json_encode($payload), "successful" => true, "executed_at" => now()]);
