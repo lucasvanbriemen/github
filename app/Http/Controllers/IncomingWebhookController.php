@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Issue;
 use App\Models\Repository;
-use App\Models\Console;
 
 class IncomingWebhookController extends Controller
 {
