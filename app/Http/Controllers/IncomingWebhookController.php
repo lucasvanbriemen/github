@@ -18,7 +18,7 @@ class IncomingWebhookController extends Controller
         $payload = json_decode($payload['payload'] ?? '{}');
         
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
-        Console::create(["command" => $payload, "successful" => true, "executed_at" => now()]);
+        Console::create(["command" => json_encode($payload), "successful" => true, "executed_at" => now()]);
         
         if (in_array($eventType, $this->ISSUE_RELATED)) {
             $this->issue($payload);
