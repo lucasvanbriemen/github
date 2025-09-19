@@ -21,7 +21,10 @@
   <div class="issues">
     @foreach ($issues as $issue)
       <a class="issue-card card" href="{{ route("repository.issues.show", [$owner, $issue->repository->name, $issue->number]) }}">
-        <h3 class="title">{{ $issue->title }}</h3>
+        <div>
+          <img class="avatar" src="{{ $issue->repository->organization->avatar_url }}" alt="{{ $issue->repository->full_name }}">
+          <h3 class="title">{{ $issue->title }}</h3>
+        </div>
         <p class="updated-at">{{ $issue->updated_at->diffForHumans() }}</p>
       </a>
     @endforeach
