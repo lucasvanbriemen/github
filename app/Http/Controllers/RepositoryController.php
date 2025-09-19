@@ -22,7 +22,7 @@ class RepositoryController extends Controller
     
     $query = Repository::where("name", $repositoryName);
     if ($organization) {
-      $query->where("organization_id", $organization->id);
+      $query->where("organization_id", $organization->organization_id);
     }
     $repository = $query->firstOrFail();
 
@@ -40,7 +40,7 @@ class RepositoryController extends Controller
     
     $query = Repository::where("name", $repositoryName);
     if ($organization) {
-      $query->where("organization_id", $organization->id);
+      $query->where("organization_id", $organization->organization_id);
     }
     $repository = $query->firstOrFail();
 

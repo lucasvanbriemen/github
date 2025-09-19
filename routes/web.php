@@ -19,10 +19,10 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get("/", [OrganizationController::class, "show"])->name("organization.show");
 
         Route::prefix("{repository}")->group(function () {
-            Route::redirect("/", "tree");
+            Route::redirect("/", "./tree");
 
             Route::get("/tree/{file_path?}", [RepositoryController::class, "show"])
-                ->where("file_path", ".*")
+                ->where('file_path', '(.*)?')
                 ->name("repository.show");
 
             Route::get("/issues", [IssueController::class, "index"])

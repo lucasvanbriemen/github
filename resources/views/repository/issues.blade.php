@@ -11,8 +11,6 @@
   @include("repository.sidebar")
 
   <div class="issues-list">
-    @include("repository.issue_filter")
-
     @foreach ($issues as $issue)
       @include("repository.issue_card")
     @endforeach

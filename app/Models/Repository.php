@@ -29,7 +29,7 @@ class Repository extends Model
     return $this->hasMany(RepositoryUser::class);
   }
 
-  public function issues()
+  public function issues($state = "open")
   {
     return $this->hasMany(Issue::class, "repository_id", "id")
       ->orderBy("last_updated", "desc");

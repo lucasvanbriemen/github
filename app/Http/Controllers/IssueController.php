@@ -13,40 +13,22 @@ class IssueController extends Controller
 {
     public function index($organizationName, $repositoryName, Request $request)
     {
-        // User repositories have "user" as organization name in the URL, while being null in the DB
-        if ($organizationName === "user") {
-            $organizationName = null;
-        }
-
         $organization = Organization::where("name", $organizationName)->first();
         
         $query = Repository::where("name", $repositoryName);
         if ($organization) {
-            $query->where("organization_id", $organization->id);
+            $query->where("organization_id", $organization->organization_id);
         }
 
         $repository = $query->firstOrFail();
 
-        // Filters
-        $state = $request->query('state', 'open'); // open | closed | all
-        $assignee = $request->query('assignee');   // username | unassigned | null
-
-        $stateParam = $state === 'all' ? null : $state;
-        $issues = $repository->issues($stateParam, $assignee)
-            ->paginate(30)
-            ->appends($request->query());
-
-        $assignees = $repository->users;
+        $issues = $repository->issues()
+            ->paginate(30);
 
         return view("repository.issues", [
             "organization" => $organization,
             "repository" => $repository,
             "issues" => $issues,
-            "filters" => [
-                'state' => $state,
-                'assignee' => $assignee,
-            ],
-            "assignees" => $assignees,
         ]);
     }
 
