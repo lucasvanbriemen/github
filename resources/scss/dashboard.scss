@@ -1,8 +1,11 @@
 .dashboard-page {
   display: flex;
+  flex-direction: row;
+  gap: 1rem;
 
-  .user-profile, .repositories {
-    width: calc(50% - 2rem);
+
+  .user-profile, .repositories, .issues {
+    width: 50%;
     margin: 1rem;
     display: flex;
     gap: 1rem;
@@ -24,11 +27,6 @@
     .name {
       font-size: 1.5rem;
       font-weight: bold;
-    }
-
-    .email {
-      font-size: 1.25rem;
-      color: var(--text-color-secondary);
     }
   }
 }

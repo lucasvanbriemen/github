@@ -6,7 +6,6 @@
   <div class="user-profile">
     <img src="{{ gravatar() }}" alt="{{ currentUser()->name }}" class="avatar">
     <h2 class="name">{{ currentUser()->name }}</h2>
-    <p class="email">{{ currentUser()->email }}</p>
   </div>
 
   <div class="repositories">
@@ -16,6 +15,20 @@
         <img class="avatar" src="{{ $repository->organization->avatar_url }}" alt="{{ $repository->full_name }}">
         <h2 class="name">{{ $repository->full_name }}</h2>
       </a>
+    @endforeach
+  </div>
+
+  <div class="issues">
+    @foreach ($issues as $issue)
+      <div class="issue-card card">
+        <h3 class="title">
+          <a href="{{ $issue->html_url }}" target="_blank" rel="noopener noreferrer">
+            {{ $issue->title }}
+          </a>
+        </h3>
+        <p class="state">State: {{ ucfirst($issue->state) }}</p>
+        <p class="updated-at">Updated at: {{ $issue->updated_at->format('Y-m-d H:i') }}</p>
+      </div>
     @endforeach
   </div>
 
