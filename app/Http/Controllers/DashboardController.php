@@ -19,6 +19,12 @@ class DashboardController extends Controller
       $repoIssues = $repo->issues()->get();
 
       foreach ($repoIssues as $issue) {
+
+        // Issue that hasn't been updated since my last activity (unless it was updated in the last hour)
+        if ($issue->updated_at <= currentUser()->last_activity && $issue->updated_at <= now()->subHour()) {
+          continue;
+        }
+
         $issues[] = $issue;
       }
     }
