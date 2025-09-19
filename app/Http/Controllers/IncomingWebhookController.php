@@ -35,11 +35,10 @@ class IncomingWebhookController extends Controller
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
-        // Create the issue in the database using the repository's github_id instead of UUID
         Issue::updateOrCreate(
         ['github_id' => $issueData->id],
         [
-            'repository_id' => $repository->id,   // use local DB primary key
+            'repository_id' => $repository->id,
             'opened_by_id' => $userData->id,
             'number' => $issueData->number,
             'title' => $issueData->title,
