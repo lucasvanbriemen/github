@@ -20,15 +20,10 @@
 
   <div class="issues">
     @foreach ($issues as $issue)
-      <div class="issue-card card">
-        <h3 class="title">
-          <a href="{{ $issue->html_url }}" target="_blank" rel="noopener noreferrer">
-            {{ $issue->title }}
-          </a>
-        </h3>
-        <p class="state">State: {{ ucfirst($issue->state) }}</p>
-        <p class="updated-at">Updated at: {{ $issue->updated_at->format('Y-m-d H:i') }}</p>
-      </div>
+      <a class="issue-card card" href="{{ route("repository.issues.show", [$owner, $issue->repository->name, $issue->number]) }}">
+        <h3 class="title">{{ $issue->title }}</h3>
+        <p class="updated-at">{{ $issue->updated_at->diffForHumans() }}</p>
+      </a>
     @endforeach
   </div>
 
