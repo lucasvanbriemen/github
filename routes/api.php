@@ -14,4 +14,4 @@ Route::get("/organization/{organization}/{repository}/tree/{file_path?}", [Repos
   ->name("api.repositories.show")
   ->where('file_path', '.*');
 
-Route::any("incoming_hook", [IncomingWebhookController::class, "index"])->name("api.webhook.get");
+Route::any("incoming_hook", [IncomingWebhookController::class, "index"])->name("api.webhook");

@@ -10,6 +10,10 @@ use App\Http\Controllers\RepositoryController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get("/", [DashboardController::class, "index"])->name("dashboard");
+    Route::get("/webhook_sender", function() {
+        return view("webhook_sender");
+    })->name("webhook_sender");
+
 
     Route::prefix("organization/{organization}")->group(function () {
         Route::get("/", [OrganizationController::class, "show"])->name("organization.show");

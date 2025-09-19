@@ -17,6 +17,7 @@ class IncomingWebhookController extends Controller
         $payload = json_decode($payload['payload'] ?? '{}');
         
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
+        var_dump($eventType);
 
         if (in_array($eventType, $this->ISSUE_RELATED)) {
             $this->issue($payload);
@@ -35,21 +36,19 @@ class IncomingWebhookController extends Controller
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
-
         // Create the issue in the database using the repository's github_id instead of UUID
         Issue::updateOrCreate(
-            ['github_id' => $issueData->id],
-            [
-                'repository_id' => $repository->github_id,
-                'opened_by_id' => $userData->id,
-                'number' => $issueData->number,
-                'title' => $issueData->title,
-                'body' => $issueData->body ?? '',
-                'state' => $issueData->state,
-                'labels' => json_encode($issueData->labels ?? []),
-                'assignees' => json_encode($issueData->assignees ?? []),
-            ]
-        );
+        ['github_id' => $issueData->id],
+        [
+            'repository_id' => $repository->id,   // use local DB primary key
+            'opened_by_id' => $userData->id,
+            'number' => $issueData->number,
+            'title' => $issueData->title,
+            'body' => $issueData->body ?? '',
+            'state' => $issueData->state,
+            'labels' => json_encode($issueData->labels ?? []),
+            'assignees' => json_encode($issueData->assignees ?? []),
+        ]);
 
         return true;
     }
@@ -58,6 +57,7 @@ class IncomingWebhookController extends Controller
         return Repository::updateOrCreate(
             ['github_id' => $repo->id],
             [
+                'organization_id' => $repo->owner->id,
                 'name' => $repo->name,
                 'full_name' => $repo->full_name,
                 'private' => $repo->private,
