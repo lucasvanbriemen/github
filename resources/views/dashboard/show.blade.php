@@ -9,6 +9,7 @@
     @foreach ($repositories as $repository)
       @php $owner = explode("/", $repository->full_name)[0] ?? "user"; @endphp
       <a class="repository-card card" href="{{ route("repository.show", [$owner, $repository->name]) }}">
+        <img class="avatar" src="{{ $repository->organization->avatar_url }}" alt="{{ $repository->full_name }}">
         <h2 class="name">{{ $repository->full_name }}</h2>
       </a>
     @endforeach
