@@ -36,12 +36,12 @@ class RepositoryUserController extends Controller
                 // Update or create repository user
                 RepositoryUser::updateOrCreate(
                     [
-                        'repository_id' => $repository->id,
-                        'user_id' => $contributor->id,
+                        "repository_id" => $repository->id,
+                        "user_id" => $contributor->id,
                     ],
                     [
-                        'name' => $contributor->login,
-                        'avatar_url' => $contributor->avatar_url,
+                        "name" => $contributor->login,
+                        "avatar_url" => $contributor->avatar_url,
                     ]
                 );
             }
