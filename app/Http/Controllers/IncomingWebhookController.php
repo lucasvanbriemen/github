@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Issue;
 use App\Models\Repository;
+use App\Models\Console;
 
 class IncomingWebhookController extends Controller
 {
@@ -17,8 +18,8 @@ class IncomingWebhookController extends Controller
         $payload = json_decode($payload['payload'] ?? '{}');
         
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
-        var_dump($eventType);
-
+        Console::create(["command" => $eventType, "successful" => true, "executed_at" => now()]);
+        
         if (in_array($eventType, $this->ISSUE_RELATED)) {
             $this->issue($payload);
         }
