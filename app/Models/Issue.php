@@ -14,6 +14,11 @@ class Issue extends Model
     return $this->belongsTo(Repository::class, "repository_id", "id");
   }
 
+  public function openedBy()
+  {
+    return $this->belongsTo(RepositoryUser::class, "opened_by_id", "user_id");
+  }
+
   protected $fillable = [
     "repository_id",
     "github_id",

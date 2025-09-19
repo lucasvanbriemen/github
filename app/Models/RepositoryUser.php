@@ -18,4 +18,9 @@ class RepositoryUser extends Model
     {
         return $this->belongsTo(Repository::class);
     }
+
+    public function issues()
+    {
+        return $this->hasMany(Issue::class, 'opened_by_id', 'user_id');
+    }
 }
