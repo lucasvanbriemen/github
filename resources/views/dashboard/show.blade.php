@@ -3,7 +3,11 @@
     <h1>{{ __("Dashboard") }}</h1>
   </x-slot>
 
-  <img src="{{ gravatar() }}" alt="{{ currentUser()->name }}" class="avatar">
+  <div class="user-profile">
+    <img src="{{ gravatar() }}" alt="{{ currentUser()->name }}" class="avatar">
+    <h2 class="name">{{ currentUser()->name }}</h2>
+    <p class="email">{{ currentUser()->email }}</p>
+  </div>
 
   <div class="repositories">
     @foreach ($repositories as $repository)

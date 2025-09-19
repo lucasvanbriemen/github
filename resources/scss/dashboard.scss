@@ -1,7 +1,7 @@
 .dashboard-page {
   display: flex;
 
-  .organizations, .repositories {
+  .user-profile, .repositories {
     width: calc(50% - 2rem);
     margin: 1rem;
     display: flex;
@@ -10,5 +10,26 @@
 
     height: calc(100vh - 7rem);
     overflow-y: auto;
+  }
+
+  .user-profile {
+    width: 25%;
+
+    .avatar {
+      width: 20rem;
+      z-index: -1;
+
+      border-radius: 1rem;
+    }
+
+    .name {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .email {
+      font-size: 1.25rem;
+      color: var(--text-color-secondary);
+    }
   }
 }
