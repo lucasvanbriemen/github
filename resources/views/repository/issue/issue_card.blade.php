@@ -1,4 +1,4 @@
-<a href="{{ route('repository.issues.show', [$organization->name, $repository->name, $issue->number]) }}" class="issue-card card">
+<a href="{{ route('repository.issues.show', [$organization->name, $repository->name, $issue->number]) }}" class="issue-card card {{ $issue->state }}">
   {!! svg('issue') !!}
   <div class='main-info'>
     <h3 class='issue-title'>

@@ -9,9 +9,26 @@
     background-color: var(--background-color);
     position: relative;
 
+    &.open {
+      svg {
+        fill: var(--primary-color);
+      }
+    }
+
+    &.closed {
+      svg {
+        fill: var(--text-color-secondary);
+      }
+    }
+
     &:hover {
       background-color: var(--background-color-two);
       cursor: pointer;
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
     }
 
     .main-info {
