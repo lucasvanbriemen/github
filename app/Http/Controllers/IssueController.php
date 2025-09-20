@@ -36,10 +36,10 @@ class IssueController extends Controller
         }
 
         $organization = Organization::where("name", $organizationName)->first();
-        
+
         $query = Repository::where("name", $repositoryName);
         if ($organization) {
-            $query->where("organization_id", $organization->id);
+            $query->where("organization_id", $organization->organization_id);
         }
 
         $repository = $query->firstOrFail();
@@ -60,11 +60,13 @@ class IssueController extends Controller
 
     public static function getIssues($organizationName, $repositoryName, Request $request)
     {
+        $state = $request->query("state", "open");
+
         $organization = Organization::where("name", $organizationName)->first();
-        
+
         $query = Repository::where("name", $repositoryName);
         if ($organization) {
-            $query->where("organization_id", $organization->id);
+            $query->where("organization_id", $organization->organization_id);
         }
         $repository = $query->firstOrFail();
 

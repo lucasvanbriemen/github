@@ -11,5 +11,9 @@
   @include("repository.sidebar")
 
   <div class="issues-list"></div>
-  <script>window.start = ["search_select", "issues"]</script>
+  <script>
+    window.start = ["search_select", "issues"];
+    window.organizationName = "{{ $organization->name }}";
+    window.repositoryName = "{{ $repository->name }}";
+  </script>
 </x-app-layout>
