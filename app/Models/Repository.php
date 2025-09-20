@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\GithubConfig;
 
 class Repository extends Model
 {
@@ -29,13 +30,19 @@ class Repository extends Model
     return $this->hasMany(RepositoryUser::class);
   }
 
-  public function issues($state = "open")
+  public function issues($state = "open", $assignee = GithubConfig::USERID)
   {
     $query = $this->hasMany(Issue::class, "repository_id", "id")
       ->orderBy("last_updated", "desc");
 
     if ($state !== "any") {
-        $query->where("state", $state);
+      $query->where("state", $state);
+    }
+
+    if ($assignee === "none") {
+      $query->where("assignees", "[]");
+    } elseif ($assignee !== "any") {
+      $query->whereJsonContains("assignees",  $assignee);
     }
 
     return $query;

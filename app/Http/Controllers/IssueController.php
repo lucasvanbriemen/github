@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Organization;
 use App\Models\Repository;
 use App\Models\Issue;
-use Carbon\Carbon;
+use App\GithubConfig;
 
 class IssueController extends Controller
 {
@@ -61,6 +61,7 @@ class IssueController extends Controller
     public static function getIssues($organizationName, $repositoryName, Request $request)
     {
         $state = $request->query("state", "open");
+        $assignee = $request->query("assignee", GithubConfig::USERID);
 
         $organization = Organization::where("name", $organizationName)->first();
 
@@ -70,7 +71,7 @@ class IssueController extends Controller
         }
         $repository = $query->firstOrFail();
 
-        $issues = $repository->issues()
+        $issues = $repository->issues($state, $assignee)
             ->paginate(30);
 
         return view("repository.issue.list", [
