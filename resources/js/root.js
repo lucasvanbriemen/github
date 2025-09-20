@@ -13,5 +13,11 @@ theme.applyTheme();
 app.setLoading(false);
 
 if (window.start) {
-  window[window.start].init();
+  if (Array.isArray(window.start)) {
+    window.start.forEach((item) => {
+      window[item].init();
+    });
+  } else {
+    window[window.start].init();
+  }
 }

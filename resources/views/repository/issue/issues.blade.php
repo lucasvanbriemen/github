@@ -10,12 +10,6 @@
 
   @include("repository.sidebar")
 
-  <div class="issues-list">
-    @foreach ($issues as $issue)
-      @include("repository.issue_card")
-    @endforeach
-
-    {{ $issues->links() }}
-  </div>
-  <script>window.start = "search_select";</script>
+  <div class="issues-list"></div>
+  <script>window.start = ["search_select", "issues"]</script>
 </x-app-layout>

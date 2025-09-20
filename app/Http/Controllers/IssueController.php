@@ -22,13 +22,9 @@ class IssueController extends Controller
 
         $repository = $query->firstOrFail();
 
-        $issues = $repository->issues()
-            ->paginate(30);
-
-        return view("repository.issues", [
+        return view("repository.issue.issues", [
             "organization" => $organization,
-            "repository" => $repository,
-            "issues" => $issues,
+            "repository" => $repository
         ]);
     }
 
@@ -59,6 +55,26 @@ class IssueController extends Controller
             "repository" => $repository,
             "timeline" => $timeline,
             "issue" => $issue,
+        ]);
+    }
+
+    public static function list($organizationName, $repositoryName)
+    {
+        $organization = Organization::where("name", $organizationName)->first();
+        
+        $query = Repository::where("name", $repositoryName);
+        if ($organization) {
+            $query->where("organization_id", $organization->id);
+        }
+        $repository = $query->firstOrFail();
+
+        $issues = $repository->issues()
+            ->paginate(30);
+
+        return view("repository.issue.list", [
+            "organization" => $organization,
+            "repository" => $repository,
+            "issues" => $issues,
         ]);
     }
 }
