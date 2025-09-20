@@ -35,6 +35,12 @@ class IncomingWebhookController extends Controller
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
+        $assigneeIds = [];
+        // We have to loop over the assignees, to only store their IDs instead of full objects
+        foreach ($issueData->assignees as $assignee) {
+            $assigneeIds[] = $assignee->id;
+        }
+
         Issue::updateOrCreate(
         ['github_id' => $issueData->id],
         [
@@ -45,7 +51,7 @@ class IncomingWebhookController extends Controller
             'body' => $issueData->body ?? '',
             'state' => $issueData->state,
             'labels' => json_encode($issueData->labels ?? []),
-            'assignees' => json_encode($issueData->assignees ?? []),
+            'assignees' => json_encode($assigneeIds),
         ]);
 
         return true;
