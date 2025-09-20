@@ -19,6 +19,19 @@ class Issue extends Model
     return $this->belongsTo(RepositoryUser::class, "opened_by_id", "user_id");
   }
 
+  public function assignees_data()
+  {
+    $assignees = $this->assignees;
+
+    if (is_string($assignees)) {
+        $assignees = json_decode($assignees, true) ?? [];
+    }
+
+    return RepositoryUser::whereIn('user_id', $assignees)
+        ->groupBy('user_id')
+        ->get();
+  }
+
   protected $fillable = [
     "repository_id",
     "github_id",

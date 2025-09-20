@@ -26,16 +26,16 @@
   </div>
 
   <div class="side-info">
-
-    @php
-      $assignees = is_string($issue->assignees) ? json_decode($issue->assignees, true) : $issue->assignees;
-    @endphp
-
-
-    @foreach ($assignees as $assignee)
-      @if (is_array($assignee) && isset($assignee['avatar_url']))
-        <img src="{{ $assignee['avatar_url'] }}">
-      @endif
-    @endforeach
-  </div>
+  @php
+    $shownAssignees = [];
+  @endphp
+  @foreach ($issue->assignees_data() as $assignee)
+    @if(!in_array($assignee->user_id, $shownAssignees))
+      <img src="{{ $assignee->avatar_url }}" alt="{{ $assignee->name }}">
+      @php
+        $shownAssignees[] = $assignee->user_id;
+      @endphp
+    @endif
+  @endforeach
+</div>
 </a>
