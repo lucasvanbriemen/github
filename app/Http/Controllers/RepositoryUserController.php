@@ -20,7 +20,7 @@ class RepositoryUserController extends Controller
                 continue;
             }
 
-            $repoCanidates[] = $repositories;
+            $repoCanidates[] = $repository;
         }
 
 
