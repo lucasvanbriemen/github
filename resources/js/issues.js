@@ -1,6 +1,10 @@
 export default {
   init() {
     this.updateIssues();
+
+    document.querySelector(".filters select[name=state], .filters select[name=assignee]").addEventListener("change", () => {
+      this.updateIssues();
+    });
   },
 
   updateIssues() {

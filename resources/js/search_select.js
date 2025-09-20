@@ -92,5 +92,8 @@ export default {
     // Mark active
     optionEl.parentElement.querySelectorAll('.option-item').forEach((o) => o.classList.remove('active'));
     optionEl.classList.add('active');
+
+    // Tigger change event on native select
+    select.dispatchEvent(new Event('change'));
   },
 };
