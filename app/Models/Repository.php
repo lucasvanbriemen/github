@@ -42,13 +42,8 @@ class Repository extends Model
     if ($assignee === "none") {
       $query->where("assignees", "[]");
     } elseif ($assignee !== "any") {
-      // Handle both simple ID arrays and user object arrays
       $query->where(function($q) use ($assignee) {
-        // Try exact JSON contains first (for simple array format)
-        $q->whereJsonContains('assignees', (int)$assignee)
-          ->orWhereJsonContains('assignees', (string)$assignee)
-          // Fallback to LIKE for user object format
-          ->orWhere('assignees', 'LIKE', '%' . $assignee . '%');
+        $q->where('assignees', 'LIKE', '%' . $assignee . '%');
       });
     }
 
