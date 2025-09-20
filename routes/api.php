@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\IncomingWebhookController;
+use App\Http\Controllers\IssueController;
 use App\Http\Middleware\IsLoggedIn;
 
 Route::patch("/organizations", [OrganizationController::class, "updateOrganizations"])->middleware(IsLoggedIn::class)->name("organizations.update");
@@ -12,5 +13,8 @@ Route::get("/organization/{organization}/{repository}/tree/{file_path?}", [Repos
   ->middleware(IsLoggedIn::class)
   ->name("api.repositories.show")
   ->where('file_path', '.*');
+Route::get("/organization/{organization}/{repository}/issues", [IssueController::class, "getIssues"])
+  ->middleware(IsLoggedIn::class)
+  ->name("api.repositories.issues");
 
 Route::any("incoming_hook", [IncomingWebhookController::class, "index"])->name("api.webhook");

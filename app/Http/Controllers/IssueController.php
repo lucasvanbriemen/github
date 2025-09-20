@@ -58,7 +58,7 @@ class IssueController extends Controller
         ]);
     }
 
-    public static function list($organizationName, $repositoryName)
+    public static function getIssues($organizationName, $repositoryName, Request $request)
     {
         $organization = Organization::where("name", $organizationName)->first();
         
