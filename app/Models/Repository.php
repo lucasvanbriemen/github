@@ -31,8 +31,14 @@ class Repository extends Model
 
   public function issues($state = "open")
   {
-    return $this->hasMany(Issue::class, "repository_id", "id")
+    $query = $this->hasMany(Issue::class, "repository_id", "id")
       ->orderBy("last_updated", "desc");
+
+    if ($state !== "any") {
+        $query->where("state", $state);
+    }
+
+    return $query;
   }
 
   public $fillable = [
