@@ -26,7 +26,13 @@ class RepositoryUserController extends Controller
 
         foreach ($repoCanidates as $repository) {
             // Fetch contributors from GitHub API
+
             $contributors = githubApi("/repos/" . $repository->full_name . "/contributors");
+
+            // We also need this, to get users who are part of the organization but haven't contributed code
+            $org_members = githubApi("/orgs/" . $repository->organization->name . "/members");
+
+            $contributors = array_merge($contributors, $org_members);
 
             if (!$contributors) {
                 continue;
