@@ -5,6 +5,12 @@
     cursor: default;
   }
 
+  .issues-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .issue-card {
     background-color: var(--background-color);
     position: relative;
