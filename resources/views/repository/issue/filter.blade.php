@@ -8,12 +8,13 @@
     @php
       $options = [];
       foreach ($repository->users as $user) {
-        $options[$user['id']] = $user['name'];
+        $options[$user['user_id']] = $user['name'];
       }
     @endphp
 
     <x-search-select
     :options="$options"
     placeholder="Search assignee"
-    name="assignee" />
+    name="assignee"
+    :selected="\App\GithubConfig::USERID" />
 </div>
