@@ -33,7 +33,9 @@
 
 
     @foreach ($assignees as $assignee)
-      <img src="{{ $assignee['avatar_url'] }}">
+      @if (is_array($assignee) && isset($assignee['avatar_url']))
+        <img src="{{ $assignee['avatar_url'] }}">
+      @endif
     @endforeach
   </div>
 </a>

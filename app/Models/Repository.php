@@ -35,14 +35,21 @@ class Repository extends Model
     $query = $this->hasMany(Issue::class, "repository_id", "id")
       ->orderBy("last_updated", "desc");
 
-    if ($state !== "any") {
+    if ($state !== "all") {
       $query->where("state", $state);
     }
 
     if ($assignee === "none") {
       $query->where("assignees", "[]");
     } elseif ($assignee !== "any") {
-      $query->whereJsonContains("assignees",  $assignee);
+      // Handle both simple ID arrays and user object arrays
+      $query->where(function($q) use ($assignee) {
+        // Try exact JSON contains first (for simple array format)
+        $q->whereJsonContains('assignees', (int)$assignee)
+          ->orWhereJsonContains('assignees', (string)$assignee)
+          // Fallback to LIKE for user object format
+          ->orWhere('assignees', 'LIKE', '%' . $assignee . '%');
+      });
     }
 
     return $query;
