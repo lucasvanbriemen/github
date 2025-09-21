@@ -85,11 +85,6 @@ class IncomingWebhookController extends Controller
 
         $userData = $commentData->user;
 
-        if ($payload->action == 'deleted') {
-            // Delete said issue comment if we have it
-            IssueComment::where('github_id', $commentData->id)->delete();
-        }
-
         // Ensure repository exists first
         self::update_repo($repositoryData);
 
