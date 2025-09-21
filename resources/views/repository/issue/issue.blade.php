@@ -20,4 +20,15 @@
     </div>
     <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
   </div>
+
+  <div class="issue-details">
+    <div class="issue-detail assignees">
+      <h3>Assignees</h3>
+      @foreach ($issue->assignees_data as $assignee)
+        <div class="assignee">
+          <img src="{{ $assignee->avatar_url }}" alt="{{ $assignee->name }}">
+          <span>{{ $assignee->name }}</span>
+        </div>
+      @endforeach
+  </div>
 </x-app-layout>

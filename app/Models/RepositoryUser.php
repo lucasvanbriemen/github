@@ -15,13 +15,16 @@ class RepositoryUser extends Model
     protected $fillable = [
         'repository_id',
         'user_id',
-        'name',
-        'avatar_url',
     ];
 
     public function repository()
     {
         return $this->belongsTo(Repository::class, 'repository_id', 'github_id');
+    }
+
+    public function githubUser()
+    {
+        return $this->belongsTo(GithubUser::class, 'user_id', 'github_id');
     }
 
     public function issues()

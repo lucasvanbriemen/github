@@ -21,20 +21,17 @@ class Issue extends Model
 
     public function openedBy()
     {
-        return $this->belongsTo(RepositoryUser::class, 'opened_by_id', 'user_id');
+        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'github_id');
     }
 
-    public function assignees_data()
+    public function assignees()
     {
-        $assignees = $this->assignees;
+        return $this->belongsToMany(GithubUser::class, 'issue_assignees', 'issue_id', 'github_user_id', 'github_id', 'github_id');
+    }
 
-        if (is_string($assignees)) {
-            $assignees = json_decode($assignees, true) ?? [];
-        }
-
-        return RepositoryUser::whereIn('user_id', $assignees)
-            ->distinct()
-            ->get();
+    public function getAssigneesDataAttribute()
+    {
+        return $this->assignees()->get();
     }
 
     public function comments()

@@ -26,16 +26,8 @@
   </div>
 
   <div class="side-info">
-  @php
-    $shownAssignees = [];
-  @endphp
-  @foreach ($issue->assignees_data() as $assignee)
-    @if(!in_array($assignee->user_id, $shownAssignees))
-      <img src="{{ $assignee->avatar_url }}" alt="{{ $assignee->name }}">
-      @php
-        $shownAssignees[] = $assignee->user_id;
-      @endphp
-    @endif
+  @foreach ($issue->assignees_data as $assignee)
+    <img src="{{ $assignee->avatar_url }}" alt="{{ $assignee->name }}">
   @endforeach
 </div>
 </a>
