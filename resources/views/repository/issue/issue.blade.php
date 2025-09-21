@@ -10,15 +10,19 @@
 
   @include("repository.sidebar")
 
-  <div class="issue-list">
-    <div class="issue-header">
-      <span>{{ $issue->title }}</span>
-      <div class="opened-by">
-        <span class="author"><img src="{{ $issue->openedBy->avatar_url }}" alt="{{ $issue->openedBy->name }}"> {{ $issue->openedBy->name }}</span>
-        <span class="created-at">{{ $issue->created_at->diffForHumans() }}</span>
+  <div class="main-content">
+    <div class="issue-content">
+      <div class="issue-header">
+        <span>{{ $issue->title }}</span>
+        <div class="opened-by">
+          <span class="author"><img src="{{ $issue->openedBy->avatar_url }}" alt="{{ $issue->openedBy->name }}"> {{ $issue->openedBy->name }}</span>
+          <span class="created-at">{{ $issue->created_at->diffForHumans() }}</span>
+        </div>
       </div>
+      <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
     </div>
-    <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
+
+    {{ $issue->comments }}
   </div>
 
   <div class="issue-details">
