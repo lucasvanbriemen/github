@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Issue;
+use App\Models\IssueComment;
 use App\Models\Repository;
 
 class IncomingWebhookController extends Controller
 {
     public $ISSUE_RELATED = ["issues"];
+    public $ISSUE_COMMENT_RELATED = ["issue_comment"];
 
     public function index(Request $request)
     {
@@ -20,6 +22,10 @@ class IncomingWebhookController extends Controller
         
         if (in_array($eventType, $this->ISSUE_RELATED)) {
             $this->issue($payload);
+        }
+
+        if (in_array($eventType, $this->ISSUE_COMMENT_RELATED)) {
+            $this->comment($payload);
         }
 
         return response()->json(["message" => "received"], 200);
@@ -69,5 +75,35 @@ class IncomingWebhookController extends Controller
                 'last_updated' => now(),
             ]
         );
+    }
+
+    public function comment($payload)
+    {
+        $commentData = $payload->comment;
+        $issueData = $payload->issue;
+        $repositoryData = $payload->repository;
+
+        $userData = $commentData->user;
+
+        // Ensure repository exists first
+        self::update_repo($repositoryData);
+
+        // Ensure issue exists first
+        $issue = Issue::where('github_id', $issueData->id)->first();
+        if (!$issue) {
+            // If the issue doesn't exist, we can't add a comment to it
+            self::issue($payload);
+        }
+
+        IssueComment::updateOrCreate(
+            ['github_id' => $commentData->id],
+            [
+                'issue_github_id' => $issueData->id,
+                'user_id' => $userData->id,
+                'body' => $commentData->body ?? '',
+            ]
+        );
+
+        return true;
     }
 }

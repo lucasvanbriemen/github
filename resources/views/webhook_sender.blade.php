@@ -9,7 +9,7 @@
 <body>
   <form id="myForm" method="POST" action="{{ route('api.webhook') }}">
     @csrf
-    <input type="text" name="payload" id='payload' value='{
+    <input type="text" name="payload" id='payload' value='
   {
   "action": "created",
   "issue": {
@@ -328,7 +328,7 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-github-event": "issues",
+          "X-github-event": "issue_comment",
           "Accept": "application/json",
           "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
         },
