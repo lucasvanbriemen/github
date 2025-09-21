@@ -85,7 +85,7 @@ class IncomingWebhookController extends Controller
 
         $userData = $commentData->user;
 
-        if ($payload->action !== 'deleted') {
+        if ($payload->action == 'deleted') {
             // Delete said issue comment if we have it
             IssueComment::where('github_id', $commentData->id)->delete();
         }
