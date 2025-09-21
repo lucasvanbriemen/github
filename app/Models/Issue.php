@@ -27,7 +27,7 @@ class Issue extends Model
         }
 
         return RepositoryUser::whereIn('user_id', $assignees)
-            ->groupBy('user_id')
+            ->distinct()
             ->get();
     }
 
