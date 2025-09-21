@@ -7,8 +7,10 @@
 
     @php
       $options = [];
-      foreach ($repository->users as $user) {
-        $options[$user['user_id']] = $user['name'];
+      foreach ($repository->users as $repositoryUser) {
+        if ($repositoryUser->githubUser) {
+          $options[$repositoryUser->user_id] = $repositoryUser->githubUser->name;
+        }
       }
     @endphp
 

@@ -20,8 +20,10 @@
   </a>
 
   <div class="users-list">
-    @foreach ($repository->users as $user)
-      <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="user" title="{{ $user->name }}" >
+    @foreach ($repository->users as $repositoryUser)
+      @if ($repositoryUser->githubUser)
+        <img src="{{ $repositoryUser->githubUser->avatar_url }}" alt="{{ $repositoryUser->githubUser->name }}" class="user" title="{{ $repositoryUser->githubUser->name }}" >
+      @endif
     @endforeach
   </div>
 </div>
