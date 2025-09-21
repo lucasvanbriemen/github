@@ -23,7 +23,7 @@
     </div>
 
     @foreach ($issue->comments as $comment)
-      <div class="issue-comment"></div>
+      <div class="issue-comment">
         <div class="comment-header">
           <span class="author"><img src="{{ $comment->author->avatar_url }}" alt="{{ $comment->author->name }}"> {{ $comment->author->name }}</span>
           <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>

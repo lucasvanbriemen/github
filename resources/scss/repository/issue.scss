@@ -51,6 +51,35 @@
         }
       }
     }
+
+    .issue-comment {
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-top: 1rem;
+
+      .comment-header {
+        background-color: var(--background-color-one);
+        border-radius: 1rem;
+        padding: 1rem;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .author {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          img {
+            height: 2rem;
+            margin: 0rem 0.25rem;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
   }
 
   .issue-details {
