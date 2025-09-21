@@ -24,6 +24,19 @@ class PullRequestReviewComment extends Model
         'diff_hunk',
         'commit_id',
         'in_reply_to_id',
+        'resolved',
+        'resolved_by',
+        'resolved_at',
+        'original_line',
+        'line',
+        'side',
+        'start_line',
+        'start_side',
+    ];
+
+    protected $casts = [
+        'resolved' => 'boolean',
+        'resolved_at' => 'datetime',
     ];
 
     public function pullRequest()
@@ -39,6 +52,11 @@ class PullRequestReviewComment extends Model
     public function user()
     {
         return $this->belongsTo(GithubUser::class, 'user_id', 'github_id');
+    }
+
+    public function resolvedBy()
+    {
+        return $this->belongsTo(GithubUser::class, 'resolved_by', 'github_id');
     }
 }
 

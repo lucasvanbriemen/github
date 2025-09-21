@@ -7,6 +7,7 @@ use App\Models\IssueComment;
 use App\Models\PullRequest;
 use App\Models\PullRequestReview;
 use App\Models\PullRequestReviewComment;
+use App\Models\PullRequestComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use Illuminate\Http\Request;
@@ -123,7 +124,30 @@ class IncomingWebhookController extends Controller
         $userData = $commentData->user ?? null;
 
         // Ensure repository exists first
-        self::update_repo($repositoryData);
+        $repository = self::update_repo($repositoryData);
+
+        // PR general comments also come through issue_comment when the issue is a PR
+        if (isset($issueData->pull_request)) {
+            // Find the PR by repository + number
+            $pr = PullRequest::where('repository_id', $repository->github_id)
+                ->where('number', $issueData->number ?? null)
+                ->first();
+
+            if ($pr) {
+                self::ensureGithubUser($userData);
+                PullRequestComment::updateOrCreate(
+                    ['github_id' => $commentData->id],
+                    [
+                        'pull_request_github_id' => $pr->github_id,
+                        'user_id' => $userData->id ?? null,
+                        'body' => $commentData->body ?? '',
+                    ]
+                );
+
+                return true;
+            }
+            // If we cannot find PR, fall through to issue comment handling
+        }
 
         // Ensure issue exists first
         $issue = Issue::where('github_id', $issueData->id)->first();
@@ -198,6 +222,7 @@ class IncomingWebhookController extends Controller
                 'author_id' => $author?->github_id,
                 'source_branch' => $pr->head->ref ?? '',
                 'target_branch' => $pr->base->ref ?? '',
+                'node_id' => $pr->node_id ?? null,
                 'labels' => json_encode($labels),
             ]
         );

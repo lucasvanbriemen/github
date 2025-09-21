@@ -46,6 +46,34 @@ class ApiHelper
         }
     }
 
+    public static function githubGraphql(string $query, array $variables = [])
+    {
+        self::init();
+        // Count towards rate limit tracking
+        self::updateSystemInfo('https://api.github.com/graphql');
+
+        $ch = curl_init('https://api.github.com/graphql');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $headers = self::formatHeaders();
+        // GraphQL requires JSON accept
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            'query' => $query,
+            'variables' => (object) $variables,
+        ]));
+
+        $responseBody = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200) {
+            return json_decode($responseBody);
+        }
+        return null;
+    }
+
     private static function updateSystemInfo($url)
     {
         $systemInfo = new SystemInfo([

@@ -16,6 +16,7 @@ class PullRequest extends Model
 
     protected $fillable = [
         'github_id',
+        'node_id',
         'repository_id',
         'number',
         'title',
@@ -78,5 +79,15 @@ class PullRequest extends Model
         return $this->hasMany(PullRequestReviewComment::class, 'pull_request_github_id', 'github_id')
             ->latest();
     }
-}
 
+    public function comments()
+    {
+        return $this->hasMany(PullRequestComment::class, 'pull_request_github_id', 'github_id')
+            ->latest();
+    }
+
+    public function linkedIssues()
+    {
+        return $this->belongsToMany(Issue::class, 'pull_request_linked_issues', 'pull_request_github_id', 'issue_github_id', 'github_id', 'github_id');
+    }
+}
