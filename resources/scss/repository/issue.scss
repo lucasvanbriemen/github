@@ -79,6 +79,16 @@
           }
         }
       }
+
+      .markdown-body {
+        margin-top: 1rem;
+        padding: 0 1rem 1rem 1rem;
+
+        // Comments are mainly raw text, so lets use main text color
+        p {
+          color: var(--text-color);
+        }
+      }
     }
   }
 
