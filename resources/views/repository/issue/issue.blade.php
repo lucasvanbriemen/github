@@ -44,7 +44,7 @@
       @endforeach
     </div>
 
-    @if (count(json_decode($issue->labels, true)) > 0)
+    @if (count( (is_string($issue->labels) ? json_decode($issue->labels, true) : []) ) > 0)
       <div class="issue-detail labels">
         <h3>Labels</h3>
         @foreach (json_decode($issue->labels, true) as $label)

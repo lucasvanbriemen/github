@@ -7,7 +7,7 @@
     Show issues <span class="count">{{ $repository->issues->count() }}</span>
   </a>
 
-  <a href="{{ route("repository.pr.index", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs("repository.pr.*") ? "active" : "" }}">
+  <a href="{{ route("organization.show", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs("repository.pr.*") ? "active" : "" }}">
     Show PR <span class="count">{{ $repository->pr_count }}</span>
   </a>
 
