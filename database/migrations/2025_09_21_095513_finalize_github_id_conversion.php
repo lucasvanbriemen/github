@@ -12,11 +12,32 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, ensure column types match for foreign keys and set primary keys
+        // Ensure organizations has github_id and make it the primary key
+        if (!Schema::hasColumn('organizations', 'github_id')) {
+            Schema::table('organizations', function (Blueprint $table) {
+                $table->unsignedBigInteger('github_id')->nullable()->after('id');
+            });
+        }
+
+        // Try to migrate existing organization_id values into github_id when numeric
+        DB::statement("UPDATE organizations SET github_id = CAST(organization_id AS UNSIGNED) WHERE github_id IS NULL AND organization_id REGEXP '^[0-9]+$'");
+
+        // Drop existing primary key if present
+        $orgPk = DB::select("SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_NAME = 'organizations' AND CONSTRAINT_TYPE = 'PRIMARY KEY'");
+        if (!empty($orgPk)) {
+            DB::statement('ALTER TABLE organizations DROP PRIMARY KEY');
+        }
+
+        // Ensure github_id is non-nullable and set as primary key
+        DB::statement('ALTER TABLE organizations MODIFY github_id BIGINT UNSIGNED NOT NULL');
         Schema::table('organizations', function (Blueprint $table) {
-            $table->unsignedBigInteger('github_id')->change();
             $table->primary('github_id');
         });
+
+        // Ensure repositories.organization_id is BIGINT UNSIGNED to match organizations.github_id
+        if (Schema::hasColumn('repositories', 'organization_id')) {
+            DB::statement('ALTER TABLE repositories MODIFY organization_id BIGINT UNSIGNED NULL');
+        }
 
         // Step 1: Update repository_users table to use composite primary key
         if (Schema::hasColumn('repository_users', 'id')) {
