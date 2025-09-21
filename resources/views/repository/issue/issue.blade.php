@@ -19,14 +19,5 @@
       </div>
     </div>
     <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
-
-    @if (count($timeline))
-      <div class="timeline-section">
-        <h3>Timeline</h3>
-        @foreach ($timeline as $event)
-          {{-- {!! timelineView($event, $event->data, $event->actor, $issue) !!} --}}
-        @endforeach
-      </div>
-    @endif
   </div>
 </x-app-layout>

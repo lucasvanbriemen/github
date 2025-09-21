@@ -44,16 +44,13 @@ class IssueController extends Controller
 
         $repository = $query->firstOrFail();
 
-        $issue = Issue::where('repository_full_name', $repository->full_name)
+        $issue = Issue::where('repository_id', $repository->github_id)
             ->where('number', $issueNumber)
             ->firstOrFail();
 
-        $timeline = ApiHelper::githubApi("/repos/{$repository->full_name}/issues/{$issueNumber}/timeline");
-
-        return view('repository.issue', [
+        return view('repository.issue.issue', [
             'organization' => $organization,
             'repository' => $repository,
-            'timeline' => $timeline,
             'issue' => $issue,
         ]);
     }
