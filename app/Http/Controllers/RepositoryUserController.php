@@ -40,7 +40,7 @@ class RepositoryUserController extends Controller
                 // Update or create repository user
                 RepositoryUser::updateOrCreate(
                     [
-                        'repository_id' => $repository->id,
+                        'repository_id' => $repository->github_id,
                         'user_id' => $contributor->id,
                     ],
                     [

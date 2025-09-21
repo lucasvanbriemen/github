@@ -8,32 +8,25 @@ use Illuminate\Support\Str;
 
 class Repository extends Model
 {
-    protected $keyType = 'string';
+    protected $primaryKey = 'github_id';
+
+    protected $keyType = 'int';
 
     public $incrementing = false;
 
-    public static function booted()
-    {
-        static::creating(function ($model) {
-            if (empty($model->id)) {
-                $model->id = (string) Str::uuid();
-            }
-        });
-    }
-
     public function organization()
     {
-        return $this->belongsTo(Organization::class, 'organization_id', 'organization_id');
+        return $this->belongsTo(Organization::class, 'organization_id', 'github_id');
     }
 
     public function users()
     {
-        return $this->hasMany(RepositoryUser::class);
+        return $this->hasMany(RepositoryUser::class, 'repository_id', 'github_id');
     }
 
     public function issues($state = 'open', $assignee = GithubConfig::USERID)
     {
-        $query = $this->hasMany(Issue::class, 'repository_id', 'id')
+        $query = $this->hasMany(Issue::class, 'repository_id', 'github_id')
             ->orderBy('last_updated', 'desc');
 
         if ($state !== 'all') {

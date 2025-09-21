@@ -6,11 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Issue extends Model
 {
+    protected $primaryKey = 'github_id';
+
+    protected $keyType = 'int';
+
+    public $incrementing = false;
+
     public $timestamps = true;
 
     public function repository()
     {
-        return $this->belongsTo(Repository::class, 'repository_id', 'id');
+        return $this->belongsTo(Repository::class, 'repository_id', 'github_id');
     }
 
     public function openedBy()

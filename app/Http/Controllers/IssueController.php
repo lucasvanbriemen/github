@@ -17,7 +17,7 @@ class IssueController extends Controller
 
         $query = Repository::where('name', $repositoryName);
         if ($organization) {
-            $query->where('organization_id', $organization->organization_id);
+            $query->where('organization_id', $organization->github_id);
         }
 
         $repository = $query->firstOrFail();
@@ -39,7 +39,7 @@ class IssueController extends Controller
 
         $query = Repository::where('name', $repositoryName);
         if ($organization) {
-            $query->where('organization_id', $organization->organization_id);
+            $query->where('organization_id', $organization->github_id);
         }
 
         $repository = $query->firstOrFail();
@@ -67,7 +67,7 @@ class IssueController extends Controller
 
         $query = Repository::where('name', $repositoryName);
         if ($organization) {
-            $query->where('organization_id', $organization->organization_id);
+            $query->where('organization_id', $organization->github_id);
         }
         $repository = $query->firstOrFail();
 

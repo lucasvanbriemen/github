@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class IssueComment extends Model
 {
-    //
-    protected $fillable = ['github_id', 'github_id ', 'issue_github_id', 'user_id', 'body'];
+    protected $primaryKey = 'github_id';
+
+    protected $keyType = 'int';
+
+    public $incrementing = false;
+
+    protected $fillable = ['github_id', 'issue_github_id', 'user_id', 'body'];
 
     public function issue()
     {

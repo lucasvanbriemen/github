@@ -51,7 +51,7 @@ class IncomingWebhookController extends Controller
         Issue::updateOrCreate(
             ['github_id' => $issueData->id],
             [
-                'repository_id' => $repository->id,
+                'repository_id' => $repository->github_id,
                 'opened_by_id' => $userData->id,
                 'number' => $issueData->number,
                 'title' => $issueData->title,
