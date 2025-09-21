@@ -32,6 +32,11 @@ class Issue extends Model
         ->get();
   }
 
+  public function comments()
+  {
+    return $this->hasMany(IssueComment::class, "issue_github_id", "github_id");
+  }
+
   protected $fillable = [
     "repository_id",
     "github_id",
