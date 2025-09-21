@@ -22,7 +22,15 @@
       <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
     </div>
 
-    {{ $issue->comments }}
+    @foreach ($issue->comments as $comment)
+      <div class="issue-comment"></div>
+        <div class="comment-header">
+          <span class="author"><img src="{{ $comment->author->avatar_url }}" alt="{{ $comment->author->name }}"> {{ $comment->author->name }}</span>
+          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
+        </div>
+        <div class='markdown-body'><x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown></div>
+      </div>
+    @endforeach
   </div>
 
   <div class="issue-details">

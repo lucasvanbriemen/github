@@ -18,4 +18,9 @@ class IssueComment extends Model
     {
         return $this->belongsTo(Issue::class, 'issue_github_id', 'github_id');
     }
+
+    public function author()
+    {
+        return $this->belongsTo(GithubUser::class, 'user_id', 'github_id');
+    }
 }
