@@ -3,56 +3,55 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Issue extends Model
 {
-  public $timestamps = true;
+    public $timestamps = true;
 
-  public function repository()
-  {
-    return $this->belongsTo(Repository::class, "repository_id", "id");
-  }
-
-  public function openedBy()
-  {
-    return $this->belongsTo(RepositoryUser::class, "opened_by_id", "user_id");
-  }
-
-  public function assignees_data()
-  {
-    $assignees = $this->assignees;
-
-    if (is_string($assignees)) {
-        $assignees = json_decode($assignees, true) ?? [];
+    public function repository()
+    {
+        return $this->belongsTo(Repository::class, 'repository_id', 'id');
     }
 
-    return RepositoryUser::whereIn('user_id', $assignees)
-        ->groupBy('user_id')
-        ->get();
-  }
+    public function openedBy()
+    {
+        return $this->belongsTo(RepositoryUser::class, 'opened_by_id', 'user_id');
+    }
 
-  public function comments()
-  {
-    return $this->hasMany(IssueComment::class, "issue_github_id", "github_id");
-  }
+    public function assignees_data()
+    {
+        $assignees = $this->assignees;
 
-  protected $fillable = [
-    "repository_id",
-    "github_id",
-    "number",
-    "title",
-    "body",
-    "last_updated",
-    "state",
-    "labels",
-    "assignees",
-    "opened_by_id",
-  ];
+        if (is_string($assignees)) {
+            $assignees = json_decode($assignees, true) ?? [];
+        }
 
-  protected $casts = [
-    "labels" => "array",
-    "assignees" => "array",
-    "last_updated" => "datetime",
-  ];
+        return RepositoryUser::whereIn('user_id', $assignees)
+            ->groupBy('user_id')
+            ->get();
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(IssueComment::class, 'issue_github_id', 'github_id');
+    }
+
+    protected $fillable = [
+        'repository_id',
+        'github_id',
+        'number',
+        'title',
+        'body',
+        'last_updated',
+        'state',
+        'labels',
+        'assignees',
+        'opened_by_id',
+    ];
+
+    protected $casts = [
+        'labels' => 'array',
+        'assignees' => 'array',
+        'last_updated' => 'datetime',
+    ];
 }

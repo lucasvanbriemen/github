@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -31,19 +31,17 @@ return new class extends Migration
             }
 
             // Add repository_id
-            if (!Schema::hasColumn('issues', 'repository_id')) {
+            if (! Schema::hasColumn('issues', 'repository_id')) {
                 $table->uuid('repository_id')->nullable()->after('id');
                 $table->foreign('repository_id')->references('id')->on('repositories')->onDelete('cascade');
             }
 
             // Add the repository_users_id column
-            if (!Schema::hasColumn('issues', 'repository_users_id')) {
+            if (! Schema::hasColumn('issues', 'repository_users_id')) {
                 $table->unsignedBigInteger('repository_users_id')->nullable()->after('repository_id');
                 $table->foreign('repository_users_id')->references('id')->on('repository_users')->onDelete('set null');
             }
         });
-
-
 
     }
 

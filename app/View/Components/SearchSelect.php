@@ -8,8 +8,11 @@ use Illuminate\View\View;
 class SearchSelect extends Component
 {
     public $options;
+
     public $placeholder;
+
     public $name;
+
     public $selected;
 
     public function __construct($options = [], $placeholder = 'Search...', $name = 'search-select', $selected = null)

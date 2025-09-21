@@ -2,33 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Organization;
-use App\Models\Repository;
 use App\Models\Issue;
-use Github\Api\CurrentUser;
+use App\Models\Repository;
 
 class DashboardController extends Controller
 {
-  public function index()
-  {
-    $repositories = Repository::with("organization")->orderBy("last_updated", "desc")->get();
-    $issues = [];
-    
-    foreach ($repositories as $repo) {
-      // Get any issue that has been updated since the last_activity and where im assigned to me
-      $repoIssues = $repo->issues()->get();
+    public function index()
+    {
+        $repositories = Repository::with('organization')->orderBy('last_updated', 'desc')->get();
+        $issues = [];
 
-      foreach ($repoIssues as $issue) {
+        foreach ($repositories as $repo) {
+            // Get any issue that has been updated since the last_activity and where im assigned to me
+            $repoIssues = $repo->issues()->get();
 
-        // Issue that hasn't been updated since my last activity (unless it was updated in the last hour)
-        if ($issue->updated_at <= currentUser()->last_activity && $issue->updated_at <= now()->subHour()) {
-          continue;
+            foreach ($repoIssues as $issue) {
+
+                // Issue that hasn't been updated since my last activity (unless it was updated in the last hour)
+                if ($issue->updated_at <= currentUser()->last_activity && $issue->updated_at <= now()->subHour()) {
+                    continue;
+                }
+
+                $issues[] = $issue;
+            }
         }
 
-        $issues[] = $issue;
-      }
+        return view('dashboard.show', compact('repositories', 'issues'));
     }
-
-    return view("dashboard.show", compact("repositories", "issues"));
-  }
 }

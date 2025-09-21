@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Env;
-
 /*
  * This file is part of Laravel GitHub.
  *
@@ -43,8 +41,8 @@ return [
     'connections' => [
 
         'main' => [
-            'method'     => 'token',
-            'token'      => env("GITHUB_ACCESS_TOKEN"),
+            'method' => 'token',
+            'token' => env('GITHUB_ACCESS_TOKEN'),
             // 'backoff'    => false,
             // 'cache'      => false,
             // 'version'    => 'v3',
@@ -52,8 +50,8 @@ return [
         ],
 
         'app' => [
-            'method'       => 'application',
-            'clientId'     => 'your-client-id',
+            'method' => 'application',
+            'clientId' => 'your-client-id',
             'clientSecret' => 'your-client-secret',
             // 'backoff'      => false,
             // 'cache'        => false,
@@ -62,8 +60,8 @@ return [
         ],
 
         'jwt' => [
-            'method'       => 'jwt',
-            'token'        => 'your-jwt-token',
+            'method' => 'jwt',
+            'token' => 'your-jwt-token',
             // 'backoff'      => false,
             // 'cache'        => false,
             // 'version'      => 'v3',
@@ -71,9 +69,9 @@ return [
         ],
 
         'private' => [
-            'method'     => 'private',
-            'appId'      => 'your-github-app-id',
-            'keyPath'    => 'your-private-key-path',
+            'method' => 'private',
+            'appId' => 'your-github-app-id',
+            'keyPath' => 'your-private-key-path',
             // 'key'        => 'your-private-key-content',
             // 'passphrase' => 'your-private-key-passphrase'
             // 'backoff'    => false,
@@ -83,7 +81,7 @@ return [
         ],
 
         'none' => [
-            'method'     => 'none',
+            'method' => 'none',
             // 'backoff'    => false,
             // 'cache'      => false,
             // 'version'    => 'v3',
@@ -106,14 +104,14 @@ return [
     'cache' => [
 
         'main' => [
-            'driver'    => 'illuminate',
+            'driver' => 'illuminate',
             'connector' => null, // null means use default driver
             // 'min'       => 43200,
             // 'max'       => 172800
         ],
 
         'bar' => [
-            'driver'    => 'illuminate',
+            'driver' => 'illuminate',
             'connector' => 'redis', // config/cache.php
             // 'min'       => 43200,
             // 'max'       => 172800

@@ -13,43 +13,43 @@ return new class extends Migration
     {
         Schema::table('issues', function (Blueprint $table) {
             // Ensure all columns exist and have correct types
-            if (!Schema::hasColumn('issues', 'repository_id')) {
+            if (! Schema::hasColumn('issues', 'repository_id')) {
                 $table->char('repository_id', 36)->nullable();
                 $table->foreign('repository_id')->references('id')->on('repositories')->onDelete('cascade');
             }
-            if (!Schema::hasColumn('issues', 'opened_by_id')) {
+            if (! Schema::hasColumn('issues', 'opened_by_id')) {
                 $table->unsignedBigInteger('opened_by_id')->nullable();
             }
-            if (!Schema::hasColumn('issues', 'github_id')) {
+            if (! Schema::hasColumn('issues', 'github_id')) {
                 $table->unsignedBigInteger('github_id')->unique();
             }
-            if (!Schema::hasColumn('issues', 'number')) {
+            if (! Schema::hasColumn('issues', 'number')) {
                 $table->unsignedBigInteger('number');
             }
-            if (!Schema::hasColumn('issues', 'title')) {
+            if (! Schema::hasColumn('issues', 'title')) {
                 $table->string('title')->nullable();
             }
-            if (!Schema::hasColumn('issues', 'body')) {
+            if (! Schema::hasColumn('issues', 'body')) {
                 $table->text('body')->nullable();
             }
-            if (!Schema::hasColumn('issues', 'last_updated')) {
+            if (! Schema::hasColumn('issues', 'last_updated')) {
                 $table->datetime('last_updated')->nullable();
             }
-            if (!Schema::hasColumn('issues', 'state')) {
+            if (! Schema::hasColumn('issues', 'state')) {
                 $table->string('state')->default('open');
             }
-            if (!Schema::hasColumn('issues', 'labels')) {
+            if (! Schema::hasColumn('issues', 'labels')) {
                 $table->json('labels')->nullable();
             }
-            if (!Schema::hasColumn('issues', 'assignees')) {
+            if (! Schema::hasColumn('issues', 'assignees')) {
                 $table->json('assignees')->nullable();
             }
 
             // Ensure timestamps exist
-            if (!Schema::hasColumn('issues', 'created_at')) {
+            if (! Schema::hasColumn('issues', 'created_at')) {
                 $table->timestamp('created_at')->nullable();
             }
-            if (!Schema::hasColumn('issues', 'updated_at')) {
+            if (! Schema::hasColumn('issues', 'updated_at')) {
                 $table->timestamp('updated_at')->nullable();
             }
         });

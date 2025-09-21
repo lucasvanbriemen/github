@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('repositories', function (Blueprint $table) {
             $table->string('description')->nullable();
-            $table->integer("pr_count")->default(0);
-            $table->integer("issue_count")->default(0);
+            $table->integer('pr_count')->default(0);
+            $table->integer('issue_count')->default(0);
         });
     }
 

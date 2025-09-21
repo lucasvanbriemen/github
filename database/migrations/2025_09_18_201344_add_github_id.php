@@ -14,7 +14,7 @@ return new class extends Migration
         //
         // Add github_id to repositories
         Schema::table('repositories', function (Blueprint $table) {
-            if (!Schema::hasColumn('repositories', 'github_id')) {
+            if (! Schema::hasColumn('repositories', 'github_id')) {
                 $table->unsignedBigInteger('github_id')->nullable()->after('name')->unique();
             }
         });

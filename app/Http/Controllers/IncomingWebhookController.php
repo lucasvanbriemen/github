@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Issue;
 use App\Models\IssueComment;
 use App\Models\Repository;
+use Illuminate\Http\Request;
 
 class IncomingWebhookController extends Controller
 {
-    public $ISSUE_RELATED = ["issues"];
-    public $ISSUE_COMMENT_RELATED = ["issue_comment"];
+    public $ISSUE_RELATED = ['issues'];
+
+    public $ISSUE_COMMENT_RELATED = ['issue_comment'];
 
     public function index(Request $request)
     {
         $headers = $request->headers->all();
         $payload = $request->getContent();
         $payload = json_decode($payload ?? '{}');
-        
+
         $eventType = $headers['x-github-event'][0] ?? 'unknown';
-        
+
         if (in_array($eventType, $this->ISSUE_RELATED)) {
             $this->issue($payload);
         }
@@ -28,7 +29,7 @@ class IncomingWebhookController extends Controller
             $this->comment($payload);
         }
 
-        return response()->json(["message" => "received"], 200);
+        return response()->json(['message' => 'received'], 200);
     }
 
     public function issue($payload)
@@ -48,22 +49,23 @@ class IncomingWebhookController extends Controller
         }
 
         Issue::updateOrCreate(
-        ['github_id' => $issueData->id],
-        [
-            'repository_id' => $repository->id,
-            'opened_by_id' => $userData->id,
-            'number' => $issueData->number,
-            'title' => $issueData->title,
-            'body' => $issueData->body ?? '',
-            'state' => $issueData->state,
-            'labels' => json_encode($issueData->labels ?? []),
-            'assignees' => json_encode($assigneeIds),
-        ]);
+            ['github_id' => $issueData->id],
+            [
+                'repository_id' => $repository->id,
+                'opened_by_id' => $userData->id,
+                'number' => $issueData->number,
+                'title' => $issueData->title,
+                'body' => $issueData->body ?? '',
+                'state' => $issueData->state,
+                'labels' => json_encode($issueData->labels ?? []),
+                'assignees' => json_encode($assigneeIds),
+            ]);
 
         return true;
     }
 
-    public static function update_repo($repo) {
+    public static function update_repo($repo)
+    {
         return Repository::updateOrCreate(
             ['github_id' => $repo->id],
             [
@@ -90,7 +92,7 @@ class IncomingWebhookController extends Controller
 
         // Ensure issue exists first
         $issue = Issue::where('github_id', $issueData->id)->first();
-        if (!$issue) {
+        if (! $issue) {
             // If the issue doesn't exist, we can't add a comment to it
             self::issue($payload);
         }
