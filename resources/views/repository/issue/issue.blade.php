@@ -19,7 +19,7 @@
           <span class="created-at">{{ $issue->created_at->diffForHumans() }}</span>
         </div>
       </div>
-      <div class='markdown-body'><x-markdown theme="github-dark">{!! $issue->body !!}</x-markdown></div>
+      <div class='markdown-body'><x-markdown theme="github-dark">{!! Str::markdown($issue->body) !!}</x-markdown></div>
     </div>
 
     @foreach ($issue->comments as $comment)
