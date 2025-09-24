@@ -7,6 +7,9 @@
   flex-direction: column;
   gap: 0.5rem;
 
+  position: sticky;
+  top: 0;
+
   // This makes it align with the files in the filelist (that contaoner has 1rem padding)
   margin-top: 1rem;
 
@@ -42,9 +45,7 @@
 
   .users-list {
     position: absolute;
-    bottom: 1rem;
-
-    max-width: calc(20% - 2rem);
+    bottom: 0;
 
     display: flex;
     flex-wrap: wrap;
