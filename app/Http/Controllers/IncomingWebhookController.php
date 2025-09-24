@@ -53,15 +53,37 @@ class IncomingWebhookController extends Controller
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
-        $assigneeIds = [];
-        // We have to loop over the assignees, to only store their IDs instead of full objects
+        // Create/update the user who opened the issue
+        GithubUser::updateOrCreate(
+            ['github_id' => $userData->id],
+            [
+                'login' => $userData->login,
+                'name' => $userData->name ?? $userData->login,
+                'avatar_url' => $userData->avatar_url ?? '',
+                'type' => $userData->type ?? 'User',
+            ]
+        );
+
+        $assigneeGithubIds = [];
+        // We have to loop over the assignees to create/update them in the github_users table
         if (!empty($issueData->assignees) && is_array($issueData->assignees)) {
             foreach ($issueData->assignees as $assignee) {
-                $assigneeIds[] = $assignee->id;
+                $assigneeGithubIds[] = $assignee->id;
+
+                // Create/update the assignee in github_users table
+                GithubUser::updateOrCreate(
+                    ['github_id' => $assignee->id],
+                    [
+                        'login' => $assignee->login,
+                        'name' => $assignee->name ?? $assignee->login,
+                        'avatar_url' => $assignee->avatar_url ?? '',
+                        'type' => $assignee->type ?? 'User',
+                    ]
+                );
             }
         }
 
-        Issue::updateOrCreate(
+        $issue = Issue::updateOrCreate(
             ['github_id' => $issueData->id],
             [
                 'repository_id' => $repository->github_id,
@@ -71,8 +93,10 @@ class IncomingWebhookController extends Controller
                 'body' => $issueData->body ?? '',
                 'state' => $issueData->state,
                 'labels' => json_encode($issueData->labels ?? []),
-                'assignees' => json_encode($assigneeIds),
             ]);
+
+        // Sync assignees in the pivot table
+        $issue->assignees()->sync($assigneeGithubIds);
 
         return true;
     }

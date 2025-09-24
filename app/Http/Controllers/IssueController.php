@@ -46,6 +46,7 @@ class IssueController extends Controller
 
         $issue = Issue::where('repository_id', $repository->github_id)
             ->where('number', $issueNumber)
+            ->with('assignees', 'openedBy', 'comments.author')
             ->firstOrFail();
 
         return view('repository.issue.issue', [

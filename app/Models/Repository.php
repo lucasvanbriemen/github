@@ -27,6 +27,7 @@ class Repository extends Model
     public function issues($state = 'open', $assignee = GithubConfig::USERID)
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'github_id')
+            ->with('assignees', 'openedBy')
             ->orderBy('last_updated', 'desc');
 
         if ($state !== 'all') {
@@ -34,10 +35,10 @@ class Repository extends Model
         }
 
         if ($assignee === 'none') {
-            $query->where('assignees', '[]');
+            $query->whereDoesntHave('assignees');
         } elseif ($assignee !== 'any') {
-            $query->where(function ($q) use ($assignee) {
-                $q->where('assignees', 'LIKE', '%'.$assignee.'%');
+            $query->whereHas('assignees', function ($q) use ($assignee) {
+                $q->where('github_users.github_id', $assignee);
             });
         }
 

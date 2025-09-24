@@ -48,13 +48,11 @@ class Issue extends Model
         'last_updated',
         'state',
         'labels',
-        'assignees',
         'opened_by_id',
     ];
 
     protected $casts = [
         'labels' => 'array',
-        'assignees' => 'array',
         'last_updated' => 'datetime',
     ];
 }
