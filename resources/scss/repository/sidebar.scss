@@ -42,22 +42,4 @@
       padding: 0.25rem 0.5rem;
     }
   }
-
-  .users-list {
-    position: absolute;
-    bottom: 0;
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 1rem;
-    background-color: var(--background-color-two);
-
-    .user {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-    }
-  }
 }
