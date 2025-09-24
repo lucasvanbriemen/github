@@ -15,7 +15,7 @@
       <div class="issue-header">
         <span>{{ $issue->title }}</span>
         <div class="opened-by">
-          <span class="author"><img src="{{ $issue->openedBy?->avatar_url }}" alt="{{ $issue->openedBy?->name }}"> {{ $issue->openedBy?->name }}</span>
+          <span class="author"><img src="{{ $issue->openedBy->avatar_url }}" alt="{{ $issue->openedBy->name }}"> {{ $issue->openedBy->name }}</span>
           <span class="created-at">{{ $issue->created_at->diffForHumans() }}</span>
         </div>
       </div>
