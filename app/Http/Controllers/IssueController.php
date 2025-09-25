@@ -49,6 +49,13 @@ class IssueController extends Controller
             ->with('assignees', 'openedBy', 'comments.author')
             ->firstOrFail();
 
+        // Process markdown to replace GitHub image URLs with proxy URLs
+        $issue->body = self::processMarkdownImages($issue->body);
+
+        foreach ($issue->comments as $comment) {
+            $comment->body = self::processMarkdownImages($comment->body);
+        }
+
         return view('repository.issue.issue', [
             'organization' => $organization,
             'repository' => $repository,
@@ -77,5 +84,34 @@ class IssueController extends Controller
             'repository' => $repository,
             'issues' => $issues,
         ]);
+    }
+
+    private static function processMarkdownImages($content)
+    {
+        if (!$content) {
+            return $content;
+        }
+
+        // Replace markdown images: ![alt](url)
+        $content = preg_replace_callback(
+            '/!\[([^\]]*)\]\((https:\/\/(?:github\.com|raw\.githubusercontent\.com|user-images\.githubusercontent\.com)[^)]+)\)/',
+            function ($matches) {
+                $proxyUrl = route('image.proxy') . '?url=' . urlencode($matches[2]);
+                return "![{$matches[1]}]({$proxyUrl})";
+            },
+            $content
+        );
+
+        // Replace HTML img tags: <img src="url">
+        $content = preg_replace_callback(
+            '/<img([^>]*\s+)?src=["\']?(https:\/\/(?:github\.com|raw\.githubusercontent\.com|user-images\.githubusercontent\.com)[^"\'>\s]+)["\']?([^>]*)>/i',
+            function ($matches) {
+                $proxyUrl = route('image.proxy') . '?url=' . urlencode($matches[2]);
+                return "<img{$matches[1]}src=\"{$proxyUrl}\"{$matches[3]}>";
+            },
+            $content
+        );
+
+        return $content;
     }
 }

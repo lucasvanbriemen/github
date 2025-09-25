@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImageProxyController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
@@ -12,6 +13,8 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/webhook_sender', function () {
         return view('webhook_sender');
     })->name('webhook_sender');
+
+    Route::get('/proxy/image', [ImageProxyController::class, 'proxy'])->name('image.proxy');
 
     Route::prefix('organization/{organization}')->group(function () {
         Route::get('/', [OrganizationController::class, 'show'])->name('organization.show');
