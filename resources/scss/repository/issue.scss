@@ -1,17 +1,17 @@
-.issue-page {
+.issue-page, .pull-request-page {
   .main-content {
     width: 60%;
     height: 100%;
     min-height: 20rem;
 
-    .issue-content {
+    .issue-content, .pull-request-content {
       width: 100%;
       height: 100%;
       background-color: var(--background-color-one);
       padding: 1rem;
       border-radius: 1rem;
 
-      .issue-header {
+      .issue-header, .pull-request-header {
         background-color: var(--background-color-two);
         display: flex;
         justify-content: space-between;
@@ -52,7 +52,7 @@
       }
     }
 
-    .issue-comment {
+    .issue-comment, .pull-request-comment {
       border: 1px solid var(--border-color);
       border-radius: 1rem;
       margin-top: 1rem;
@@ -107,7 +107,7 @@
     }
   }
 
-  .issue-details {
+  .issue-details, .pull-request-details {
     width: 20%;
     height: 100%;
 
@@ -118,7 +118,7 @@
     border-left: 1px solid var(--border-color);
     gap: 1rem;
 
-    .issue-detail {
+    .issue-detail, .pull-request-detail {
       padding: 0.5rem;
       border-radius: 0.5rem;
       border: 1px solid var(--border-color);

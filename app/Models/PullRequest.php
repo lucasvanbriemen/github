@@ -29,6 +29,11 @@ class PullRequest extends Model
         return $this->belongsToMany(GithubUser::class, 'pull_request_assignees', 'pull_request_id', 'github_user_id', 'github_id', 'github_id');
     }
 
+    public function comments()
+    {
+        return $this->hasMany(IssueComment::class, 'issue_github_id', 'github_id');
+    }
+
     public function getAssigneesDataAttribute()
     {
         return $this->assignees()->get();

@@ -1,4 +1,4 @@
-<x-app-layout class="repository-page issue-page">
+<x-app-layout class="repository-page pull-request-page">
   <x-slot:header>
     @if ($organization)
       <a href="{{ route('organization.show', $organization->name) }}">
@@ -11,8 +11,8 @@
   @include("repository.sidebar")
 
   <div class="main-content">
-    <div class="issue-content">
-      <div class="issue-header">
+    <div class="pull-request-content">
+      <div class="pull-request-header">
         <span>{{ $pullRequest->title }}</span>
         <div class="opened-by">
           <span class="author"><img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }}</span>
@@ -23,8 +23,8 @@
     </div>
   </div>
 
-  <div class="issue-details">
-    <div class="issue-detail assignees">
+  <div class="pull-request-details">
+    <div class="pull-request-detail assignees">
       <h3>Assignees</h3>
       @foreach ($pullRequest->assignees_data as $assignee)
         <div class="assignee">
@@ -35,7 +35,7 @@
     </div>
 
     @if (count( (is_string($pullRequest->labels) ? json_decode($pullRequest->labels, true) : []) ) > 0)
-      <div class="issue-detail labels">
+      <div class="pull-request-detail labels">
         <h3>Labels</h3>
         @foreach (json_decode($pullRequest->labels, true) as $label)
           @php
