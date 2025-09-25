@@ -92,6 +92,10 @@
         p {
           color: var(--text-color);
         }
+
+        .button-primary {
+          margin-top: 1rem;
+        }
       }
 
       &.resolved {

@@ -11,9 +11,9 @@ export default {
       button.addEventListener("click", () => this.updateComment(button.getAttribute("data-comment"), button.getAttribute("data-url")));
     });
 
-    const allComments = document.querySelectorAll(".issue-comment");
-    allComments.forEach(comment => {
-      comment.addEventListener("click", () => this.openResolvedComments(comment.getAttribute("data-comment")));
+    const allCommentsHeaders = document.querySelectorAll(".issue-comment .comment-header");
+    allCommentsHeaders.forEach(commentHeader => {
+      commentHeader.addEventListener("click", () => this.openResolvedComments(commentHeader.closest(".issue-comment").getAttribute("data-comment")));
     });
   },
 
@@ -31,5 +31,6 @@ export default {
   openResolvedComments(id) {
     const comment = document.querySelector(`.issue-comment[data-comment="${id}"]`);
     comment.classList.toggle("resolved");
+    app.setLoading(false);
   }
 };
