@@ -27,7 +27,7 @@ export default {
       comment.classList.toggle("resolved", data.resolved);
       comment.querySelector(".button-primary").innerHTML = data.resolved ? "Mark as unresolved" : "Mark as resolved";
      
-      const newURL = data.resolved ? url.replace("/unresolve", "/resolve") : url.replace("/resolve", "/unresolve");
+      const newURL = data.resolved ? url.replace("/resolve", "/unresolve") : url.replace("/unresolve", "/resolve");
       comment.querySelector(".button-primary").setAttribute("data-url", newURL);
     });
   },
