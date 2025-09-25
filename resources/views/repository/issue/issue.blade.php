@@ -23,12 +23,15 @@
     </div>
 
     @foreach ($issue->comments as $comment)
-      <div class="issue-comment">
+      <div class="issue-comment {{ $comment->resolved ? 'resolved' : '' }}">
         <div class="comment-header">
           <span class="author"><img src="{{ $comment->author?->avatar_url }}" alt="{{ $comment->author?->name }}"> {{ $comment->author?->name }}</span>
           <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
         </div>
-        <div class='markdown-body'><x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown></div>
+        <div class='markdown-body'>
+          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
+          <button class="button-primary">Mark as resolved</button>
+        </div>
       </div>
     @endforeach
   </div>

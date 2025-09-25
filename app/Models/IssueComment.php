@@ -12,7 +12,7 @@ class IssueComment extends Model
 
     public $incrementing = false;
 
-    protected $fillable = ['github_id', 'issue_github_id', 'user_id', 'body'];
+    protected $fillable = ['github_id', 'issue_github_id', 'user_id', 'body', 'created_at', 'updated_at', 'resolved'];
 
     public function issue()
     {
