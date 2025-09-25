@@ -4,31 +4,18 @@ namespace App\Helpers;
 
 class IssueHelper
 {
-    public static $allowedTimelineEvents = [
-        'closed',
-        'reopened',
-        'referenced',
-        'committed',
-        'merged',
-        'head_ref_deleted',
-        'head_ref_restored',
-        'assigned',
-        'unassigned',
-        'labeled',
-        'unlabeled',
-        'milestoned',
-        'demilestoned',
-        'commented',
-        'cross-referenced',
+   public static function labelColor($color)
+   {
+    $borderColor = "#".$color;
+    $textColor = "#".$color;
+    
+    // Make the background color slightly transparent
+    $backgroundColor = "#".$color . '33'; // Adding '33' for 20% opacity
+
+    return [
+        'text' => $textColor,
+        'background' => $backgroundColor,
+        'border' =>  $borderColor,
     ];
-
-    public static function timelineView($event, $data, $actor, $issue = null)
-    {
-        // Return view based on event type (e.g. timeline/closed, timeline/reopened, etc.)
-        $viewName = 'timeline.'.str_replace('_', '-', $event->event);
-        if (view()->exists($viewName)) {
-
-            return view($viewName, ['data' => $data, 'actor' => $actor, 'event' => $event, 'issue' => $issue])->render();
-        }
-    }
+   }
 }
