@@ -32,6 +32,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
             Route::get('/issues/{issue}', [IssueController::class, 'show'])
                 ->name('repository.issues.show');
 
+            Route::get('/prs', [RepositoryController::class, 'pullRequests'])
+                ->name('repository.prs.index');
+
         });
     });
 });

@@ -7,15 +7,7 @@
     Show issues <span class="count">{{ $repository->issues("open", "any")->count() }}</span>
   </a>
 
-  <a href="{{ route("organization.show", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs("repository.pr.*") ? "active" : "" }}">
-    Show PR <span class="count">{{ $repository->pr_count }}</span>
-  </a>
-
-  <a href="{{ route("organization.show", $organization->name) }}" class="sidebar-item">
-    Show org
-  </a>
-
-  <a href="{{ route("organization.show", $organization->name) }}" class="sidebar-item">
-    Show org
+  <a href="{{ route("repository.prs.index", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs("repository.prs.*") ? "active" : "" }}">
+    Show PR's <span class="count">{{ $repository->pr_count }}</span>
   </a>
 </div>
