@@ -28,16 +28,14 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $issues = $repository->pullRequests($state, $assignee)
+        $pullRequests = $repository->pullRequests($state, $assignee)
             ->paginate(30);
 
-        return var_dump('Not implemented yet');
-
-        // return view('repository.issue.list', [
-        //     'organization' => $organization,
-        //     'repository' => $repository,
-        //     'issues' => $issues,
-        // ]);
+        return view('repository.pull_requests.list', [
+            'organization' => $organization,
+            'repository' => $repository,
+            'pullRequests' => $pullRequests,
+        ]);
     }
 
     private static function getRepositoryWithOrganization($organizationName, $repositoryName)

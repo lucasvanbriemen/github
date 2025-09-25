@@ -36,6 +36,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
             Route::get('/prs', [PullRequestController::class, 'index'])
                 ->name('repository.prs.index');
 
+            Route::get('/prs/{pull_request}', [PullRequestController::class, 'show'])
+                ->name('repository.prs.show');
+
         });
     });
 });
