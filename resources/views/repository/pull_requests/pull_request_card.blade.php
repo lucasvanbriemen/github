@@ -8,16 +8,7 @@
         $labels = is_string($pullRequest->labels) ? json_decode($pullRequest->labels, true) : $pullRequest->labels;
       @endphp
       @foreach ($labels as $label)
-        @php
-          $hex = ltrim($label['color'], '#');
-          $r = hexdec(substr($hex, 0, 2));
-          $g = hexdec(substr($hex, 2, 2));
-          $b = hexdec(substr($hex, 4, 2));
-          $luminance = (0.299*$r + 0.587*$g + 0.114*$b) / 255;
-          $textColor = $luminance > 0.5 ? '#000000' : '#FFFFFF';
-        @endphp
-
-        <span class="label" style="background-color: #{{ $label['color'] }}; color: {{ $textColor }};">
+        <span class="label" style="background-color: {{ labelColor($label['color'])['background'] }}; color: {{ labelColor($label['color'])['text'] }};border: 1px solid {{ labelColor($label['color'])['border'] }};">
           {{ $label['name'] }}
         </span>
       @endforeach

@@ -8,7 +8,7 @@
         $labels = is_string($issue->labels) ? json_decode($issue->labels, true) : $issue->labels;
       @endphp
       @foreach ($labels as $label)
-        <span class="label" style="background-color: {{ labelColor($label['color'])['background'] }}; color: {{ labelColor($label['color'])['text'] }};`border: 1px solid {{ labelColor($label['color'])['border'] }};">
+        <span class="label" style="background-color: {{ labelColor($label['color'])['background'] }}; color: {{ labelColor($label['color'])['text'] }};border: 1px solid {{ labelColor($label['color'])['border'] }};">
           {{ $label['name'] }}
         </span>
       @endforeach
