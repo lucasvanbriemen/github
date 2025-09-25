@@ -24,6 +24,16 @@ class PullRequest extends Model
         return $this->belongsTo(GithubUser::class, 'opened_by_id', 'github_id');
     }
 
+    public function assignees()
+    {
+        return $this->belongsToMany(GithubUser::class, 'pull_request_assignees', 'pull_request_id', 'github_user_id', 'github_id', 'github_id');
+    }
+
+    public function getAssigneesDataAttribute()
+    {
+        return $this->assignees()->get();
+    }
+
     protected $fillable = [
         'github_id',
         'repository_id',
@@ -31,6 +41,11 @@ class PullRequest extends Model
         'title',
         'body',
         'state',
+        'labels',
         'opened_by_id',
+    ];
+
+    protected $casts = [
+        'labels' => 'array',
     ];
 }

@@ -6,7 +6,7 @@
     selected="open" />
 
     @php
-      $options = [];
+      $options = ["any" => "Any"];
       foreach ($repository->users as $repositoryUser) {
         if ($repositoryUser->githubUser) {
           $options[$repositoryUser->user_id] = $repositoryUser->githubUser->name;
