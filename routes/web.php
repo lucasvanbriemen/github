@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImageProxyController;
 use App\Http\Controllers\IssueController;
+use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
@@ -32,7 +33,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
             Route::get('/issues/{issue}', [IssueController::class, 'show'])
                 ->name('repository.issues.show');
 
-            Route::get('/prs', [RepositoryController::class, 'pullRequests'])
+            Route::get('/prs', [PullRequestController::class, 'index'])
                 ->name('repository.prs.index');
 
         });
