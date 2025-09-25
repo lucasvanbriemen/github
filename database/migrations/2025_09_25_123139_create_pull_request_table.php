@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pull_request', function (Blueprint $table) {
+        Schema::create('pull_requests', function (Blueprint $table) {
             $table->unsignedBigInteger('github_id')->unique();
             $table->timestamps();
             $table->unsignedBigInteger('repository_id');

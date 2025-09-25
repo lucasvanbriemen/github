@@ -6,6 +6,7 @@ use App\Models\Issue;
 use App\Models\IssueComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Models\PullRequest;
 use Illuminate\Http\Request;
 
 class IncomingWebhookController extends Controller
@@ -13,7 +14,7 @@ class IncomingWebhookController extends Controller
     public $ISSUE_RELATED = ['issues'];
 
     public $ISSUE_COMMENT_RELATED = ['issue_comment'];
-
+    public $PULL_REQUEST_RELATED = ['pull_request'];
 
     public function index(Request $request)
     {
@@ -34,6 +35,10 @@ class IncomingWebhookController extends Controller
 
         if (in_array($eventType, $this->ISSUE_COMMENT_RELATED)) {
             $this->comment($payload);
+        }
+
+        if (in_array($eventType, $this->PULL_REQUEST_RELATED)) {
+            $this->pullRequest($payload);
         }
 
 
@@ -167,4 +172,34 @@ class IncomingWebhookController extends Controller
         );
     }
 
+    public function pullRequest($payload)
+    {
+        if (!$payload || !isset($payload->pull_request) || !isset($payload->repository)) {
+            return false;
+        }
+        $prData = $payload->pull_request;
+        $repositoryData = $payload->repository;
+
+        $userData = $prData->user ?? null;
+
+        // Ensure repository exists first
+        $repository = self::update_repo($repositoryData);
+
+        // Create/update the user who opened the pull request
+        self::ensureGithubUser($userData);
+
+        PullRequest::updateOrCreate(
+            ['github_id' => $prData->id],
+            [
+                'repository_id' => $repository->github_id,
+                'opened_by_id' => $userData->id,
+                'number' => $prData->number,
+                'title' => $prData->title,
+                'body' => $prData->body ?? '',
+                'state' => $prData->state,
+            ]
+        );
+
+        return true;
+    }
 }

@@ -13,6 +13,7 @@
     <select id="event" name="event">
       <option value="issues" selected>issues</option>
       <option value="issue_comment">issue_comment</option>
+      <option value="pull_request">pull_request</option>
     </select>
     <input type="text" name="payload" id='payload' value='{
   "action": "opened",
