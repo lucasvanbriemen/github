@@ -28,13 +28,13 @@ export default {
     }
     
     return fetch(url, options)
-    .then(async (response) => {
-      app.setLoading(false);
-      if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
-        return response.text();
-      })
-      .then((data) => {
-        return data;
-      });
+      .then(async (response) => {
+        app.setLoading(false);
+        if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
+          return response.text();
+        })
+        .then((data) => {
+          return data;
+        });
   },
 };
