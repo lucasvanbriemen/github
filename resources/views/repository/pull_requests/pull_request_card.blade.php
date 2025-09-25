@@ -1,5 +1,5 @@
 <a href="{{ route('repository.prs.show', [$organization->name, $repository->name, $pullRequest->number]) }}" class="pullrequest-card card {{ $pullRequest->state }}">
-  {!! svg('issue') !!}
+  {!! svg('pull_request') !!}
   <div class='main-info'>
     <h3 class='issue-title'>
       {{ $pullRequest->title }}
