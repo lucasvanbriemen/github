@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\GithubConfig;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Repository extends Model
 {
@@ -42,6 +41,26 @@ class Repository extends Model
             });
         }
 
+        return $query;
+    }
+
+    public function pullRequests($state = 'open', $assignee = GithubConfig::USERID)
+    {
+        $query = $this->hasMany(PullRequest::class, 'repository_id', 'github_id')
+            ->with('assignees', 'openedBy')
+            ->orderBy('last_updated', 'desc');
+
+        if ($state !== 'all') {
+            $query->where('state', $state);
+        }
+
+        if ($assignee === 'none') {
+            $query->whereDoesntHave('assignees');
+        } elseif ($assignee !== 'any') {
+            $query->whereHas('assignees', function ($q) use ($assignee) {
+                $q->where('github_users.github_id', $assignee);
+            });
+        }
         return $query;
     }
 

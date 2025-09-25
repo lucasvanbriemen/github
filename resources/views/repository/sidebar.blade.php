@@ -8,6 +8,6 @@
   </a>
 
   <a href="{{ route("repository.prs.index", [$organization->name, $repository->name]) }}" class="sidebar-item {{ request()->routeIs("repository.prs.*") ? "active" : "" }}">
-    Show PR's <span class="count">{{ $repository->pr_count }}</span>
+    Show PR's <span class="count">{{ $repository->pullRequests("open", "any")->count() }}</span>
   </a>
 </div>

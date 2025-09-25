@@ -21,36 +21,6 @@ class PullRequestController extends Controller
         ]);
     }
 
-    public static function show($organizationName, $repositoryName, $issueNumber)
-    {
-        // User repositories have "user" as organization name in the URL, while being null in the DB
-        if ($organizationName === 'user') {
-            $organizationName = null;
-        }
-
-        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $issue = Issue::where('repository_id', $repository->github_id)
-            ->where('number', $issueNumber)
-            ->with(['assignees', 'openedBy', 'comments' => function($query) {
-                $query->with('author');
-            }])
-            ->firstOrFail();
-
-        // Process markdown to replace GitHub image URLs with proxy URLs
-        $issue->body = self::processMarkdownImages($issue->body);
-
-        foreach ($issue->comments as $comment) {
-            $comment->body = self::processMarkdownImages($comment->body);
-        }
-
-        return view('repository.issue.issue', [
-            'organization' => $organization,
-            'repository' => $repository,
-            'issue' => $issue,
-        ]);
-    }
-
     public static function getIssues($organizationName, $repositoryName, Request $request)
     {
         $state = $request->query('state', 'open');
