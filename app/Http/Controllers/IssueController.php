@@ -8,6 +8,7 @@ use App\Models\Issue;
 use App\Models\Organization;
 use App\Models\Repository;
 use Illuminate\Http\Request;
+use App\Models\IssueComment;
 
 class IssueController extends Controller
 {
@@ -66,6 +67,22 @@ class IssueController extends Controller
             'repository' => $repository,
             'issues' => $issues,
         ]);
+    }
+
+    public function resolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
+    {
+        $comment = IssueComment::where('github_id', $commentId)->firstOrFail();
+        $comment->resolved = true;
+        $comment->save();
+        return response()->json(['resolved' => $comment->resolved]);
+    }
+
+    public function unresolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
+    {
+        $comment = IssueComment::where('github_id', $commentId)->firstOrFail();
+        $comment->resolved = false;
+        $comment->save();
+        return response()->json(['resolved' => $comment->resolved]);
     }
 
     private static function getRepositoryWithOrganization($organizationName, $repositoryName)

@@ -23,14 +23,19 @@
     </div>
 
     @foreach ($issue->comments as $comment)
-      <div class="issue-comment {{ $comment->resolved ? 'resolved' : '' }}">
+      <div class="issue-comment {{ $comment->resolved ? 'resolved' : '' }}" data-comment="{{ $comment->github_id }}">
         <div class="comment-header">
           <span class="author"><img src="{{ $comment->author?->avatar_url }}" alt="{{ $comment->author?->name }}"> {{ $comment->author?->name }}</span>
           <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
         </div>
         <div class='markdown-body'>
           <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
-          <button class="button-primary">Mark as resolved</button>
+          
+          @if(!$comment->resolved)
+            <button class="button-primary resolve-comment" data-url="{{ route('api.repositories.issues.comment.resolve', [$organization->name, $repository->name, $issue->number, $comment->github_id]) }}" data-comment="{{ $comment->github_id }}">Mark as resolved</button>
+          @else
+            <button class="button-primary unresolve-comment" data-url="{{ route('api.repositories.issues.comment.unresolve', [$organization->name, $repository->name, $issue->number, $comment->github_id]) }}" data-comment="{{ $comment->github_id }}">Mark as unresolved</button>
+          @endif
         </div>
       </div>
     @endforeach
@@ -58,4 +63,6 @@
       </div>
     @endif
   </div>
+
+  <script> window.start = "issue"; </script>
 </x-app-layout>

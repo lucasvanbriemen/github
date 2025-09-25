@@ -18,9 +18,16 @@ Route::get('/organization/{organization}/{repository}/issues', [IssueController:
     ->middleware(IsLoggedIn::class)
     ->name('api.repositories.issues');
 
+Route::patch('/organization/{organization}/{repository}/issues/{issue}/comments/{comment}/resolve', [IssueController::class, 'resolveComment'])
+    ->middleware(IsLoggedIn::class)
+    ->name('api.repositories.issues.comment.resolve');
+
+Route::patch('/organization/{organization}/{repository}/issues/{issue}/comments/{comment}/unresolve', [IssueController::class, 'unresolveComment'])
+    ->middleware(IsLoggedIn::class)
+    ->name('api.repositories.issues.comment.unresolve');
+
 Route::get('/organization/{organization}/{repository}/pull_requests', [PullRequestController::class, 'getPullRequests'])
     ->middleware(IsLoggedIn::class)
-    ->name('api.repositories.issues');
-
+    ->name('api.repositories.pull_requests');
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])->name('api.webhook');
