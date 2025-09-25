@@ -15,7 +15,7 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        return view('repository.issue.issues', [
+        return view('repository.pull_requests.index', [
             'organization' => $organization,
             'repository' => $repository,
         ]);
