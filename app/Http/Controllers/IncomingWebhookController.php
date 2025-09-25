@@ -148,7 +148,7 @@ class IncomingWebhookController extends Controller
             // Get the ID where the issue number and repository matching
             $pr = PullRequest::where('number', $issueData->number)
                 ->where('repository_id', $repository->github_id);
-            $commentData->id = $pr->first()->github_id ?? null;
+            $issueData->id = $pr->first()->github_id ?? null;
         }
 
         IssueComment::updateOrCreate(
