@@ -6,8 +6,16 @@
     selected="open" />
 
     @php
-      $options = ["any" => "Any"];
+      $options = [
+        "any" => "Any",
+        \App\GithubConfig::USERID => "Me"
+      ];
       foreach ($repository->users as $repositoryUser) {
+
+        if ($repositoryUser->githubUser->id == \App\GithubConfig::USERID) {
+          continue;
+        }
+
         if ($repositoryUser->githubUser) {
           $options[$repositoryUser->user_id] = $repositoryUser->githubUser->name;
         }
