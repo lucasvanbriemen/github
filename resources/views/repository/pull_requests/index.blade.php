@@ -10,15 +10,15 @@
 
   @include("repository.sidebar")
 
-  <div class="issues-list">
+  <div class="pullrequest-list">
     @include("repository.issue.filter")
 
-    <div class="issues-wrapper">
+    <div class="pullrequest-wrapper">
     </div>
   </div>
 
   <script>
-    window.start = ["search_select", "issues"];
+    window.start = ["search_select", "pull_requests"];
     window.organizationName = "{{ $organization->name }}";
     window.repositoryName = "{{ $repository->name }}";
   </script>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\IncomingWebhookController;
 use App\Http\Controllers\IssueController;
+use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
@@ -12,8 +13,14 @@ Route::get('/organization/{organization}/{repository}/tree/{file_path?}', [Repos
     ->middleware(IsLoggedIn::class)
     ->name('api.repositories.show')
     ->where('file_path', '.*');
+
 Route::get('/organization/{organization}/{repository}/issues', [IssueController::class, 'getIssues'])
     ->middleware(IsLoggedIn::class)
     ->name('api.repositories.issues');
+
+Route::get('/organization/{organization}/{repository}/pull_requests', [PullRequestController::class, 'getPullRequests'])
+    ->middleware(IsLoggedIn::class)
+    ->name('api.repositories.issues');
+
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])->name('api.webhook');

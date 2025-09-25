@@ -21,21 +21,23 @@ class PullRequestController extends Controller
         ]);
     }
 
-    public static function getIssues($organizationName, $repositoryName, Request $request)
+    public static function getPullRequests($organizationName, $repositoryName, Request $request)
     {
         $state = $request->query('state', 'open');
         $assignee = $request->query('assignee', GithubConfig::USERID);
 
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $issues = $repository->issues($state, $assignee)
+        $issues = $repository->pullRequests($state, $assignee)
             ->paginate(30);
 
-        return view('repository.issue.list', [
-            'organization' => $organization,
-            'repository' => $repository,
-            'issues' => $issues,
-        ]);
+        return var_dump('Not implemented yet');
+
+        // return view('repository.issue.list', [
+        //     'organization' => $organization,
+        //     'repository' => $repository,
+        //     'issues' => $issues,
+        // ]);
     }
 
     private static function getRepositoryWithOrganization($organizationName, $repositoryName)
