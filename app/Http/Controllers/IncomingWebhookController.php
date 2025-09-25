@@ -200,6 +200,22 @@ class IncomingWebhookController extends Controller
             ]
         );
 
+        // Sync assignees in the pivot table
+        $assigneeGithubIds = [];
+        if (!empty($prData->assignees) && is_array($prData->assignees)) {
+            foreach ($prData->assignees as $assignee) {
+                $assigneeGithubIds[] = $assignee->id;
+
+                // Create/update the assignee in github_users table
+                self::ensureGithubUser($assignee);
+            }
+        }
+
+        $pr = PullRequest::where('github_id', $prData->id)->first();
+        if ($pr) {
+            $pr->assignees()->sync($assigneeGithubIds);
+        }
+
         return true;
     }
 }
