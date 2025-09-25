@@ -25,12 +25,15 @@ export default {
 
     api.patch(url).then(data => {
       comment.classList.toggle("resolved", data.resolved);
+      comment.querySelector(".button-primary").innerHTML = data.resolved ? "Mark as unresolved" : "Mark as resolved";
+     
+      const newURL = data.resolved ? url.replace("/unresolve", "/resolve") : url.replace("/resolve", "/unresolve");
+      comment.querySelector(".button-primary").setAttribute("data-url", newURL);
     });
   },
 
   openResolvedComments(id) {
     const comment = document.querySelector(`.issue-comment[data-comment="${id}"]`);
     comment.classList.toggle("resolved");
-    app.setLoading(false);
-  }
+  },
 };
