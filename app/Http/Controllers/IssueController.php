@@ -13,14 +13,7 @@ class IssueController extends Controller
 {
     public function index($organizationName, $repositoryName, Request $request)
     {
-        $organization = Organization::where('name', $organizationName)->first();
-
-        $query = Repository::where('name', $repositoryName);
-        if ($organization) {
-            $query->where('organization_id', $organization->github_id);
-        }
-
-        $repository = $query->firstOrFail();
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
         return view('repository.issue.issues', [
             'organization' => $organization,
@@ -35,18 +28,13 @@ class IssueController extends Controller
             $organizationName = null;
         }
 
-        $organization = Organization::where('name', $organizationName)->first();
-
-        $query = Repository::where('name', $repositoryName);
-        if ($organization) {
-            $query->where('organization_id', $organization->github_id);
-        }
-
-        $repository = $query->firstOrFail();
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $issue = Issue::where('repository_id', $repository->github_id)
             ->where('number', $issueNumber)
-            ->with('assignees', 'openedBy', 'comments.author')
+            ->with(['assignees', 'openedBy', 'comments' => function($query) {
+                $query->with('author');
+            }])
             ->firstOrFail();
 
         // Process markdown to replace GitHub image URLs with proxy URLs
@@ -68,13 +56,7 @@ class IssueController extends Controller
         $state = $request->query('state', 'open');
         $assignee = $request->query('assignee', GithubConfig::USERID);
 
-        $organization = Organization::where('name', $organizationName)->first();
-
-        $query = Repository::where('name', $repositoryName);
-        if ($organization) {
-            $query->where('organization_id', $organization->github_id);
-        }
-        $repository = $query->firstOrFail();
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $issues = $repository->issues($state, $assignee)
             ->paginate(30);
@@ -84,6 +66,27 @@ class IssueController extends Controller
             'repository' => $repository,
             'issues' => $issues,
         ]);
+    }
+
+    private static function getRepositoryWithOrganization($organizationName, $repositoryName)
+    {
+        $organization = null;
+
+        if ($organizationName && $organizationName !== 'user') {
+            $organization = Organization::where('name', $organizationName)->first();
+        }
+
+        $query = Repository::with('organization')->where('name', $repositoryName);
+
+        if ($organization) {
+            $query->where('organization_id', $organization->github_id);
+        } else {
+            $query->whereNull('organization_id');
+        }
+
+        $repository = $query->firstOrFail();
+
+        return [$organization, $repository];
     }
 
     private static function processMarkdownImages($content)
