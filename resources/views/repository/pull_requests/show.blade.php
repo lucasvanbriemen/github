@@ -59,9 +59,11 @@
       @elseif ($item instanceof App\Models\PullRequestReview)
         <div class="issue-comment review state-{{ strtolower($item->state) }}" data-review="{{ $item->github_id }}">
           <div class="comment-header">
-            <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+            <span class="author">
+              <span class="state state-{{ $item->state }}">{!! svg(strtolower($item->state)) !!} </span>
+              <img src="{{ $item->user?->avatar_url }}" alt="{{ $item->user?->name }}"> {{ $item->user?->name }}
+            </span>
             <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
-            <span class="state">{!! svg(strtolower($item->state)) !!} {{ $item->state }}</span>
           </div>
           <div class="markdown-body">
             <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>

@@ -76,6 +76,34 @@
             height: 2rem;
             border-radius: 50%;
           }
+
+          .state {
+            margin-right: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--background-color-two);
+
+            &-approved {
+              svg {
+                fill: var(--primary-color);
+              }
+            }
+            &-changes_requested {
+              svg {
+                fill: var(--text-color-secondary);
+              }
+            }
+            &-commented {
+              svg {
+                fill: var(--text-color-secondary);
+              }
+            }
+          }
         }
 
         .created-at {
