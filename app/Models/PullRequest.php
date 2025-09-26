@@ -48,6 +48,11 @@ class PullRequest extends Model
         return $this->hasMany(IssueComment::class, 'issue_github_id', 'github_id');
     }
 
+    public function pullRequestComments()
+    {
+        return $this->hasMany(PullRequestComment::class, 'pull_request_id', 'github_id');
+    }
+
     public function getAssigneesDataAttribute()
     {
         return $this->assignees()->get();
