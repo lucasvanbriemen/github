@@ -22,47 +22,52 @@
       <div class='markdown-body'><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
     </div>
 
-    @foreach ($pullRequest->comments as $comment)
-      <div class="issue-comment {{ $comment->resolved ? 'resolved' : '' }}" data-comment="{{ $comment->github_id }}">
-        <div class="comment-header">
-          <span class="author"><img src="{{ $comment->author?->avatar_url }}" alt="{{ $comment->author?->name }}"> {{ $comment->author?->name }}</span>
-          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
-        </div>
-        <div class='markdown-body'>
-          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
-          
-          @if(!$comment->resolved)
-            <button class="button-primary resolve-comment" data-url="{{ route('api.repositories.issues.comment.resolve', [$organization->name, $repository->name, $pullRequest->number, $comment->github_id]) }}" data-comment="{{ $comment->github_id }}">Mark as resolved</button>
-          @else
-            <button class="button-primary unresolve-comment" data-url="{{ route('api.repositories.issues.comment.unresolve', [$organization->name, $repository->name, $pullRequest->number, $comment->github_id]) }}" data-comment="{{ $comment->github_id }}">Mark as unresolved</button>
-          @endif
-        </div>
-      </div>
-    @endforeach
+    @php
+    $allComments = collect()
+        ->merge($pullRequest->comments)
+        ->merge($pullRequest->pullRequestComments)
+        ->merge($pullRequest->pullRequestReviews)
+        ->sortBy('created_at');
+    @endphp
 
-    @foreach ($pullRequest->pullRequestComments as $comment)
-      <div class="issue-comment {{ $comment->resolved ? 'resolved' : '' }}" data-comment="{{ $comment->github_id }}">
-        <div class="comment-header">
-          <span class="author"><img src="{{ $comment->author?->avatar_url }}" alt="{{ $comment->author?->name }}"> {{ $comment->author?->name }}</span>
-          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
-        </div>
-        <div class='markdown-body'>
-          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
-        </div>
-      </div>
-    @endforeach
-
-    @foreach ($pullRequest->pullRequestReviews as $review)
-      <div class="issue-comment review state-{{ strtolower($review->state) }}" data-review="{{ $review->github_id }}">
-        <div class="comment-header">
-          <span class="author"><img src="{{ $review->author?->avatar_url }}" alt="{{ $review->author?->name }}"> {{ $review->author?->name }}</span>
-          <span class="created-at">{{ $review->created_at->diffForHumans() }}</span>
-          <span class="state">{!! svg(strtolower($review->state)) !!} {{ $review->state }}</span>
-        </div>
-        <div class='markdown-body'>
-          <x-markdown theme="github-dark">{!! $review->body !!}</x-markdown>
-        </div>
-      </div>
+    @foreach ($allComments as $item)
+      @if ($item instanceof App\Models\Comment) {{-- adjust model names --}}
+          <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
+              <div class="comment-header">
+                  <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+                  <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
+              </div>
+              <div class="markdown-body">
+                  <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+                  @if(!$item->resolved)
+                      <button class="button-primary resolve-comment" data-url="{{ route('api.repositories.issues.comment.resolve', [$organization->name, $repository->name, $pullRequest->number, $item->github_id]) }}" data-comment="{{ $item->github_id }}">Mark as resolved</button>
+                  @else
+                      <button class="button-primary unresolve-comment" data-url="{{ route('api.repositories.issues.comment.unresolve', [$organization->name, $repository->name, $pullRequest->number, $item->github_id]) }}" data-comment="{{ $item->github_id }}">Mark as unresolved</button>
+                  @endif
+              </div>
+          </div>
+      @elseif ($item instanceof App\Models\PullRequestComment)
+          <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
+              <div class="comment-header">
+                  <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+                  <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
+              </div>
+              <div class="markdown-body">
+                  <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+              </div>
+          </div>
+      @elseif ($item instanceof App\Models\PullRequestReview)
+          <div class="issue-comment review state-{{ strtolower($item->state) }}" data-review="{{ $item->github_id }}">
+              <div class="comment-header">
+                  <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+                  <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
+                  <span class="state">{!! svg(strtolower($item->state)) !!} {{ $item->state }}</span>
+              </div>
+              <div class="markdown-body">
+                  <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+              </div>
+          </div>
+      @endif
     @endforeach
   </div>
 
