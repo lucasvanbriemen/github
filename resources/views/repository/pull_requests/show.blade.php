@@ -45,10 +45,10 @@
     <div class="pull-request-detail reviewers">
       <h3>Reviewers</h3>
       @foreach ($pullRequest->reviewers_data as $reviewer)
-        <div class="assignee">
+        <div class="reviewer state-{{ $reviewer->state }}">
+          <span class='icon'>{!! svg($reviewer->state) !!}</span>
           <img src="{{ $reviewer->avatar_url }}" alt="{{ $reviewer->name }}">
           <span>{{ $reviewer->name }}</span>
-          <span>{{ $reviewer->state }}</span>
         </div>
       @endforeach
     </div>
