@@ -7,6 +7,7 @@ use App\Models\IssueComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
+use App\Models\RequestedReviewer;
 use Illuminate\Http\Request;
 
 class IncomingWebhookController extends Controller
@@ -15,7 +16,6 @@ class IncomingWebhookController extends Controller
 
     public $ISSUE_COMMENT_RELATED = ['issue_comment'];
     public $PULL_REQUEST_RELATED = ['pull_request'];
-    public $PULL_REQUEST_REVIEW_RELATED = ['pull_request.review_requested' ];
 
     public function index(Request $request)
     {
@@ -41,11 +41,6 @@ class IncomingWebhookController extends Controller
         if (in_array($eventType, $this->PULL_REQUEST_RELATED)) {
             $this->pullRequest($payload);
         }
-
-        if (in_array($eventType, $this->PULL_REQUEST_REVIEW_RELATED)) {
-            $this->requestedReview($payload);
-        }
-
 
         return response()->json(['message' => 'received', 'event' => $eventType], 200);
     }
@@ -229,31 +224,22 @@ class IncomingWebhookController extends Controller
             $pr->assignees()->sync($assigneeGithubIds);
         }
 
-        return true;
-    }
+        if ($payload->action === 'review_requested') {
+            // Create/update the requested reviewer in github_users table
+            $reviewerData = $payload->requested_reviewer ?? null;
+            self::ensureGithubUser($reviewerData);
 
-    public function requestedReview($payload)
-    {
-        if (!$payload || !isset($payload->pull_request) || !isset($payload->repository) || !isset($payload->requested_reviewer)) {
-            return false;
-        }
-        $prData = $payload->pull_request;
-        $repositoryData = $payload->repository;
-        $reviewerData = $payload->requested_reviewer;
-
-        // Ensure repository exists first
-        $repository = self::update_repo($repositoryData);
-
-        // Ensure the pull request exists
-        $this->pullRequest($payload);
-
-        // Create/update the requested reviewer in github_users table
-        $reviewer = self::ensureGithubUser($reviewerData);
-
-        // Link the requested reviewer to the pull request
-        $pr = PullRequest::where('github_id', $prData->id)->first();
-        if ($pr && $reviewer) {
-            $pr->requestedReviewers()->syncWithoutDetaching([$reviewer->github_id]);
+           RequestedReviewer::updateOrCreate(
+                [
+                    'pull_request_id' => $prData->id,
+                    'user_id' => $reviewerData->id,
+                ],
+                [
+                    'pull_request_id' => $prData->id,
+                    'user_id' => $reviewerData->id
+                ]
+            );
+           
         }
 
         return true;
