@@ -51,6 +51,19 @@
         </div>
       </div>
     @endforeach
+
+    @foreach ($pullRequest->pullRequestReviews as $review)
+      <div class="issue-comment review state-{{ strtolower($review->state) }}" data-review="{{ $review->github_id }}">
+        <div class="comment-header">
+          <span class="author"><img src="{{ $review->author?->avatar_url }}" alt="{{ $review->author?->name }}"> {{ $review->author?->name }}</span>
+          <span class="created-at">{{ $review->created_at->diffForHumans() }}</span>
+          <span class="state">{!! svg(strtolower($review->state)) !!} {{ $review->state }}</span>
+        </div>
+        <div class='markdown-body'>
+          <x-markdown theme="github-dark">{!! $review->body !!}</x-markdown>
+        </div>
+      </div>
+    @endforeach
   </div>
 
   <div class="pull-request-details">
