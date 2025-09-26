@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('requested_reviewers', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        if (!Schema::hasTable('requested_reviewers')) {
+            Schema::create('requested_reviewers', function (Blueprint $table) {
+                $table->id();
+                $table->timestamps();
 
-            $table->unsignedBigInteger('pull_request_id')->unsigned();
-            $table->unsignedBigInteger('user_id');
-            $table->enum("state", ["pending", "approved", "changes_requested"])->default("pending");
+                $table->unsignedBigInteger('pull_request_id')->unsigned();
+                $table->unsignedBigInteger('user_id');
+                $table->enum("state", ["pending", "approved", "changes_requested", "commented"])->default("pending");
 
-            $table->foreign('pull_request_id')->references('id')->on('pull_requests')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
+                $table->foreign('pull_request_id')->references('id')->on('pull_requests')->onDelete('cascade');
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            });
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
 use App\Models\RequestedReviewer;
+use App\Models\PullRequestReview;
 use Illuminate\Http\Request;
 
 class IncomingWebhookController extends Controller
@@ -16,6 +17,7 @@ class IncomingWebhookController extends Controller
 
     public $ISSUE_COMMENT_RELATED = ['issue_comment'];
     public $PULL_REQUEST_RELATED = ['pull_request'];
+    public $PULL_REQUEST_REVIEW_RELATED = ['pull_request_review'];
 
     public function index(Request $request)
     {
@@ -40,6 +42,10 @@ class IncomingWebhookController extends Controller
 
         if (in_array($eventType, $this->PULL_REQUEST_RELATED)) {
             $this->pullRequest($payload);
+        }
+
+        if (in_array($eventType, $this->PULL_REQUEST_REVIEW_RELATED)) {
+            $this->pullRequestReview((array)$payload);
         }
 
         return response()->json(['message' => 'received', 'event' => $eventType], 200);
@@ -229,7 +235,7 @@ class IncomingWebhookController extends Controller
             $reviewerData = $payload->requested_reviewer ?? null;
             self::ensureGithubUser($reviewerData);
 
-           RequestedReviewer::updateOrCreate(
+            RequestedReviewer::updateOrCreate(
                 [
                     'pull_request_id' => $prData->id,
                     'user_id' => $reviewerData->id,
@@ -243,5 +249,35 @@ class IncomingWebhookController extends Controller
         }
 
         return true;
+    }
+
+    public function pullRequestReview($payload)
+    {
+        $reviewData = (object)$payload['review'];
+        $prData = (object)$payload['pull_request'];
+
+        $review = PullRequestReview::updateOrCreate([
+            'id' => $reviewData->id,
+        ], [
+            'pull_request_id' => $prData->id,
+            'user_id' => $reviewData->user->id,
+            'body' => $reviewData->body,
+            'state' => $reviewData->state,
+        ]);
+
+        // We also need to create/update RequestedReviewer
+        $repositoryData = $payload['repository'];
+        $repository = self::update_repo((object)$repositoryData);
+        $userData = (object)$reviewData->user;
+        self::ensureGithubUser($userData);
+        RequestedReviewer::updateOrCreate(
+            [
+                'pull_request_id' => $prData->id,
+                'user_id' => $userData->id,
+            ],
+            [
+                'state' => $reviewData->state,
+            ]
+        );
     }
 }
