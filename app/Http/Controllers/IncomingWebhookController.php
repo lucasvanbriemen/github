@@ -206,6 +206,8 @@ class IncomingWebhookController extends Controller
                 'user_id' => $userData->id,
                 'body' => $commentData->body ?? '',
                 'diff_hunk' => $commentData->diff_hunk ?? '',
+                'line_start' => $commentData->start_line ?? null,
+                'line_end' => $commentData->line ?? null,
                 'path' => $commentData->path ?? '',
             ]
         );
