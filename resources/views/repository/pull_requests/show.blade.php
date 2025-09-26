@@ -42,6 +42,17 @@
   </div>
 
   <div class="pull-request-details">
+    <div class="pull-request-detail reviewers">
+      <h3>Reviewers</h3>
+      @foreach ($pullRequest->reviewers_data as $reviewer)
+        <div class="assignee">
+          <img src="{{ $reviewer->avatar_url }}" alt="{{ $reviewer->name }}">
+          <span>{{ $reviewer->name }}</span>
+          <span>{{ $reviewer->state }}</span>
+        </div>
+      @endforeach
+    </div>
+
     <div class="pull-request-detail assignees">
       <h3>Assignees</h3>
       @foreach ($pullRequest->assignees_data as $assignee)
@@ -51,25 +62,5 @@
         </div>
       @endforeach
     </div>
-
-    @if (count( (is_string($pullRequest->labels) ? json_decode($pullRequest->labels, true) : []) ) > 0)
-      <div class="pull-request-detail labels">
-        <h3>Labels</h3>
-        @foreach (json_decode($pullRequest->labels, true) as $label)
-          @php
-            $hex = ltrim($label['color'], '#');
-            $r = hexdec(substr($hex, 0, 2));
-            $g = hexdec(substr($hex, 2, 2));
-            $b = hexdec(substr($hex, 4, 2));
-            $luminance = (0.299*$r + 0.587*$g + 0.114*$b) / 255;
-            $textColor = $luminance > 0.5 ? '#000000' : '#FFFFFF';
-          @endphp
-
-          <span class="label" style="background-color: #{{ $label['color'] }}; color: {{ $textColor }};">
-            {{ $label['name'] }}
-          </span>
-        @endforeach
-      </div>
-    @endif
   </div>
 </x-app-layout>

@@ -29,6 +29,15 @@ class PullRequest extends Model
         return $this->hasMany(RequestedReviewer::class, 'pull_request_id', 'github_id');
     }
 
+    public function getReviewersDataAttribute()
+    {
+        return $this->requestedReviewers()->with('user')->get()->map(function ($reviewer) {
+            $user = $reviewer->user;
+            $user->state = $reviewer->state;
+            return $user;
+        });
+    }
+
     public function assignees()
     {
         return $this->belongsToMany(GithubUser::class, 'pull_request_assignees', 'pull_request_id', 'github_user_id', 'github_id', 'github_id');
