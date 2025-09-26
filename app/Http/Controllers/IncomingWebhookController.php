@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Issue;
 use App\Models\IssueComment;
+use App\Models\PullRequestComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
@@ -18,6 +19,8 @@ class IncomingWebhookController extends Controller
     public $ISSUE_COMMENT_RELATED = ['issue_comment'];
     public $PULL_REQUEST_RELATED = ['pull_request'];
     public $PULL_REQUEST_REVIEW_RELATED = ['pull_request_review'];
+
+    public $PULL_REQUEST_REVIEW_COMMENT_RELATED = ['pull_request_review_comment'];
 
     public function index(Request $request)
     {
@@ -46,6 +49,10 @@ class IncomingWebhookController extends Controller
 
         if (in_array($eventType, $this->PULL_REQUEST_REVIEW_RELATED)) {
             $this->pullRequestReview((array)$payload);
+        }
+
+        if (in_array($eventType, $this->PULL_REQUEST_REVIEW_COMMENT_RELATED)) {
+            $this->pullRequestReviewComment($payload);
         }
 
         return response()->json(['message' => 'received', 'event' => $eventType], 200);
@@ -167,6 +174,41 @@ class IncomingWebhookController extends Controller
         );
 
         return true;
+    }
+
+    public static function pullRequestReviewComment($payload) 
+    {
+        if (!$payload || !isset($payload->comment) || !isset($payload->pull_request) || !isset($payload->repository)) {
+            return false;
+        }
+        $commentData = $payload->comment;
+        $prData = $payload->pull_request;
+        $repositoryData = $payload->repository;
+
+        $userData = $commentData->user ?? null;
+
+        // Ensure repository exists first
+        $repository = self::update_repo($repositoryData);
+        $pr = PullRequest::where('github_id', $prData->id)->first();
+        if (! $pr) {
+            // If the PR doesn't exist, we can't add a comment to it
+            return false;
+        }
+
+        // Ensure user exists first
+        $user = self::ensureGithubUser($userData);
+
+        // Create comment
+        PullRequestComment::updateOrCreate(
+            ['id' => $commentData->id],
+            [
+                'pull_request_id' => $prData->id,
+                'user_id' => $userData->id,
+                'body' => $commentData->body ?? '',
+                'diff_hunk' => $commentData->diff_hunk ?? '',
+                'path' => $commentData->path ?? '',
+            ]
+        );
     }
 
     protected static function ensureGithubUser($userData)

@@ -15,14 +15,21 @@
       <option value="issue_comment">issue_comment</option>
       <option value="pull_request">pull_request</option>
       <option value="pull_request_review">pull_request_review</option>
+      <option value="pull_request_review_comment">pull_request_review_comment</option>
     </select>
     <input type="text" name="payload" id='payload' value='
 
     {
-  "action": "submitted",
-  "review": {
-    "id": 3269049678,
-    "node_id": "PRR_kwDOPrFya87C2b1O",
+  "action": "created",
+  "comment": {
+    "url": "https://api.github.com/repos/lucasvanbriemen/github/pulls/comments/2380029504",
+    "pull_request_review_id": 3269049678,
+    "id": 2380029504,
+    "node_id": "PRRC_kwDOPrFya86N3F5A",
+    "diff_hunk": "",
+    "path": "app/Http/Controllers/ComponentController.php",
+    "commit_id": "51fac72ac70bd2dd25e6ad1005c996598179ca05",
+    "original_commit_id": "51fac72ac70bd2dd25e6ad1005c996598179ca05",
     "user": {
       "login": "Copilot",
       "id": 175728472,
@@ -44,22 +51,44 @@
       "user_view_type": "public",
       "site_admin": false
     },
-    "body": "## Pull Request Overview\n\nThis PR introduces a component management system to merge functionality from develop branch to master. The system allows fetching, caching, and rendering UI components from an external API with fallback support.\n\nKey changes:\n- Adds ComponentService for fetching and managing components from external API\n- Implements component caching system with configurable TTL and cache drivers\n- Creates API endpoints for component management (CRUD operations, health checks, batch processing)\n\n### Reviewed Changes\n\nCopilot reviewed 8 out of 8 changed files in this pull request and generated 6 comments.\n\n<details>\n<summary>Show a summary per file</summary>\n\n| File | Description |\r\n| ---- | ----------- |\r\n| routes/api.php | Adds new API routes for component management endpoints |\r\n| config/components.php | Introduces component configuration with API settings, caching, and security options |\r\n| app/Services/ComponentService.php | Core service for fetching, caching, and managing components from external API |\r\n| app/Providers/ComponentServiceProvider.php | Service provider with Blade directives for component rendering |\r\n| app/Providers/AppServiceProvider.php | Registers the ComponentServiceProvider |\r\n| app/Http/Controllers/ComponentController.php | REST controller for component API endpoints |\r\n| app/DTOs/ComponentDTO.php | Data transfer object for component data with validation and rendering methods |\r\n| app/Console/Commands/CacheComponentsCommand.php | Artisan command for component cache management |\n</details>\n\n\n\n\n\n\n---\n\n<sub>**Tip:** Customize your code reviews with copilot-instructions.md. <a href=\"/lucasvanbriemen/github/new/main/.github?filename=copilot-instructions.md\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">Create the file</a> or <a href=\"https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot\" class=\"Link--inTextBlock\" target=\"_blank\" rel=\"noopener noreferrer\">learn how to get started</a>.</sub>",
-    "commit_id": "51fac72ac70bd2dd25e6ad1005c996598179ca05",
-    "submitted_at": "2025-09-25T18:44:53Z",
-    "state": "commented",
-    "html_url": "https://github.com/lucasvanbriemen/github/pull/6#pullrequestreview-3269049678",
+    "body": "The inline method concatenates component view HTML directly without sanitization. If the external API is compromised, malicious scripts could be injected. Consider implementing content validation based on the security.validate_response config option.",
+    "created_at": "2025-09-25T18:44:53Z",
+    "updated_at": "2025-09-25T18:44:53Z",
+    "html_url": "https://github.com/lucasvanbriemen/github/pull/6#discussion_r2380029504",
     "pull_request_url": "https://api.github.com/repos/lucasvanbriemen/github/pulls/6",
+    "author_association": "NONE",
     "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/lucasvanbriemen/github/pulls/comments/2380029504"
+      },
       "html": {
-        "href": "https://github.com/lucasvanbriemen/github/pull/6#pullrequestreview-3269049678"
+        "href": "https://github.com/lucasvanbriemen/github/pull/6#discussion_r2380029504"
       },
       "pull_request": {
         "href": "https://api.github.com/repos/lucasvanbriemen/github/pulls/6"
       }
     },
-    "updated_at": "2025-09-25T18:44:53Z",
-    "author_association": "NONE"
+    "reactions": {
+      "url": "https://api.github.com/repos/lucasvanbriemen/github/pulls/comments/2380029504/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "start_line": 166,
+    "original_start_line": 166,
+    "start_side": "RIGHT",
+    "line": 176,
+    "original_line": 176,
+    "side": "RIGHT",
+    "original_position": 176,
+    "position": 176,
+    "subject_type": "line"
   },
   "pull_request": {
     "url": "https://api.github.com/repos/lucasvanbriemen/github/pulls/6",
@@ -620,7 +649,7 @@
     "site_admin": false
   }
 }
-  
+
 ' />
     <button type="submit">Send</button>
   </form>
