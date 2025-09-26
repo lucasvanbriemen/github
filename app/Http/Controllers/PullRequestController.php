@@ -38,6 +38,10 @@ class PullRequestController extends Controller
         // Process markdown to replace GitHub image URLs with proxy URLs
         $pullRequest->body = self::processMarkdownImages($pullRequest->body);
 
+        foreach ($pullRequest->comments as $comment) {
+            $comment->body = self::processMarkdownImages($comment->body);
+        }
+
         return view('repository.pull_requests.show', [
             'organization' => $organization,
             'repository' => $repository,
