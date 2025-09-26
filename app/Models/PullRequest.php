@@ -24,6 +24,11 @@ class PullRequest extends Model
         return $this->belongsTo(GithubUser::class, 'opened_by_id', 'github_id');
     }
 
+    public function requestedReviewers()
+    {
+        return $this->hasMany(RequestedReviewer::class, 'pull_request_id', 'github_id');
+    }
+
     public function assignees()
     {
         return $this->belongsToMany(GithubUser::class, 'pull_request_assignees', 'pull_request_id', 'github_user_id', 'github_id', 'github_id');
