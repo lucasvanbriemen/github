@@ -32,41 +32,41 @@
 
     @foreach ($allComments as $item)
       @if ($item instanceof App\Models\Comment) {{-- adjust model names --}}
-          <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
-              <div class="comment-header">
-                  <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
-                  <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
-              </div>
-              <div class="markdown-body">
-                  <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
-                  @if(!$item->resolved)
-                      <button class="button-primary resolve-comment" data-url="{{ route('api.repositories.issues.comment.resolve', [$organization->name, $repository->name, $pullRequest->number, $item->github_id]) }}" data-comment="{{ $item->github_id }}">Mark as resolved</button>
-                  @else
-                      <button class="button-primary unresolve-comment" data-url="{{ route('api.repositories.issues.comment.unresolve', [$organization->name, $repository->name, $pullRequest->number, $item->github_id]) }}" data-comment="{{ $item->github_id }}">Mark as unresolved</button>
-                  @endif
-              </div>
+        <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
+          <div class="comment-header">
+            <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+            <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
           </div>
+          <div class="markdown-body">
+            <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+            @if(!$item->resolved)
+              <button class="button-primary resolve-comment" data-url="{{ route('api.repositories.issues.comment.resolve', [$organization->name, $repository->name, $pullRequest->number, $item->github_id]) }}" data-comment="{{ $item->github_id }}">Mark as resolved</button>
+            @else
+              <button class="button-primary unresolve-comment" data-url="{{ route('api.repositories.issues.comment.unresolve', [$organization->name, $repository->name, $pullRequest->number, $item->github_id]) }}" data-comment="{{ $item->github_id }}">Mark as unresolved</button>
+            @endif
+          </div>
+        </div>
       @elseif ($item instanceof App\Models\PullRequestComment)
-          <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
-              <div class="comment-header">
-                  <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
-                  <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
-              </div>
-              <div class="markdown-body">
-                  <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
-              </div>
+        <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
+          <div class="comment-header">
+            <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+            <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
           </div>
+          <div class="markdown-body">
+            <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+          </div>
+        </div>
       @elseif ($item instanceof App\Models\PullRequestReview)
-          <div class="issue-comment review state-{{ strtolower($item->state) }}" data-review="{{ $item->github_id }}">
-              <div class="comment-header">
-                  <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
-                  <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
-                  <span class="state">{!! svg(strtolower($item->state)) !!} {{ $item->state }}</span>
-              </div>
-              <div class="markdown-body">
-                  <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
-              </div>
+        <div class="issue-comment review state-{{ strtolower($item->state) }}" data-review="{{ $item->github_id }}">
+          <div class="comment-header">
+            <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
+            <span class="created-at">{{ $item->created_at->diffForHumans() }}</span>
+            <span class="state">{!! svg(strtolower($item->state)) !!} {{ $item->state }}</span>
           </div>
+          <div class="markdown-body">
+            <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+          </div>
+        </div>
       @endif
     @endforeach
   </div>
