@@ -35,7 +35,6 @@ class IncomingWebhookController extends Controller
         $eventType = $headers['x-github-event'][0] ?? $request->input('x_github_event', $request->input('event', 'unknown'));
 
         if ($eventType === "issues") {
-            $this->issue($payload);
             IssueWebhookReceived::dispatch($payload);
         }
 
