@@ -11,11 +11,10 @@ use App\Models\PullRequest;
 use App\Models\RequestedReviewer;
 use App\Models\PullRequestReview;
 use Illuminate\Http\Request;
+use App\Events\IssueWebhookReceived;
 
 class IncomingWebhookController extends Controller
 {
-    public $ISSUE_RELATED = ['issues'];
-
     public $ISSUE_COMMENT_RELATED = ['issue_comment'];
     public $PULL_REQUEST_RELATED = ['pull_request'];
     public $PULL_REQUEST_REVIEW_RELATED = ['pull_request_review'];
@@ -35,8 +34,9 @@ class IncomingWebhookController extends Controller
         // Allow overriding event via form/query as well
         $eventType = $headers['x-github-event'][0] ?? $request->input('x_github_event', $request->input('event', 'unknown'));
 
-        if (in_array($eventType, $this->ISSUE_RELATED)) {
+        if ($eventType === "issues") {
             $this->issue($payload);
+            IssueWebhookReceived::dispatch($payload);
         }
 
         if (in_array($eventType, $this->ISSUE_COMMENT_RELATED)) {
@@ -56,67 +56,6 @@ class IncomingWebhookController extends Controller
         }
 
         return response()->json(['message' => 'received', 'event' => $eventType], 200);
-    }
-
-    public function issue($payload)
-    {
-        if (!$payload || !isset($payload->issue) || !isset($payload->repository)) {
-            return false;
-        }
-        $issueData = $payload->issue;
-        $repositoryData = $payload->repository;
-
-        $userData = $issueData->user;
-
-        // Ensure repository exists first
-        $repository = self::update_repo($repositoryData);
-
-        // Create/update the user who opened the issue
-        GithubUser::updateOrCreate(
-            ['github_id' => $userData->id],
-            [
-                'login' => $userData->login,
-                'name' => $userData->name ?? $userData->login,
-                'avatar_url' => $userData->avatar_url ?? '',
-                'type' => $userData->type ?? 'User',
-            ]
-        );
-
-        $assigneeGithubIds = [];
-        // We have to loop over the assignees to create/update them in the github_users table
-        if (!empty($issueData->assignees) && is_array($issueData->assignees)) {
-            foreach ($issueData->assignees as $assignee) {
-                $assigneeGithubIds[] = $assignee->id;
-
-                // Create/update the assignee in github_users table
-                GithubUser::updateOrCreate(
-                    ['github_id' => $assignee->id],
-                    [
-                        'login' => $assignee->login,
-                        'name' => $assignee->name ?? $assignee->login,
-                        'avatar_url' => $assignee->avatar_url ?? '',
-                        'type' => $assignee->type ?? 'User',
-                    ]
-                );
-            }
-        }
-
-        $issue = Issue::updateOrCreate(
-            ['github_id' => $issueData->id],
-            [
-                'repository_id' => $repository->github_id,
-                'opened_by_id' => $userData->id,
-                'number' => $issueData->number,
-                'title' => $issueData->title,
-                'body' => $issueData->body ?? '',
-                'state' => $issueData->state,
-                'labels' => json_encode($issueData->labels ?? []),
-            ]);
-
-        // Sync assignees in the pivot table
-        $issue->assignees()->sync($assigneeGithubIds);
-
-        return true;
     }
 
     public static function update_repo($repo)
