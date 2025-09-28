@@ -71,6 +71,8 @@ class PullRequest extends Model
         'state',
         'labels',
         'opened_by_id',
+        'head_branch',
+        'base_branch',
     ];
 
     protected $casts = [

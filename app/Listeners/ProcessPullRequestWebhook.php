@@ -49,6 +49,8 @@ class ProcessPullRequestWebhook implements ShouldQueue
                 'title' => $prData->title,
                 'body' => $prData->body ?? '',
                 'state' => $prData->state,
+                'head_branch' => $prData->head->ref,
+                'base_branch' => $prData->base->ref,
             ]
         );
 
