@@ -87,6 +87,7 @@
             justify-content: center;
             border-radius: 50%;
             background-color: var(--background-color-two);
+            border: 2px solid var(--primary-color-dark);
 
             &-approved {
               svg {
