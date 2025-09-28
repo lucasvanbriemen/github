@@ -7,6 +7,7 @@ use App\Models\PullRequest;
 use App\Models\Issue;
 use App\Models\Organization;
 use App\Models\Repository;
+use App\Services\PullRequestCommentService;
 use Illuminate\Http\Request;
 
 class PullRequestController extends Controller
@@ -32,20 +33,34 @@ class PullRequestController extends Controller
 
         $pullRequest = PullRequest::where('repository_id', $repository->github_id)
             ->where('number', $pullRequestNumber)
-            ->with(['assignees', 'openedBy'])
+            ->with(['assignees', 'openedBy', 'comments', 'pullRequestComments.author', 'pullRequestReviews.user'])
             ->firstOrFail();
 
         // Process markdown to replace GitHub image URLs with proxy URLs
         $pullRequest->body = self::processMarkdownImages($pullRequest->body);
 
-        foreach ($pullRequest->comments as $comment) {
+        // Get all comments using the service
+        $commentService = app(PullRequestCommentService::class);
+        $allComments = $commentService->getCommentsForDisplay($pullRequest);
+
+        // Group comments by thread for better organization
+        $allComments = $commentService->groupCommentsByThread($allComments);
+
+        // Process markdown in comments
+        foreach ($allComments as $comment) {
             $comment->body = self::processMarkdownImages($comment->body);
+            if (isset($comment->replies)) {
+                foreach ($comment->replies as $reply) {
+                    $reply->body = self::processMarkdownImages($reply->body);
+                }
+            }
         }
 
         return view('repository.pull_requests.show', [
             'organization' => $organization,
             'repository' => $repository,
             'pullRequest' => $pullRequest,
+            'allComments' => $allComments,
         ]);
     }
 

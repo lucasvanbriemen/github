@@ -134,9 +134,12 @@
       }
 
       &.reply {
-        border-left: 0.5rem solid var(--primary-color);
-        margin-left: 1rem;
-        padding-left: 1rem;
+        border-left: 2px solid var(--text-color-secondary);
+        width: 100%;
+
+        .comment-header {
+          height: 3.5rem;
+        }
       }
     }
   }
