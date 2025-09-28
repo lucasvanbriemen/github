@@ -33,19 +33,10 @@ class ProcessIssueWebhook implements ShouldQueue
 
         $userData = $issueData->user;
 
-        // Ensure repository exists first
-        $repository = self::update_repo($repositoryData);
+        $repository = Repository::updateFromWebhook($repositoryData);
 
-        // Create/update the user who opened the issue
-        GithubUser::updateOrCreate(
-            ['github_id' => $userData->id],
-            [
-                'login' => $userData->login,
-                'name' => $userData->name ?? $userData->login,
-                'avatar_url' => $userData->avatar_url ?? '',
-                'type' => $userData->type ?? 'User',
-            ]
-        );
+        // Issue author
+        GithubUser::updateFromWebhook($userData);
 
         $assigneeGithubIds = [];
         // We have to loop over the assignees to create/update them in the github_users table
@@ -54,15 +45,7 @@ class ProcessIssueWebhook implements ShouldQueue
                 $assigneeGithubIds[] = $assignee->id;
 
                 // Create/update the assignee in github_users table
-                GithubUser::updateOrCreate(
-                    ['github_id' => $assignee->id],
-                    [
-                        'login' => $assignee->login,
-                        'name' => $assignee->name ?? $assignee->login,
-                        'avatar_url' => $assignee->avatar_url ?? '',
-                        'type' => $assignee->type ?? 'User',
-                    ]
-                );
+                GithubUser::updateFromWebhook($assignee);
             }
         }
 
@@ -82,20 +65,5 @@ class ProcessIssueWebhook implements ShouldQueue
         $issue->assignees()->sync($assigneeGithubIds);
 
         return true;
-    }
-
-    public static function update_repo($repo)
-    {
-        return Repository::updateOrCreate(
-            ['github_id' => $repo->id],
-            [
-                'organization_id' => $repo->owner->id,
-                'name' => $repo->name,
-                'full_name' => $repo->full_name,
-                'private' => $repo->private,
-                'description' => $repo->description ?? '',
-                'last_updated' => now(),
-            ]
-        );
     }
 }

@@ -4,7 +4,6 @@ namespace App\Listeners;
 
 use App\Events\CommentWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Issue;
 use App\Models\IssueComment;
 use App\Models\Repository;
@@ -25,9 +24,6 @@ class ProcessCommentWebhook implements ShouldQueue
     {
         $payload = $event->payload;
 
-        if (!$payload || !isset($payload->comment) || !isset($payload->issue) || !isset($payload->repository)) {
-            return false;
-        }
         $commentData = $payload->comment;
         $issueData = $payload->issue;
         $repositoryData = $payload->repository;
@@ -35,7 +31,7 @@ class ProcessCommentWebhook implements ShouldQueue
         $userData = $commentData->user ?? null;
 
         // Ensure repository exists first
-        $repository = self::update_repo($repositoryData);
+        $repository = Repository::updateFromWebhook($repositoryData);
 
         // Ensure issue exists first
         $issue = Issue::where('github_id', $issueData->id)->first();
@@ -44,7 +40,7 @@ class ProcessCommentWebhook implements ShouldQueue
             IssuesWebhookReceived::dispatch($payload);
         }
 
-        // get the correct ID if its a PR
+        // PR needs some special handling since the normal issue ID is not the same as the PR ID
         if (isset($issueData->pull_request)) {
             // Get the ID where the issue number and repository matching
             $pr = PullRequest::where('number', $issueData->number)
@@ -62,20 +58,5 @@ class ProcessCommentWebhook implements ShouldQueue
         );
 
         return true;
-    }
-
-    public static function update_repo($repo)
-    {
-        return Repository::updateOrCreate(
-            ['github_id' => $repo->id],
-            [
-                'organization_id' => $repo->owner->id,
-                'name' => $repo->name,
-                'full_name' => $repo->full_name,
-                'private' => $repo->private,
-                'description' => $repo->description ?? '',
-                'last_updated' => now(),
-            ]
-        );
     }
 }
