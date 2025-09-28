@@ -12,6 +12,7 @@ use App\Models\RequestedReviewer;
 use App\Models\PullRequestReview;
 use Illuminate\Http\Request;
 use App\Events\IssueWebhookReceived;
+use App\Events\CommentWebhookReceived;
 
 class IncomingWebhookController extends Controller
 {
@@ -39,7 +40,7 @@ class IncomingWebhookController extends Controller
         }
 
         if (in_array($eventType, $this->ISSUE_COMMENT_RELATED)) {
-            $this->comment($payload);
+            CommentWebhookReceived::dispatch($payload);
         }
 
         if (in_array($eventType, $this->PULL_REQUEST_RELATED)) {
@@ -70,48 +71,6 @@ class IncomingWebhookController extends Controller
                 'last_updated' => now(),
             ]
         );
-    }
-
-    public function comment($payload)
-    {
-        if (!$payload || !isset($payload->comment) || !isset($payload->issue) || !isset($payload->repository)) {
-            return false;
-        }
-        $commentData = $payload->comment;
-        $issueData = $payload->issue;
-        $repositoryData = $payload->repository;
-
-        $userData = $commentData->user ?? null;
-
-        // Ensure repository exists first
-        $repository = self::update_repo($repositoryData);
-
-
-        // Ensure issue exists first
-        $issue = Issue::where('github_id', $issueData->id)->first();
-        if (! $issue) {
-            // If the issue doesn't exist, we can't add a comment to it
-            self::issue($payload);
-        }
-
-        // get the correct ID if its a PR
-        if (isset($issueData->pull_request)) {
-            // Get the ID where the issue number and repository matching
-            $pr = PullRequest::where('number', $issueData->number)
-                ->where('repository_id', $repository->github_id);
-            $issueData->id = $pr->first()->github_id ?? null;
-        }
-
-        IssueComment::updateOrCreate(
-            ['github_id' => $commentData->id],
-            [
-                'issue_github_id' => $issueData->id,
-                'user_id' => $userData->id,
-                'body' => $commentData->body ?? '',
-            ]
-        );
-
-        return true;
     }
 
     public static function pullRequestReviewComment($payload) 
