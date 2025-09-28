@@ -29,6 +29,7 @@ class PullRequestReview extends Model
         'pull_request_id',
         'user_id',
         'body',
-        'state'
+        'state',
+        'resolved',
     ];
 }
