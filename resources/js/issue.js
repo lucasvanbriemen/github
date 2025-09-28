@@ -15,6 +15,8 @@ export default {
     allCommentsHeaders.forEach(commentHeader => {
       commentHeader.addEventListener("click", () => this.openResolvedComments(commentHeader.closest(".issue-comment").getAttribute("data-comment")));
     });
+
+    this.getLinkedIssues(window.issueId);
   },
 
   updateComment(id, url) {
@@ -36,4 +38,12 @@ export default {
     const comment = document.querySelector(`.issue-comment[data-comment="${id}"]`);
     comment.classList.toggle("resolved");
   },
+
+  getLinkedIssues(id) {
+    const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/issues/" + id + "/linked_pull_requests";
+    api.get(url, {}, true).then((data) => {
+      const issues = document.querySelector(".linked-pull-request");
+      issues.innerHTML = data
+    });
+  }
 };

@@ -21,11 +21,18 @@ Route::middleware(IsLoggedIn::class)->group(function () {
             Route::get('/', [IssueController::class, 'getIssues'])
                 ->name('api.repositories.issues');
 
-            Route::prefix('{issue}/comments/{comment}')->group(function () {
-                Route::patch('resolve', [IssueController::class, 'resolveComment'])
-                    ->name('api.repositories.issues.comment.resolve');
-                Route::patch('unresolve', [IssueController::class, 'unresolveComment'])
-                    ->name('api.repositories.issues.comment.unresolve');
+            Route::prefix('{issue}')->group(function () {
+
+                Route::get('linked_pull_requests', [IssueController::class, 'getLinkedPullRequestsHtml'])
+                    ->name('api.repositories.issues.issue');
+
+                Route::prefix('comments/{comment}')->group(function () {
+                    Route::patch('resolve', [IssueController::class, 'resolveComment'])
+                        ->name('api.repositories.issues.comment.resolve');
+
+                    Route::patch('unresolve', [IssueController::class, 'unresolveComment'])
+                        ->name('api.repositories.issues.comment.unresolve');
+                });
             });
         });
 

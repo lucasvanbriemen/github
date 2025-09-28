@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Models\Repository;
 use Illuminate\Http\Request;
 use App\Models\IssueComment;
+use App\Models\PullRequest;
 
 class IssueController extends Controller
 {
@@ -133,5 +134,55 @@ class IssueController extends Controller
         );
 
         return $content;
+    }
+
+    public function getLinkedPullRequestsHtml($organizationName, $repositoryName, $issueNumber)
+    {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $issue = Issue::where('repository_id', $repository->github_id)
+            ->where('number', $issueNumber)
+            ->firstOrFail();
+
+        $query ='
+            query($owner: String!, $repo: String!, $number: Int!) { 
+                repository(owner: $owner, name: $repo) { 
+                    issue(number: $number) { 
+                        timelineItems(itemTypes: [CONNECTED_PULL_REQUEST], first: 5) { 
+                            nodes { 
+                                ... on ConnectedPullRequest {
+                                     pullRequest { databaseId }
+                                }
+                            } 
+                        } 
+                    }
+                }
+            }
+        ';
+
+        $variables = [
+            'owner' => $organization ? $organization->name : $repository->owner_name,
+            'repo' => $repository->name,
+            'number' => $issue->number,
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
+
+        if (!$response || !isset($response->data->repository->issue)) {
+            return json_encode(['status' => 'error', 'message' => 'Failed to fetch linked pull requests'], 500);
+        }
+
+        $prIds = array_map(function ($node) {
+            return $node->pullRequest->databaseId;
+        }, $response->data->repository->issue->timelineItems->nodes);
+
+        $pullRequests = PullRequest::whereIn('github_id', $prIds)->get();
+
+        return view('repository.issue.linked_pull_requests', [
+            'organizationName' => $organizationName,
+            'repositoryName' => $repositoryName,
+            'issue' => $issue,
+            'pullRequests' => $pullRequests,
+        ]);
     }
 }

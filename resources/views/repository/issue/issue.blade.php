@@ -62,7 +62,16 @@
         @endforeach
       </div>
     @endif
+
+    <div class="issue-detail linked-pull-request">
+      
+    </div>
   </div>
 
-  <script> window.start = "issue"; </script>
+  <script> 
+  window.start = "issue";
+  window.issueId = "{{ $issue->number }}";
+  window.repositoryName = "{{ $repository->name }}";
+  window.organizationName = "{{ $organization->name }}";
+  </script>
 </x-app-layout>
