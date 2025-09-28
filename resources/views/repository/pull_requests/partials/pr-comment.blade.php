@@ -4,6 +4,9 @@
     'createdAt' => $comment->created_at
   ])
   <div class="markdown-body">
+    @foreach (commentDiffHunk($comment->diff_hunk, $comment->line_start, $comment->line_end) as $line)
+      <div class="line">{{ $line }}</div>
+    @endforeach
     <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
 
     @foreach ($replies as $reply)
