@@ -23,7 +23,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(PullRequestReviewWebhookReceived $event): void
+    public function handle(PullRequestReviewWebhookReceived $event): bool
     {
         $payload = $event->payload;
 
@@ -55,5 +55,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
                 'state' => $reviewData->state,
             ]
         );
+
+        return true;
     }
 }
