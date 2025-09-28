@@ -1,0 +1,29 @@
+.pull-request-page {
+  .opened-by {
+    display: flex;
+    margin: 1rem 0.5rem;
+
+    color: var(--text-color-secondary) !important;
+
+    img {
+      width: 1.24rem;
+      height: 1.25rem;
+      margin: 0rem 0.25rem;
+      border-radius: 50%;
+    }
+
+    .branch {
+      color: var(--text-color) !important;
+      font-weight: bold;
+      margin: 0rem 0.25rem;
+    }
+  }
+
+  .pull-request-header {
+    .created-at {
+      font-size: 1rem !important;
+      font-weight: normal !important;
+      color: var(--text-color-secondary) !important;
+    }
+  }
+}
