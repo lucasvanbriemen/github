@@ -123,6 +123,19 @@
           color: var(--text-color);
         }
 
+        .diff-hunk {
+          background-color: var(--background-color-two);
+          margin: 1rem 0;
+          padding: 1rem;
+          
+          border-radius: 1rem;
+
+          .line {
+            color: var(--text-color-secondary);
+            padding: 0.1rem 0;
+          }
+        }
+
         .button-primary {
           margin-top: 1rem;
         }
