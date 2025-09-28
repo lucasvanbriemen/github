@@ -1,4 +1,4 @@
-<div class="issue-comment review state-{{ strtolower($review->state) }} {{ $review->resolved ? 'resolved' : '' }}" data-review="{{ $review->id }}">
+<div class="issue-comment review state-{{ strtolower($review->state) }} {{ $review->resolved ? 'resolved' : '' }}" data-comment="{{ $review->id }}">
   @include('repository.pull_requests.partials.comment-header', [
     'author' => $review->user,
     'createdAt' => $review->created_at,

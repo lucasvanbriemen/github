@@ -135,4 +135,84 @@ class PullRequestController extends Controller
 
         return $content;
     }
+
+    public function resolveComment($organizationName, $repositoryName, $pullRequestNumber, $commentId)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $comment = $pullRequest->pullRequestComments()->where('id', $commentId)->firstOrFail();
+        $comment->resolved = true;
+        $comment->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function unresolveComment($organizationName, $repositoryName, $pullRequestNumber, $commentId)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $comment = $pullRequest->pullRequestComments()->where('id', $commentId)->firstOrFail();
+        $comment->resolved = false;
+        $comment->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function resolveReviewComment($organizationName, $repositoryName, $pullRequestNumber, $commentId)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $comment = $pullRequest->pullRequestReviews()->where('id', $commentId)->firstOrFail();
+        $comment->resolved = true;
+        $comment->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function unresolveReviewComment($organizationName, $repositoryName, $pullRequestNumber, $commentId)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $comment = $pullRequest->pullRequestReviews()->where('id', $commentId)->firstOrFail();
+        $comment->resolved = false;
+        $comment->save();
+
+        return response()->json(['status' => 'success']);
+    }
 }
