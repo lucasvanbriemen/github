@@ -65,7 +65,7 @@ class Repository extends Model
         return $query;
     }
 
-    public function updateFromWebhook($repoData)
+    public static function updateFromWebhook($repoData)
     {
         return self::updateOrCreate(
             ['github_id' => $repoData->id],

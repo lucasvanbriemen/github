@@ -37,7 +37,7 @@ class GithubUser extends Model
         return $this->hasMany(Issue::class, 'opened_by_id', 'github_id');
     }
 
-    public function updateFromWebhook($userData)
+    public static function updateFromWebhook($userData)
     {
         return self::updateOrCreate(
             ['github_id' => $userData->id],
