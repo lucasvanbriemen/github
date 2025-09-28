@@ -3,47 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Events\IssueWebhookReceived;
-use App\Events\PullRequestWebhookReceived;
-use App\Events\PullRequestReviewWebhookReceived;
-use App\Events\PullRequestReviewCommentWebhookReceived;
-use App\Events\CommentWebhookReceived;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 
 class IncomingWebhookController extends Controller
 {
     public function index(Request $request)
     {
-        $headers = $request->headers->all();
-        $raw = $request->getContent();
-        // Support HTML form testing where JSON is sent as a field
-        if ($request->has('payload') && (!empty($request->input('payload')))) {
-            $raw = $request->input('payload');
-        }
-        $payload = json_decode($raw ?: '{}');
+        $raw = $request->input('payload', $request->getContent() ?: '{}');
+        $payload = json_decode($raw, false, 512, JSON_THROW_ON_ERROR);
 
-        // Allow overriding event via form/query as well
-        $eventType = $headers['x-github-event'][0] ?? $request->input('x_github_event', $request->input('event', 'unknown'));
+        $eventType = $request->header('x-github-event')
+            ?? $request->input('x_github_event')
+            ?? $request->input('event', 'unknown');
 
-        if ($eventType === "issues") {
-            IssueWebhookReceived::dispatch($payload);
-        }
+        // Convert snake_case event names to StudlyCase
+        $studly = Str::studly($eventType);
 
-        if ($eventType === "issue_comment") {
-            CommentWebhookReceived::dispatch($payload);
+        // Build the event class dynamically
+        $class = "App\\Events\\{$studly}WebhookReceived";
+
+        if (class_exists($class)) {
+            Event::dispatch(new $class($payload));
         }
 
-        if ($eventType === "pull_request") {
-            PullRequestWebhookReceived::dispatch($payload);
-        }
-
-        if ($eventType === "pull_request_review") {
-            PullRequestReviewWebhookReceived::dispatch($payload);
-        }
-
-        if ($eventType === "pull_request_review_comment") {
-            PullRequestReviewCommentWebhookReceived::dispatch($payload);
-        }
-
-        return response()->json(['message' => 'received', 'event' => $eventType], 200);
+        return response()->json([
+            'message' => 'received',
+            'event'   => $eventType,
+        ]);
     }
 }
