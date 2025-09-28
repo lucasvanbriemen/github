@@ -23,9 +23,14 @@ class IncomingWebhookController extends Controller
         // Build the event class dynamically
         $class = "App\\Events\\{$studly}WebhookReceived";
 
-        if (class_exists($class)) {
-            Event::dispatch(new $class($payload));
+        if (!class_exists($class)) {
+            return response()->json([
+                'message' => 'Event class not found',
+                'event'   => $eventType,
+            ], 400);
         }
+ 
+        Event::dispatch(new $class($payload));
 
         return response()->json([
             'message' => 'received',
