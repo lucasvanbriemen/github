@@ -5,11 +5,14 @@
 @import "shared/button";
 @import "shared/card";
 @import "shared/pagination";
+@import "shared/markdown";
+@import "shared/search_select";
 
 @import "dashboard";
 @import "organization";
 @import "repository/repository";
 @import "repository/issues";
+@import "repository/issue";
 @import "repository/sidebar";
 
 body { 

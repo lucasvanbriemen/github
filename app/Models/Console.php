@@ -9,8 +9,8 @@ class Console extends Model
     protected $table = 'console';
 
     public $fillable = [
-        "command",
-        "successful",
-        "executed_at",
+        'command',
+        'successful',
+        'executed_at',
     ];
 }

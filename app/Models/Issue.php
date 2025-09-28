@@ -3,31 +3,56 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class Issue extends Model
 {
-  public function repository()
-  {
-    return $this->belongsTo(Repository::class, "repository_full_name", "full_name");
-  }
+    protected $primaryKey = 'github_id';
 
-  public $fillable = [
-    "github_id",
-    "repository_full_name",
-    "number",
-    "title",
-    "body",
-    "last_updated",
-    "state",
-    "opened_by",
-    "opened_by_image",
-    "labels",
-    "assignees"
-  ];
+    protected $keyType = 'int';
 
-  protected $casts = [
-    "labels" => "array",
-    "assignees" => "array",
-  ];
+    public $incrementing = false;
+
+    public $timestamps = true;
+
+    public function repository()
+    {
+        return $this->belongsTo(Repository::class, 'repository_id', 'github_id');
+    }
+
+    public function openedBy()
+    {
+        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'github_id');
+    }
+
+    public function assignees()
+    {
+        return $this->belongsToMany(GithubUser::class, 'issue_assignees', 'issue_id', 'github_user_id', 'github_id', 'github_id');
+    }
+
+    public function getAssigneesDataAttribute()
+    {
+        return $this->assignees()->get();
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(IssueComment::class, 'issue_github_id', 'github_id');
+    }
+
+    protected $fillable = [
+        'repository_id',
+        'github_id',
+        'number',
+        'title',
+        'body',
+        'last_updated',
+        'state',
+        'labels',
+        'opened_by_id',
+    ];
+
+    protected $casts = [
+        'labels' => 'array',
+        'last_updated' => 'datetime',
+    ];
 }

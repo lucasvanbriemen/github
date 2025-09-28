@@ -25,6 +25,7 @@ class IsLoggedIn
                 'last_activity' => now()->subHours(1)->toDateTimeString(),
             ];
             app()->instance('current_user', $current_user);
+
             return $next($request);
         }
 
@@ -35,7 +36,7 @@ class IsLoggedIn
             $authToken = $_COOKIE['auth_token'] ?? null;
         }
 
-        $ch = curl_init('https://login.lucasvanbriemen.nl/api/user/token/' . $authToken);
+        $ch = curl_init('https://login.lucasvanbriemen.nl/api/user/token/'.$authToken);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Prevent direct output
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -48,7 +49,7 @@ class IsLoggedIn
 
             return $next($request);
         } else {
-            return redirect('https://login.lucasvanbriemen.nl?redirect=' . urlencode($request->fullUrl()));
+            return redirect('https://login.lucasvanbriemen.nl?redirect='.urlencode($request->fullUrl()));
         }
     }
 }

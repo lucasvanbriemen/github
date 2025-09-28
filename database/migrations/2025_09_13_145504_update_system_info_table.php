@@ -16,8 +16,8 @@ return new class extends Migration
             $table->dropColumn('api_count');
 
             $table->string('api_url')->nullable();
-            $table->time("expires_at")
-                ->description("Then the API call doenst contrubute to the limit anymore");
+            $table->time('expires_at')
+                ->description('Then the API call doenst contrubute to the limit anymore');
         });
     }
 

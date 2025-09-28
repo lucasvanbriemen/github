@@ -9,8 +9,8 @@ class SystemInfo extends Model
     protected $table = 'system_info';
 
     public $fillable = [
-        "api_url",
-        "expires_at",
+        'api_url',
+        'expires_at',
     ];
 
     public static function tokens_used(): int

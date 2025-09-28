@@ -7,6 +7,9 @@
   flex-direction: column;
   gap: 0.5rem;
 
+  position: sticky;
+  top: 0;
+
   // This makes it align with the files in the filelist (that contaoner has 1rem padding)
   margin-top: 1rem;
 
@@ -24,7 +27,7 @@
     }
 
     &.active {
-      border-color: var(--primary-color-value);
+      border-color: var(--primary-color-dark);
       color: var(--text-color);
     }
 
@@ -33,7 +36,7 @@
       right: 0.5rem;
       top: 50%;
       transform: translateY(-50%);
-      background-color: var(--primary-color-value);
+      background-color: var(--primary-color-dark);
       color: var(--text-color);
       border-radius: 1rem;
       padding: 0.25rem 0.5rem;

@@ -1,0 +1,82 @@
+.markdown-body {
+
+  width: 75%;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color);
+    font-weight: 600;
+    margin-top: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    width: fit-content;
+    min-width: 50%;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  p, li {
+    color: var(--text-color-secondary);
+  }
+
+  code, pre {
+    background-color: var(--background-color-two) !important;
+    width: fit-content;
+    min-width: 50%;
+  }
+  
+  pre {
+    padding: 1rem;
+    border-radius: 1rem;
+    margin: 1rem 0;
+  }
+
+  p>code {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    color: var(--text-color) !important;
+  }
+
+  ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 1.5rem 0;
+  }
+
+  a {
+    color: var(--text-color-secondary);
+    text-decoration: underline;
+  }
+
+  img {
+    border-radius: 1rem;
+    margin: 1rem 0;
+  }
+
+  blockquote {
+    border-left: 4px solid var(--border-color);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: var(--text-color-secondary);
+
+    p {
+      color: var(--text-color-secondary) !important;
+      font-weight: 500;
+      margin-bottom: 0;
+      width: fit-content;
+      min-width: 50%;
+    }
+  }
+}

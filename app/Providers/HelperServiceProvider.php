@@ -3,9 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Helpers\ApiHelper;
-use App\Helpers\SvgHelper;
-use App\Helpers\DatetimeHelper;
 
 class HelperServiceProvider extends ServiceProvider
 {
@@ -21,27 +18,31 @@ class HelperServiceProvider extends ServiceProvider
 
     private function registerHelperFunctions()
     {
-        $helperClasses = [
-            ApiHelper::class,
-            SvgHelper::class,
-            DatetimeHelper::class,
-        ];
+        $helperPath = app_path('Helpers');
+        $helperFiles = glob($helperPath.'/*.php');
 
-        foreach ($helperClasses as $class) {
-            if (class_exists($class)) {
-                $methods = get_class_methods($class);
-                foreach ($methods as $method) {
-                    if (strpos($method, '__') !== 0) {
-                        // Register both camelCase and snake_case versions
-                        if (!function_exists($method)) {
-                            eval("function {$method}(...\$args) { return {$class}::{$method}(...\$args); }");
-                        }
-                        
-                        $snakeCaseName = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $method));
-                        if ($snakeCaseName !== $method && !function_exists($snakeCaseName)) {
-                            eval("function {$snakeCaseName}(...\$args) { return {$class}::{$method}(...\$args); }");
-                        }
-                    }
+        foreach ($helperFiles as $file) {
+            $class = 'App\\Helpers\\'.basename($file, '.php');
+
+            if (! class_exists($class)) {
+                continue;
+            }
+
+            $methods = get_class_methods($class);
+            foreach ($methods as $method) {
+                if (strpos($method, '__') === 0) {
+                    continue;
+                }
+
+                // Register camelCase function
+                if (! function_exists($method)) {
+                    eval("function {$method}(...\$args) { return {$class}::{$method}(...\$args); }");
+                }
+
+                // Register snake_case function
+                $snakeCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $method));
+                if ($snakeCase !== $method && ! function_exists($snakeCase)) {
+                    eval("function {$snakeCase}(...\$args) { return {$class}::{$method}(...\$args); }");
                 }
             }
         }

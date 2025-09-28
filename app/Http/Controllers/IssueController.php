@@ -2,100 +2,194 @@
 
 namespace App\Http\Controllers;
 
+use App\GithubConfig;
 use App\Helpers\ApiHelper;
-use Illuminate\Http\Request;
+use App\Models\Issue;
 use App\Models\Organization;
 use App\Models\Repository;
-use App\Models\Issue;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\IssueComment;
+use App\Models\PullRequest;
 
 class IssueController extends Controller
 {
     public function index($organizationName, $repositoryName, Request $request)
     {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        return view('repository.issue.issues', [
+            'organization' => $organization,
+            'repository' => $repository,
+        ]);
+    }
+
+    public static function show($organizationName, $repositoryName, $issueNumber)
+    {
         // User repositories have "user" as organization name in the URL, while being null in the DB
-        if ($organizationName === "user") {
+        if ($organizationName === 'user') {
             $organizationName = null;
         }
 
-        $organization = Organization::where("name", $organizationName)->first();
-        
-        $query = Repository::where("name", $repositoryName);
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $issue = Issue::where('repository_id', $repository->github_id)
+            ->where('number', $issueNumber)
+            ->with(['assignees', 'openedBy', 'comments' => function($query) {
+                $query->with('author');
+            }])
+            ->firstOrFail();
+
+        // Process markdown to replace GitHub image URLs with proxy URLs
+        $issue->body = self::processMarkdownImages($issue->body);
+
+        foreach ($issue->comments as $comment) {
+            $comment->body = self::processMarkdownImages($comment->body);
+        }
+
+        return view('repository.issue.issue', [
+            'organization' => $organization,
+            'repository' => $repository,
+            'issue' => $issue,
+        ]);
+    }
+
+    public static function getIssues($organizationName, $repositoryName, Request $request)
+    {
+        $state = $request->query('state', 'open');
+        $assignee = $request->query('assignee', GithubConfig::USERID);
+
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $issues = $repository->issues($state, $assignee)
+            ->paginate(30);
+
+        return view('repository.issue.list', [
+            'organization' => $organization,
+            'repository' => $repository,
+            'issues' => $issues,
+        ]);
+    }
+
+    public function resolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
+    {
+        $comment = IssueComment::where('github_id', $commentId)->firstOrFail();
+        $comment->resolved = true;
+        $comment->save();
+        return response()->json(['resolved' => $comment->resolved]);
+    }
+
+    public function unresolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
+    {
+        $comment = IssueComment::where('github_id', $commentId)->firstOrFail();
+        $comment->resolved = false;
+        $comment->save();
+        return response()->json(['resolved' => $comment->resolved]);
+    }
+
+    private static function getRepositoryWithOrganization($organizationName, $repositoryName)
+    {
+        $organization = null;
+
+        if ($organizationName && $organizationName !== 'user') {
+            $organization = Organization::where('name', $organizationName)->first();
+        }
+
+        $query = Repository::with('organization')->where('name', $repositoryName);
+
         if ($organization) {
-            $query->where("organization_id", $organization->id);
+            $query->where('organization_id', $organization->github_id);
+        } else {
+            $query->whereNull('organization_id');
         }
 
         $repository = $query->firstOrFail();
 
-        // Filters
-        $state = $request->query('state', 'open'); // open | closed | all
-        $assignee = $request->query('assignee');   // username | unassigned | null
-
-        $stateParam = $state === 'all' ? null : $state;
-        $issues = $repository->issues($stateParam, $assignee)
-            ->paginate(30)
-            ->appends($request->query());
-
-
-        $assignees = $repository->users;
-
-        return view("repository.issues", [
-            "organization" => $organization,
-            "repository" => $repository,
-            "issues" => $issues,
-            "filters" => [
-                'state' => $state,
-                'assignee' => $assignee,
-            ],
-            "assignees" => $assignees,
-        ]);
+        return [$organization, $repository];
     }
 
-    public static function updateIssues() {
-        $repositories = Repository::all();
-        $repoCanidates = [];
-        foreach ($repositories as $repository) {
-            if ($repository->last_updated > now()->subMinutes(60)) {
-                continue;
-            }
-
-            $repoCanidates[] = $repository;
+    private static function processMarkdownImages($content)
+    {
+        if (!$content) {
+            return $content;
         }
 
-        foreach ($repoCanidates as $repository) {
-            $last_update_after = now()->subHours(6)->toIso8601String();
-            
-            // Github stops at page 100
-            $max_page = 99;
+        // Replace markdown images: ![alt](url)
+        $content = preg_replace_callback(
+            '/!\[([^\]]*)\]\((https:\/\/(?:github\.com|raw\.githubusercontent\.com|user-images\.githubusercontent\.com)[^)]+)\)/',
+            function ($matches) {
+                $proxyUrl = route('image.proxy') . '?url=' . urlencode($matches[2]);
+                return "![{$matches[1]}]({$proxyUrl})";
+            },
+            $content
+        );
 
-            for ($page = 1; $page <= $max_page; $page++) {
-                $apiIssues = ApiHelper::githubApi("/repos/{$repository->full_name}/issues?page={$page}&per_page=100&state=all&since={$last_update_after}");
-                if (empty($apiIssues)) {
-                    break;
-                }
-                foreach ($apiIssues as $issue) {
-                    if (property_exists($issue, "pull_request")) {
-                        // It's a pull request, skip it
-                        continue;
+        // Replace HTML img tags: <img src="url">
+        $content = preg_replace_callback(
+            '/<img([^>]*\s+)?src=["\']?(https:\/\/(?:github\.com|raw\.githubusercontent\.com|user-images\.githubusercontent\.com)[^"\'>\s]+)["\']?([^>]*)>/i',
+            function ($matches) {
+                $proxyUrl = route('image.proxy') . '?url=' . urlencode($matches[2]);
+                return "<img{$matches[1]}src=\"{$proxyUrl}\"{$matches[3]}>";
+            },
+            $content
+        );
+
+        return $content;
+    }
+
+    public function getLinkedPullRequestsHtml($organizationName, $repositoryName, $issueNumber)
+    {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $issue = Issue::where('repository_id', $repository->github_id)
+            ->where('number', $issueNumber)
+            ->firstOrFail();
+
+        $query ='
+            query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                    issue(number: $number) {
+                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 5) {
+                            nodes {
+                                ... on ConnectedEvent {
+                                    subject {
+                                        ... on PullRequest {
+                                            databaseId
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-
-                    Issue::updateOrCreate(
-                        ["github_id" => $issue->id],
-                        [
-                            "repository_full_name" => $repository->full_name,
-                            "number" => $issue->number,
-                            "title" => $issue->title,
-                            "body" => $issue->body,
-                            "last_updated" => Carbon::parse($issue->updated_at)->format('Y-m-d H:i:s'),
-                            "state" => $issue->state,
-                            "opened_by" => $issue->user->login,
-                            "opened_by_image" => $issue->user->avatar_url,
-                            "labels" => json_encode($issue->labels),
-                            "assignees" => json_encode($issue->assignees),
-                        ]
-                    );
                 }
             }
+        ';
+
+        $variables = [
+            'owner' => $organization ? $organization->name : $repository->owner_name,
+            'repo' => $repository->name,
+            'number' => $issue->number,
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
+
+        if (!$response || !isset($response->data->repository->issue)) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to fetch linked pull requests'], 500);
         }
+
+        $prIds = [];
+        foreach ($response->data->repository->issue->timelineItems->nodes as $node) {
+            if (isset($node->subject) && isset($node->subject->databaseId)) {
+                $prIds[] = $node->subject->databaseId;
+            }
+        }
+
+        $pullRequests = !empty($prIds) ? PullRequest::whereIn('github_id', $prIds)->get() : collect();
+
+        return view('repository.issue.linked_pull_requests', [
+            'organizationName' => $organizationName,
+            'repositoryName' => $repositoryName,
+            'issue' => $issue,
+            'pullRequests' => $pullRequests,
+        ]);
     }
 }

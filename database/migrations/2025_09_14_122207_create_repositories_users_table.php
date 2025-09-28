@@ -18,8 +18,8 @@ return new class extends Migration
             $table->uuid('repository_id');
             $table->foreign('repository_id')->references('id')->on('repositories')->onDelete('cascade');
             $table->unsignedBigInteger('user_id');
-            $table->string("name");
-            $table->string("avatar_url")->nullable();
+            $table->string('name');
+            $table->string('avatar_url')->nullable();
         });
     }
 

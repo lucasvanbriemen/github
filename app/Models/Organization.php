@@ -7,26 +7,22 @@ use Illuminate\Support\Str;
 
 class Organization extends Model
 {
-  protected $keyType = "string";
-  public $incrementing = false;
+    protected $primaryKey = 'github_id';
 
-  public function repositories()
-  {
-    return $this->hasMany(Repository::class, "organization_id")
-      ->orderBy("last_updated", "desc");
-  }
+    protected $keyType = 'int';
 
-  public static function booted()
-  {
-    static::creating(function ($organization) {
-      $organization->id = (string) Str::uuid();
-    });
-  }
+    public $incrementing = false;
 
-  public $fillable = [
-    "organization_id",
-    "name",
-    "description",
-    "avatar_url",
-  ];
+    public function repositories()
+    {
+        return $this->hasMany(Repository::class, 'organization_id', 'github_id')
+            ->orderBy('last_updated', 'desc');
+    }
+
+    public $fillable = [
+        'github_id',
+        'name',
+        'description',
+        'avatar_url',
+    ];
 }

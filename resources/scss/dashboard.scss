@@ -1,8 +1,11 @@
 .dashboard-page {
   display: flex;
+  flex-direction: row;
+  gap: 1rem;
 
-  .organizations, .repositories {
-    width: calc(50% - 2rem);
+
+  .repositories, .issues {
+    width: 50%;
     margin: 1rem;
     display: flex;
     gap: 1rem;
@@ -10,5 +13,26 @@
 
     height: calc(100vh - 7rem);
     overflow-y: auto;
+  }
+
+  .issue-card {
+    align-items: center;
+    justify-content: space-between;
+
+    div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .updated-at {
+      font-size: 0.9rem;
+      color: var(--text-color-secondary);
+    }
   }
 }

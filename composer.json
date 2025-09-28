@@ -10,15 +10,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "graham-campbell/github": "13.0",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
-        "scrivo/highlight.php": "^9.18"
+        "scrivo/highlight.php": "^9.18",
+        "sentry/sentry-laravel": "^4.16",
+        "spatie/laravel-markdown": "^2.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
-        "laravel/pint": "^1.24",
+        "laravel/pint": "^1.25",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
