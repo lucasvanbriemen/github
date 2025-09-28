@@ -217,7 +217,7 @@ class PullRequestController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    public static function getLinkedIssues($organizationName, $repositoryName, $pullRequestNumber)
+    public static function getLinkedIssuesHtml($organizationName, $repositoryName, $pullRequestNumber)
     {
         // User repositories have "user" as organization name in the URL, while being null in the DB
         if ($organizationName === 'user') {
@@ -262,6 +262,10 @@ class PullRequestController extends Controller
 
         $issues = Issue::whereIn('github_id', $issueIds)->get();
 
-        return response()->json(['status' => 'success', 'issues' => $issues]);
+        return view('repository.pull_requests.linked_issues', [
+            'organizationName' => $organizationName,
+            'repositoryName' => $repositoryName,
+            'issues' => $issues,
+        ]);
     }
 }

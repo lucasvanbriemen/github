@@ -35,7 +35,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
             Route::prefix('{pullRequest}')->group(function () {
 
-                Route::get('linked_issues', [PullRequestController::class, 'getLinkedIssues'])
+                Route::get('linked_issues', [PullRequestController::class, 'getLinkedIssuesHtml'])
                     ->name('api.repositories.pull_requests.pull_request');
 
                 Route::prefix('comments/{comment}')->group(function () {
