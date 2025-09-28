@@ -157,13 +157,8 @@
         }
       }
 
-      &.reply {
-        border-left: 2px solid var(--text-color-secondary);
-        width: 100%;
-
-        .comment-header {
-          height: 3.5rem;
-        }
+      &.reply .comment-header {
+        height: 3.5rem;
       }
     }
   }
