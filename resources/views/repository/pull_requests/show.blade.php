@@ -53,9 +53,22 @@
         </div>
       @endforeach
     </div>
+
+    <div class="pull-request-detail linked-issues">
+      <h3>Assignees</h3>
+      @foreach ($pullRequest->assignees_data as $assignee)
+        <div class="assignee">
+          <img src="{{ $assignee->avatar_url }}" alt="{{ $assignee->name }}">
+          <span>{{ $assignee->name }}</span>
+        </div>
+      @endforeach
+    </div>
   </div>
 
   <script>
     window.start = "pull_request";
+    window.pullRequestId = "{{ $pullRequest->number }}";
+    window.repositoryName = "{{ $repository->name }}";
+    window.organizationName = "{{ $organization->name }}";
   </script>
 </x-app-layout>
