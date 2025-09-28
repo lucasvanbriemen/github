@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Issue;
-use App\Models\IssueComment;
 use App\Models\PullRequestComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
