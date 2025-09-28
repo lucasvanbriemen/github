@@ -23,14 +23,7 @@
     {{ $header ?? "" }}
 
     <div class="header-right">
-      <div class="api-rate-limit">
-        <span>{{ $calls_used }}</span>
-        /
-        <span>{{ $max_calls }}</span>
-        <div class="api-rate-bar">
-          <div class="api-rate-bar-fill" style="width: {{ $used_percentage ?? 0 }}%;"></div>
-        </div>
-      </div>
+      {!! svg('logo') !!}
     </div>
   </header>
 
