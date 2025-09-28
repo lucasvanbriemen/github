@@ -8,7 +8,7 @@
 
   <title>{{ config("app.name", "Laravel") }}</title>
 
-  <link rel="icon" href="{{ asset("images/favicon.png") }}" type="image/x-icon">
+  <link rel="icon" href="{{ asset("images/logo.svg") }}" type="image/x-icon">
 
   <!-- Scripts -->
   @vite(["resources/scss/root.scss", "resources/js/root.js"])
