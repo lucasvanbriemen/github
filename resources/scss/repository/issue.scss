@@ -228,15 +228,15 @@
         }
       }
 
-      .state-changes_requested {
+      .state-changes_requested, .issue-closed, .pull-request-closed {
         .icon {
           svg {
-            fill: var(--background-color-one);
+            fill: var(--error-color);
           }
         }
       }
 
-      .state-approved {
+      .state-approved, .issue-open, .pull-request-open {
         .icon {
           svg {
             fill: var(--primary-color);
@@ -244,15 +244,7 @@
         }
       }
 
-      .state-commented {
-        .icon {
-          svg {
-            fill: var(--text-color-secondary);
-          }
-        }
-      }
-
-      .state-pending {
+      .state-pending, .state-commented, .issue-draft, .pull-request-draft {
         .icon {
           svg {
             fill: var(--text-color-secondary);
