@@ -4,11 +4,14 @@
     'createdAt' => $comment->created_at
   ])
   <div class="markdown-body">
-    <div class="diff-hunk">
-      @foreach (commentDiffHunk($comment->diff_hunk, $comment->line_start, $comment->line_end) as $line)
-        <div class="line">{{ $line }}</div>
-      @endforeach
-    </div>
+    @if ($comment->diff_hunk)
+      <div class="diff-hunk">
+        <span class="file-name">{{ $comment->path }}</span>
+        @foreach (commentDiffHunk($comment->diff_hunk, $comment->line_start, $comment->line_end) as $line)
+          <div class="line">{{ $line }}</div>
+        @endforeach
+      </div>
+    @endif
 
     <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
 

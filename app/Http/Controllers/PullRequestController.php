@@ -46,6 +46,11 @@ class PullRequestController extends Controller
         // Group comments by thread for better organization
         $allComments = $commentService->groupCommentsByThread($allComments);
 
+        // Filter out comments where the body is null
+        $allComments = $allComments->filter(function ($comment) {
+            return $comment->body !== null;
+        });
+
         // Process markdown in comments
         foreach ($allComments as $comment) {
             $comment->body = self::processMarkdownImages($comment->body);
