@@ -77,7 +77,20 @@ class PullRequestController extends Controller
             $organizationName = null;
         }
 
-        dd(self::getDiff($organizationName, $repositoryName, $pullRequestNumber));
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $diff = self::getDiff($organizationName, $repositoryName, $pullRequestNumber);
+
+        return view('repository.pull_requests.files', [
+            'organization' => $organization,
+            'repository' => $repository,
+            'pullRequest' => $pullRequest,
+            'diff' => $diff,
+        ]);
     }
 
     public static function getPullRequests($organizationName, $repositoryName, Request $request)
