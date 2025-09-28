@@ -77,29 +77,7 @@ class PullRequestController extends Controller
             $organizationName = null;
         }
 
-        // https://github.com/webinargeek/app/compare/master...develop.diff
-        // Get this url with the usertoken
-        $token = config('services.github.access_token');
-
-        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
-            ->where('number', $pullRequestNumber)
-            ->firstOrFail();
-
-        $url = "https://github.com/{$organizationName}/{$repositoryName}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}.diff";
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $token,
-            'User-Agent: github-gui'
-        ]);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-
-        $diff = curl_exec($ch);
-        curl_close($ch);
-
-        dd( $diff);
+        dd(self::getDiff($organizationName, $repositoryName, $pullRequestNumber));
     }
 
     public static function getPullRequests($organizationName, $repositoryName, Request $request)
@@ -294,5 +272,36 @@ class PullRequestController extends Controller
             'repositoryName' => $repositoryName,
             'issues' => $issues,
         ]);
+    }
+
+    public static function getDiff($organizationName, $repositoryName, $pullRequestNumber)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $token = config('services.github.access_token');
+
+        $url = "https://github.com/{$organizationName}/{$repositoryName}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}.diff";
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'User-Agent: github-gui'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        $diff = curl_exec($ch);
+        curl_close($ch);
+
+        return $diff;
     }
 }
