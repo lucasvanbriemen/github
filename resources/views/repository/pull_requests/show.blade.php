@@ -11,13 +11,14 @@
   @include("repository.sidebar")
 
   <div class="main-content">
-    <div class="opened-by">
-      <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
-    </div>
+    
 
     @include("repository.pull_requests.nav")
     
     <div class="pull-request-content">
+      <div class="opened-by">
+        <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+      </div>
       <div class="pull-request-header">
         <span>{{ $pullRequest->title }}</span>
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>

@@ -1,7 +1,7 @@
 .pull-request-page {
   .opened-by {
     display: flex;
-    margin: 1rem 0.5rem;
+    margin: 0 0 0.5rem 0;
 
     color: var(--text-color-secondary) !important;
 
@@ -24,6 +24,30 @@
       font-size: 1rem !important;
       font-weight: normal !important;
       color: var(--text-color-secondary) !important;
+    }
+  }
+
+  .pull-request-nav {
+    margin: 1rem 0;
+    background-color: var(--background-color-one);
+    padding: 1rem;
+    border-radius: 1rem;
+    display: flex;
+    gap: 1rem;
+
+    a {
+      background-color: var(--background-color-two);
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      border: 2px solid transparent;
+
+      &:hover {
+        background-color: var(--primary-color-dark);
+      }
+
+      &.active {
+        border: 2px solid var(--primary-color-dark);
+      }
     }
   }
 }
