@@ -10,6 +10,7 @@ use App\Models\RequestedReviewer;
 use App\Models\PullRequestReview;
 use Illuminate\Http\Request;
 use App\Events\IssueWebhookReceived;
+use App\Events\PullRequestWebhookReceived;
 use App\Events\CommentWebhookReceived;
 
 class IncomingWebhookController extends Controller
@@ -36,7 +37,7 @@ class IncomingWebhookController extends Controller
         }
 
         if ($eventType === "pull_request") {
-            $this->pullRequest($payload);
+            PullRequestWebhookReceived::dispatch($payload);
         }
 
         if ($eventType === "pull_request_review") {
@@ -117,71 +118,6 @@ class IncomingWebhookController extends Controller
                 'type' => $userData->type ?? 'User',
             ]
         );
-    }
-
-    public function pullRequest($payload)
-    {
-        if (!$payload || !isset($payload->pull_request) || !isset($payload->repository)) {
-            return false;
-        }
-        $prData = $payload->pull_request;
-        $repositoryData = $payload->repository;
-
-        $userData = $prData->user ?? null;
-
-        // Ensure repository exists first
-        $repository = self::update_repo($repositoryData);
-
-        // Create/update the user who opened the pull request
-        self::ensureGithubUser($userData);
-
-        PullRequest::updateOrCreate(
-            ['github_id' => $prData->id],
-            [
-                'repository_id' => $repository->github_id,
-                'opened_by_id' => $userData->id,
-                'number' => $prData->number,
-                'title' => $prData->title,
-                'body' => $prData->body ?? '',
-                'state' => $prData->state,
-            ]
-        );
-
-        // Sync assignees in the pivot table
-        $assigneeGithubIds = [];
-        if (!empty($prData->assignees) && is_array($prData->assignees)) {
-            foreach ($prData->assignees as $assignee) {
-                $assigneeGithubIds[] = $assignee->id;
-
-                // Create/update the assignee in github_users table
-                self::ensureGithubUser($assignee);
-            }
-        }
-
-        $pr = PullRequest::where('github_id', $prData->id)->first();
-        if ($pr) {
-            $pr->assignees()->sync($assigneeGithubIds);
-        }
-
-        if ($payload->action === 'review_requested') {
-            // Create/update the requested reviewer in github_users table
-            $reviewerData = $payload->requested_reviewer ?? null;
-            self::ensureGithubUser($reviewerData);
-
-            RequestedReviewer::updateOrCreate(
-                [
-                    'pull_request_id' => $prData->id,
-                    'user_id' => $reviewerData->id,
-                ],
-                [
-                    'pull_request_id' => $prData->id,
-                    'user_id' => $reviewerData->id
-                ]
-            );
-           
-        }
-
-        return true;
     }
 
     public function pullRequestReview($payload)
