@@ -41,7 +41,7 @@ export default {
 
   getLinkedIssues(id) {
     const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/pull_requests/" + id + "/linked_issues";
-    api.get(url).then((data) => {
+    api.get(url, {}, true).then((data) => {
       const issues = document.querySelector(".linked-issues");
       issues.innerHTML = data
     });
