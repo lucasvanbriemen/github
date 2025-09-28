@@ -14,6 +14,11 @@
     <div class="opened-by">
       <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
     </div>
+
+    <nav class="pull-request-nav">
+      <a href='{{ route("repository.prs.show", [$organization->name, $repository->name, $pullRequest->number]) }}' class='active'>Conversation</a>
+      <a href='{{ route("repository.prs.show.files", [$organization->name, $repository->name, $pullRequest->number]) }}'>Files</a>
+    </nav>
     
     <div class="pull-request-content">
       <div class="pull-request-header">
