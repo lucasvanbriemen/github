@@ -65,6 +65,21 @@ class Repository extends Model
         return $query;
     }
 
+    public function updateFromWebhook($repoData)
+    {
+        return self::updateOrCreate(
+            ['github_id' => $repoData->id],
+            [
+                'organization_id' => $repoData->owner->id,
+                'name' => $repoData->name,
+                'full_name' => $repoData->full_name,
+                'private' => $repoData->private,
+                'description' => $repoData->description ?? '',
+                'last_updated' => now(),
+            ]
+        );
+    }
+
     public $fillable = [
         'organization_id',
         'name',
