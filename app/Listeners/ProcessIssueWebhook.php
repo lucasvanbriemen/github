@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\IssueWebhookReceived;
+use App\Events\IssuesWebhookReceived;
 use App\Models\GithubUser;
 use App\Models\Issue;
 use App\Models\Repository;
@@ -21,7 +21,7 @@ class ProcessIssueWebhook implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(IssueWebhookReceived $event): bool
+    public function handle(IssuesWebhookReceived $event): bool
     {
         $payload = $event->payload;
 

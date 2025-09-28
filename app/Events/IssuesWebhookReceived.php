@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class IssueWebhookReceived
+class IssuesWebhookReceived
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
