@@ -49,8 +49,6 @@ class ApiHelper
     public static function githubGraphql(string $query, array $variables = [])
     {
         self::init();
-        // Count towards rate limit tracking
-        self::updateSystemInfo('https://api.github.com/graphql');
 
         $ch = curl_init('https://api.github.com/graphql');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
