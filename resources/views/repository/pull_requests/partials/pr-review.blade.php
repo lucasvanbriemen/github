@@ -10,13 +10,13 @@
     @if(!$review->resolved)
       <button class="button-primary resolve-comment"
               data-url="{{ route('api.repositories.pull_requests.review.resolve', [$organization->name, $repository->name, $pullRequest->number, $review->id]) }}"
-              data-comment="{{ $review->github_id }}">
+              data-comment="{{ $review->id }}">
         Mark as resolved
       </button>
     @else
       <button class="button-primary unresolve-comment"
               data-url="{{ route('api.repositories.pull_requests.review.unresolve', [$organization->name, $repository->name, $pullRequest->number, $review->id]) }}"
-              data-comment="{{ $review->github_id }}">
+              data-comment="{{ $review->id }}">
         Mark as unresolved
       </button>
     @endif

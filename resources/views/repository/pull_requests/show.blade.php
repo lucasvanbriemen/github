@@ -54,4 +54,8 @@
       @endforeach
     </div>
   </div>
+
+  <script>
+    window.start = "pull_request";
+  </script>
 </x-app-layout>

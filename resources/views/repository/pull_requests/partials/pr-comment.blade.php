@@ -18,13 +18,13 @@
     @if($comment->resolved)
       <button class="button-primary unresolve-comment"
               data-url="{{ route('api.repositories.pull_requests.comment.unresolve', [$organization->name, $repository->name, $pullRequest->number, $comment->id]) }}"
-              data-comment="{{ $comment->github_id }}">
+              data-comment="{{ $comment->id }}">
         Mark as unresolved
       </button>
     @else
       <button class="button-primary resolve-comment"
               data-url="{{ route('api.repositories.pull_requests.comment.resolve', [$organization->name, $repository->name, $pullRequest->number, $comment->id]) }}"
-              data-comment="{{ $comment->github_id }}">
+              data-comment="{{ $comment->id }}">
         Mark as resolved
       </button>
     @endif
