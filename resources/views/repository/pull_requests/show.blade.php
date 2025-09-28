@@ -55,13 +55,6 @@
     </div>
 
     <div class="pull-request-detail linked-issues">
-      <h3>Assignees</h3>
-      @foreach ($pullRequest->assignees_data as $assignee)
-        <div class="assignee">
-          <img src="{{ $assignee->avatar_url }}" alt="{{ $assignee->name }}">
-          <span>{{ $assignee->name }}</span>
-        </div>
-      @endforeach
     </div>
   </div>
 

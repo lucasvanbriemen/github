@@ -1,3 +1,4 @@
+<h3>Linked Issues</h3>
 @foreach ($issues as $issue)
   <div class="linked-issue issue-{{ $issue->state }}">
     <span class="icon">{!! svg('issue') !!}</span>
