@@ -37,7 +37,6 @@ class ProcessCommentWebhook implements ShouldQueue
         // Ensure repository exists first
         $repository = self::update_repo($repositoryData);
 
-
         // Ensure issue exists first
         $issue = Issue::where('github_id', $issueData->id)->first();
         if (! $issue) {
