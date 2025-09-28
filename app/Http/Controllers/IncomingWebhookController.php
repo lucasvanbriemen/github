@@ -6,11 +6,10 @@ use App\Models\PullRequestComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
-use App\Models\RequestedReviewer;
-use App\Models\PullRequestReview;
 use Illuminate\Http\Request;
 use App\Events\IssueWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
+use App\Events\PullRequestReviewWebhookReceived;
 use App\Events\CommentWebhookReceived;
 
 class IncomingWebhookController extends Controller
@@ -41,7 +40,7 @@ class IncomingWebhookController extends Controller
         }
 
         if ($eventType === "pull_request_review") {
-            $this->pullRequestReview((array)$payload);
+            PullRequestReviewWebhookReceived::dispatch($payload);
         }
 
         if ($eventType === "pull_request_review_comment") {
@@ -116,36 +115,6 @@ class IncomingWebhookController extends Controller
                 'name' => $userData->name ?? $userData->login ?? '',
                 'avatar_url' => $userData->avatar_url ?? null,
                 'type' => $userData->type ?? 'User',
-            ]
-        );
-    }
-
-    public function pullRequestReview($payload)
-    {
-        $reviewData = (object)$payload['review'];
-        $prData = (object)$payload['pull_request'];
-
-        $review = PullRequestReview::updateOrCreate([
-            'id' => $reviewData->id,
-        ], [
-            'pull_request_id' => $prData->id,
-            'user_id' => $reviewData->user->id,
-            'body' => $reviewData->body,
-            'state' => $reviewData->state,
-        ]);
-
-        // We also need to create/update RequestedReviewer
-        $repositoryData = $payload['repository'];
-        $repository = self::update_repo((object)$repositoryData);
-        $userData = (object)$reviewData->user;
-        self::ensureGithubUser($userData);
-        RequestedReviewer::updateOrCreate(
-            [
-                'pull_request_id' => $prData->id,
-                'user_id' => $userData->id,
-            ],
-            [
-                'state' => $reviewData->state,
             ]
         );
     }
