@@ -24,9 +24,9 @@
 
     @php
     $allComments = collect()
-        ->merge($pullRequest->comments)
+        // ->merge($pullRequest->comments)
         ->merge($pullRequest->pullRequestComments)
-        ->merge($pullRequest->pullRequestReviews)
+        // ->merge($pullRequest->pullRequestReviews)
         ->sortBy('created_at');
     @endphp
 
@@ -47,6 +47,11 @@
           </div>
         </div>
       @elseif ($item instanceof App\Models\PullRequestComment)
+        @if ($item->in_reply_to_id)
+          @continue
+          {{-- We load them in seperately --}}
+        @endif
+
         <div class="issue-comment {{ $item->resolved ? 'resolved' : '' }}" data-comment="{{ $item->github_id }}">
           <div class="comment-header">
             <span class="author"><img src="{{ $item->author?->avatar_url }}" alt="{{ $item->author?->name }}"> {{ $item->author?->name }}</span>
@@ -54,6 +59,21 @@
           </div>
           <div class="markdown-body">
             <x-markdown theme="github-dark">{!! $item->body !!}</x-markdown>
+
+            @foreach ($allComments as $comment )
+              @if ($comment->in_reply_to_id === $item->github_id && $comment->in_reply_to_id !== null)
+                <div class="issue-comment reply" data-comment="{{ $comment->github_id }}">
+                  <div class="comment-header">
+                    <span class="author"><img src="{{ $comment->author?->avatar_url }}" alt="{{ $comment->author?->name }}"> {{ $comment->author?->name }}</span>
+                    <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
+                  </div>
+                  <div class="markdown-body">
+                    <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
+                  </div>
+                </div>
+              @endif
+            @endforeach
+
           </div>
         </div>
       @elseif ($item instanceof App\Models\PullRequestReview)

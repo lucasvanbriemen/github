@@ -132,6 +132,12 @@
           display: none;
         }
       }
+
+      &.reply {
+        border-left: 0.5rem solid var(--primary-color);
+        margin-left: 1rem;
+        padding-left: 1rem;
+      }
     }
   }
 
