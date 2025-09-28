@@ -145,16 +145,20 @@ class IssueController extends Controller
             ->firstOrFail();
 
         $query ='
-            query($owner: String!, $repo: String!, $number: Int!) { 
-                repository(owner: $owner, name: $repo) { 
-                    issue(number: $number) { 
-                        timelineItems(itemTypes: [CONNECTED_PULL_REQUEST], first: 5) { 
-                            nodes { 
-                                ... on ConnectedPullRequest {
-                                     pullRequest { databaseId }
+            query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                    issue(number: $number) {
+                        timelineItems(itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT], first: 5) {
+                            nodes {
+                                ... on ConnectedEvent {
+                                    subject {
+                                        ... on PullRequest {
+                                            databaseId
+                                        }
+                                    }
                                 }
-                            } 
-                        } 
+                            }
+                        }
                     }
                 }
             }
@@ -169,14 +173,17 @@ class IssueController extends Controller
         $response = ApiHelper::githubGraphql($query, $variables);
 
         if (!$response || !isset($response->data->repository->issue)) {
-            return json_encode(['status' => 'error', 'message' => 'Failed to fetch linked pull requests'], 500);
+            return response()->json(['status' => 'error', 'message' => 'Failed to fetch linked pull requests'], 500);
         }
 
-        $prIds = array_map(function ($node) {
-            return $node->pullRequest->databaseId;
-        }, $response->data->repository->issue->timelineItems->nodes);
+        $prIds = [];
+        foreach ($response->data->repository->issue->timelineItems->nodes as $node) {
+            if (isset($node->subject) && isset($node->subject->databaseId)) {
+                $prIds[] = $node->subject->databaseId;
+            }
+        }
 
-        $pullRequests = PullRequest::whereIn('github_id', $prIds)->get();
+        $pullRequests = !empty($prIds) ? PullRequest::whereIn('github_id', $prIds)->get() : collect();
 
         return view('repository.issue.linked_pull_requests', [
             'organizationName' => $organizationName,
