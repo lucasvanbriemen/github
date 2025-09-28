@@ -16,12 +16,6 @@ use App\Events\CommentWebhookReceived;
 
 class IncomingWebhookController extends Controller
 {
-    public $ISSUE_COMMENT_RELATED = ['issue_comment'];
-    public $PULL_REQUEST_RELATED = ['pull_request'];
-    public $PULL_REQUEST_REVIEW_RELATED = ['pull_request_review'];
-
-    public $PULL_REQUEST_REVIEW_COMMENT_RELATED = ['pull_request_review_comment'];
-
     public function index(Request $request)
     {
         $headers = $request->headers->all();
@@ -39,19 +33,19 @@ class IncomingWebhookController extends Controller
             IssueWebhookReceived::dispatch($payload);
         }
 
-        if (in_array($eventType, $this->ISSUE_COMMENT_RELATED)) {
+        if ($eventType === "issue_comment") {
             CommentWebhookReceived::dispatch($payload);
         }
 
-        if (in_array($eventType, $this->PULL_REQUEST_RELATED)) {
+        if ($eventType === "pull_request") {
             $this->pullRequest($payload);
         }
 
-        if (in_array($eventType, $this->PULL_REQUEST_REVIEW_RELATED)) {
+        if ($eventType === "pull_request_review") {
             $this->pullRequestReview((array)$payload);
         }
 
-        if (in_array($eventType, $this->PULL_REQUEST_REVIEW_COMMENT_RELATED)) {
+        if ($eventType === "pull_request_review_comment") {
             $this->pullRequestReviewComment($payload);
         }
 
