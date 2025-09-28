@@ -34,6 +34,10 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                 ->name('api.repositories.pull_requests');
 
             Route::prefix('{pullRequest}')->group(function () {
+
+                Route::get('linked_issues', [PullRequestController::class, 'getLinkedIssues'])
+                    ->name('api.repositories.pull_requests.pull_request');
+
                 Route::prefix('comments/{comment}')->group(function () {
                     Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
                         ->name('api.repositories.pull_requests.comment.resolve');

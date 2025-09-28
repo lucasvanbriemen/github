@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\GithubConfig;
 use App\Models\PullRequest;
-use App\Models\Issue;
+use App\Helpers\ApiHelper;
 use App\Models\Organization;
 use App\Models\Repository;
+use App\Models\Issue;
 use App\Services\PullRequestCommentService;
 use Illuminate\Http\Request;
 
@@ -214,5 +215,53 @@ class PullRequestController extends Controller
         $comment->save();
 
         return response()->json(['status' => 'success']);
+    }
+
+    public static function getLinkedIssues($organizationName, $repositoryName, $pullRequestNumber)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $query = '
+            query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $number) {
+                        closingIssuesReferences(first: 5) {
+                            nodes {
+                                databaseId
+                            }
+                        }
+                    }
+                }
+            }
+        ';
+
+        $variables = [
+            'owner' => $organization ? $organization->name : $repository->owner_name,
+            'repo' => $repository->name,
+            'number' => $pullRequest->number,
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
+
+        if (!$response || !isset($response->data->repository->pullRequest)) {
+            return response()->json(['status' => 'error', 'message' => 'Failed to fetch linked issues'], 500);
+        }
+
+        $issueIds = array_map(function ($node) {
+            return $node->databaseId;
+        }, $response->data->repository->pullRequest->closingIssuesReferences->nodes);
+
+        $issues = Issue::whereIn('github_id', $issueIds)->get();
+
+        return response()->json(['status' => 'success', 'issues' => $issues]);
     }
 }

@@ -62,7 +62,6 @@ class PullRequest extends Model
     {
         return $this->assignees()->get();
     }
-
     protected $fillable = [
         'github_id',
         'repository_id',
