@@ -9,7 +9,7 @@ use App\Models\Issue;
 use App\Models\IssueComment;
 use App\Models\Repository;
 use App\Models\PullRequest;
-use App\Events\IssueWebhookReceived;
+use App\Events\IssuesWebhookReceived;
 
 class ProcessCommentWebhook implements ShouldQueue
 {
@@ -41,7 +41,7 @@ class ProcessCommentWebhook implements ShouldQueue
         $issue = Issue::where('github_id', $issueData->id)->first();
         if (! $issue) {
             // If the issue doesn't exist, we can't add a comment to it
-            IssueWebhookReceived::dispatch($payload);
+            IssuesWebhookReceived::dispatch($payload);
         }
 
         // get the correct ID if its a PR

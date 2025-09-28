@@ -53,6 +53,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
                 'pull_request_id' => $prData->id,
                 'user_id' => $userData->id,
                 'body' => $commentData->body ?? '',
+                'in_reply_to_id' => $commentData->in_reply_to_id ?? null,
                 'diff_hunk' => $commentData->diff_hunk ?? '',
                 'line_start' => $commentData->start_line ?? null,
                 'line_end' => $commentData->line ?? null,
