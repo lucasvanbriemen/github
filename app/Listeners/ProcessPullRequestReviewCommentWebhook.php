@@ -28,10 +28,9 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 
         $commentData = $payload->comment;
         $prData = $payload->pull_request;
-        $repositoryData = $payload->repository;
-
         $userData = $commentData->user ?? null;
-
+        
+        $repositoryData = $payload->repository;
         Repository::updateFromWebhook($repositoryData);
 
         $pr = PullRequest::where('github_id', $prData->id)->first();
