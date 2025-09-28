@@ -23,31 +23,12 @@
     </div>
 
     @foreach ($allComments as $item)
-      @if ($item instanceof App\Models\Comment)
-        @include('repository.pull_requests.partials.issue-comment', [
-          'comment' => $item,
-          'organization' => $organization,
-          'repository' => $repository,
-          'pullRequest' => $pullRequest
-        ])
-      @elseif ($item instanceof App\Models\PullRequestComment)
-        @if (!$item->in_reply_to_id)
-          @include('repository.pull_requests.partials.pr-comment', [
-            'comment' => $item,
-            'replies' => $item->replies ?? collect(),
-            'organization' => $organization,
-            'repository' => $repository,
-            'pullRequest' => $pullRequest
-          ])
-        @endif
-      @elseif ($item instanceof App\Models\PullRequestReview)
-        @include('repository.pull_requests.partials.pr-review', [
-          'review' => $item,
-          'organization' => $organization,
-          'repository' => $repository,
-          'pullRequest' => $pullRequest
-        ])
-      @endif
+      <x-comment-renderer
+        :item="$item"
+        :organization="$organization"
+        :repository="$repository"
+        :pull-request="$pullRequest"
+      />
     @endforeach
   </div>
 
