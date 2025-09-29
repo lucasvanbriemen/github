@@ -50,4 +50,12 @@
       }
     }
   }
+
+  .file-view {
+    width: 100%;
+  }
+
+  .diff-container {
+    @import "../shared/d2h";
+  }
 }

@@ -8,7 +8,7 @@
     <a href="{{ route('repository.show', [$organization->name, $repository->name]) }}"><h1>{{ $repository->full_name }}</h1></a>
   </x-slot>
 
-  <div class="main-content">
+  <div class="main-content file-view">
     @include("repository.pull_requests.nav")
 
     <div id="diff-container" style="margin-top: 20px;"></div>
