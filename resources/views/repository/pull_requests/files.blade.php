@@ -14,7 +14,7 @@
     @include("repository.pull_requests.nav")
 
     <div id="diff-container" style="margin-top: 20px;">
-      @include('repository.pull_requests.partials.diff', ['files' => $files])
+      @include('repository.pull_requests.partials.diff', ['files' => $files, 'pullRequest' => $pullRequest])
     </div>
   </div>
 

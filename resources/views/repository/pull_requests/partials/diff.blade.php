@@ -57,6 +57,8 @@
               }
             @endphp
 
+            {{-- @dump($pullRequest->pullRequestComments()->where('path', $fileName)->get()) --}}
+
             {{-- Render lines --}}
             @foreach ($lines as $linePair)
               <tr>
