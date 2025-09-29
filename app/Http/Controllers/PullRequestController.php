@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\GithubConfig;
 use App\Models\PullRequest;
 use App\Helpers\ApiHelper;
+use App\Helpers\DiffRenderer;
 use App\Models\Organization;
 use App\Models\Repository;
 use App\Models\Issue;
@@ -83,13 +84,17 @@ class PullRequestController extends Controller
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
-        $diff = self::getDiff($organizationName, $repositoryName, $pullRequestNumber);
+        $diffString = self::getDiff($organizationName, $repositoryName, $pullRequestNumber);
+
+        // Parse diff
+        $renderer = new DiffRenderer($diffString);
+        $files = $renderer->getFiles();
 
         return view('repository.pull_requests.files', [
             'organization' => $organization,
             'repository' => $repository,
             'pullRequest' => $pullRequest,
-            'diff' => $diff,
+            'files' => $files,
         ]);
     }
 
