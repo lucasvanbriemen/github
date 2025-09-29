@@ -26,16 +26,6 @@
       <div class="diff-table-container">
         <table class="diff-table diff-table-side-by-side">
           @foreach ($file['chunks'] as $chunk)
-            {{-- Chunk Header --}}
-            <tr class="diff-chunk-header">
-              <td colspan="4" class="diff-chunk-header-content">
-                <span class="diff-chunk-info">@@ -{{ $chunk['oldStart'] }},{{ $chunk['oldLines'] }} +{{ $chunk['newStart'] }},{{ $chunk['newLines'] }} @@</span>
-                @if (!empty($chunk['content']))
-                  <span class="diff-chunk-context">{{ $chunk['content'] }}</span>
-                @endif
-              </td>
-            </tr>
-
             {{-- Process chunk lines for side-by-side --}}
             @php
               $lines = [];
