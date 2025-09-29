@@ -6,6 +6,7 @@ use App\Events\PullRequestReviewWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Models\PullRequestReview;
+use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
@@ -35,6 +36,9 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
 
         $userData = $reviewData->user;
         GithubUser::updateFromWebhook($userData);
+
+        // Ensure the pull request exists before creating the review
+        PullRequest::updateFromWebhook($prData);
 
         PullRequestReview::updateOrCreate([
             'id' => $reviewData->id,

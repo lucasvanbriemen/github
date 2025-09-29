@@ -78,4 +78,21 @@ class PullRequest extends Model
     protected $casts = [
         'labels' => 'array',
     ];
+
+    public static function updateFromWebhook($prData)
+    {
+        return self::updateOrCreate(
+            ['github_id' => $prData->id],
+            [
+                'repository_id' => $prData->base->repo->id,
+                'number' => $prData->number,
+                'title' => $prData->title,
+                'body' => $prData->body,
+                'state' => $prData->state,
+                'opened_by_id' => $prData->user->id,
+                'head_branch' => $prData->head->ref,
+                'base_branch' => $prData->base->ref,
+            ]
+        );
+    }
 }
