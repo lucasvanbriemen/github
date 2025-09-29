@@ -307,13 +307,19 @@ class PullRequestController extends Controller
 
         $token = config('services.github.access_token');
 
-        $url = "https://github.com/{$organizationName}/{$repositoryName}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}.diff";
+        // Use the actual owner name from organization or repository
+        $ownerName = $organization ? $organization->name : $repository->owner_name;
+
+        // Use the API endpoint instead of the web interface
+        $url = "https://api.github.com/repos/{$ownerName}/{$repositoryName}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $token,
-            'User-Agent: github-gui'
+            'Accept: application/vnd.github.diff',
+            'User-Agent: github-gui',
+            'X-GitHub-Api-Version: 2022-11-28'
         ]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
