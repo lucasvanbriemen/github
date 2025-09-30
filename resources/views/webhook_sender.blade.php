@@ -11,8 +11,8 @@
     @csrf
     <label for="event">Event</label>
     <select id="event" name="event">
-      <option value="issues" selected>issues</option>
-      <option value="issue_comment">issue_comment</option>
+      <option value="issues" >issues</option>
+      <option value="issue_comment" selected>issue_comment</option>
       <option value="pull_request">pull_request</option>
       <option value="pull_request_review">pull_request_review</option>
       <option value="pull_request_review_comment">pull_request_review_comment</option>
@@ -20,18 +20,18 @@
     <input type="text" name="payload" id='payload' value='
 
 {
-  "action": "edited",
+  "action": "created",
   "issue": {
-    "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/2",
+    "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7",
     "repository_url": "https://api.github.com/repos/lucasvanbriemen/github",
-    "labels_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/2/labels{/name}",
-    "comments_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/2/comments",
-    "events_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/2/events",
-    "html_url": "https://github.com/lucasvanbriemen/github/issues/2",
-    "id": 3431510799,
-    "node_id": "I_kwDOPrFya87MiLMP",
-    "number": 2,
-    "title": "Test issue 2",
+    "labels_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7/labels{/name}",
+    "comments_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7/comments",
+    "events_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7/events",
+    "html_url": "https://github.com/lucasvanbriemen/github/issues/7",
+    "id": 3461479910,
+    "node_id": "I_kwDOPrFya87OUf3m",
+    "number": 7,
+    "title": "Pull Request comments cant be resolved",
     "user": {
       "login": "lukaas-007",
       "id": 117530797,
@@ -58,7 +58,53 @@
     ],
     "state": "open",
     "locked": false,
-    "assignee": {
+    "assignee": null,
+    "assignees": [
+
+    ],
+    "milestone": null,
+    "comments": 1,
+    "created_at": "2025-09-28T09:45:40Z",
+    "updated_at": "2025-09-30T17:16:00Z",
+    "closed_at": null,
+    "author_association": "CONTRIBUTOR",
+    "type": null,
+    "active_lock_reason": null,
+    "sub_issues_summary": {
+      "total": 0,
+      "completed": 0,
+      "percent_completed": 0
+    },
+    "issue_dependencies_summary": {
+      "blocked_by": 0,
+      "total_blocked_by": 0,
+      "blocking": 0,
+      "total_blocking": 0
+    },
+    "body": null,
+    "reactions": {
+      "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7/reactions",
+      "total_count": 0,
+      "+1": 0,
+      "-1": 0,
+      "laugh": 0,
+      "hooray": 0,
+      "confused": 0,
+      "heart": 0,
+      "rocket": 0,
+      "eyes": 0
+    },
+    "timeline_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7/timeline",
+    "performed_via_github_app": null,
+    "state_reason": null
+  },
+  "comment": {
+    "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/comments/3353118723",
+    "html_url": "https://github.com/lucasvanbriemen/github/issues/7#issuecomment-3353118723",
+    "issue_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/7",
+    "id": 3353118723,
+    "node_id": "IC_kwDOPrFya87H3IgD",
+    "user": {
       "login": "lukaas-007",
       "id": 117530797,
       "node_id": "U_kgDOBwFgrQ",
@@ -79,51 +125,12 @@
       "user_view_type": "public",
       "site_admin": false
     },
-    "assignees": [
-      {
-        "login": "lukaas-007",
-        "id": 117530797,
-        "node_id": "U_kgDOBwFgrQ",
-        "avatar_url": "https://avatars.githubusercontent.com/u/117530797?v=4",
-        "gravatar_id": "",
-        "url": "https://api.github.com/users/lukaas-007",
-        "html_url": "https://github.com/lukaas-007",
-        "followers_url": "https://api.github.com/users/lukaas-007/followers",
-        "following_url": "https://api.github.com/users/lukaas-007/following{/other_user}",
-        "gists_url": "https://api.github.com/users/lukaas-007/gists{/gist_id}",
-        "starred_url": "https://api.github.com/users/lukaas-007/starred{/owner}{/repo}",
-        "subscriptions_url": "https://api.github.com/users/lukaas-007/subscriptions",
-        "organizations_url": "https://api.github.com/users/lukaas-007/orgs",
-        "repos_url": "https://api.github.com/users/lukaas-007/repos",
-        "events_url": "https://api.github.com/users/lukaas-007/events{/privacy}",
-        "received_events_url": "https://api.github.com/users/lukaas-007/received_events",
-        "type": "User",
-        "user_view_type": "public",
-        "site_admin": false
-      }
-    ],
-    "milestone": null,
-    "comments": 1,
-    "created_at": "2025-09-18T18:31:36Z",
-    "updated_at": "2025-09-27T21:16:04Z",
-    "closed_at": null,
-    "author_association": "CONTRIBUTOR",
-    "type": null,
-    "active_lock_reason": null,
-    "sub_issues_summary": {
-      "total": 0,
-      "completed": 0,
-      "percent_completed": 0
-    },
-    "issue_dependencies_summary": {
-      "blocked_by": 0,
-      "total_blocked_by": 0,
-      "blocking": 0,
-      "total_blocking": 0
-    },
-    "body": "Desj",
+    "created_at": "2025-09-30T17:16:00Z",
+    "updated_at": "2025-09-30T17:16:00Z",
+    "body": "test",
+    "author_association": "MEMBER",
     "reactions": {
-      "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/2/reactions",
+      "url": "https://api.github.com/repos/lucasvanbriemen/github/issues/comments/3353118723/reactions",
       "total_count": 0,
       "+1": 0,
       "-1": 0,
@@ -134,14 +141,7 @@
       "rocket": 0,
       "eyes": 0
     },
-    "timeline_url": "https://api.github.com/repos/lucasvanbriemen/github/issues/2/timeline",
-    "performed_via_github_app": null,
-    "state_reason": null
-  },
-  "changes": {
-    "body": {
-      "from": ""
-    }
+    "performed_via_github_app": null
   },
   "repository": {
     "id": 1051816555,
@@ -211,14 +211,14 @@
     "releases_url": "https://api.github.com/repos/lucasvanbriemen/github/releases{/id}",
     "deployments_url": "https://api.github.com/repos/lucasvanbriemen/github/deployments",
     "created_at": "2025-09-06T19:24:58Z",
-    "updated_at": "2025-09-26T20:53:09Z",
-    "pushed_at": "2025-09-26T20:53:06Z",
+    "updated_at": "2025-09-30T17:14:50Z",
+    "pushed_at": "2025-09-30T17:14:47Z",
     "git_url": "git://github.com/lucasvanbriemen/github.git",
     "ssh_url": "git@github.com:lucasvanbriemen/github.git",
     "clone_url": "https://github.com/lucasvanbriemen/github.git",
     "svn_url": "https://github.com/lucasvanbriemen/github",
     "homepage": null,
-    "size": 473,
+    "size": 655,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "PHP",
@@ -232,7 +232,7 @@
     "mirror_url": null,
     "archived": false,
     "disabled": false,
-    "open_issues_count": 4,
+    "open_issues_count": 5,
     "license": null,
     "allow_forking": true,
     "is_template": false,
@@ -242,7 +242,7 @@
     ],
     "visibility": "public",
     "forks": 0,
-    "open_issues": 4,
+    "open_issues": 5,
     "watchers": 0,
     "default_branch": "main",
     "custom_properties": {

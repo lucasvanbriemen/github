@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\CommentWebhookReceived;
+use App\Events\IssueCommentWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Issue;
 use App\Models\IssueComment;
@@ -10,7 +10,7 @@ use App\Models\Repository;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 
-class ProcessCommentWebhook implements ShouldQueue
+class ProcessIssueCommentWebhook implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -20,7 +20,7 @@ class ProcessCommentWebhook implements ShouldQueue
         //
     }
 
-    public function handle(CommentWebhookReceived $event): bool
+    public function handle(IssueCommentWebhookReceived $event): bool
     {
         $payload = $event->payload;
 
