@@ -9,7 +9,7 @@ use App\Models\PullRequestComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 
-class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
+class ProcessPullRequestReviewCommentWebhook
 {
     /**
      * Create the event listener.
@@ -29,7 +29,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         $commentData = $payload->comment;
         $prData = $payload->pull_request;
         $userData = $commentData->user ?? null;
-        
+
         $repositoryData = $payload->repository;
         Repository::updateFromWebhook($repositoryData);
 
@@ -40,6 +40,8 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         }
 
         GithubUser::updateFromWebhook($userData);
+
+        $sideValue = $commentData->side ?? 'RIGHT';
 
         PullRequestComment::updateOrCreate(
             ['id' => $commentData->id],
@@ -52,7 +54,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
                 'line_start' => $commentData->start_line ?? null,
                 'line_end' => $commentData->line ?? null,
                 'path' => $commentData->path ?? '',
-                'side' => $commentData->side ?? 'RIGHT',
+                'side' => $sideValue,
                 'original_line' => $commentData->original_line ?? null,
             ]
         );
