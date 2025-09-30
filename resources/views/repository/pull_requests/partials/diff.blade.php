@@ -57,10 +57,23 @@
               }
             @endphp
 
-            {{-- @dump($pullRequest->pullRequestComments()->where('path', $fileName)->get()) --}}
+            @dump($pullRequest->pullRequestComments()
+                ->where('path', $fileName)
+                ->get())
+
+            {{-- Get comments for this file --}}
+            @php
+              $allComments = $pullRequest->pullRequestComments()
+                ->where('path', $fileName)
+                ->get();
+
+              // Group by side and line number
+              $leftComments = $allComments->where('side', 'LEFT')->groupBy('original_line');
+              $rightComments = $allComments->where('side', 'RIGHT')->groupBy('line_end');
+            @endphp
 
             {{-- Render lines --}}
-            @foreach ($lines as $linePair)
+            @foreach ($lines as $lineIndex => $linePair)
               <tr>
                 {{-- Left side --}}
                 @if (!$linePair['left'] || $linePair['left']['type'] === 'empty')
@@ -85,6 +98,39 @@
                   <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">{{ $line['lineNumber'] }}</td><td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
                 @endif
               </tr>
+
+              {{-- Render comments for this line (check both left and right sides) --}}
+              @php
+                $leftLineNum = $linePair['left']['lineNumber'] ?? null;
+                $rightLineNum = $linePair['right']['lineNumber'] ?? null;
+
+                $commentsToShow = collect();
+                if ($leftLineNum && isset($leftComments[$leftLineNum])) {
+                  $commentsToShow = $commentsToShow->merge($leftComments[$leftLineNum]);
+                }
+                if ($rightLineNum && isset($rightComments[$rightLineNum])) {
+                  $commentsToShow = $commentsToShow->merge($rightComments[$rightLineNum]);
+                }
+                $commentsToShow = $commentsToShow->unique('id');
+              @endphp
+
+              @if ($commentsToShow->isNotEmpty())
+                <tr class="diff-comment-row">
+                  <td colspan="4" class="diff-comment-container">
+                    @foreach ($commentsToShow as $comment)
+                      <div class="diff-comment">
+                        <div class="diff-comment-header">
+                          <strong>{{ $comment->author->name ?? 'Unknown' }}</strong>
+                          <span class="diff-comment-time">{{ $comment->created_at->diffForHumans() }}</span>
+                        </div>
+                        <div class="diff-comment-body">
+                          {{ $comment->body }}
+                        </div>
+                      </div>
+                    @endforeach
+                  </td>
+                </tr>
+              @endif
             @endforeach
           @endforeach
         </table>

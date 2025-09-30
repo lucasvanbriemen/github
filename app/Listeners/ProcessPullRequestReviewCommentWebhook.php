@@ -52,6 +52,8 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
                 'line_start' => $commentData->start_line ?? null,
                 'line_end' => $commentData->line ?? null,
                 'path' => $commentData->path ?? '',
+                'side' => $commentData->side ?? 'RIGHT',
+                'original_line' => $commentData->original_line ?? null,
             ]
         );
 
