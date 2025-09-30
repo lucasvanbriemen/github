@@ -57,10 +57,6 @@
               }
             @endphp
 
-            @dump($pullRequest->pullRequestComments()
-                ->where('path', $fileName)
-                ->get())
-
             {{-- Get comments for this file --}}
             @php
               $allComments = $pullRequest->pullRequestComments()
@@ -68,8 +64,10 @@
                 ->get();
 
               // Group by side and line number
-              $leftComments = $allComments->where('side', 'LEFT')->groupBy('original_line');
+              // Both LEFT and RIGHT comments use line_end for the line number
+              $leftComments = $allComments->where('side', 'LEFT')->groupBy('line_end');
               $rightComments = $allComments->where('side', 'RIGHT')->groupBy('line_end');
+
             @endphp
 
             {{-- Render lines --}}
@@ -104,20 +102,36 @@
                 $leftLineNum = $linePair['left']['lineNumber'] ?? null;
                 $rightLineNum = $linePair['right']['lineNumber'] ?? null;
 
-                $commentsToShow = collect();
+                $leftCommentsToShow = collect();
+                $rightCommentsToShow = collect();
+
                 if ($leftLineNum && isset($leftComments[$leftLineNum])) {
-                  $commentsToShow = $commentsToShow->merge($leftComments[$leftLineNum]);
+                  $leftCommentsToShow = $leftComments[$leftLineNum];
                 }
                 if ($rightLineNum && isset($rightComments[$rightLineNum])) {
-                  $commentsToShow = $commentsToShow->merge($rightComments[$rightLineNum]);
+                  $rightCommentsToShow = $rightComments[$rightLineNum];
                 }
-                $commentsToShow = $commentsToShow->unique('id');
               @endphp
 
-              @if ($commentsToShow->isNotEmpty())
+              @if ($leftCommentsToShow->isNotEmpty() || $rightCommentsToShow->isNotEmpty())
                 <tr class="diff-comment-row">
-                  <td colspan="4" class="diff-comment-container">
-                    @foreach ($commentsToShow as $comment)
+                  {{-- Left side comments --}}
+                  <td colspan="2" class="diff-comment-container">
+                    @foreach ($leftCommentsToShow as $comment)
+                      <div class="diff-comment">
+                        <div class="diff-comment-header">
+                          <strong>{{ $comment->author->name ?? 'Unknown' }}</strong>
+                          <span class="diff-comment-time">{{ $comment->created_at->diffForHumans() }}</span>
+                        </div>
+                        <div class="diff-comment-body">
+                          {{ $comment->body }}
+                        </div>
+                      </div>
+                    @endforeach
+                  </td>
+                  {{-- Right side comments --}}
+                  <td colspan="2" class="diff-comment-container">
+                    @foreach ($rightCommentsToShow as $comment)
                       <div class="diff-comment">
                         <div class="diff-comment-header">
                           <strong>{{ $comment->author->name ?? 'Unknown' }}</strong>
