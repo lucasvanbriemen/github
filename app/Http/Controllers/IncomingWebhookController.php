@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
+use App\Models\IncommingWebhook;
 
 class IncomingWebhookController extends Controller
 {
@@ -22,6 +23,12 @@ class IncomingWebhookController extends Controller
 
         // Build the event class dynamically
         $class = "App\\Events\\{$studly}WebhookReceived";
+
+        // Log the incoming webhook
+        IncommingWebhook::create([
+            'event'   => $eventType,
+            'payload' => $raw,
+        ]);
 
         if (!class_exists($class)) {
             return response()->json([
