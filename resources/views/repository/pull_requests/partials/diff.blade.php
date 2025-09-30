@@ -118,13 +118,16 @@
                   {{-- Left side comments --}}
                   <td colspan="2" class="diff-comment-container">
                     @foreach ($leftCommentsToShow as $comment)
-                      <div class="diff-comment">
-                        <div class="diff-comment-header">
-                          <strong>{{ $comment->author->name ?? 'Unknown' }}</strong>
-                          <span class="diff-comment-time">{{ $comment->created_at->diffForHumans() }}</span>
+                      <div class="issue-comment">
+                        <div class="comment-header">
+                          <span class="author">
+                            <img src="{{ $comment->author->avatar_url }}" alt="{{ $comment->author->name ?? 'Unknown' }}">
+                            {{ $comment->author->name ?? 'Unknown' }}
+                          </span>
+                          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
                         </div>
-                        <div class="diff-comment-body">
-                          {{ $comment->body }}
+                        <div class="markdown-body">
+                          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
                         </div>
                       </div>
                     @endforeach
@@ -132,13 +135,16 @@
                   {{-- Right side comments --}}
                   <td colspan="2" class="diff-comment-container">
                     @foreach ($rightCommentsToShow as $comment)
-                      <div class="diff-comment">
-                        <div class="diff-comment-header">
-                          <strong>{{ $comment->author->name ?? 'Unknown' }}</strong>
-                          <span class="diff-comment-time">{{ $comment->created_at->diffForHumans() }}</span>
+                      <div class="issue-comment">
+                        <div class="comment-header">
+                          <span class="author">
+                            <img src="{{ $comment->author->avatar_url }}" alt="{{ $comment->author->name ?? 'Unknown' }}">
+                            {{ $comment->author->name ?? 'Unknown' }}
+                          </span>
+                          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
                         </div>
-                        <div class="diff-comment-body">
-                          {{ $comment->body }}
+                        <div class="markdown-body">
+                          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
                         </div>
                       </div>
                     @endforeach
