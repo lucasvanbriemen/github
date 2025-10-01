@@ -17,7 +17,7 @@ class CommentRenderer extends Component
     ) {}
 
     public function render()
-    {        
+    {
         $view = $this->getViewForItem();
 
         if (!$view) {
