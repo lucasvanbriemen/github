@@ -281,3 +281,19 @@
 .diff-line-code::selection {
   background-color: rgba(59, 130, 246, 0.3);
 }
+
+.diff-comment-row {
+  .issue-comment {
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+    border-radius: 0 0 1rem 1rem !important;
+
+    .comment-header {
+      background-color: var(--background-color) !important;
+    }
+
+    .file-name {
+      background-color: var(--background-color) !important;
+    }
+  }
+}

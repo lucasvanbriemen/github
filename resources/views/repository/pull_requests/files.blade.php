@@ -19,9 +19,9 @@
   </div>
 
   <script>
-    window.start = "pull_request_files";
     window.pullRequestId = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
     window.organizationName = "{{ $organization->name }}";
-  </script>
+    window.start = ["pull_request"];
+    </script>
 </x-app-layout>

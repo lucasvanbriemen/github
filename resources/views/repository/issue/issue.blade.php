@@ -68,7 +68,7 @@
     </div>
   </div>
 
-  <script> 
+  <script>
   window.start = "issue";
   window.issueId = "{{ $issue->number }}";
   window.repositoryName = "{{ $repository->name }}";

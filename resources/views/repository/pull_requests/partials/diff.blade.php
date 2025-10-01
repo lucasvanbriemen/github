@@ -118,35 +118,13 @@
                   {{-- Left side comments --}}
                   <td colspan="2" class="diff-comment-container">
                     @foreach ($leftCommentsToShow as $comment)
-                      <div class="issue-comment">
-                        <div class="comment-header">
-                          <span class="author">
-                            <img src="{{ $comment->author->avatar_url }}" alt="{{ $comment->author->name ?? 'Unknown' }}">
-                            {{ $comment->author->name ?? 'Unknown' }}
-                          </span>
-                          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
-                        </div>
-                        <div class="markdown-body">
-                          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
-                        </div>
-                      </div>
+                      @include('repository.pull_requests.partials.pr-comment', ['comment' => $comment, 'replies' => $comment->replies])
                     @endforeach
                   </td>
                   {{-- Right side comments --}}
                   <td colspan="2" class="diff-comment-container">
                     @foreach ($rightCommentsToShow as $comment)
-                      <div class="issue-comment">
-                        <div class="comment-header">
-                          <span class="author">
-                            <img src="{{ $comment->author->avatar_url }}" alt="{{ $comment->author->name ?? 'Unknown' }}">
-                            {{ $comment->author->name ?? 'Unknown' }}
-                          </span>
-                          <span class="created-at">{{ $comment->created_at->diffForHumans() }}</span>
-                        </div>
-                        <div class="markdown-body">
-                          <x-markdown theme="github-dark">{!! $comment->body !!}</x-markdown>
-                        </div>
-                      </div>
+                      @include('repository.pull_requests.partials.pr-comment', ['comment' => $comment, 'replies' => $comment->replies])
                     @endforeach
                   </td>
                 </tr>
