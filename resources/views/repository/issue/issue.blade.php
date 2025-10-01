@@ -69,9 +69,9 @@
   </div>
 
   <script>
-  window.start = "issue";
-  window.issueId = "{{ $issue->number }}";
-  window.repositoryName = "{{ $repository->name }}";
-  window.organizationName = "{{ $organization->name }}";
+    window.start = "issue";
+    window.issueId = "{{ $issue->number }}";
+    window.repositoryName = "{{ $repository->name }}";
+    window.organizationName = "{{ $organization->name }}";
   </script>
 </x-app-layout>
