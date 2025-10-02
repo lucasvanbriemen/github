@@ -16,7 +16,6 @@ if (window.start) {
   if (Array.isArray(window.start)) {
     window.start.forEach((item) => {
       window[item].init();
-      console.log('Initialized', item);
     });
   } else {
     window[window.start].init();
