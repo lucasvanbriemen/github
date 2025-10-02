@@ -14,10 +14,6 @@ class ViewedFile extends Model
         'pull_request_id',
     ];
 
-    protected $casts = [
-        'viewed' => 'boolean',
-    ];
-
     public function pullRequest()
     {
         return $this->belongsTo(PullRequest::class, 'pull_request_id', 'github_id');
