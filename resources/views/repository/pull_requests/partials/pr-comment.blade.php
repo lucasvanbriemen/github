@@ -1,10 +1,14 @@
+@props([
+  'hideDiffHunks' => false,
+])
+
 <div class="issue-comment {{ $comment->resolved ? 'resolved' : '' }}" data-comment="{{ $comment->id }}">
   @include('repository.pull_requests.partials.comment-header', [
     'author' => $comment->author,
     'createdAt' => $comment->created_at
   ])
   <div class="markdown-body">
-    @if ($comment->diff_hunk)
+    @if ($comment->diff_hunk && $hideDiffHunks !== true)
       <div class="diff-hunk">
         <span class="file-name">{{ $comment->path }}</span>
         @foreach (commentDiffHunk($comment->diff_hunk, $comment->line_start, $comment->line_end) as $line)

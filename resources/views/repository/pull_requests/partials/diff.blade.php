@@ -118,13 +118,13 @@
                   {{-- Left side comments --}}
                   <td colspan="2" class="diff-comment-container">
                     @foreach ($leftCommentsToShow as $comment)
-                      @include('repository.pull_requests.partials.pr-comment', ['comment' => $comment, 'replies' => $comment->replies])
+                      @include('repository.pull_requests.partials.pr-comment', ['comment' => $comment, 'replies' => $comment->replies, 'hideDiffHunks' => true])
                     @endforeach
                   </td>
                   {{-- Right side comments --}}
                   <td colspan="2" class="diff-comment-container">
                     @foreach ($rightCommentsToShow as $comment)
-                      @include('repository.pull_requests.partials.pr-comment', ['comment' => $comment, 'replies' => $comment->replies])
+                      @include('repository.pull_requests.partials.pr-comment', ['comment' => $comment, 'replies' => $comment->replies , 'hideDiffHunks' => true])
                     @endforeach
                   </td>
                 </tr>
