@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         //
-        Schema::create('file_viewed', function (Blueprint $table) {
+        Schema::create('viewed_files', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('pull_request_id');
-            $table->string('pull_request_id');
             $table->timestamps();
+            $table->unsignedBigInteger('pull_request_id');
+            $table->string('file_path');
+            $table->boolean('viewed')->default(false);
 
-            $table->foreign('pull_request_id')->references('id')->on('pull_requests')->onDelete('cascade');
+            $table->foreign('pull_request_id')->references('github_id')->on('pull_requests')->onDelete('cascade');
         });
     }
 
@@ -28,5 +29,6 @@ return new class extends Migration
     public function down(): void
     {
         //
+        Schema::dropIfExists('viewed_files');
     }
 };
