@@ -9,7 +9,7 @@ use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
 
-class ProcessPullRequestWebhook implements ShouldQueue
+class ProcessPullRequestWebhook //implements ShouldQueue
 {
     /**
      * Create the event listener.

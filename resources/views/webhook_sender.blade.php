@@ -11,6 +11,7 @@
     @csrf
     <label for="event">Event</label>
     <select id="event" name="event">
+      <option value="push">push</option>
       <option value="issues" >issues</option>
       <option value="issue_comment" selected>issue_comment</option>
       <option value="pull_request">pull_request</option>
