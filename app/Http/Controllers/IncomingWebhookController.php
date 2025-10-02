@@ -9,6 +9,14 @@ use App\Models\IncommingWebhook;
 
 class IncomingWebhookController extends Controller
 {
+    const KNOWN_IGNORED_EVENTS = [
+        "create",
+        "check_suite",
+        "check_run",
+        "workflow_run",
+        "workflow_job"
+    ];
+
     public function index(Request $request)
     {
         $raw = $request->input('payload', $request->getContent() ?: '{}');
@@ -24,13 +32,14 @@ class IncomingWebhookController extends Controller
         // Build the event class dynamically
         $class = "App\\Events\\{$studly}WebhookReceived";
 
-        // Log the incoming webhook
-        IncommingWebhook::create([
-            'event'   => $eventType,
-            'payload' => $raw,
-        ]);
-
         if (!class_exists($class)) {
+            if (!in_array($eventType, self::KNOWN_IGNORED_EVENTS)) {
+                IncommingWebhook::create([
+                    'event'   => $eventType,
+                    'payload' => $raw,
+                ]);
+            }
+
             return response()->json([
                 'message' => 'Event class not found',
                 'event'   => $eventType,
