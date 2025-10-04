@@ -56,7 +56,6 @@
             'wrapperOptions' => ['data-editing' => 1]
           ]"
         />
-        <textarea id="edit-pr-body" name='body' data-editing="1"></textarea>
       </div>
 
     </div>
