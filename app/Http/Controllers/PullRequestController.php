@@ -328,4 +328,44 @@ class PullRequestController extends Controller
 
         return $diff;
     }
+
+    public function updatePullRequest($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $ownerName = $organization ? $organization->name : $repository->owner_name;
+        $token = config('services.github.access_token');
+
+        $data = [];
+        if ($request->has('title')) {
+            $data['title'] = $request->title;
+        }
+        if ($request->has('body')) {
+            $data['body'] = $request->body;
+        }
+
+        $url = "https://api.github.com/repos/{$ownerName}/{$repositoryName}/pulls/{$pullRequestNumber}";
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Accept: application/vnd.github+json',
+            'User-Agent: github-gui',
+            'X-GitHub-Api-Version: 2022-11-28',
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return response()->json(['status' => 'success']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => $response], 500);
+    }
 }
