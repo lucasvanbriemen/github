@@ -64,24 +64,32 @@ export default {
     const editTitle = document.getElementById("edit-pr-title");
     const editBody = document.getElementById("edit-pr-body");
 
+    const inputWrapper = document.querySelectorAll(".input-wrapper");
+
     const saveButton = document.querySelector(".save-edit");
     const cancelButton = document.querySelector(".cancel-edit");
     const editButton = document.querySelector(".edit-pr");
 
-    saveButton.style.display = editTitle.style.display === "none" ? "flex" : "none";
-    cancelButton.style.display = editTitle.style.display === "none" ? "flex" : "none";
-    editButton.style.display = editTitle.style.display === "none" ? "none" : "flex";
+    saveButton.style.display = inputWrapper[0].style.display === "none" ? "flex" : "none";
+    cancelButton.style.display = inputWrapper[0].style.display === "none" ? "flex" : "none";
+    editButton.style.display = inputWrapper[0].style.display === "none" ? "none" : "flex";
 
     editTitle.value = displayTitle.getAttribute("data-raw");
     editBody.value = displayBody.getAttribute("data-raw");
 
-    if (editTitle.style.display === "none") {
-      editTitle.style.display = "block";
+    if (inputWrapper[0].style.display === "none") {
+      for (const input of inputWrapper) {
+        input.style.display = "block";
+      }
+
       editBody.style.display = "block";
       displayTitle.style.display = "none";
       displayBody.style.display = "none";
     } else {
-      editTitle.style.display = "none";
+      for (const input of inputWrapper) {
+        input.style.display = "none";
+      }
+
       editBody.style.display = "none";
       displayTitle.style.display = "block";
       displayBody.style.display = "block";
