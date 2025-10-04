@@ -16,12 +16,17 @@
     @include("repository.pull_requests.nav")
     
     <div class="pull-request-content">
-      <div class="opened-by">
-        <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+      <div class="top-header">
+        <div class="opened-by">
+          <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+        </div>
+        <button class="edit-pr button-primary-outline">
+          {!! svg('pencil') !!}
+        </button>
       </div>
+      
       <div class="pull-request-header">
         <span id="pr-title">{{ $pullRequest->title }}</span>
-        <button onclick="editPR()">Edit</button>
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
       <div class='markdown-body' id="pr-body"><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
