@@ -24,10 +24,10 @@
       </div>
       
       <div class="pull-request-header">
-        <span id="pr-title"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
+        <span id="pr-title" data-raw="{{ $pullRequest->title }}"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
-      <div class='markdown-body' id="pr-body"><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
+      <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}"><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
     </div>
 
     @foreach ($allComments as $item)
