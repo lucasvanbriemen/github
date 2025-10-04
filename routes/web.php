@@ -49,6 +49,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
 if (app()->environment('local')) {
     Route::get('/mail_preview/PullRequestReviewed', function () {
-        return new PullRequestReviewed(PullRequestReview::first());
+        return new PullRequestReviewed(PullRequestReview::find(3297960164));
     })->where('mailable', '[A-Za-z]+')->name('mail_preview');
 }

@@ -8,5 +8,7 @@
     <x-markdown theme="github-dark">{!! $pullRequestReview->body !!}</x-markdown>
   </div>
 
-  @vite("resources/scss/emails/pull_request_reviewed.scss")
+  @dump($pullRequestReview->relatedComments)
+
+  @vite(["resources/scss/emails/pull_request_reviewed.scss", "resources/scss/shared/markdown.scss"])
 </x-email-layout>
