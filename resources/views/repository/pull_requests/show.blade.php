@@ -82,33 +82,5 @@
     window.pullRequestId = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
     window.organizationName = "{{ $organization->name }}";
-
-    function editPR() {
-      const title = prompt("Title:", document.getElementById('pr-title').textContent.trim());
-      const body = prompt("Body:");
-
-      if (!title && !body) return;
-
-      const data = {};
-      if (title) data.title = title;
-      if (body) data.body = body;
-
-      fetch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestId}/edit`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify(data)
-      })
-      .then(res => res.json())
-      .then(result => {
-        if (result.status === 'success') {
-          location.reload();
-        } else {
-          alert('Error: ' + result.message);
-        }
-      });
-    }
   </script>
 </x-app-layout>

@@ -106,22 +106,10 @@ export default {
         body
       })
     })
-    .then(res => res.json())
     .then(result => {
-      if (result.status === 'success') {
-        // Update the display elements with new values
-        const displayTitle = document.getElementById("pr-title");
-        const displayBody = document.getElementById("pr-body");
-
-        displayTitle.textContent = title;
-        displayBody.innerHTML = body;
-
-        // Update data-raw attributes for next edit
-        displayTitle.setAttribute("data-raw", title);
-        displayBody.setAttribute("data-raw", body);
-      } else {
-        alert('Error: ' + result.message);
-      }
+      // Update data-raw attributes for next edit
+      displayTitle.setAttribute("data-raw", title);
+      displayBody.setAttribute("data-raw", body);
     });
   }
 };
