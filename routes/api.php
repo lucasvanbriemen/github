@@ -69,5 +69,4 @@ Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
     
 Route::any('check_end_point', function () {
     return response()->json(['redirect' => true, 'url' => route('dashboard')]);
-})
-    ->name('api.endpoint.check');
+})->name('api.endpoint.check');
