@@ -7,7 +7,7 @@ use App\Models\SystemInfo;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
-class AppLayout extends Component
+class EmailLayout extends Component
 {
     protected $class;
 
@@ -19,7 +19,7 @@ class AppLayout extends Component
     public function render(): View
     {
         return view(
-            'layouts.app',
+            'layouts.email',
             [
                 'class' => $this->class
             ]

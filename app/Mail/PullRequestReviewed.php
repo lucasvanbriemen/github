@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\PullRequestReview;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,12 +14,10 @@ class PullRequestReviewed extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public PullRequestReview $pullRequestReview;
+    public function __construct(PullRequestReview $pullRequestReview)
     {
-        //
+        $this->pullRequestReview = $pullRequestReview;
     }
 
     /**

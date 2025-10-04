@@ -7,7 +7,9 @@ use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
+use App\Models\PullRequestReview;
 use Illuminate\Support\Facades\Route;
+use App\Mail\PullRequestReviewed;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -46,13 +48,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 });
 
 if (app()->environment('local')) {
-    Route::get('/mail_preview/{mailable}', function ($mailable) {
-        $mailableClass = 'App\\Mail\\' . $mailable;
-
-        if (!class_exists($mailableClass)) {
-            abort(404);
-        }
-
-        return new $mailableClass();
+    Route::get('/mail_preview/PullRequestReviewed', function () {
+        return new PullRequestReviewed(PullRequestReview::first());
     })->where('mailable', '[A-Za-z]+')->name('mail_preview');
 }

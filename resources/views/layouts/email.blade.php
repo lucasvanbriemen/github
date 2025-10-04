@@ -16,8 +16,9 @@
 </head>
 
 <body>
+  @include("layouts.loader")
 
-  <main class="{{ $class ?? "" }}">
+  <main class="email-content {{ $class ?? "" }}">
     {{ $slot }}
   </main>
 </body>
