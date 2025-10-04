@@ -16,7 +16,7 @@ export default {
       commentHeader.addEventListener("click", () => this.openResolvedComments(commentHeader.closest(".issue-comment").getAttribute("data-comment")));
     });
 
-    this.getLinkedIssues(window.pullRequestId);
+    this.getLinkedIssues(window.pullRequestNumber);
 
     [".edit-pr", ".cancel-edit", ".save-edit"].forEach((selector, i) => {
       const el = document.querySelector(selector);
@@ -92,7 +92,7 @@ export default {
     const title = document.getElementById("edit-pr-title").value;
     const body = document.getElementById("edit-pr-body").value;
 
-    fetch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestId}/edit`, {
+    fetch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/edit`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

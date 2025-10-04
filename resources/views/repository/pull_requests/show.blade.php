@@ -79,7 +79,7 @@
 
   <script>
     window.start = "pull_request";
-    window.pullRequestId = "{{ $pullRequest->number }}";
+    window.pullRequestNumber = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
     window.organizationName = "{{ $organization->name }}";
   </script>
