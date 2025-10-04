@@ -30,7 +30,7 @@
       
       <div class="pull-request-header">
         <span id="pr-title" data-raw="{{ $pullRequest->title }}"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
-        <input id="edit-pr-title" style="display: none;">
+        <x-compoment name="input" :options="['type' => 'text', 'value' => $pullRequest->title, 'id' => 'edit-pr-title']" />
       
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
