@@ -18,14 +18,12 @@ export default {
 
     this.getLinkedIssues(window.pullRequestId);
 
-    const editButton = document.querySelector(".edit-pr");
-    editButton.addEventListener("click", () => this.toggleEditMode());
-
-    const cancelButton = document.querySelector(".cancel-edit");
-    cancelButton.addEventListener("click", () => this.toggleEditMode());
-
-    const saveButton = document.querySelector(".save-edit");
-    saveButton.addEventListener("click", () => this.toggleEditMode(true));
+    [".edit-pr", ".cancel-edit", ".save-edit"].forEach((selector, i) => {
+      const el = document.querySelector(selector);
+      if (!el) return;
+      // i === 2 is the save button (we want to save)
+      el.addEventListener("click", () => this.toggleEditMode(i === 2));
+    });
   },
 
   updateComment(id, url) {
