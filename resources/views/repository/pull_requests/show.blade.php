@@ -34,7 +34,8 @@
       
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
-      <input id="edit-pr-body" style="display: none;">
+
+      <textarea id="edit-pr-body" style="display: none;"></textarea>
       <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}">
         <x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown>
       </div>
