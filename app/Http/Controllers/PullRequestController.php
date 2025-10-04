@@ -347,29 +347,13 @@ class PullRequestController extends Controller
 
     public function mergePullRequest($organizationName, $repositoryName, $pullRequestNumber, Request $request)
     {
-        try {
-            \Log::info('Attempting to merge PR', [
-                'org' => $organizationName,
-                'repo' => $repositoryName,
-                'pr' => $pullRequestNumber
-            ]);
+        $response = ApiHelper::githubApiPut("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/merge", []);
 
-            $response = ApiHelper::githubApiPut("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/merge", []);
-
-            \Log::info('GitHub API response', ['response' => $response]);
-
-            if ($response) {
-                return response()->json(['status' => 'success']);
-            }
-
-            return response()->json(['status' => 'error', 'message' => 'Failed to merge pull request'], 500);
-        } catch (\Exception $e) {
-            \Log::error('Error merging PR', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        if ($response) {
+            return response()->json(['status' => 'success']);
         }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to merge pull request'], 500);
     }
 
     public function closePullRequest($organizationName, $repositoryName, $pullRequestNumber)

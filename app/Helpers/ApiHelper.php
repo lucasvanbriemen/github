@@ -129,13 +129,6 @@ class ApiHelper
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        \Log::info('GitHub API PUT request', [
-            'url' => $fullUrl,
-            'httpCode' => $httpCode,
-            'data' => $jsonData,
-            'response' => $responseBody
-        ]);
-
         if ($httpCode >= 200 && $httpCode < 300) {
             return json_decode($responseBody);
         }
