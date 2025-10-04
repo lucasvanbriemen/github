@@ -6,8 +6,6 @@ use App\Models\SystemInfo;
 
 class ApiHelper
 {
-    public static $MAX_CALLS_PER_HOUR = 5000;
-
     public static $base = 'https://api.github.com';
 
     public static $token;
@@ -107,7 +105,7 @@ class ApiHelper
         return null;
     }
 
-    public static function githubApiPut($route, $data)
+    public static function githubApiPut($route, array $data)
     {
         self::init();
         self::updateSystemInfo(self::$base.$route);
@@ -123,7 +121,7 @@ class ApiHelper
 
         // Ensure empty arrays are encoded as objects for GitHub API compatibility
         $jsonData = json_encode($data, JSON_FORCE_OBJECT);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

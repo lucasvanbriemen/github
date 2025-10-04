@@ -1,4 +1,6 @@
 export default {
+  IS_EDITING: false,
+
   init() {
     const resolveButtons = document.querySelectorAll(".resolve-comment");
     const unresolveButtons = document.querySelectorAll(".unresolve-comment");
@@ -32,6 +34,14 @@ export default {
     const closeButton = document.querySelector(".close-pr");
     mergeButton.addEventListener("click", () => this.mergePullRequest());
     closeButton.addEventListener("click", () => this.closePullRequest());
+
+    if (mergeButton) {
+      mergeButton.addEventListener("click", () => this.mergePullRequest());
+    }
+
+    if (closeButton) {
+      closeButton.addEventListener("click", () => this.closePullRequest());
+    }
   },
 
   updateComment(id, url) {
@@ -113,7 +123,6 @@ export default {
   },
 
   mergePullRequest() {
-    console.log('Merging PR...');
     api.put(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/merge`, {})
       .then(data => {
         window.location.reload();
@@ -121,7 +130,6 @@ export default {
   },
 
   closePullRequest() {
-    console.log('Closing PR...');
     api.patch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/close`, {})
       .then(data => {
         window.location.reload();
