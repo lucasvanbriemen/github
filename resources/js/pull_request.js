@@ -29,6 +29,17 @@ export default {
       // i === 2 is the save button (we want to save)
       el.addEventListener("click", () => this.toggleEditMode(i === 2));
     });
+
+    const mergeButton = document.querySelector(".merge-pr");
+    const closeButton = document.querySelector(".close-pr");
+
+    if (mergeButton) {
+      mergeButton.addEventListener("click", () => this.mergePullRequest());
+    }
+
+    if (closeButton) {
+      closeButton.addEventListener("click", () => this.closePullRequest());
+    }
   },
 
   updateComment(id, url) {
@@ -107,5 +118,19 @@ export default {
       displayTitle.setAttribute("data-raw", title);
       displayBody.setAttribute("data-raw", body);
     });
+  },
+
+  mergePullRequest() {
+    api.put(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/merge`, {})
+      .then(data => {
+        window.location.reload();
+      });
+  },
+
+  closePullRequest() {
+    api.patch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/close`, {})
+      .then(data => {
+        window.location.reload();
+      });
   }
 };

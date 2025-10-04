@@ -48,6 +48,12 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                 Route::patch('edit', [PullRequestController::class, 'updatePullRequest'])
                     ->name('api.repositories.pull_requests.edit');
 
+                Route::put('merge', [PullRequestController::class, 'mergePullRequest'])
+                    ->name('api.repositories.pull_requests.merge');
+
+                Route::patch('close', [PullRequestController::class, 'closePullRequest'])
+                    ->name('api.repositories.pull_requests.close');
+
                 Route::prefix('comments/{comment}')->group(function () {
                     Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
                         ->name('api.repositories.pull_requests.comment.resolve');
