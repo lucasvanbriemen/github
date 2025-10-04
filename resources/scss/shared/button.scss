@@ -9,4 +9,15 @@
     background-color: var(--primary-color-dark);
     cursor: pointer;
   }
+
+  &-outline {
+    border-radius: 1rem;
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+
+    &:hover {
+      background-color: var(--primary-color);
+      cursor: pointer;
+    }
+  }
 }

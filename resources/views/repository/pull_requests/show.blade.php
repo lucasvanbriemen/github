@@ -16,14 +16,53 @@
     @include("repository.pull_requests.nav")
     
     <div class="pull-request-content">
-      <div class="opened-by">
-        <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+      <div class="top-header">
+        <div class="opened-by">
+          <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+        </div>
+
+        <div class="edit-button-wrapper">
+          <button class="edit-pr button-primary-outline" data-editing="0">{!! svg('pencil') !!}</button>
+          <button class="save-edit button-primary" data-editing="1">save</button>
+          <button class="cancel-edit button-primary-outline" data-editing="1">cancel</button>
+        </div>
       </div>
+      
       <div class="pull-request-header">
-        <span>{{ $pullRequest->title }}</span>
-        <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
+        <span id="pr-title" data-raw="{{ $pullRequest->title }}" data-editing="0"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
+        <x-compoment
+          name="input"
+          :options="[
+            'type' => 'text',
+            'value' => $pullRequest->title,
+            'id' => 'edit-pr-title',
+            'label' => 'Title',
+            'wrapperOptions' => ['data-editing' => 1]
+          ]"
+        />
+      
+        <span class="created-at" data-editing="0">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
-      <div class='markdown-body'><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
+
+      <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}">
+        <x-markdown theme="github-dark" data-editing="0">{!! $pullRequest->body !!}</x-markdown>
+        <x-compoment
+          name="input"
+          :options="[
+            'type' => 'textarea',
+            'name' => 'body',
+            'id' => 'edit-pr-body',
+            'label' => 'Body',
+            'wrapperOptions' => ['data-editing' => 1]
+          ]"
+        />
+      </div>
+
+    </div>
+
+    <div class="pull-request-actions">
+      <button class="merge-pr button-primary">Merge PR</button>
+      <button class="close-pr button-danger">Close PR</button>
     </div>
 
     @foreach ($allComments as $item)
@@ -64,7 +103,7 @@
 
   <script>
     window.start = "pull_request";
-    window.pullRequestId = "{{ $pullRequest->number }}";
+    window.pullRequestNumber = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
     window.organizationName = "{{ $organization->name }}";
   </script>

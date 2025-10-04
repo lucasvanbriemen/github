@@ -328,4 +328,44 @@ class PullRequestController extends Controller
 
         return $diff;
     }
+
+    public function updatePullRequest($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        $data = [
+            'title' => $request->title,
+            'body' => $request->body,
+        ];
+
+        $response = ApiHelper::githubApiPatch("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}", $data);
+
+        if ($response) {
+            return response()->json(['status' => 'success']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to update pull request'], 500);
+    }
+
+    public function mergePullRequest($organizationName, $repositoryName, $pullRequestNumber)
+    {
+        $response = ApiHelper::githubApiPut("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/merge", []);
+
+        if ($response) {
+            return response()->json(['status' => 'success']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to merge pull request'], 500);
+    }
+
+    public function closePullRequest($organizationName, $repositoryName, $pullRequestNumber)
+    {
+        $response = ApiHelper::githubApiPatch("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}", [
+            'state' => 'closed'
+        ]);
+
+        if ($response) {
+            return response()->json(['status' => 'success']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to close pull request'], 500);
+    }
 }
