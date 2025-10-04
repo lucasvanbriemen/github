@@ -72,16 +72,27 @@ export default {
     const editTitle = document.getElementById("edit-pr-title");
     const editBody = document.getElementById("edit-pr-body");
 
-    // editTitle.value = displayTitle.getAttribute("data-raw");
-    // editBody.value = displayBody.getAttribute("data-raw");
+    editTitle.value = displayTitle.getAttribute("data-raw");
+    editBody.innerHTML = displayBody.getAttribute("data-raw");
 
     if (this.IS_EDITING) {
       document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "none");
       document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "block");
+
+      // Auto-resize textarea
+      this.autoResizeTextarea(editBody);
+      editBody.addEventListener("input", () => this.autoResizeTextarea(editBody));
     } else {
       document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "block");
       document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "none");
     }
+  },
+
+  autoResizeTextarea(textarea) {
+    textarea.style.height = "25rem";
+    const scrollHeight = textarea.scrollHeight;
+    const minHeight = 25 * 16; // 25rem in pixels (assuming 1rem = 16px)
+    textarea.style.height = Math.max(scrollHeight, minHeight) + "px";
   },
 
   updatePullRequest() {
