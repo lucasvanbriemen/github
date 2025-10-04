@@ -24,7 +24,7 @@
       </div>
       
       <div class="pull-request-header">
-        <span id="pr-title"><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></span>
+        <span id="pr-title"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
       <div class='markdown-body' id="pr-body"><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
