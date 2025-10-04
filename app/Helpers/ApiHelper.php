@@ -6,8 +6,6 @@ use App\Models\SystemInfo;
 
 class ApiHelper
 {
-    public static $MAX_CALLS_PER_HOUR = 5000;
-
     public static $base = 'https://api.github.com';
 
     public static $token;
