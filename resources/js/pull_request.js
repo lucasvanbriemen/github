@@ -20,7 +20,6 @@ export default {
 
     [".edit-pr", ".cancel-edit", ".save-edit"].forEach((selector, i) => {
       const el = document.querySelector(selector);
-      if (!el) return;
       // i === 2 is the save button (we want to save)
       el.addEventListener("click", () => this.toggleEditMode(i === 2));
     });
