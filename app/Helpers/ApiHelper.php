@@ -81,6 +81,68 @@ class ApiHelper
         $systemInfo->save();
     }
 
+    public static function githubApiPatch($route, array $data)
+    {
+        self::init();
+        self::updateSystemInfo(self::$base.$route);
+
+        $fullUrl = self::$base.$route;
+
+        $ch = curl_init($fullUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        $headers = self::formatHeaders();
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $responseBody = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return json_decode($responseBody);
+        }
+
+        return null;
+    }
+
+    public static function githubApiPut($route, $data)
+    {
+        self::init();
+        self::updateSystemInfo(self::$base.$route);
+
+        $fullUrl = self::$base.$route;
+
+        $ch = curl_init($fullUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        $headers = self::formatHeaders();
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // Ensure empty arrays are encoded as objects for GitHub API compatibility
+        $jsonData = json_encode($data, JSON_FORCE_OBJECT);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        $responseBody = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        \Log::info('GitHub API PUT request', [
+            'url' => $fullUrl,
+            'httpCode' => $httpCode,
+            'data' => $jsonData,
+            'response' => $responseBody
+        ]);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return json_decode($responseBody);
+        }
+
+        return null;
+    }
+
     private static function formatHeaders()
     {
         $formatted = [];

@@ -13,6 +13,10 @@ export default {
     return this.makeRequest("PATCH", url, data, headers);
   },
 
+  put(url, data, headers = {}) {
+    return this.makeRequest("PUT", url, data, headers);
+  },
+
   makeRequest(method, url, data = null, headers = {}, background = false) {
     if (!background) {
       app.setLoading(true);

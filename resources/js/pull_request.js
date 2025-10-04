@@ -16,7 +16,22 @@ export default {
       commentHeader.addEventListener("click", () => this.openResolvedComments(commentHeader.closest(".issue-comment").getAttribute("data-comment")));
     });
 
-    this.getLinkedIssues(window.pullRequestId);
+    this.getLinkedIssues(window.pullRequestNumber);
+
+    // Initialize visibility based on data-editing attributes
+    document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "block");
+    document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "none");
+
+    [".edit-pr", ".cancel-edit", ".save-edit"].forEach((selector, i) => {
+      const el = document.querySelector(selector);
+      // i === 2 is the save button (we want to save)
+      el.addEventListener("click", () => this.toggleEditMode(i === 2));
+    });
+
+    const mergeButton = document.querySelector(".merge-pr");
+    const closeButton = document.querySelector(".close-pr");
+    mergeButton.addEventListener("click", () => this.mergePullRequest());
+    closeButton.addEventListener("click", () => this.closePullRequest());
   },
 
   updateComment(id, url) {
@@ -45,5 +60,71 @@ export default {
       const issues = document.querySelector(".linked-issues");
       issues.innerHTML = data
     });
+  },
+
+  toggleEditMode(triggerSave = false) {
+    if (triggerSave) {
+      this.updatePullRequest();
+    }
+
+    this.IS_EDITING = !this.IS_EDITING;
+
+    const displayTitle = document.getElementById("pr-title");
+    const displayBody = document.getElementById("pr-body");
+
+    const editTitle = document.getElementById("edit-pr-title");
+    const editBody = document.getElementById("edit-pr-body");
+
+    editTitle.value = displayTitle.getAttribute("data-raw");
+    editBody.innerHTML = displayBody.getAttribute("data-raw");
+
+    if (this.IS_EDITING) {
+      document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "none");
+      document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "block");
+
+      // Auto-resize textarea
+      this.autoResizeTextarea(editBody);
+      editBody.addEventListener("input", () => this.autoResizeTextarea(editBody));
+    } else {
+      document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "block");
+      document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "none");
+    }
+  },
+
+  autoResizeTextarea(textarea) {
+    textarea.style.height = "25rem";
+    const scrollHeight = textarea.scrollHeight;
+    const minHeight = 25 * 16; // 25rem in pixels (assuming 1rem = 16px)
+    textarea.style.height = Math.max(scrollHeight, minHeight) + "px";
+  },
+
+  updatePullRequest() {
+    const title = document.getElementById("edit-pr-title").value;
+    const body = document.getElementById("edit-pr-body").value;
+
+    api.patch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/edit`, {
+      title,
+      body
+    }).then(data => {
+      // Update data-raw attributes for next edit
+      displayTitle.setAttribute("data-raw", title);
+      displayBody.setAttribute("data-raw", body);
+    });
+  },
+
+  mergePullRequest() {
+    console.log('Merging PR...');
+    api.put(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/merge`, {})
+      .then(data => {
+        window.location.reload();
+      });
+  },
+
+  closePullRequest() {
+    console.log('Closing PR...');
+    api.patch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/close`, {})
+      .then(data => {
+        window.location.reload();
+      });
   }
 };
