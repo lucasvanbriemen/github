@@ -46,7 +46,7 @@
 
       <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}">
         <x-markdown theme="github-dark" data-editing="0">{!! $pullRequest->body !!}</x-markdown>
-        <textarea id="edit-pr-body" data-editing="1"></textarea>
+        <textarea id="edit-pr-body" name='body' data-editing="1"></textarea>
       </div>
 
     </div>
