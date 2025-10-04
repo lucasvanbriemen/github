@@ -46,6 +46,16 @@
 
       <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}">
         <x-markdown theme="github-dark" data-editing="0">{!! $pullRequest->body !!}</x-markdown>
+        <x-compoment
+          name="input"
+          :options="[
+            'type' => 'textarea',
+            'name' => 'body',
+            'id' => 'edit-pr-body',
+            'label' => 'Body',
+            'wrapperOptions' => ['data-editing' => 1]
+          ]"
+        />
         <textarea id="edit-pr-body" name='body' data-editing="1"></textarea>
       </div>
 

@@ -72,8 +72,8 @@ export default {
     const editTitle = document.getElementById("edit-pr-title");
     const editBody = document.getElementById("edit-pr-body");
 
-    editTitle.value = displayTitle.getAttribute("data-raw");
-    editBody.value = displayBody.getAttribute("data-raw");
+    // editTitle.value = displayTitle.getAttribute("data-raw");
+    // editBody.value = displayBody.getAttribute("data-raw");
 
     if (this.IS_EDITING) {
       document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "none");
