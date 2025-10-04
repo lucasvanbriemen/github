@@ -346,6 +346,14 @@ class PullRequestController extends Controller
 
         $url = "https://api.github.com/repos/{$ownerName}/{$repositoryName}/pulls/{$pullRequestNumber}";
 
+        \Log::info("Updating PR", [
+            'url' => $url,
+            'owner' => $ownerName,
+            'repo' => $repositoryName,
+            'pr' => $pullRequestNumber,
+            'data' => $data
+        ]);
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');

@@ -20,6 +20,12 @@ export default {
 
     const editButton = document.querySelector(".edit-pr");
     editButton.addEventListener("click", () => this.toggleEditMode());
+
+    const cancelButton = document.querySelector(".cancel-edit");
+    cancelButton.addEventListener("click", () => this.toggleEditMode());
+
+    const saveButton = document.querySelector(".save-edit");
+    saveButton.addEventListener("click", () => this.toggleEditMode(true));
   },
 
   updateComment(id, url) {
@@ -50,7 +56,11 @@ export default {
     });
   },
 
-  toggleEditMode() {
+  toggleEditMode(triggerSave = false) {
+    if (triggerSave) {
+      this.updatePullRequest();
+    }
+
     const displayTitle = document.getElementById("pr-title");
     const displayBody = document.getElementById("pr-body");
 
@@ -79,5 +89,39 @@ export default {
       displayTitle.style.display = "block";
       displayBody.style.display = "block";
     }
+  },
+
+  updatePullRequest() {
+    const title = document.getElementById("edit-pr-title").value;
+    const body = document.getElementById("edit-pr-body").value;
+
+    fetch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestId}/edit`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        title,
+        body
+      })
+    })
+    .then(res => res.json())
+    .then(result => {
+      if (result.status === 'success') {
+        // Update the display elements with new values
+        const displayTitle = document.getElementById("pr-title");
+        const displayBody = document.getElementById("pr-body");
+
+        displayTitle.textContent = title;
+        displayBody.innerHTML = body;
+
+        // Update data-raw attributes for next edit
+        displayTitle.setAttribute("data-raw", title);
+        displayBody.setAttribute("data-raw", body);
+      } else {
+        alert('Error: ' + result.message);
+      }
+    });
   }
 };
