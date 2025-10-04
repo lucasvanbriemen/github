@@ -1,4 +1,6 @@
 export default {
+  IS_EDITING: false,
+
   init() {
     const resolveButtons = document.querySelectorAll(".resolve-comment");
     const unresolveButtons = document.querySelectorAll(".unresolve-comment");
@@ -58,41 +60,23 @@ export default {
       this.updatePullRequest();
     }
 
+    this.IS_EDITING = !this.IS_EDITING;
+
     const displayTitle = document.getElementById("pr-title");
     const displayBody = document.getElementById("pr-body");
 
     const editTitle = document.getElementById("edit-pr-title");
     const editBody = document.getElementById("edit-pr-body");
 
-    const inputWrapper = document.querySelectorAll(".input-wrapper");
-
-    const saveButton = document.querySelector(".save-edit");
-    const cancelButton = document.querySelector(".cancel-edit");
-    const editButton = document.querySelector(".edit-pr");
-
-    saveButton.style.display = inputWrapper[0].style.display === "none" ? "flex" : "none";
-    cancelButton.style.display = inputWrapper[0].style.display === "none" ? "flex" : "none";
-    editButton.style.display = inputWrapper[0].style.display === "none" ? "none" : "flex";
-
     editTitle.value = displayTitle.getAttribute("data-raw");
     editBody.value = displayBody.getAttribute("data-raw");
 
-    if (inputWrapper[0].style.display === "none") {
-      for (const input of inputWrapper) {
-        input.style.display = "block";
-      }
-
-      editBody.style.display = "block";
-      displayTitle.style.display = "none";
-      displayBody.style.display = "none";
+    if (this.IS_EDITING) {
+      document.querySelector('[data-editing="0"]').style.display = "none";
+      document.querySelector('[data-editing="1"]').style.display = "block";
     } else {
-      for (const input of inputWrapper) {
-        input.style.display = "none";
-      }
-
-      editBody.style.display = "none";
-      displayTitle.style.display = "block";
-      displayBody.style.display = "block";
+      document.querySelector('[data-editing="0"]').style.display = "block";
+      document.querySelector('[data-editing="1"]').style.display = "none";
     }
   },
 

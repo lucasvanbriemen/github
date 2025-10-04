@@ -22,17 +22,25 @@
         </div>
 
         <div class="edit-button-wrapper">
-          <button class="edit-pr button-primary-outline">{!! svg('pencil') !!}</button>
-          <button class="save-edit button-primary">save</button>
-          <button class="cancel-edit button-primary-outline">cancel</button>
+          <button class="edit-pr button-primary-outline" data-editing="0">{!! svg('pencil') !!}</button>
+          <button class="save-edit button-primary" data-editing="1">save</button>
+          <button class="cancel-edit button-primary-outline" data-editing="1">cancel</button>
         </div>
       </div>
       
       <div class="pull-request-header">
         <span id="pr-title" data-raw="{{ $pullRequest->title }}"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
-        <x-compoment name="input" :options="['type' => 'text', 'value' => $pullRequest->title, 'id' => 'edit-pr-title']" />
+        <x-compoment
+          name="input"
+          :options="[
+            'type' => 'text',
+            'value' => $pullRequest->title,
+            'id' => 'edit-pr-title',
+            'wrapperOptions' => ['data-editing' => 1]
+          ]"
+        />
       
-        <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
+        <span class="created-at" data-editing="0">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
 
       <textarea id="edit-pr-body" style="display: none;"></textarea>

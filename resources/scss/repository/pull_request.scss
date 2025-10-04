@@ -1,4 +1,13 @@
 .pull-request-page {
+
+  *[data-editing="0"] {
+    display: block;
+  }
+  
+  *[data-editing="1"] {
+    display: none;
+  }
+
   .top-header {
     display: flex;
     justify-content: space-between;
@@ -49,7 +58,6 @@
 
       .save-edit,
       .cancel-edit {
-        display: none;
         height: min-content;
         padding: 0.5rem 1rem;
       }
