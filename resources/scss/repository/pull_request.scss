@@ -1,13 +1,4 @@
 .pull-request-page {
-
-  *[data-editing="0"] {
-    display: block;
-  }
-  
-  *[data-editing="1"] {
-    display: none;
-  }
-
   .top-header {
     display: flex;
     justify-content: space-between;

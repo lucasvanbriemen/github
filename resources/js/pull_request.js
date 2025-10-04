@@ -20,6 +20,10 @@ export default {
 
     this.getLinkedIssues(window.pullRequestNumber);
 
+    // Initialize visibility based on data-editing attributes
+    document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "block");
+    document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "none");
+
     [".edit-pr", ".cancel-edit", ".save-edit"].forEach((selector, i) => {
       const el = document.querySelector(selector);
       // i === 2 is the save button (we want to save)
@@ -72,11 +76,11 @@ export default {
     editBody.value = displayBody.getAttribute("data-raw");
 
     if (this.IS_EDITING) {
-      document.querySelector('[data-editing="0"]').style.display = "none";
-      document.querySelector('[data-editing="1"]').style.display = "block";
+      document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "none");
+      document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "block");
     } else {
-      document.querySelector('[data-editing="0"]').style.display = "block";
-      document.querySelector('[data-editing="1"]').style.display = "none";
+      document.querySelectorAll('*[data-editing="0"]').forEach(el => el.style.display = "block");
+      document.querySelectorAll('*[data-editing="1"]').forEach(el => el.style.display = "none");
     }
   },
 
