@@ -10,6 +10,9 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\Mail\PullRequestReviewed;
+use App\GithubConfig;
+use Illuminate\Support\Facades\Mail;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -40,7 +43,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         // Ensure the pull request exists before creating the review
         PullRequest::updateFromWebhook($prData);
 
-        PullRequestReview::updateOrCreate([
+        $pullRequestReview = PullRequestReview::updateOrCreate([
             'id' => $reviewData->id,
         ], [
             'pull_request_id' => $prData->id,
@@ -59,6 +62,10 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
                 'state' => $reviewData->state,
             ]
         );
+
+        // After 1 minute send out the email, this is to ensure that all comments are created first
+        Mail::to(GithubConfig::USER_EMAIL)
+            ->later(now()->addMinute(), new PullRequestReviewed($pullRequestReview));
 
         return true;
     }
