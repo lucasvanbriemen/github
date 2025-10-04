@@ -25,9 +25,15 @@
       
       <div class="pull-request-header">
         <span id="pr-title" data-raw="{{ $pullRequest->title }}"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
+        <input id="edit-pr-title" style="display: none;">
+      
         <span class="created-at">{{ $pullRequest->created_at->diffForHumans() }}</span>
       </div>
-      <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}"><x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown></div>
+      <input id="edit-pr-body" style="display: none;">
+      <div class='markdown-body' id="pr-body" data-raw="{{ $pullRequest->body }}">
+        <x-markdown theme="github-dark">{!! $pullRequest->body !!}</x-markdown>
+      </div>
+
     </div>
 
     @foreach ($allComments as $item)

@@ -17,6 +17,9 @@ export default {
     });
 
     this.getLinkedIssues(window.pullRequestId);
+
+    const editButton = document.querySelector(".edit-pr");
+    editButton.addEventListener("click", () => this.toggleEditMode());
   },
 
   updateComment(id, url) {
@@ -45,5 +48,28 @@ export default {
       const issues = document.querySelector(".linked-issues");
       issues.innerHTML = data
     });
+  },
+
+  toggleEditMode() {
+    const displayTitle = document.getElementById("pr-title");
+    const displayBody = document.getElementById("pr-body");
+
+    const editTitle = document.getElementById("edit-pr-title");
+    const editBody = document.getElementById("edit-pr-body");
+
+    editTitle.value = displayTitle.getAttribute("data-raw");
+    editBody.value = displayBody.getAttribute("data-raw");
+
+    if (editTitle.style.display === "none") {
+      editTitle.style.display = "block";
+      editBody.style.display = "block";
+      displayTitle.style.display = "none";
+      displayBody.style.display = "none";
+    } else {
+      editTitle.style.display = "none";
+      editBody.style.display = "none";
+      displayTitle.style.display = "block";
+      displayBody.style.display = "block";
+    }
   }
 };
