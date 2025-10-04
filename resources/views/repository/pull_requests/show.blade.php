@@ -60,10 +60,12 @@
 
     </div>
 
-    <div class="pull-request-actions">
-      <button class="merge-pr button-primary">Merge PR</button>
-      <button class="close-pr button-primary-outline">Close PR</button>
-    </div>
+    @if ($pullRequest->state === 'open')
+      <div class="pull-request-actions">
+        <button class="merge-pr button-primary">Merge PR</button>
+        <button class="close-pr button-primary-outline">Close PR</button>
+      </div>
+    @endif
 
     @foreach ($allComments as $item)
       <x-comment-renderer
