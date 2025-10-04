@@ -99,18 +99,10 @@ export default {
     const title = document.getElementById("edit-pr-title").value;
     const body = document.getElementById("edit-pr-body").value;
 
-    fetch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/edit`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({
-        title,
-        body
-      })
-    })
-    .then(result => {
+    api.patch(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/edit`, {
+      title,
+      body
+    }).then(data => {
       // Update data-raw attributes for next edit
       displayTitle.setAttribute("data-raw", title);
       displayBody.setAttribute("data-raw", body);
