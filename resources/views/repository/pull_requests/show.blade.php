@@ -62,7 +62,7 @@
 
     <div class="pull-request-actions">
       <button class="merge-pr button-primary">Merge PR</button>
-      <button class="close-pr button-danger">Close PR</button>
+      <button class="close-pr button-primary-outline">Close PR</button>
     </div>
 
     @foreach ($allComments as $item)
