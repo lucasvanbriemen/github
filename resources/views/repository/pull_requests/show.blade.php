@@ -29,13 +29,14 @@
       </div>
       
       <div class="pull-request-header">
-        <span id="pr-title" data-raw="{{ $pullRequest->title }}"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
+        <span id="pr-title" data-raw="{{ $pullRequest->title }}" data-editing="0"><x-markdown theme="github-dark">{!! $pullRequest->title !!}</x-markdown></span>
         <x-compoment
           name="input"
           :options="[
             'type' => 'text',
             'value' => $pullRequest->title,
             'id' => 'edit-pr-title',
+            'label' => 'Title',
             'wrapperOptions' => ['data-editing' => 1]
           ]"
         />
