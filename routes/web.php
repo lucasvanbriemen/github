@@ -44,3 +44,15 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         });
     });
 });
+
+if (app()->environment('local')) {
+    Route::get('/mail_preview/{mailable}', function ($mailable) {
+        $mailableClass = 'App\\Mail\\' . $mailable;
+
+        if (!class_exists($mailableClass)) {
+            abort(404);
+        }
+
+        return new $mailableClass();
+    })->where('mailable', '[A-Za-z]+')->name('mail_preview');
+}
