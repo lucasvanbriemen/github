@@ -14,11 +14,9 @@
     border-radius: 1rem;
     background-color: transparent;
     border: 2px solid var(--primary-color);
-    color: var(--primary-color);
 
     &:hover {
       background-color: var(--primary-color);
-      color: var(--button-text-color);
       cursor: pointer;
     }
   }

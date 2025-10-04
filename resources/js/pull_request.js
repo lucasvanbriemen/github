@@ -57,6 +57,14 @@ export default {
     const editTitle = document.getElementById("edit-pr-title");
     const editBody = document.getElementById("edit-pr-body");
 
+    const saveButton = document.querySelector(".save-edit");
+    const cancelButton = document.querySelector(".cancel-edit");
+    const editButton = document.querySelector(".edit-pr");
+
+    saveButton.style.display = editTitle.style.display === "none" ? "flex" : "none";
+    cancelButton.style.display = editTitle.style.display === "none" ? "flex" : "none";
+    editButton.style.display = editTitle.style.display === "none" ? "none" : "flex";
+
     editTitle.value = displayTitle.getAttribute("data-raw");
     editBody.value = displayBody.getAttribute("data-raw");
 

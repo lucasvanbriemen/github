@@ -28,17 +28,34 @@
       }
     }
 
-    .button-primary-outline {
-      aspect-ratio: 1;
-      padding: 4px;
+    .edit-button-wrapper {
       display: flex;
-      justify-content: center;
+      gap: 0.5rem;
       align-items: center;
-      border-color: var(--primary-color-dark);
 
-      svg {
-        width: 1.24rem;
-        height: 1.25rem;
+      .button-primary-outline {
+        aspect-ratio: 1;
+        padding: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-color: var(--primary-color-dark);
+
+        svg {
+          width: 1.24rem;
+          height: 1.25rem;
+        }
+      }
+
+      .save-edit,
+      .cancel-edit {
+        display: none;
+        height: min-content;
+        padding: 0.5rem 1rem;
+      }
+
+      .cancel-edit {
+        aspect-ratio: auto;
       }
     }
   }

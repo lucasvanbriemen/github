@@ -20,7 +20,12 @@
         <div class="opened-by">
           <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
         </div>
-        <button class="edit-pr button-primary-outline">{!! svg('pencil') !!}</button>
+
+        <div class="edit-button-wrapper">
+          <button class="edit-pr button-primary-outline">{!! svg('pencil') !!}</button>
+          <button class="save-edit button-primary">save</button>
+          <button class="cancel-edit button-primary-outline">cancel</button>
+        </div>
       </div>
       
       <div class="pull-request-header">
