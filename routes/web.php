@@ -10,6 +10,8 @@ use App\Http\Middleware\IsLoggedIn;
 use App\Models\PullRequestReview;
 use Illuminate\Support\Facades\Route;
 use App\Mail\PullRequestReviewed;
+use App\GithubConfig;
+use Illuminate\Support\Facades\Mail;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -49,6 +51,12 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
 if (app()->environment('local')) {
     Route::get('/mail_preview/PullRequestReviewed', function () {
+        $pullRequestReview = PullRequestReview::find(3297960164);
+
+        Mail::to("vanbriemenluacs@gmail.com")
+            ->send(new PullRequestReviewed($pullRequestReview));
+
+        
         return new PullRequestReviewed(PullRequestReview::find(3297960164));
     })->where('mailable', '[A-Za-z]+')->name('mail_preview');
 }

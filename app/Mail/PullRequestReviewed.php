@@ -10,9 +10,9 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PullRequestReviewed extends Mailable implements ShouldQueue
+class PullRequestReviewed extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
 
     public PullRequestReview $pullRequestReview;
     public function __construct(PullRequestReview $pullRequestReview)
