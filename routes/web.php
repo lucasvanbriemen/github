@@ -52,9 +52,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 Route::get('/mail_preview/PullRequestReviewed', function () {
     $pullRequestReview = PullRequestReview::find(3297960164);
 
-    Mail::to("vanbriemenluacs@gmail.com")
+    Mail::to(GithubConfig::USER_EMAIL)
         ->send(new PullRequestReviewed($pullRequestReview));
 
+    return response()->json(['status' => 'success']);
     
-    return new PullRequestReviewed(PullRequestReview::find(3297960164));
-})->where('mailable', '[A-Za-z]+')->name('mail_preview');
+})->name('mail_preview');
