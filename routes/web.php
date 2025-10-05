@@ -49,14 +49,12 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     });
 });
 
-if (app()->environment('local')) {
-    Route::get('/mail_preview/PullRequestReviewed', function () {
-        $pullRequestReview = PullRequestReview::find(3297960164);
+Route::get('/mail_preview/PullRequestReviewed', function () {
+    $pullRequestReview = PullRequestReview::find(3297960164);
 
-        Mail::to("vanbriemenluacs@gmail.com")
-            ->send(new PullRequestReviewed($pullRequestReview));
+    Mail::to("vanbriemenluacs@gmail.com")
+        ->send(new PullRequestReviewed($pullRequestReview));
 
-        
-        return new PullRequestReviewed(PullRequestReview::find(3297960164));
-    })->where('mailable', '[A-Za-z]+')->name('mail_preview');
-}
+    
+    return new PullRequestReviewed(PullRequestReview::find(3297960164));
+})->where('mailable', '[A-Za-z]+')->name('mail_preview');
