@@ -4,13 +4,13 @@ namespace App\Listeners;
 
 use App\Events\PushWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Commit;
 use App\Models\GithubUser;
 use App\Models\Branch;
 use App\Models\Repository;
+use App\Models\ViewedFile;
 
-class ProcessPushWebhook
+class ProcessPushWebhook implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -67,6 +67,16 @@ class ProcessPushWebhook
                     'message' => $commitData->message,
                 ]
             );
+
+            foreach (array_merge($commitData->added, $commitData->modified, $commitData->removed) as $filePath) {
+                ViewedFile::updateOrCreate(
+                    [
+                        'branch_id' => $branch->id,
+                        'file_path' => $filePath,
+                    ],
+                    ['viewed' => false]
+                );
+            }
         }
     }
 }

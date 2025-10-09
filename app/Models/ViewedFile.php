@@ -11,23 +11,10 @@ class ViewedFile extends Model
     public $fillable = [
         'file_path',
         'viewed',
-        'pull_request_id',
+        'branch_id',
     ];
 
     protected $casts = [
         'viewed' => 'boolean',
     ];
-
-    public function pullRequest()
-    {
-        return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
-    }
-
-    public static function markAsViewed($pullRequestId, $filePath, $viewed = true)
-    {
-        return self::updateOrCreate(
-            ['pull_request_id' => $pullRequestId, 'file_path' => $filePath],
-            ['viewed' => $viewed]
-        );
-    }
 }

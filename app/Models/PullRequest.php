@@ -29,6 +29,12 @@ class PullRequest extends Model
         return $this->hasMany(RequestedReviewer::class, 'pull_request_id', 'id');
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'head_branch', 'name')
+            ->where('repository_id', $this->repository_id);
+    }
+
     public function getReviewersDataAttribute()
     {
         return $this->requestedReviewers()->with('user')->get()->map(function ($reviewer) {

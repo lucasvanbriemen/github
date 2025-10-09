@@ -11,7 +11,7 @@
 
     <div class="diff-file" data-file="{{ $fileName }}">
       {{-- File Header --}}
-      <div class="diff-file-header">
+      <div class="diff-file-header" data-file="{{ $fileName }}">
         <div class="diff-file-header-left">
           <span class="diff-file-status diff-file-status-{{ $fileStatus }}">{{ $fileStatus }}</span>
           <span class="diff-file-name">{{ $fileName }}</span>

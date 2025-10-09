@@ -67,6 +67,12 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                     Route::patch('unresolve', [PullRequestController::class, 'unresolveReviewComment'])
                         ->name('api.repositories.pull_requests.review.unresolve');
                 });
+
+                Route::get('files/viewed', [PullRequestController::class, 'fileViewed'])
+                    ->name('api.repositories.pull_requests.files.viewed');
+
+                Route::get('files/not_viewed', [PullRequestController::class, 'fileNotViewed'])
+                    ->name('api.repositories.pull_requests.files.not_viewed');
             });
         });
     });
@@ -74,7 +80,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
     ->name('api.webhook');
-
     
 Route::any('check_end_point', function () {
     return response()->json(['redirect' => true, 'url' => route('dashboard')]);

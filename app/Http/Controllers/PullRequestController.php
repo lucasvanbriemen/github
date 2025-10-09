@@ -9,6 +9,8 @@ use App\Helpers\DiffRenderer;
 use App\Models\Organization;
 use App\Models\Repository;
 use App\Models\Issue;
+use App\Models\ViewedFile;
+use App\Models\Branch;
 use App\Services\PullRequestCommentService;
 use Illuminate\Http\Request;
 
@@ -367,5 +369,54 @@ class PullRequestController extends Controller
         }
 
         return response()->json(['status' => 'error', 'message' => 'Failed to close pull request'], 500);
+    }
+
+    public function fileViewed($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $filePath = $request->query('file');
+        self::toggleFileViewed($pullRequest, $filePath, true);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function fileNotViewed($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $filePath = $request->query('file');
+        self::toggleFileViewed($pullRequest, $filePath, false);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public static function toggleFileViewed($pr, $file, $viewed)
+    {
+
+        // Ensure the branch exists
+        $branch = Branch::firstOrCreate(
+            [
+                'name' => $pr->head_branch,
+                'repository_id' => $pr->repository_id,
+            ]
+        );
+
+
+        ViewedFile::updateOrCreate(
+            [
+                'branch_id' => $branch->id,
+                'file_path' => $file,
+            ],
+            ['viewed' => $viewed]
+        );
     }
 }

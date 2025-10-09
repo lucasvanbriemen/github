@@ -1,6 +1,5 @@
 <x-app-layout class="repository-page pull-request-page">
   @vite(['resources/scss/shared/custom-diff.scss', 'resources/scss/shared/hljs-theme.scss', 'resources/js/diff-highlight.js'])
-
   <x-slot:header>
     @if ($organization)
       <a href="{{ route('organization.show', $organization->name) }}">
@@ -22,6 +21,6 @@
     window.pullRequestId = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
     window.organizationName = "{{ $organization->name }}";
-    window.start = ["pull_request"];
+    window.start = ["files"];
     </script>
 </x-app-layout>
