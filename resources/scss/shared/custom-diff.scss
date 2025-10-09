@@ -17,6 +17,12 @@
   margin-bottom: 2rem;
   background-color: var(--background-color-one);
   overflow: hidden;
+
+  &.viewed {
+    .diff-table-container {
+      display: none !important;
+    }
+  }
 }
 
 // File header
@@ -27,6 +33,8 @@
   padding: 1rem;
   background-color: var(--background-color-one);
   border-bottom: 1px solid var(--border-color);
+
+  cursor: pointer;
 }
 
 .diff-file-header-left {
