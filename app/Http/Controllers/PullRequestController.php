@@ -92,11 +92,25 @@ class PullRequestController extends Controller
         $renderer = new DiffRenderer($diffString);
         $files = $renderer->getFiles();
 
+        // Get viewed files for this PR's branch
+        $branch = Branch::where('name', $pullRequest->head_branch)
+            ->where('repository_id', $pullRequest->repository_id)
+            ->first();
+
+        $viewedFiles = [];
+        if ($branch) {
+            $viewedFiles = ViewedFile::where('branch_id', $branch->id)
+                ->where('viewed', true)
+                ->pluck('file_path')
+                ->toArray();
+        }
+
         return view('repository.pull_requests.files', [
             'organization' => $organization,
             'repository' => $repository,
             'pullRequest' => $pullRequest,
             'files' => $files,
+            'viewedFiles' => $viewedFiles,
         ]);
     }
 
@@ -380,7 +394,23 @@ class PullRequestController extends Controller
             ->firstOrFail();
 
         $filePath = $request->query('file');
-        self::toggleFileViewed($pullRequest, $filePath, true);
+        
+         // Ensure the branch exists
+        $branch = Branch::firstOrCreate(
+            [
+                'name' => $pullRequest->head_branch,
+                'repository_id' => $pullRequest->repository_id,
+            ]
+        );
+
+        
+        ViewedFile::updateOrCreate(
+            [
+                'branch_id' => $branch->id,
+                'file_path' => $filePath,
+            ],
+            ['viewed' => true]
+        );
 
         return response()->json(['status' => 'success']);
     }
@@ -394,29 +424,19 @@ class PullRequestController extends Controller
             ->firstOrFail();
 
         $filePath = $request->query('file');
-        self::toggleFileViewed($pullRequest, $filePath, false);
-
-        return response()->json(['status' => 'success']);
-    }
-
-    public static function toggleFileViewed($pr, $file, $viewed)
-    {
-
+        
         // Ensure the branch exists
         $branch = Branch::firstOrCreate(
             [
-                'name' => $pr->head_branch,
-                'repository_id' => $pr->repository_id,
+                'name' => $pullRequest->head_branch,
+                'repository_id' => $pullRequest->repository_id,
             ]
         );
 
+        ViewedFile::where('branch_id', $branch->id)
+            ->where('file_path', $filePath)
+            ->delete();
 
-        ViewedFile::updateOrCreate(
-            [
-                'branch_id' => $branch->id,
-                'file_path' => $file,
-            ],
-            ['viewed' => $viewed]
-        );
+        return response()->json(['status' => 'success']);
     }
 }

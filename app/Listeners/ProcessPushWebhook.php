@@ -69,13 +69,9 @@ class ProcessPushWebhook implements ShouldQueue
             );
 
             foreach (array_merge($commitData->added, $commitData->modified, $commitData->removed) as $filePath) {
-                ViewedFile::updateOrCreate(
-                    [
-                        'branch_id' => $branch->id,
-                        'file_path' => $filePath,
-                    ],
-                    ['viewed' => false]
-                );
+                ViewedFile::where('branch_id', $branch->id)
+                    ->where('file_path', $filePath)
+                    ->delete();
             }
         }
     }

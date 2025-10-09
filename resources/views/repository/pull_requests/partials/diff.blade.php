@@ -7,9 +7,10 @@
       $fileStatus = $file['from'] === '/dev/null' ? 'added'
                     : ($file['to'] === '/dev/null' ? 'deleted'
                     : ($file['from'] !== $file['to'] ? 'renamed' : 'modified'));
+      $isViewed = isset($viewedFiles) && in_array($fileName, $viewedFiles);
     @endphp
 
-    <div class="diff-file" data-file="{{ $fileName }}">
+    <div class="diff-file{{ $isViewed ? ' viewed' : '' }}" data-file="{{ $fileName }}">
       {{-- File Header --}}
       <div class="diff-file-header" data-file="{{ $fileName }}">
         <div class="diff-file-header-left">
