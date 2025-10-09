@@ -48,3 +48,13 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         });
     });
 });
+
+Route::get('/mail_preview/PullRequestReviewed', function () {
+    $pullRequestReview = PullRequestReview::find(3297960164);
+
+    Mail::to(GithubConfig::USER_EMAIL)
+        ->send(new PullRequestReviewed($pullRequestReview));
+
+    return response()->json(['status' => 'success']);
+    
+})->name('mail_preview');
