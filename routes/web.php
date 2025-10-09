@@ -56,5 +56,5 @@ Route::get('/mail_preview/PullRequestReviewed', function () {
         ->send(new PullRequestReviewed($pullRequestReview));
 
     return response()->json(['status' => 'success']);
-    
+
 })->name('mail_preview');

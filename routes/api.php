@@ -54,6 +54,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                 Route::patch('close', [PullRequestController::class, 'closePullRequest'])
                     ->name('api.repositories.pull_requests.close');
 
+                Route::post('comments/create', [PullRequestController::class, 'createInlineComment'])
+                    ->name('api.repositories.pull_requests.comments.create');
+
                 Route::prefix('comments/{comment}')->group(function () {
                     Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
                         ->name('api.repositories.pull_requests.comment.resolve');

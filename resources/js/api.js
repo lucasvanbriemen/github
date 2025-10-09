@@ -9,6 +9,10 @@ export default {
     return this.makeRequest("GET", url, null, headers, background);
   },
 
+  post(url, data, headers = {}) {
+    return this.makeRequest("POST", url, data, headers);
+  },
+
   patch(url, data, headers = {}) {
     return this.makeRequest("PATCH", url, data, headers);
   },

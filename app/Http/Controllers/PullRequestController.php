@@ -368,4 +368,45 @@ class PullRequestController extends Controller
 
         return response()->json(['status' => 'error', 'message' => 'Failed to close pull request'], 500);
     }
+
+    public function createInlineComment($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        // User repositories have "user" as organization name in the URL, while being null in the DB
+        if ($organizationName === 'user') {
+            $organizationName = null;
+        }
+
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'body' => 'required|string',
+            'path' => 'required|string',
+            'line' => 'required|integer',
+            'side' => 'required|string|in:LEFT,RIGHT',
+        ]);
+
+        // Use the actual owner name from organization or repository
+        $ownerName = $organization ? $organization->name : $repository->owner_name;
+
+        // Create the inline comment via GitHub API
+        $data = [
+            'body' => $validated['body'],
+            'commit_id' => $pullRequest->head_sha,
+            'path' => $validated['path'],
+            'line' => $validated['line'],
+            'side' => $validated['side'],
+        ];
+
+        $response = ApiHelper::githubApiPost("/repos/{$ownerName}/{$repository->name}/pulls/{$pullRequestNumber}/comments", $data);
+
+        if ($response) {
+            return response()->json(['status' => 'success', 'data' => $response]);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to create inline comment'], 500);
+    }
 }
