@@ -10,7 +10,6 @@ use App\Models\IncommingWebhook;
 class IncomingWebhookController extends Controller
 {
     const KNOWN_IGNORED_EVENTS = [
-        "create",
         "check_suite",
         "check_run",
         "workflow_run",
