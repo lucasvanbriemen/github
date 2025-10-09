@@ -94,6 +94,7 @@
 .diff-table-container {
   background-color: var(--background-color-one);
   overflow-x: auto;
+  position: relative;
 
   &::-webkit-scrollbar {
     height: 8px;
@@ -296,4 +297,132 @@
       background-color: var(--background-color) !important;
     }
   }
+}
+
+// Inline comment button styles
+.add-inline-comment-btn {
+  position: absolute;
+  left: -1.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  background-color: #238636;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+
+  &:hover {
+    background-color: #2ea043;
+  }
+}
+
+.diff-line-number {
+  position: relative;
+
+  &:hover .add-inline-comment-btn {
+    opacity: 1;
+  }
+}
+
+.diff-table-side-by-side {
+  // For left side columns (first line number), position button to the right edge of the cell
+  td.diff-line-number:first-child .add-inline-comment-btn {
+    left: auto;
+    right: 0.25rem;
+  }
+
+  // For right side columns (third cell, which is second line number), keep at left
+  td.diff-line-number:nth-child(3) .add-inline-comment-btn {
+    left: -1.75rem;
+  }
+}
+
+// Inline comment form styles
+.inline-comment-form-row {
+  background-color: var(--background-color-one);
+
+  td {
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+.inline-comment-form-container {
+  padding: 0.75rem 1rem;
+  background-color: var(--background-color-one);
+}
+
+.inline-comment-form {
+  max-width: 50rem;
+  background-color: var(--background-color-one);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0;
+  overflow: hidden;
+}
+
+.inline-comment-form-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--background-color-two);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.75rem;
+}
+
+.inline-comment-side-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.025em;
+}
+
+.inline-comment-file-path {
+  color: var(--text-color-secondary);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.inline-comment-textarea {
+  width: 100%;
+  min-height: 5rem;
+  padding: 0.75rem;
+  background-color: var(--background-color-one);
+  border: none;
+  color: var(--text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    background-color: var(--background-color-two);
+  }
+
+  &::placeholder {
+    color: var(--text-color-secondary);
+  }
+}
+
+.inline-comment-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--background-color-two);
+  justify-content: flex-end;
+}
+
+.diff-comment-container {
+  padding: 1rem;
+  background-color: var(--background-color-one);
 }

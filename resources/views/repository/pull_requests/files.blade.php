@@ -1,5 +1,5 @@
 <x-app-layout class="repository-page pull-request-page">
-  @vite(['resources/scss/shared/custom-diff.scss', 'resources/scss/shared/hljs-theme.scss', 'resources/js/diff-highlight.js'])
+  @vite(['resources/scss/shared/custom-diff.scss', 'resources/scss/shared/hljs-theme.scss', 'resources/js/diff-highlight.js', 'resources/js/inline_comments.js'])
 
   <x-slot:header>
     @if ($organization)
@@ -20,8 +20,10 @@
 
   <script>
     window.pullRequestId = "{{ $pullRequest->number }}";
+    window.pullRequestNumber = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
-    window.organizationName = "{{ $organization->name }}";
-    window.start = ["pull_request"];
+    window.organizationName = "{{ $organization ? $organization->name : 'user' }}";
+    window.commitSha = "{{ $pullRequest->head_sha }}";
+    window.start = ["inline_comments"];
     </script>
 </x-app-layout>
