@@ -55,16 +55,18 @@ export default {
 
   markFileViewed(file) {
     const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/pull_requests/" + window.pullRequestId + "/files/" + "viewed?file=" + encodeURIComponent(file);
+    const fileElement = document.querySelector(`.diff-file[data-file="${file}"]`);
+    fileElement.classList.toggle("viewed");
     api.get(url, {}, true).then(data => {
-      const fileElement = document.querySelector(`.diff-file[data-file="${file}"]`);
       fileElement.classList.toggle("viewed");
     });
   },
 
   markFileNotViewed(file) {
     const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/pull_requests/" + window.pullRequestId + "/files/" +"not_viewed?file=" + encodeURIComponent(file);
+    const fileElement = document.querySelector(`.diff-file[data-file="${file}"]`);
+    fileElement.classList.toggle("viewed");
     api.get(url, {}, true).then(data => {
-      const fileElement = document.querySelector(`.diff-file[data-file="${file}"]`);
       fileElement.classList.toggle("viewed");
     });
   },
