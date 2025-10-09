@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class GithubUser extends Model
 {
-    protected $primaryKey = 'github_id';
+    protected $primaryKey = 'id';
 
     public $incrementing = false;
 
     protected $keyType = 'int';
 
     protected $fillable = [
-        'github_id',
+        'id',
         'login',
         'name',
         'avatar_url',
@@ -22,25 +22,25 @@ class GithubUser extends Model
 
     public function repositories()
     {
-        return $this->belongsToMany(Repository::class, 'repository_users', 'user_id', 'repository_id', 'github_id', 'github_id')
+        return $this->belongsToMany(Repository::class, 'repository_users', 'user_id', 'repository_id', 'id', 'id')
             ->withPivot('name', 'avatar_url')
             ->withTimestamps();
     }
 
     public function assignedIssues()
     {
-        return $this->belongsToMany(Issue::class, 'issue_assignees', 'github_user_id', 'issue_id', 'github_id', 'github_id');
+        return $this->belongsToMany(Issue::class, 'issue_assignees', 'user_id', 'issue_id', 'id', 'id');
     }
 
     public function openedIssues()
     {
-        return $this->hasMany(Issue::class, 'opened_by_id', 'github_id');
+        return $this->hasMany(Issue::class, 'opened_by_id', 'id');
     }
 
     public static function updateFromWebhook($userData)
     {
         return self::updateOrCreate(
-            ['github_id' => $userData->id],
+            ['id' => $userData->id],
             [
                 'login' => $userData->login ?? ($userData->name ?? ''),
                 'name' => $userData->name ?? $userData->login ?? '',

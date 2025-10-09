@@ -30,7 +30,7 @@ class ProcessCreateWebhook implements ShouldQueue
             Branch::updateOrCreate(
                 [
                     'name' => $payload->ref,
-                    'repository_github_id' => $payload->repository->id
+                    'repository_id' => $payload->repository->id
                 ],
                 ['updated_at' => now()]
             );

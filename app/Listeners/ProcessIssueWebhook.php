@@ -50,9 +50,9 @@ class ProcessIssueWebhook implements ShouldQueue
         }
 
         $issue = Issue::updateOrCreate(
-            ['github_id' => $issueData->id],
+            ['id' => $issueData->id],
             [
-                'repository_id' => $repository->github_id,
+                'repository_id' => $repository->id,
                 'opened_by_id' => $userData->id,
                 'number' => $issueData->number,
                 'title' => $issueData->title,

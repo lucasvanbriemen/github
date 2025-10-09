@@ -33,7 +33,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->with(['assignees', 'openedBy', 'comments', 'pullRequestComments.author', 'pullRequestReviews.user'])
             ->firstOrFail();
@@ -80,7 +80,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
@@ -126,7 +126,7 @@ class PullRequestController extends Controller
         $query = Repository::with('organization')->where('name', $repositoryName);
 
         if ($organization) {
-            $query->where('organization_id', $organization->github_id);
+            $query->where('organization_id', $organization->id);
         } else {
             $query->whereNull('organization_id');
         }
@@ -174,7 +174,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
@@ -194,7 +194,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
@@ -214,7 +214,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
@@ -234,7 +234,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
@@ -249,7 +249,7 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
@@ -283,7 +283,7 @@ class PullRequestController extends Controller
             return $node->databaseId;
         }, $response->data->repository->pullRequest->closingIssuesReferences->nodes);
 
-        $issues = Issue::whereIn('github_id', $issueIds)->get();
+        $issues = Issue::whereIn('id', $issueIds)->get();
 
         return view('repository.pull_requests.linked_issues', [
             'organizationName' => $organizationName,
@@ -301,7 +301,7 @@ class PullRequestController extends Controller
 
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pullRequest = PullRequest::where('repository_id', $repository->github_id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 

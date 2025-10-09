@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class Organization extends Model
 {
-    protected $primaryKey = 'github_id';
+    protected $primaryKey = 'id';
 
     protected $keyType = 'int';
 
@@ -15,12 +15,12 @@ class Organization extends Model
 
     public function repositories()
     {
-        return $this->hasMany(Repository::class, 'organization_id', 'github_id')
+        return $this->hasMany(Repository::class, 'organization_id', 'id')
             ->orderBy('last_updated', 'desc');
     }
 
     public $fillable = [
-        'github_id',
+        'id',
         'name',
         'description',
         'avatar_url',

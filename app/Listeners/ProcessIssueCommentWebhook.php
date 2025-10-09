@@ -34,7 +34,7 @@ class ProcessIssueCommentWebhook implements ShouldQueue
         $repository = Repository::updateFromWebhook($repositoryData);
 
         // Ensure issue exists first
-        $issue = Issue::where('github_id', $issueData->id)->first();
+        $issue = Issue::where('id', $issueData->id)->first();
         if (! $issue) {
             // If the issue doesn't exist, we can't add a comment to it
             IssuesWebhookReceived::dispatch($payload);
@@ -44,14 +44,14 @@ class ProcessIssueCommentWebhook implements ShouldQueue
         if (isset($issueData->pull_request)) {
             // Get the ID where the issue number and repository matching
             $pr = PullRequest::where('number', $issueData->number)
-                ->where('repository_id', $repository->github_id);
-            $issueData->id = $pr->first()->github_id ?? null;
+                ->where('repository_id', $repository->id);
+            $issueData->id = $pr->first()->id ?? null;
         }
 
         IssueComment::updateOrCreate(
-            ['github_id' => $commentData->id],
+            ['id' => $commentData->id],
             [
-                'issue_github_id' => $issueData->id,
+                'issue_id' => $issueData->id,
                 'user_id' => $userData->id,
                 'body' => $commentData->body ?? '',
             ]

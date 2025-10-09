@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Issue extends Model
 {
-    protected $primaryKey = 'github_id';
+    protected $primaryKey = 'id';
 
     protected $keyType = 'int';
 
@@ -16,17 +16,17 @@ class Issue extends Model
 
     public function repository()
     {
-        return $this->belongsTo(Repository::class, 'repository_id', 'github_id');
+        return $this->belongsTo(Repository::class, 'repository_id', 'id');
     }
 
     public function openedBy()
     {
-        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'github_id');
+        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'id');
     }
 
     public function assignees()
     {
-        return $this->belongsToMany(GithubUser::class, 'issue_assignees', 'issue_id', 'github_user_id', 'github_id', 'github_id');
+        return $this->belongsToMany(GithubUser::class, 'issue_assignees', 'issue_id', 'user_id', 'id', 'id');
     }
 
     public function getAssigneesDataAttribute()
@@ -36,12 +36,12 @@ class Issue extends Model
 
     public function comments()
     {
-        return $this->hasMany(IssueComment::class, 'issue_github_id', 'github_id');
+        return $this->hasMany(IssueComment::class, 'issue_id', 'id');
     }
 
     protected $fillable = [
         'repository_id',
-        'github_id',
+        'id',
         'number',
         'title',
         'body',

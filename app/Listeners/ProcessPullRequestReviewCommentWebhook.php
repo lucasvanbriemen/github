@@ -33,7 +33,7 @@ class ProcessPullRequestReviewCommentWebhook
         $repositoryData = $payload->repository;
         Repository::updateFromWebhook($repositoryData);
 
-        $pr = PullRequest::where('github_id', $prData->id)->first();
+        $pr = PullRequest::where('id', $prData->id)->first();
         if (! $pr) {
             // If the PR doesn't exist, we can't add a comment to it
             return false;

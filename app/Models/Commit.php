@@ -12,9 +12,9 @@ class Commit extends Model
 
     protected $fillable = [
         'sha',
-        'repository_github_id',
+        'repository_id',
         'branch_id',
-        'github_user_id',
+        'user_id',
         'message',
     ];
 }

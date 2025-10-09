@@ -32,7 +32,7 @@ class IssueController extends Controller
 
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $issue = Issue::where('repository_id', $repository->github_id)
+        $issue = Issue::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
             ->with(['assignees', 'openedBy', 'comments' => function($query) {
                 $query->with('author');
@@ -72,7 +72,7 @@ class IssueController extends Controller
 
     public function resolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
     {
-        $comment = IssueComment::where('github_id', $commentId)->firstOrFail();
+        $comment = IssueComment::where('id', $commentId)->firstOrFail();
         $comment->resolved = true;
         $comment->save();
         return response()->json(['resolved' => $comment->resolved]);
@@ -80,7 +80,7 @@ class IssueController extends Controller
 
     public function unresolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
     {
-        $comment = IssueComment::where('github_id', $commentId)->firstOrFail();
+        $comment = IssueComment::where('id', $commentId)->firstOrFail();
         $comment->resolved = false;
         $comment->save();
         return response()->json(['resolved' => $comment->resolved]);
@@ -97,7 +97,7 @@ class IssueController extends Controller
         $query = Repository::with('organization')->where('name', $repositoryName);
 
         if ($organization) {
-            $query->where('organization_id', $organization->github_id);
+            $query->where('organization_id', $organization->id);
         } else {
             $query->whereNull('organization_id');
         }
@@ -140,7 +140,7 @@ class IssueController extends Controller
     {
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $issue = Issue::where('repository_id', $repository->github_id)
+        $issue = Issue::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
             ->firstOrFail();
 
@@ -183,7 +183,7 @@ class IssueController extends Controller
             }
         }
 
-        $pullRequests = !empty($prIds) ? PullRequest::whereIn('github_id', $prIds)->get() : collect();
+        $pullRequests = !empty($prIds) ? PullRequest::whereIn('id', $prIds)->get() : collect();
 
         return view('repository.issue.linked_pull_requests', [
             'organizationName' => $organizationName,

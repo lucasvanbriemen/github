@@ -41,9 +41,9 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         GithubUser::updateFromWebhook($userData);
 
         PullRequest::updateOrCreate(
-            ['github_id' => $prData->id],
+            ['id' => $prData->id],
             [
-                'repository_id' => $repository->github_id,
+                'repository_id' => $repository->id,
                 'opened_by_id' => $userData->id,
                 'number' => $prData->number,
                 'title' => $prData->title,
@@ -65,7 +65,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             }
         }
 
-        $pr = PullRequest::where('github_id', $prData->id)->first();
+        $pr = PullRequest::where('id', $prData->id)->first();
         if ($pr) {
             $pr->assignees()->sync($assigneeGithubIds);
         }

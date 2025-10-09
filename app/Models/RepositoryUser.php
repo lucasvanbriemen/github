@@ -19,12 +19,12 @@ class RepositoryUser extends Model
 
     public function repository()
     {
-        return $this->belongsTo(Repository::class, 'repository_id', 'github_id');
+        return $this->belongsTo(Repository::class, 'repository_id', 'id');
     }
 
     public function githubUser()
     {
-        return $this->belongsTo(GithubUser::class, 'user_id', 'github_id');
+        return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }
 
     public function issues()

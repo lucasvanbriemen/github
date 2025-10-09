@@ -20,7 +20,7 @@ class ViewedFile extends Model
 
     public function pullRequest()
     {
-        return $this->belongsTo(PullRequest::class, 'pull_request_id', 'github_id');
+        return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
     }
 
     public static function markAsViewed($pullRequestId, $filePath, $viewed = true)

@@ -13,7 +13,7 @@ class OrganizationController extends Controller
 
         foreach ($apiOrgs as $apiOrg) {
             Organization::updateOrCreate(
-                ['github_id' => $apiOrg->id],
+                ['id' => $apiOrg->id],
                 [
                     'name' => $apiOrg->login,
                     'description' => $apiOrg->description,

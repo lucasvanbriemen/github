@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Repository extends Model
 {
-    protected $primaryKey = 'github_id';
+    protected $primaryKey = 'id';
 
     protected $keyType = 'int';
 
@@ -15,17 +15,17 @@ class Repository extends Model
 
     public function organization()
     {
-        return $this->belongsTo(Organization::class, 'organization_id', 'github_id');
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
 
     public function users()
     {
-        return $this->hasMany(RepositoryUser::class, 'repository_id', 'github_id');
+        return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
     public function issues($state = 'open', $assignee = GithubConfig::USERID)
     {
-        $query = $this->hasMany(Issue::class, 'repository_id', 'github_id')
+        $query = $this->hasMany(Issue::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy')
             ->orderBy('last_updated', 'desc');
 
@@ -37,7 +37,7 @@ class Repository extends Model
             $query->whereDoesntHave('assignees');
         } elseif ($assignee !== 'any') {
             $query->whereHas('assignees', function ($q) use ($assignee) {
-                $q->where('github_users.github_id', $assignee);
+                $q->where('github_users.id', $assignee);
             });
         }
 
@@ -46,7 +46,7 @@ class Repository extends Model
 
     public function pullRequests($state = 'open', $assignee = GithubConfig::USERID)
     {
-        $query = $this->hasMany(PullRequest::class, 'repository_id', 'github_id')
+        $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy')
             ->orderBy('updated_at', 'desc');
 
@@ -58,7 +58,7 @@ class Repository extends Model
             $query->whereDoesntHave('assignees');
         } elseif ($assignee !== 'any') {
             $query->whereHas('assignees', function ($q) use ($assignee) {
-                $q->where('github_users.github_id', $assignee);
+                $q->where('github_users.id', $assignee);
             });
         }
 
@@ -68,7 +68,7 @@ class Repository extends Model
     public static function updateFromWebhook($repoData)
     {
         return self::updateOrCreate(
-            ['github_id' => $repoData->id],
+            ['id' => $repoData->id],
             [
                 'organization_id' => $repoData->owner->id,
                 'name' => $repoData->name,
@@ -83,7 +83,7 @@ class Repository extends Model
     public $fillable = [
         'organization_id',
         'name',
-        'github_id',
+        'id',
         'full_name',
         'private',
         'last_updated',

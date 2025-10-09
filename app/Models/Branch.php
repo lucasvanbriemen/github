@@ -10,6 +10,6 @@ class Branch extends Model
     public $fillable = [
         'updated_at',
         'name',
-        'repository_github_id'
+        'repository_id'
     ];
 }

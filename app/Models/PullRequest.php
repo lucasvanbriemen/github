@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PullRequest extends Model
 {
-    protected $primaryKey = 'github_id';
+    protected $primaryKey = 'id';
 
     protected $keyType = 'int';
 
@@ -16,17 +16,17 @@ class PullRequest extends Model
 
     public function repository()
     {
-        return $this->belongsTo(Repository::class, 'repository_id', 'github_id');
+        return $this->belongsTo(Repository::class, 'repository_id', 'id');
     }
 
     public function openedBy()
     {
-        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'github_id');
+        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'id');
     }
 
     public function requestedReviewers()
     {
-        return $this->hasMany(RequestedReviewer::class, 'pull_request_id', 'github_id');
+        return $this->hasMany(RequestedReviewer::class, 'pull_request_id', 'id');
     }
 
     public function getReviewersDataAttribute()
@@ -40,22 +40,22 @@ class PullRequest extends Model
 
     public function assignees()
     {
-        return $this->belongsToMany(GithubUser::class, 'pull_request_assignees', 'pull_request_id', 'github_user_id', 'github_id', 'github_id');
+        return $this->belongsToMany(GithubUser::class, 'pull_request_assignees', 'pull_request_id', 'user_id', 'id', 'id');
     }
 
     public function comments()
     {
-        return $this->hasMany(IssueComment::class, 'issue_github_id', 'github_id');
+        return $this->hasMany(IssueComment::class, 'issue_id', 'id');
     }
 
     public function pullRequestComments()
     {
-        return $this->hasMany(PullRequestComment::class, 'pull_request_id', 'github_id');
+        return $this->hasMany(PullRequestComment::class, 'pull_request_id', 'id');
     }
 
     public function pullRequestReviews()
     {
-        return $this->hasMany(PullRequestReview::class, 'pull_request_id', 'github_id');
+        return $this->hasMany(PullRequestReview::class, 'pull_request_id', 'id');
     }
 
     public function getAssigneesDataAttribute()
@@ -63,7 +63,7 @@ class PullRequest extends Model
         return $this->assignees()->get();
     }
     protected $fillable = [
-        'github_id',
+        'id',
         'repository_id',
         'number',
         'title',
@@ -82,7 +82,7 @@ class PullRequest extends Model
     public static function updateFromWebhook($prData)
     {
         return self::updateOrCreate(
-            ['github_id' => $prData->id],
+            ['id' => $prData->id],
             [
                 'repository_id' => $prData->base->repo->id,
                 'number' => $prData->number,

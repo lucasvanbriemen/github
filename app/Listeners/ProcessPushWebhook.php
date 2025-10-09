@@ -29,7 +29,7 @@ class ProcessPushWebhook
 
         // Ensure the repository exists
         $repository = Repository::updateOrCreate(
-            ['github_id' => $payload->repository->id],
+            ['id' => $payload->repository->id],
             [
                 'name' => $payload->repository->name,
                 'full_name' => $payload->repository->full_name,
@@ -45,7 +45,7 @@ class ProcessPushWebhook
         $branch = Branch::updateOrCreate(
             [
                 'name' => $branchName,
-                'repository_github_id' => $repository->github_id
+                'repository_id' => $repository->id
             ],
             ['updated_at' => now()]
         );
@@ -61,9 +61,9 @@ class ProcessPushWebhook
             Commit::updateOrCreate(
                 ['sha' => $commitData->id],
                 [
-                    'repository_github_id' => $repository->github_id,
+                    'repository_id' => $repository->id,
                     'branch_id' => $branch->id,
-                    'github_user_id' => $author->github_id,
+                    'user_id' => $author->id,
                     'message' => $commitData->message,
                 ]
             );

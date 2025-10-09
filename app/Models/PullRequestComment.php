@@ -13,12 +13,12 @@ class PullRequestComment extends Model
 
     public function pullRequest()
     {
-        return $this->belongsTo(PullRequest::class, 'pull_request_github_id', 'github_id');
+        return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
     }
 
     public function author()
     {
-        return $this->belongsTo(GithubUser::class, 'user_id', 'github_id');
+        return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }
 
     public function replies()
