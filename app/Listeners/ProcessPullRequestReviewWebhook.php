@@ -63,9 +63,14 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             ]
         );
 
+        // im not assisned to the pr (or the author) dont send the email
+        if ($prData->user->id !== GithubConfig::USERID && !collect($prData->requested_reviewers)->pluck('id')->contains(GithubConfig::USERID) && $reviewData->pull_request->id !== GithubConfig::USERID) {
+            return true;
+        }
+
         // After 1 minute send out the email, this is to ensure that all comments are created first
         Mail::to(GithubConfig::USER_EMAIL)
-            ->later(now()->addMinute(), new PullRequestReviewed($pullRequestReview));
+            ->send(new PullRequestReviewed($pullRequestReview));
 
         return true;
     }
