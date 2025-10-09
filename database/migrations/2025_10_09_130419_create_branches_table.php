@@ -14,9 +14,14 @@ return new class extends Migration
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-
             $table->string('name');
-        });
+
+            $table->unsignedBigInteger('repository_github_id');
+            $table->foreign('repository_github_id')
+                ->references('github_id')
+                ->on('repositories')
+                ->onDelete('cascade');      
+      });
     }
 
     /**

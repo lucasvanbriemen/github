@@ -8,7 +8,8 @@ class Branch extends Model
 {
     //
     public $fillable = [
+        'updated_at',
         'name',
-        'updated_at'
+        'repository_github_id'
     ];
 }

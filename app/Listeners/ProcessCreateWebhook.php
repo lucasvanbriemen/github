@@ -25,5 +25,15 @@ class ProcessCreateWebhook implements ShouldQueue
     {
         $payload = $event->payload;
 
+        if (isset($payload->ref_type) && $payload->ref_type === 'branch' && isset($payload->ref)) {
+            // Process branch creation
+            Branch::updateOrCreate(
+                [
+                    'name' => $payload->ref,
+                    'repository_github_id' => $payload->repository->id
+                ],
+                ['updated_at' => now()]
+            );
+        }
     }
 }
