@@ -8,15 +8,13 @@ class ApiHelper
 {
     public const BASE_URL = 'https://api.github.com';
 
-    public const TOKEN = config('services.github.access_token');
-
     public static $headers = [];
 
     public static function init()
     {
         self::$headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer '.self::TOKEN,
+            'Authorization' => 'Bearer '.config('services.github.access_token'),
             'Github-Api-Version' => '2022-11-28',
             'User-Agent' => 'github-gui',
         ];

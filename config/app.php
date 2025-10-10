@@ -124,4 +124,18 @@ return [
     ],
 
     'user_token' => env('DEV_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Class Aliases
+    |--------------------------------------------------------------------------
+    |
+    | This array of class aliases will be registered when this application
+    | is started. You may add your own aliases to this array as needed.
+    |
+    */
+
+    'aliases' => [
+        'GitHub' => GrahamCampbell\GitHub\Facades\GitHub::class,
+    ],
 ];
