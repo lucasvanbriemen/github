@@ -23,7 +23,6 @@ class ApiHelper
     public static function githubApi($route)
     {
         self::init();
-        self::updateSystemInfo(self::BASE_URL.$route);
 
         $fullUrl = self::BASE_URL.$route;
 
@@ -65,15 +64,6 @@ class ApiHelper
             return json_decode($responseBody);
         }
         return null;
-    }
-
-    private static function updateSystemInfo($url)
-    {
-        $systemInfo = new SystemInfo([
-            'api_url' => $url,
-            'expires_at' => now()->addHours(1),
-        ]);
-        $systemInfo->save();
     }
 
     private static function formatHeaders()

@@ -4,20 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
 use App\Models\Organization;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class OrganizationController extends Controller
 {
     public static function updateOrganizations()
     {
-        $apiOrgs = ApiHelper::githubApi('/user/orgs');
-
-        foreach ($apiOrgs as $apiOrg) {
+        foreach (GitHub::me()->organizations() as $organization) {
             Organization::updateOrCreate(
-                ['id' => $apiOrg->id],
+                ['id' => $organization->id],
                 [
-                    'name' => $apiOrg->login,
-                    'description' => $apiOrg->description,
-                    'avatar_url' => $apiOrg->avatar_url,
+                    'name' => $organization->login,
+                    'description' => $organization->description,
+                    'avatar_url' => $organization->avatar_url,
                 ]
             );
         }
