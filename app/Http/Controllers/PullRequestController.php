@@ -13,6 +13,7 @@ use App\Models\ViewedFile;
 use App\Models\Branch;
 use App\Services\PullRequestCommentService;
 use Illuminate\Http\Request;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
 {
@@ -352,13 +353,14 @@ class PullRequestController extends Controller
             'body' => $request->body,
         ];
 
-        $response = ApiHelper::githubApiPatch("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}", $data);
+        // $response = ApiHelper::githubApiPatch("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}", $data);
+        GitHub::pulls()->update($organizationName, $repositoryName, $pullRequestNumber, $data);
 
-        if ($response) {
-            return response()->json(['status' => 'success']);
-        }
+        // if ($response) {
+        //     return response()->json(['status' => 'success']);
+        // }
 
-        return response()->json(['status' => 'error', 'message' => 'Failed to update pull request'], 500);
+        // return response()->json(['status' => 'error', 'message' => 'Failed to update pull request'], 500);
     }
 
     public function mergePullRequest($organizationName, $repositoryName, $pullRequestNumber, Request $request)

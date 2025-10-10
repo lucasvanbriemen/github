@@ -134,8 +134,4 @@ return [
     | is started. You may add your own aliases to this array as needed.
     |
     */
-
-    'aliases' => [
-        'GitHub' => GrahamCampbell\GitHub\Facades\GitHub::class,
-    ],
 ];
