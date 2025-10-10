@@ -6,18 +6,17 @@ use App\Models\SystemInfo;
 
 class ApiHelper
 {
-    public static $base = 'https://api.github.com';
+    public const BASE_URL = 'https://api.github.com';
 
-    public static $token;
+    public const TOKEN = config('services.github.access_token');
 
     public static $headers = [];
 
     public static function init()
     {
-        self::$token = config('services.github.access_token');
         self::$headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer '.self::$token,
+            'Authorization' => 'Bearer '.self::TOKEN,
             'Github-Api-Version' => '2022-11-28',
             'User-Agent' => 'github-gui',
         ];
@@ -26,9 +25,9 @@ class ApiHelper
     public static function githubApi($route)
     {
         self::init();
-        self::updateSystemInfo(self::$base.$route);
+        self::updateSystemInfo(self::BASE_URL.$route);
 
-        $fullUrl = self::$base.$route;
+        $fullUrl = self::BASE_URL.$route;
 
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -82,9 +81,9 @@ class ApiHelper
     public static function githubApiPatch($route, array $data)
     {
         self::init();
-        self::updateSystemInfo(self::$base.$route);
+        self::updateSystemInfo(self::BASE_URL.$route);
 
-        $fullUrl = self::$base.$route;
+        $fullUrl = self::BASE_URL.$route;
 
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -108,9 +107,9 @@ class ApiHelper
     public static function githubApiPut($route, array $data)
     {
         self::init();
-        self::updateSystemInfo(self::$base.$route);
+        self::updateSystemInfo(self::BASE_URL.$route);
 
-        $fullUrl = self::$base.$route;
+        $fullUrl = self::BASE_URL.$route;
 
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
