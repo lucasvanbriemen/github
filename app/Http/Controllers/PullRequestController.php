@@ -358,26 +358,14 @@ class PullRequestController extends Controller
 
     public function mergePullRequest($organizationName, $repositoryName, $pullRequestNumber, Request $request)
     {
-        $response = ApiHelper::githubApiPut("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/merge", []);
-
-        if ($response) {
-            return response()->json(['status' => 'success']);
-        }
-
-        return response()->json(['status' => 'error', 'message' => 'Failed to merge pull request'], 500);
+        GitHub::pulls()->merge($organizationName, $repositoryName, $pullRequestNumber);
     }
 
     public function closePullRequest($organizationName, $repositoryName, $pullRequestNumber)
     {
-        $response = ApiHelper::githubApiPatch("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}", [
+        GitHub::pulls()->update($organizationName, $repositoryName, $pullRequestNumber, [
             'state' => 'closed'
         ]);
-
-        if ($response) {
-            return response()->json(['status' => 'success']);
-        }
-
-        return response()->json(['status' => 'error', 'message' => 'Failed to close pull request'], 500);
     }
 
     public function fileViewed($organizationName, $repositoryName, $pullRequestNumber, Request $request)
