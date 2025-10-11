@@ -10,6 +10,7 @@ use App\Models\Repository;
 use Illuminate\Http\Request;
 use App\Models\IssueComment;
 use App\Models\PullRequest;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class IssueController extends Controller
 {
@@ -191,5 +192,17 @@ class IssueController extends Controller
             'issue' => $issue,
             'pullRequests' => $pullRequests,
         ]);
+    }
+
+    public function createIssue($organizationName, $repositoryName, Request $request)
+    {
+        GitHub::issue()->create(
+            $organizationName,
+            $repositoryName,
+            [
+                'title' => $request->input('title'),
+                'body' => $request->input('body'),
+            ]
+        );
     }
 }

@@ -18,7 +18,7 @@
   </div>
 
   <script>
-    window.start = ["search_select", "issues", "modal"];
+    window.start = ["search_select", "issues", "modal", "markdown_editor"];
     window.organizationName = "{{ $organization->name }}";
     window.repositoryName = "{{ $repository->name }}";
   </script>

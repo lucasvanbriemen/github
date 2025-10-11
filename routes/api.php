@@ -23,6 +23,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
             Route::prefix('{issue}')->group(function () {
 
+                Route::post('/', [IssueController::class, 'createIssue'])
+                    ->name('api.repositories.issues.create');
+
                 Route::get('linked_pull_requests', [IssueController::class, 'getLinkedPullRequestsHtml'])
                     ->name('api.repositories.issues.issue');
 

@@ -24,5 +24,19 @@ export default {
       const issues = document.querySelector(".issues-wrapper");
       issues.innerHTML = data
     });
+  },
+
+  createIssue() {
+    const title = document.querySelector("#issue-title").value;
+    const body = document.querySelector("#issue-body").value;
+
+    const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/issues";
+    api.post(url, {
+      title: title,
+      body: body
+    }).then((data) => {
+      const issues = document.querySelector(".issues-wrapper");
+      issues.innerHTML = data
+    });
   }
 };
