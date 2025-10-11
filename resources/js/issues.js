@@ -2,16 +2,22 @@ export default {
   init() {
     this.updateIssues();
 
-    document.querySelectorAll(".filters select[name=state], .filters select[name=assignee]").forEach(select => {
+    document.querySelectorAll(".header-filter select[name=state], .header-filter select[name=assignee]").forEach(select => {
       select.addEventListener("change", () => {
         this.updateIssues();
       });
     });
+
+    const button = document.querySelector(".new-issue-button");
+    button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      modal.open("new-issue-modal");
+    });
   },
 
   updateIssues() {
-    const state = document.querySelector(".filters select[name=state]").value;
-    const assignee = document.querySelector(".filters select[name=assignee]").value;
+    const state = document.querySelector(".header-filter select[name=state]").value;
+    const assignee = document.querySelector(".header-filter select[name=assignee]").value;
 
     const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/issues?state=" + state + "&assignee=" + assignee;
     api.get(url).then((data) => {

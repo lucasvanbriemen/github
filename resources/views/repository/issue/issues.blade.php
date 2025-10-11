@@ -18,8 +18,10 @@
   </div>
 
   <script>
-    window.start = ["search_select", "issues"];
+    window.start = ["search_select", "issues", "modal"];
     window.organizationName = "{{ $organization->name }}";
     window.repositoryName = "{{ $repository->name }}";
   </script>
+
+  @include("repository.issue.new_modal")
 </x-app-layout>
