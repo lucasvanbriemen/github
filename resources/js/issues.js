@@ -13,6 +13,13 @@ export default {
       e.stopPropagation();
       modal.open("new-issue-modal");
     });
+
+    const createButton = document.querySelector("#new-issue-modal #submit-new-issue");
+    createButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.createIssue();
+      modal.close("new-issue-modal");
+    });
   },
 
   updateIssues() {
@@ -34,9 +41,6 @@ export default {
     api.post(url, {
       title: title,
       body: body
-    }).then((data) => {
-      const issues = document.querySelector(".issues-wrapper");
-      issues.innerHTML = data
-    });
+    })
   }
 };

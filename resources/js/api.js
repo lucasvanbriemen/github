@@ -13,6 +13,10 @@ export default {
     return this.makeRequest("PATCH", url, data, headers);
   },
 
+  post(url, data, headers = {}) {
+    return this.makeRequest("POST", url, data, headers);
+  },
+
   put(url, data, headers = {}) {
     return this.makeRequest("PUT", url, data, headers);
   },

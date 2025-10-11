@@ -204,5 +204,7 @@ class IssueController extends Controller
                 'body' => $request->input('body'),
             ]
         );
+
+        return response()->json(['status' => 'success']);
     }
 }
