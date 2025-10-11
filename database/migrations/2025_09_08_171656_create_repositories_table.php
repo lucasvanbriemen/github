@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('repositories', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+            $table->unsignedBigInteger('github_id')->unique();
             $table->timestamps();
 
             // personal reposos dont have organization id
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('full_name');
             $table->boolean('private');
+            $table->string('description')->nullable();
             $table->dateTime('last_updated');
         });
     }
