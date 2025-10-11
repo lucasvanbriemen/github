@@ -27,7 +27,7 @@ class Repository extends Model
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy')
-            ->orderBy('last_updated', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if ($state !== 'all') {
             $query->where('state', $state);
