@@ -57,7 +57,7 @@
     </div>
 
     @if ($pullRequest->state === 'open')
-      <div class="pull-request-actions">
+      <div class="pull-request-actions" data-editing="0">
         <button class="merge-pr button-primary">Merge PR</button>
         <button class="close-pr button-primary-outline">Close PR</button>
       </div>
