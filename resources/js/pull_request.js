@@ -46,6 +46,9 @@ export default {
     if (closeButton) {
       closeButton.addEventListener("click", () => this.closePullRequest());
     }
+
+    const addCommentButton = document.querySelector(".add-comment");
+    addCommentButton.addEventListener("click", () => this.addComment());
   },
 
   updateComment(id, url) {
@@ -134,5 +137,16 @@ export default {
       .then(data => {
         window.location.reload();
       });
+  },
+
+  addComment() {
+    const title = document.getElementById("new-comment").value;
+    if (title.trim() === "") {
+      return;
+    }
+
+    api.post(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/comments`, {
+      body: title
+    })   
   }
 };

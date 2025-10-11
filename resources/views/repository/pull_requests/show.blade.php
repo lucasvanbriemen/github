@@ -71,6 +71,15 @@
         :pull-request="$pullRequest"
       />
     @endforeach
+
+    <x-markdown-editor
+      name="new-comment"
+      id="new-comment"
+      placeholder="Leave a comment"
+      :wrapperOptions="['class' => 'new-comment-wrapper']"
+    />
+
+    <button class="add-comment button-primary">Comment</button>
   </div>
 
   <div class="pull-request-details">

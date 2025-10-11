@@ -6,6 +6,8 @@ use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
+use App\Models\Commit;
+use App\Models\PullRequest;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
@@ -56,11 +58,16 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                 Route::patch('close', [PullRequestController::class, 'closePullRequest'])
                     ->name('api.repositories.pull_requests.close');
 
-                Route::prefix('comments/{comment}')->group(function () {
-                    Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
-                        ->name('api.repositories.pull_requests.comment.resolve');
-                    Route::patch('unresolve', [PullRequestController::class, 'unresolveComment'])
-                        ->name('api.repositories.pull_requests.comment.unresolve');
+                Route::prefix('comments')->group(function () {
+                    Route::post('/', [PullRequestController::class, 'addComment'])
+                        ->name('api.repositories.pull_requests.comments.add');
+
+                    Route::prefix('/{comment}')->group(function () {
+                        Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
+                            ->name('api.repositories.pull_requests.comment.resolve');
+                        Route::patch('unresolve', [PullRequestController::class, 'unresolveComment'])
+                            ->name('api.repositories.pull_requests.comment.unresolve');
+                    });
                 });
 
                 Route::prefix('review/{comment}')->group(function () {
