@@ -6,8 +6,7 @@
 .markdown-editor {
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  background: var(--background-color-one);
-  overflow: hidden;
+  background: var(--background-color);
 
   .markdown-editor-tabs {
     display: flex;
@@ -122,7 +121,7 @@
       min-height: 15rem;
       padding: 1rem;
       border: none;
-      background: var(--background-color-two);
+      background: var(--background-color);
       color: var(--text-color);
       font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
       font-size: 0.875rem;
