@@ -11,7 +11,7 @@
   @include("repository.sidebar")
 
   <div class="issues-list">
-    @include("repository.issue.filter")
+    @include("repository.issue.header")
 
     <div class="issues-wrapper">
     </div>

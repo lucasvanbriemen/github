@@ -1,8 +1,19 @@
 .repository-page .issues-list, .repository-page .pullrequest-list {
-  .filters {
+  .header {
     background-color: var(--background-color-two);
-    justify-content: flex-end;
+    justify-content: space-between;
     cursor: default;
+
+    .new-issue-button {
+      padding: 0.5rem;
+      border-radius: 50%;
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--primary-color);
+      }
+    }
   }
 
   .issues-wrapper, .pullrequest-wrapper {
