@@ -11,7 +11,7 @@
   @include("repository.sidebar")
 
   <div class="pullrequest-list">
-    @include("repository.issue.filter")
+    @include("repository.issue.header")
 
     <div class="pullrequest-wrapper">
     </div>

@@ -2,7 +2,7 @@ export default {
   init() {
     this.updateIssues();
 
-    document.querySelectorAll(".filters select[name=state], .filters select[name=assignee]").forEach(select => {
+    document.querySelectorAll(".header-filter select[name=state], .header-filter select[name=assignee]").forEach(select => {
       select.addEventListener("change", () => {
         this.updateIssues();
       });
@@ -10,8 +10,8 @@ export default {
   },
 
   updateIssues() {
-    const state = document.querySelector(".filters select[name=state]").value;
-    const assignee = document.querySelector(".filters select[name=assignee]").value;
+    const state = document.querySelector(".header-filter select[name=state]").value;
+    const assignee = document.querySelector(".header-filter select[name=assignee]").value;
 
     const url = window.location.origin + "/api/organization/" + window.organizationName + "/" + window.repositoryName + "/pull_requests?state=" + state + "&assignee=" + assignee;
     api.get(url).then((data) => {
