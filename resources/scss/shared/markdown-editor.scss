@@ -1,0 +1,166 @@
+.markdown-editor-wrapper {
+  display: block;
+  margin: 1rem 0;
+}
+
+.markdown-editor {
+  border: 1px solid var(--border-color, #30363d);
+  border-radius: 6px;
+  background: var(--bg-secondary, #0d1117);
+  overflow: hidden;
+
+  .markdown-editor-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--bg-tertiary, #161b22);
+    border-bottom: 1px solid var(--border-color, #30363d);
+    padding: 0.5rem 0.75rem;
+
+    .tab-button {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary, #8b949e);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      position: relative;
+
+      &:hover {
+        background: var(--bg-hover, #21262d);
+        color: var(--text-primary, #c9d1d9);
+      }
+
+      &.active {
+        color: var(--text-primary, #c9d1d9);
+        background: var(--bg-secondary, #0d1117);
+      }
+    }
+  }
+
+  .markdown-editor-content {
+    position: relative;
+    min-height: 15rem;
+
+    .tab-content {
+      display: none;
+      padding: 0;
+      min-height: 15rem;
+
+      &.active {
+        display: block;
+      }
+
+      &[data-tab="write"] {
+        padding: 0;
+      }
+
+      &[data-tab="preview"] {
+        padding: 1rem;
+      }
+    }
+
+    .markdown-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-tertiary, #161b22);
+      border-bottom: 1px solid var(--border-color, #30363d);
+
+      .toolbar-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary, #8b949e);
+        padding: 0.4rem 0.6rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        height: 2rem;
+
+        &:hover {
+          background: var(--bg-hover, #21262d);
+          color: var(--text-primary, #c9d1d9);
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+
+        strong, em {
+          font-size: 0.875rem;
+        }
+
+        strong {
+          font-weight: 700;
+        }
+
+        em {
+          font-style: italic;
+          font-weight: 600;
+        }
+      }
+
+      .toolbar-separator {
+        width: 1px;
+        height: 1.5rem;
+        background: var(--border-color, #30363d);
+        margin: 0 0.25rem;
+      }
+    }
+
+    .markdown-textarea {
+      width: 100%;
+      min-height: 15rem;
+      padding: 1rem;
+      border: none;
+      background: var(--bg-secondary, #0d1117);
+      color: var(--text-primary, #c9d1d9);
+      font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+
+      &::placeholder {
+        color: var(--text-tertiary, #6e7681);
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}
+
+// Dark theme adjustments
+[data-theme="dark"] .markdown-editor {
+  --bg-primary: #0d1117;
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #161b22;
+  --bg-hover: #21262d;
+  --border-color: #30363d;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-tertiary: #6e7681;
+}
+
+// Light theme adjustments
+[data-theme="light"] .markdown-editor {
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f6f8fa;
+  --bg-hover: #f3f4f6;
+  --border-color: #d0d7de;
+  --text-primary: #24292f;
+  --text-secondary: #57606a;
+  --text-tertiary: #6e7781;
+}
