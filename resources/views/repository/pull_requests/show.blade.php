@@ -49,7 +49,6 @@
         <x-markdown-editor
           name="body"
           id="edit-pr-body"
-          label="Body"
           :value="$pullRequest->body"
           :wrapperOptions="['data-editing' => 1]"
         />

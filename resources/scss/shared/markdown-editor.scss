@@ -4,22 +4,22 @@
 }
 
 .markdown-editor {
-  border: 1px solid var(--border-color, #30363d);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  background: var(--bg-secondary, #0d1117);
+  background: var(--background-color-one);
   overflow: hidden;
 
   .markdown-editor-tabs {
     display: flex;
     gap: 0;
-    background: var(--bg-tertiary, #161b22);
-    border-bottom: 1px solid var(--border-color, #30363d);
+    background: var(--background-color-one);
+    border-bottom: 1px solid var(--border-color);
     padding: 0.5rem 0.75rem;
 
     .tab-button {
       background: transparent;
       border: none;
-      color: var(--text-secondary, #8b949e);
+      color: var(--text--color);
       padding: 0.5rem 1rem;
       cursor: pointer;
       font-size: 0.875rem;
@@ -29,13 +29,13 @@
       position: relative;
 
       &:hover {
-        background: var(--bg-hover, #21262d);
-        color: var(--text-primary, #c9d1d9);
+        background: var(--background-color-one);
+        color: var(--text-color);
       }
 
       &.active {
-        color: var(--text-primary, #c9d1d9);
-        background: var(--bg-secondary, #0d1117);
+        color: var(--text-color);
+        background: var(--background-color-two);
       }
     }
   }
@@ -67,13 +67,13 @@
       align-items: center;
       gap: 0.25rem;
       padding: 0.5rem 0.75rem;
-      background: var(--bg-tertiary, #161b22);
-      border-bottom: 1px solid var(--border-color, #30363d);
+      background: var(--background-color-one);
+      border-bottom: 1px solid var(--border-color);
 
       .toolbar-btn {
         background: transparent;
         border: none;
-        color: var(--text-secondary, #8b949e);
+        color: var(--text-color-secondary);
         padding: 0.4rem 0.6rem;
         cursor: pointer;
         font-size: 0.875rem;
@@ -87,8 +87,8 @@
         height: 2rem;
 
         &:hover {
-          background: var(--bg-hover, #21262d);
-          color: var(--text-primary, #c9d1d9);
+          background: var(--background-color-one);
+          color: var(--text-color);
         }
 
         &:active {
@@ -112,7 +112,7 @@
       .toolbar-separator {
         width: 1px;
         height: 1.5rem;
-        background: var(--border-color, #30363d);
+        background: var(--border-color);
         margin: 0 0.25rem;
       }
     }
@@ -122,8 +122,8 @@
       min-height: 15rem;
       padding: 1rem;
       border: none;
-      background: var(--bg-secondary, #0d1117);
-      color: var(--text-primary, #c9d1d9);
+      background: var(--background-color-two);
+      color: var(--text-color);
       font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
       font-size: 0.875rem;
       line-height: 1.5;
@@ -131,7 +131,7 @@
       outline: none;
 
       &::placeholder {
-        color: var(--text-tertiary, #6e7681);
+        color: var(--text-color-secondary);
       }
 
       &:focus {
@@ -139,28 +139,4 @@
       }
     }
   }
-}
-
-// Dark theme adjustments
-[data-theme="dark"] .markdown-editor {
-  --bg-primary: #0d1117;
-  --bg-secondary: #0d1117;
-  --bg-tertiary: #161b22;
-  --bg-hover: #21262d;
-  --border-color: #30363d;
-  --text-primary: #c9d1d9;
-  --text-secondary: #8b949e;
-  --text-tertiary: #6e7681;
-}
-
-// Light theme adjustments
-[data-theme="light"] .markdown-editor {
-  --bg-primary: #ffffff;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f6f8fa;
-  --bg-hover: #f3f4f6;
-  --border-color: #d0d7de;
-  --text-primary: #24292f;
-  --text-secondary: #57606a;
-  --text-tertiary: #6e7781;
 }
