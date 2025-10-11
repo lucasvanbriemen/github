@@ -202,6 +202,7 @@ class IssueController extends Controller
             [
                 'title' => $request->input('title'),
                 'body' => $request->input('body'),
+                'assignees' => [GithubConfig::USERNAME],
             ]
         );
 
