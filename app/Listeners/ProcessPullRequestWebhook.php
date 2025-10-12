@@ -58,31 +58,14 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         $headSha = $prData->head->sha ?? null;
 
         if ($headSha && isset($prData->base->ref)) {
-            $token = config('services.github.access_token');
             $ownerName = $repositoryData->owner->login ?? null;
             $repoName = $repositoryData->name ?? null;
 
             if ($ownerName && $repoName) {
-                $url = "https://api.github.com/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}";
+                $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}");
 
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Authorization: Bearer ' . $token,
-                    'Accept: application/vnd.github+json',
-                    'User-Agent: github-gui',
-                    'X-GitHub-Api-Version: 2022-11-28'
-                ]);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-                $response = curl_exec($ch);
-                curl_close($ch);
-
-                if ($response) {
-                    $compareData = json_decode($response);
-                    if (isset($compareData->merge_base_commit->sha)) {
-                        $mergeBaseSha = $compareData->merge_base_commit->sha;
-                    }
+                if ($compareData && isset($compareData->merge_base_commit->sha)) {
+                    $mergeBaseSha = $compareData->merge_base_commit->sha;
                 }
             }
         }
