@@ -78,8 +78,8 @@ export default {
 
   addInlineComment(addInlineCommentBtn) {
     const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
-
-    console.log(addCommentWrapper);
+    const side = addInlineCommentBtn.dataset.side;
+    const filePath = addInlineCommentBtn.dataset.filePath;
     
     // Move the wrapper to the correct position
     addInlineCommentBtn.closest("tr").after(addCommentWrapper);

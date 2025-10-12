@@ -84,7 +84,7 @@
                     $prefix = $line['type'] === 'add' ? '+' : ($line['type'] === 'del' ? '-' : ' ');
                     $side = $line['type'] === 'del' ? 'LEFT' : 'RIGHT';
                   @endphp
-                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">
+                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}" data-side="{{ $side }}" data-file-path="{{ $fileName }}">
                     {{ $line['lineNumber'] }}
                     @if ($line['type'] === 'add' || $line['type'] === 'del')
                       <button class="add-inline-comment-btn button-primary" title="Add inline comment">{!! svg('plus') !!}</button>
@@ -102,7 +102,7 @@
                     $prefix = $line['type'] === 'add' ? '+' : ($line['type'] === 'del' ? '-' : ' ');
                     $side = "RIGHT";
                   @endphp
-                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">
+                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}" data-side="{{ $side }}" data-file-path="{{ $fileName }}">
                     {{ $line['lineNumber'] }}
                     @if ($line['type'] === 'add' || $line['type'] === 'del')
                       <button class="add-inline-comment-btn button-primary" title="Add inline comment">{!! svg('plus') !!}</button>
