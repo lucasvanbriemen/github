@@ -26,9 +26,8 @@ class PullRequestController extends Controller
             ->get()
             ->filter(function ($branch) {
                 return $branch->showNotice();
-            })
-            ->values();
-        
+            });
+
         return view('repository.pull_requests.index', [
             'organization' => $organization,
             'repository' => $repository,
