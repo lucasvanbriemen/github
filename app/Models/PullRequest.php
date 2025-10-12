@@ -86,6 +86,7 @@ class PullRequest extends Model
 
     protected $casts = [
         'labels' => 'array',
+        'closed_at' => 'datetime',
     ];
 
     public static function updateFromWebhook($prData)

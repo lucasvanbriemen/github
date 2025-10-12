@@ -22,7 +22,7 @@
           {{ $pullRequest->openedBy->name }} 
           @if ($pullRequest->state === 'open')
             wants to merge 
-          @elseif ($pullRequest->state === 'closed')
+          @elseif ($pullRequest->state === 'merged')
             merged
           @endif
           <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
