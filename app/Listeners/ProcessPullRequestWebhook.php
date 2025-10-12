@@ -62,6 +62,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 'state' => $state,
                 'head_branch' => $prData->head->ref,
                 'base_branch' => $prData->base->ref,
+                'closed_at' => $closedAt,
             ]
         );
 
