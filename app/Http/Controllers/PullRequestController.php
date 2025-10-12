@@ -358,7 +358,14 @@ class PullRequestController extends Controller
 
     public function mergePullRequest($organizationName, $repositoryName, $pullRequestNumber, Request $request)
     {
-        GitHub::pulls()->merge($organizationName, $repositoryName, $pullRequestNumber);
+        // Get the pull request details to obtain the HEAD SHA
+        $pullRequestData = GitHub::pulls()->show($organizationName, $repositoryName, $pullRequestNumber);
+
+        $commitMessage = $request->input('message', 'Merged pull request');
+        $sha = $pullRequestData['head']['sha'];
+        $mergeMethod = $request->input('merge_method', 'merge'); // merge, squash, or rebase
+
+        GitHub::pulls()->merge($organizationName, $repositoryName, $pullRequestNumber, $commitMessage, $sha, $mergeMethod);
     }
 
     public function closePullRequest($organizationName, $repositoryName, $pullRequestNumber)
