@@ -73,7 +73,7 @@
 
             {{-- Render lines --}}
             @foreach ($lines as $lineIndex => $linePair)
-              <tr>
+              <tr class="diff-line-row" data-file-path="{{ $fileName }}">
                 {{-- Left side --}}
                 @if (!$linePair['left'] || $linePair['left']['type'] === 'empty')
                   <td class="diff-line-number diff-line-number-empty"></td><td class="diff-line-content diff-line-empty"></td>
@@ -82,8 +82,15 @@
                     $line = $linePair['left'];
                     $typeClass = $line['type'] === 'normal' ? '' : 'diff-line-' . $line['type'];
                     $prefix = $line['type'] === 'add' ? '+' : ($line['type'] === 'del' ? '-' : ' ');
+                    $side = $line['type'] === 'del' ? 'LEFT' : 'RIGHT';
                   @endphp
-                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">{{ $line['lineNumber'] }}</td><td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
+                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">
+                    {{ $line['lineNumber'] }}
+                    @if ($line['type'] === 'add' || $line['type'] === 'del')
+                      <button class="add-inline-comment-btn" title="Add inline comment">+</button>
+                    @endif
+                  </td>
+                  <td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
                 @endif
                 {{-- Right side --}}
                 @if (!$linePair['right'] || $linePair['right']['type'] === 'empty')
@@ -93,8 +100,15 @@
                     $line = $linePair['right'];
                     $typeClass = $line['type'] === 'normal' ? '' : 'diff-line-' . $line['type'];
                     $prefix = $line['type'] === 'add' ? '+' : ($line['type'] === 'del' ? '-' : ' ');
+                    $side = "RIGHT";
                   @endphp
-                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">{{ $line['lineNumber'] }}</td><td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
+                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">
+                    {{ $line['lineNumber'] }}
+                    @if ($line['type'] === 'add' || $line['type'] === 'del')
+                      <button class="add-inline-comment-btn" title="Add inline comment">+</button>
+                    @endif
+                  </td>
+                  <td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
                 @endif
               </tr>
 
