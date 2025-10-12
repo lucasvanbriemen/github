@@ -49,6 +49,11 @@ class ProcessIssueWebhook implements ShouldQueue
             }
         }
 
+        // If its a pull request, we ignore it
+        if (isset($issueData->pull_request)) {
+            return true;
+        }
+
         $issue = Issue::updateOrCreate(
             ['id' => $issueData->id],
             [
