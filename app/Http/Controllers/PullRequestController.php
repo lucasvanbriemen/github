@@ -487,14 +487,9 @@ class PullRequestController extends Controller
         ]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_exec($ch);
         curl_close($ch);
 
-        if ($httpCode >= 200 && $httpCode < 300) {
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error', 'message' => $response], $httpCode);
-        }
+        return response()->json(['status' => 'success']);
     }
 }
