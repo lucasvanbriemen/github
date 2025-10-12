@@ -460,7 +460,13 @@ class PullRequestController extends Controller
 
     public function addPRComment($organizationName, $repositoryName, $pullRequestNumber, Request $request)
     {
-        $params = [
+        // Use direct API call because knplabs/github-api doesn't support the newer line+side format
+        // GitHub API v3 supports: line + side (newer) instead of position (deprecated)
+
+        $token = config('services.github.access_token');
+        $url = "https://api.github.com/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments";
+
+        $data = [
             'body' => $request->input('body'),
             'commit_id' => $request->input('commit_id'),
             'path' => $request->input('filePath'),
@@ -468,6 +474,27 @@ class PullRequestController extends Controller
             'side' => $request->input('side'),
         ];
 
-        GitHub::pullRequest()->comments()->create($organizationName, $repositoryName, $pullRequestNumber, $params);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Accept: application/vnd.github+json',
+            'Content-Type: application/json',
+            'User-Agent: github-gui',
+            'X-GitHub-Api-Version: 2022-11-28'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return response()->json(['status' => 'success']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => $response], $httpCode);
+        }
     }
 }
