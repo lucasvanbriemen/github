@@ -21,6 +21,13 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
+        $branchesForNotice = $repository->branches()
+            ->whereDoesntHave('hasPullRequest')
+            ->pluck('name')
+            ->toArray();
+        
+
+        
         return view('repository.pull_requests.index', [
             'organization' => $organization,
             'repository' => $repository,
