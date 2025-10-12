@@ -163,10 +163,33 @@
   min-width: 50px;
   width: 1%;
   white-space: nowrap;
+  position: relative;
+
+  &:has(.add-inline-comment-btn) {
+    cursor: pointer;
+  }
+
+  .add-inline-comment-btn {
+    position: absolute;
+    right: -1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    padding: 0;
+    height: 1.25rem;
+    width: 1.25rem;
+    background-color: var(--primary-color);
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
 
   &:hover {
-    color: var(--text-color);
-    cursor: pointer;
+    .add-inline-comment-btn {
+      opacity: 1;
+    }
   }
 }
 
@@ -273,15 +296,6 @@
   .diff-line-content {
     width: auto;
   }
-}
-
-// Hover effects for line numbers (for future comment functionality)
-.diff-line-number[data-line-number]:hover::before {
-  content: '+';
-  position: absolute;
-  left: -1.5rem;
-  color: var(--text-color-secondary);
-  font-weight: bold;
 }
 
 // Selection styling
