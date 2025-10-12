@@ -44,7 +44,6 @@
       name="new-comment"
       id="new-comment"
       placeholder="Leave a comment"
-      :wrapperOptions="['class' => 'new-comment-wrapper']"
     />
 
     <button class="add-comment button-primary">Comment</button>
