@@ -163,7 +163,7 @@
 
         <div class="inline-comment-form-actions">
           <button class="button-primary inline-comment-submit">Add comment</button>
-          <button class="button-secondary inline-comment-cancel">Cancel</button>
+          <button class="button-primary-outline inline-comment-cancel">Cancel</button>
         </div>
       </td>
     </tr>

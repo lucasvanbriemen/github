@@ -27,6 +27,12 @@ export default {
     addInlineCommentBtns.forEach(addInlineCommentBtn => {
       addInlineCommentBtn.addEventListener("click", () => this.addInlineComment(addInlineCommentBtn));
     });
+
+    const addCommentButton = document.querySelector(".inline-comment-submit");
+    addCommentButton.addEventListener("click", (event) => this.createInlineComment(event));
+
+    const cancelCommentButton = document.querySelector(".inline-comment-cancel");
+    cancelCommentButton.addEventListener("click", () => this.cancelInlineComment(cancelCommentButton));
   },
 
   updateComment(id, url) {
@@ -80,6 +86,7 @@ export default {
     const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
     const side = addInlineCommentBtn.dataset.side;
     const filePath = addInlineCommentBtn.dataset.filePath;
+    const line = addInlineCommentBtn.dataset.lineNumber;
 
     // Remove any existing empty cells first
     const existingEmptyCells = addCommentWrapper.querySelectorAll("td.empty-cell");
@@ -103,5 +110,37 @@ export default {
 
     addCommentWrapper.dataset.side = side;
     addCommentWrapper.dataset.filePath = filePath;
+    addCommentWrapper.dataset.line = line;
+  },
+
+  cancelInlineComment(cancelCommentButton) {
+    const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
+
+    // Move the wrapper to the correct position
+    const hiddenTable = document.querySelector(".comment-holder-table");
+    hiddenTable.appendChild(addCommentWrapper);
+  },
+
+  createInlineComment(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const body = document.getElementById("inline-comment").value;
+
+    const wrapper = document.querySelector(".add-inline-comment-wrapper");
+    const side = wrapper.dataset.side;
+    const filePath = wrapper.dataset.filePath;
+    const line = wrapper.dataset.line;
+
+    document.getElementById("inline-comment").value = "";
+    this.cancelInlineComment(document.querySelector(".inline-comment-cancel"));
+
+    api.post(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestId}/comments`, {
+      body,
+      side,
+      filePath,
+      line,
+      commit_id: window.commitId
+    })
   }
 };

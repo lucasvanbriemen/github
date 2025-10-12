@@ -21,6 +21,7 @@
     window.pullRequestId = "{{ $pullRequest->number }}";
     window.repositoryName = "{{ $repository->name }}";
     window.organizationName = "{{ $organization->name }}";
+    window.commitId = "{{ $pullRequest->head_sha }}";
     window.start = ["files", "markdown_editor"];
     </script>
 </x-app-layout>

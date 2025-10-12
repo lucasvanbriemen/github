@@ -457,4 +457,17 @@ class PullRequestController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function addPRComment($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        $params = [
+            'body' => $request->input('body'),
+            'commit_id' => $request->input('commit_id'),
+            'path' => $request->input('filePath'),
+            'line' => (int) $request->input('line'),
+            'side' => $request->input('side'),
+        ];
+
+        GitHub::pullRequest()->comments()->create($organizationName, $repositoryName, $pullRequestNumber, $params);
+    }
 }
