@@ -8,6 +8,7 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\Helpers\ApiHelper;
 
 class ProcessPullRequestWebhook //implements ShouldQueue
 {
@@ -51,6 +52,41 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             $closedAt = null;
         }
 
+        // If we merge a PR we cant just use the diff anymore since both versions contain the same changes
+        // We need to get the diff between the merge base and the head commit, so we store the sha of both to compare instead of the base and head branch names
+        $mergeBaseSha = null;
+        $headSha = $prData->head->sha ?? null;
+
+        if ($headSha && isset($prData->base->ref)) {
+            $token = config('services.github.access_token');
+            $ownerName = $repositoryData->owner->login ?? null;
+            $repoName = $repositoryData->name ?? null;
+
+            if ($ownerName && $repoName) {
+                $url = "https://api.github.com/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}";
+
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . $token,
+                    'Accept: application/vnd.github+json',
+                    'User-Agent: github-gui',
+                    'X-GitHub-Api-Version: 2022-11-28'
+                ]);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+                $response = curl_exec($ch);
+                curl_close($ch);
+
+                if ($response) {
+                    $compareData = json_decode($response);
+                    if (isset($compareData->merge_base_commit->sha)) {
+                        $mergeBaseSha = $compareData->merge_base_commit->sha;
+                    }
+                }
+            }
+        }
+
         PullRequest::updateOrCreate(
             ['id' => $prData->id],
             [
@@ -61,7 +97,9 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 'body' => $prData->body ?? '',
                 'state' => $state,
                 'head_branch' => $prData->head->ref,
+                'head_sha' => $headSha,
                 'base_branch' => $prData->base->ref,
+                'merge_base_sha' => $mergeBaseSha,
                 'closed_at' => $closedAt,
             ]
         );

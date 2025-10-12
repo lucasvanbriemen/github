@@ -335,8 +335,15 @@ class PullRequestController extends Controller
         // Use the actual owner name from organization or repository
         $ownerName = $organization ? $organization->name : $repository->owner_name;
 
-        // Use the API endpoint instead of the web interface
-        $url = "https://api.github.com/repos/{$ownerName}/{$repositoryName}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
+        // For merged PRs, use merge_base_sha to preserve the original diff
+        // For open/closed PRs, compare branches normally
+        if ($pullRequest->state === 'merged' && $pullRequest->merge_base_sha && $pullRequest->head_sha) {
+            // Compare from merge base to the head SHA at time of merge
+            $url = "https://api.github.com/repos/{$ownerName}/{$repositoryName}/compare/{$pullRequest->merge_base_sha}...{$pullRequest->head_sha}";
+        } else {
+            // Compare branches for open/closed PRs
+            $url = "https://api.github.com/repos/{$ownerName}/{$repositoryName}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
+        }
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

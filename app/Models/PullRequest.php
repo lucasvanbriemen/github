@@ -79,7 +79,9 @@ class PullRequest extends Model
         'labels',
         'opened_by_id',
         'head_branch',
+        'head_sha',
         'base_branch',
+        'merge_base_sha',
     ];
 
     protected $casts = [
