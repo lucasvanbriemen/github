@@ -17,6 +17,9 @@ export default {
     });
 
     this.getLinkedIssues(window.issueId);
+
+    const addCommentButton = document.querySelector(".add-comment");
+    addCommentButton.addEventListener("click", () => this.addComment());
   },
 
   updateComment(id, url) {
@@ -45,5 +48,16 @@ export default {
       const issues = document.querySelector(".linked-pull-request");
       issues.innerHTML = data
     });
+  },
+
+  addComment() {
+    const title = document.getElementById("new-comment").value;
+    if (title.trim() === "") {
+      return;
+    }
+
+    api.post(`/api/organization/${window.organizationName}/${window.repositoryName}/issues/${window.issueId}/comments`, {
+      body: title
+    })
   }
 };

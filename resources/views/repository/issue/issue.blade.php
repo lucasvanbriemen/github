@@ -39,6 +39,14 @@
         </div>
       </div>
     @endforeach
+
+    <x-markdown-editor
+      name="new-comment"
+      id="new-comment"
+      placeholder="Leave a comment"
+    />
+
+    <button class="add-comment button-primary">Comment</button>
   </div>
 
   <div class="issue-details">

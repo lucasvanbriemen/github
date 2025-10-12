@@ -422,4 +422,17 @@ class PullRequestController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function addComment($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        // Create an issue comment
+        GitHub::issues()->comments()->create(
+            $organizationName,
+            $repositoryName,
+            $pullRequestNumber,
+            ['body' => $request->input('body')]
+        );
+
+        return response()->json(['status' => 'success']);
+    }
 }
