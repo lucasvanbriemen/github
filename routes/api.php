@@ -30,6 +30,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                 Route::get('linked_pull_requests', [IssueController::class, 'getLinkedPullRequestsHtml'])
                     ->name('api.repositories.issues.issue');
 
+                Route::post('/comments', [PullRequestController::class, 'addComment'])
+                    ->name('api.repositories.issues.comments.add');
+
                 Route::prefix('comments/{comment}')->group(function () {
                     Route::patch('resolve', [IssueController::class, 'resolveComment'])
                         ->name('api.repositories.issues.comment.resolve');
@@ -59,9 +62,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                     ->name('api.repositories.pull_requests.close');
 
                 Route::prefix('comments')->group(function () {
-                    Route::post('/', [PullRequestController::class, 'addComment'])
-                        ->name('api.repositories.pull_requests.comments.add');
-
                     Route::prefix('/{comment}')->group(function () {
                         Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
                             ->name('api.repositories.pull_requests.comment.resolve');

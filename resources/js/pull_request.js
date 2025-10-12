@@ -145,7 +145,7 @@ export default {
       return;
     }
 
-    api.post(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestNumber}/comments`, {
+    api.post(`/api/organization/${window.organizationName}/${window.repositoryName}/issues/${window.pullRequestNumber}/comments`, {
       body: title
     })   
   }
