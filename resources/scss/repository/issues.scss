@@ -1,4 +1,25 @@
 .repository-page .issues-list, .repository-page .pullrequest-list {
+  .notice-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .notice {
+      background-color: var(--background-color);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      span {
+        color: var(--text-color-secondary);
+      }
+    }
+  }
+  
+  
   .header {
     background-color: var(--background-color-two);
     justify-content: space-between;

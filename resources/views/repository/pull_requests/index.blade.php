@@ -11,9 +11,9 @@
   @include("repository.sidebar")
 
   <div class="pullrequest-list">
+    @include("repository.pull_requests.partials.create_notice")
     @include("repository.issue.header")
 
-    @include("repository.pull_requests.partials.create_notice")
 
     <div class="pullrequest-wrapper">
     </div>
