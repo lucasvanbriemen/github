@@ -6,8 +6,6 @@ use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
-use App\Models\Commit;
-use App\Models\PullRequest;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
