@@ -425,14 +425,12 @@ class PullRequestController extends Controller
 
     public function addComment($organizationName, $repositoryName, $pullRequestNumber, Request $request)
     {
-        $body = $request->input('body');
-
-        // Use the issues API for general PR comments (not review comments on specific lines)
+        // Create an issue comment
         GitHub::issues()->comments()->create(
             $organizationName,
             $repositoryName,
             $pullRequestNumber,
-            ['body' => $body]
+            ['body' => $request->input('body')]
         );
 
         return response()->json(['status' => 'success']);
