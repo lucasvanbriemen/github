@@ -22,6 +22,11 @@ export default {
     allFileHeaders.forEach(fileHeader => {
       fileHeader.addEventListener("click", () => this.toggleFileViewed(fileHeader.getAttribute("data-file")));
     });
+
+    const addInlineCommentBtns = document.querySelectorAll(".diff-line-number:has(.add-inline-comment-btn)");
+    addInlineCommentBtns.forEach(addInlineCommentBtn => {
+      addInlineCommentBtn.addEventListener("click", () => this.addInlineComment(addInlineCommentBtn));
+    });
   },
 
   updateComment(id, url) {
@@ -71,4 +76,12 @@ export default {
     });
   },
 
+  addInlineComment(addInlineCommentBtn) {
+    const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
+
+    console.log(addCommentWrapper);
+    
+    // Move the wrapper to the correct position
+    addInlineCommentBtn.closest("tr").after(addCommentWrapper);
+  }
 };
