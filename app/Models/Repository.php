@@ -65,6 +65,12 @@ class Repository extends Model
         return $query;
     }
 
+    public function branches()
+    {
+        return $this->hasMany(Branch::class, 'repository_id', 'id')
+            ->orderBy('name', 'asc');
+    }
+
     public static function updateFromWebhook($repoData)
     {
         return self::updateOrCreate(
