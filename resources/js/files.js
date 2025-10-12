@@ -80,8 +80,28 @@ export default {
     const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
     const side = addInlineCommentBtn.dataset.side;
     const filePath = addInlineCommentBtn.dataset.filePath;
-    
+
+    // Remove any existing empty cells first
+    const existingEmptyCells = addCommentWrapper.querySelectorAll("td.empty-cell");
+    existingEmptyCells.forEach(cell => cell.remove());
+
+    // Adjust the structure based on side
+    if (side === "RIGHT") {
+      // Get the form cell after removing empty cells
+      const formTd = addCommentWrapper.querySelector("td.inline-comment-form");
+
+      // Create empty cell to move the actual form to the right side
+      const emptyCell1 = document.createElement("td");
+      emptyCell1.className = "empty-cell";
+      emptyCell1.setAttribute("colspan", "2");
+
+      addCommentWrapper.insertBefore(emptyCell1, formTd);
+    }
+
     // Move the wrapper to the correct position
     addInlineCommentBtn.closest("tr").after(addCommentWrapper);
+
+    addCommentWrapper.dataset.side = side;
+    addCommentWrapper.dataset.filePath = filePath;
   }
 };
