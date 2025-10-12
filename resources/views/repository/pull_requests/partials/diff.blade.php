@@ -150,4 +150,24 @@
       </div>
     </div>
   @endforeach
+
+  <td colspan="4" class="inline-comment-form-container">
+    <div class="inline-comment-form">
+      <div class="inline-comment-form-header">
+        <span class="inline-comment-side-badge" style="background-color: #ef444420; color: #ef4444;">
+          ${sideLabel} line ${lineNumber}
+        </span>
+        <span class="inline-comment-file-path">${filePath}</span>
+      </div>
+      <textarea
+        class="inline-comment-textarea"
+        placeholder="Add a comment..."
+        rows="3"
+      ></textarea>
+      <div class="inline-comment-form-actions">
+        <button class="button-primary inline-comment-submit">Add comment</button>
+        <button class="button-secondary inline-comment-cancel">Cancel</button>
+      </div>
+    </div>
+  </td>
 @endif
