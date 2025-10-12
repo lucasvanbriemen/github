@@ -18,7 +18,18 @@
     <div class="pull-request-content">
       <div class="top-header">
         <div class="opened-by">
-          <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}"> {{ $pullRequest->openedBy->name }} wants to merge <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+          <img src="{{ $pullRequest->openedBy->avatar_url }}" alt="{{ $pullRequest->openedBy->name }}">
+          {{ $pullRequest->openedBy->name }} 
+          @if ($pullRequest->state === 'open')
+            wants to merge 
+          @elseif ($pullRequest->state === 'closed')
+            merged
+          @endif
+          <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
+
+          @if ($pullRequest->state === 'closed')
+            {{ $pullRequest->updated_at->diffForHumans() }}
+          @endif
         </div>
 
         <div class="edit-button-wrapper">

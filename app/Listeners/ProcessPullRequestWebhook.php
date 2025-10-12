@@ -40,6 +40,11 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         // Create/update the user who opened the pull request
         GithubUser::updateFromWebhook($userData);
 
+        $state = $prData->state;
+        if ($state === 'closed' && isset($prData->merged_at) && $prData->merged_at !== null) {
+            $state = 'merged';
+        }
+
         PullRequest::updateOrCreate(
             ['id' => $prData->id],
             [
@@ -48,7 +53,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 'number' => $prData->number,
                 'title' => $prData->title,
                 'body' => $prData->body ?? '',
-                'state' => $prData->state,
+                'state' => $state,
                 'head_branch' => $prData->head->ref,
                 'base_branch' => $prData->base->ref,
             ]
