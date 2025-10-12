@@ -7,7 +7,9 @@ use App\Models\PullRequest;
 
 class Branch extends Model
 {
-    //
+    const NOTICE_CREATED_TIME_HOURS = 6;
+    const MASTER_BRANCHES = ['master', 'main'];
+
     public $fillable = [
         'updated_at',
         'name',
@@ -23,7 +25,7 @@ class Branch extends Model
     {
         // If its master or maon, we don't show the notice
         $show = true;
-        if (in_array($this->name, ['master', 'main'])) {
+        if (in_array($this->name, self::MASTER_BRANCHES)) {
             $show = false;
         }
 
@@ -33,7 +35,7 @@ class Branch extends Model
         }
 
         // If its created more than 6 hours ago, we don't show the notice
-        $sixHoursAgo = now()->subHours(6);
+        $sixHoursAgo = now()->subHours(self::NOTICE_CREATED_TIME_HOURS);
         if ($this->created_at < $sixHoursAgo) {
             $show = false;
         }
