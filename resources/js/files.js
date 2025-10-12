@@ -22,6 +22,17 @@ export default {
     allFileHeaders.forEach(fileHeader => {
       fileHeader.addEventListener("click", () => this.toggleFileViewed(fileHeader.getAttribute("data-file")));
     });
+
+    const addInlineCommentBtns = document.querySelectorAll(".diff-line-number:has(.add-inline-comment-btn)");
+    addInlineCommentBtns.forEach(addInlineCommentBtn => {
+      addInlineCommentBtn.addEventListener("click", () => this.addInlineComment(addInlineCommentBtn));
+    });
+
+    const addCommentButton = document.querySelector(".inline-comment-submit");
+    addCommentButton.addEventListener("click", (event) => this.createInlineComment(event));
+
+    const cancelCommentButton = document.querySelector(".inline-comment-cancel");
+    cancelCommentButton.addEventListener("click", () => this.cancelInlineComment(cancelCommentButton));
   },
 
   updateComment(id, url) {
@@ -71,4 +82,65 @@ export default {
     });
   },
 
+  addInlineComment(addInlineCommentBtn) {
+    const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
+    const side = addInlineCommentBtn.dataset.side;
+    const filePath = addInlineCommentBtn.dataset.filePath;
+    const line = addInlineCommentBtn.dataset.lineNumber;
+
+    // Remove any existing empty cells first
+    const existingEmptyCells = addCommentWrapper.querySelectorAll("td.empty-cell");
+    existingEmptyCells.forEach(cell => cell.remove());
+
+    // Adjust the structure based on side
+    if (side === "RIGHT") {
+      // Get the form cell after removing empty cells
+      const formTd = addCommentWrapper.querySelector("td.inline-comment-form");
+
+      // Create empty cell to move the actual form to the right side
+      const emptyCell1 = document.createElement("td");
+      emptyCell1.className = "empty-cell";
+      emptyCell1.setAttribute("colspan", "2");
+
+      addCommentWrapper.insertBefore(emptyCell1, formTd);
+    }
+
+    // Move the wrapper to the correct position
+    addInlineCommentBtn.closest("tr").after(addCommentWrapper);
+
+    addCommentWrapper.dataset.side = side;
+    addCommentWrapper.dataset.filePath = filePath;
+    addCommentWrapper.dataset.line = line;
+  },
+
+  cancelInlineComment(cancelCommentButton) {
+    const addCommentWrapper = document.querySelector(".add-inline-comment-wrapper");
+
+    // Move the wrapper to the correct position
+    const hiddenTable = document.querySelector(".comment-holder-table");
+    hiddenTable.appendChild(addCommentWrapper);
+  },
+
+  createInlineComment(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const body = document.getElementById("inline-comment").value;
+
+    const wrapper = document.querySelector(".add-inline-comment-wrapper");
+    const side = wrapper.dataset.side;
+    const filePath = wrapper.dataset.filePath;
+    const line = wrapper.dataset.line;
+
+    document.getElementById("inline-comment").value = "";
+    this.cancelInlineComment(document.querySelector(".inline-comment-cancel"));
+
+    api.post(`/api/organization/${window.organizationName}/${window.repositoryName}/pull_requests/${window.pullRequestId}/comments`, {
+      body,
+      side,
+      filePath,
+      line,
+      commit_id: window.commitId
+    })
+  }
 };

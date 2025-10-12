@@ -457,4 +457,39 @@ class PullRequestController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function addPRComment($organizationName, $repositoryName, $pullRequestNumber, Request $request)
+    {
+        // Use direct API call because knplabs/github-api doesn't support the newer line+side format
+        // GitHub API v3 supports: line + side (newer) instead of position (deprecated)
+
+        $token = config('services.github.access_token');
+        $url = "https://api.github.com/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments";
+
+        $data = [
+            'body' => $request->input('body'),
+            'commit_id' => $request->input('commit_id'),
+            'path' => $request->input('filePath'),
+            'line' => (int) $request->input('line'),
+            'side' => $request->input('side'),
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Accept: application/vnd.github+json',
+            'Content-Type: application/json',
+            'User-Agent: github-gui',
+            'X-GitHub-Api-Version: 2022-11-28'
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        curl_exec($ch);
+        curl_close($ch);
+
+        return response()->json(['status' => 'success']);
+    }
 }

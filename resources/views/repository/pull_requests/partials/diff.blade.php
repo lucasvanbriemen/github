@@ -73,7 +73,7 @@
 
             {{-- Render lines --}}
             @foreach ($lines as $lineIndex => $linePair)
-              <tr>
+              <tr class="diff-line-row" data-file-path="{{ $fileName }}">
                 {{-- Left side --}}
                 @if (!$linePair['left'] || $linePair['left']['type'] === 'empty')
                   <td class="diff-line-number diff-line-number-empty"></td><td class="diff-line-content diff-line-empty"></td>
@@ -82,8 +82,15 @@
                     $line = $linePair['left'];
                     $typeClass = $line['type'] === 'normal' ? '' : 'diff-line-' . $line['type'];
                     $prefix = $line['type'] === 'add' ? '+' : ($line['type'] === 'del' ? '-' : ' ');
+                    $side = $line['type'] === 'del' ? 'LEFT' : 'RIGHT';
                   @endphp
-                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">{{ $line['lineNumber'] }}</td><td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
+                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}" data-side="{{ $side }}" data-file-path="{{ $fileName }}">
+                    {{ $line['lineNumber'] }}
+                    @if ($line['type'] === 'add' || $line['type'] === 'del')
+                      <button class="add-inline-comment-btn button-primary" title="Add inline comment">{!! svg('plus') !!}</button>
+                    @endif
+                  </td>
+                  <td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
                 @endif
                 {{-- Right side --}}
                 @if (!$linePair['right'] || $linePair['right']['type'] === 'empty')
@@ -93,8 +100,15 @@
                     $line = $linePair['right'];
                     $typeClass = $line['type'] === 'normal' ? '' : 'diff-line-' . $line['type'];
                     $prefix = $line['type'] === 'add' ? '+' : ($line['type'] === 'del' ? '-' : ' ');
+                    $side = "RIGHT";
                   @endphp
-                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}">{{ $line['lineNumber'] }}</td><td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
+                  <td class="diff-line-number {{ $typeClass }}" data-line-number="{{ $line['lineNumber'] }}" data-side="{{ $side }}" data-file-path="{{ $fileName }}">
+                    {{ $line['lineNumber'] }}
+                    @if ($line['type'] === 'add' || $line['type'] === 'del')
+                      <button class="add-inline-comment-btn button-primary" title="Add inline comment">{!! svg('plus') !!}</button>
+                    @endif
+                  </td>
+                  <td class="diff-line-content {{ $typeClass }}"><span class="diff-line-prefix">{{ $prefix }}</span><span class="diff-line-code">{{ $line['content'] }}</span></td>
                 @endif
               </tr>
 
@@ -136,4 +150,22 @@
       </div>
     </div>
   @endforeach
+
+  <table class="comment-holder-table" hidden>
+    {{-- Hidden by default, moved into place when adding a comment --}}
+    <tr class="add-inline-comment-wrapper">
+      <td colspan="2" class="inline-comment-form">
+        <x-markdown-editor
+          name="inline-comment"
+          id="inline-comment"
+          placeholder="Add a comment..."
+        />
+
+        <div class="inline-comment-form-actions">
+          <button class="button-primary inline-comment-submit">Add comment</button>
+          <button class="button-primary-outline inline-comment-cancel">Cancel</button>
+        </div>
+      </td>
+    </tr>
+  </table>
 @endif

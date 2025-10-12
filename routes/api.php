@@ -59,11 +59,16 @@ Route::middleware(IsLoggedIn::class)->group(function () {
                 Route::patch('close', [PullRequestController::class, 'closePullRequest'])
                     ->name('api.repositories.pull_requests.close');
 
-                Route::prefix('comments/{comment}')->group(function () {
-                    Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
-                        ->name('api.repositories.pull_requests.comment.resolve');
-                    Route::patch('unresolve', [PullRequestController::class, 'unresolveComment'])
-                        ->name('api.repositories.pull_requests.comment.unresolve');
+                Route::prefix('comments')->group(function () {
+                    Route::post('/', [PullRequestController::class, 'addPRComment'])
+                        ->name('api.repositories.pull_requests.comments.add');
+                    
+                    Route::prefix('{comment}')->group(function () {
+                        Route::patch('resolve', [PullRequestController::class, 'resolveComment'])
+                            ->name('api.repositories.pull_requests.comment.resolve');
+                        Route::patch('unresolve', [PullRequestController::class, 'unresolveComment'])
+                            ->name('api.repositories.pull_requests.comment.unresolve');
+                    });
                 });
 
                 Route::prefix('review/{comment}')->group(function () {
