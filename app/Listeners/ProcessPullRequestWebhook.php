@@ -45,6 +45,12 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             $state = 'merged';
         }
 
+        if ($state === 'closed' && isset($prData->closed_at)) {
+            $closedAt = $prData->closed_at;
+        } else {
+            $closedAt = null;
+        }
+
         PullRequest::updateOrCreate(
             ['id' => $prData->id],
             [

@@ -75,6 +75,7 @@ class PullRequest extends Model
         'title',
         'body',
         'state',
+        'closed_at',
         'labels',
         'opened_by_id',
         'head_branch',

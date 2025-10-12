@@ -27,8 +27,8 @@
           @endif
           <span class="branch">{{ $pullRequest->head_branch }}</span> into <span class="branch">{{ $pullRequest->base_branch }}</span>
 
-          @if ($pullRequest->state === 'closed')
-            {{ $pullRequest->updated_at->diffForHumans() }}
+          @if ($pullRequest->state === 'merged')
+            {{ $pullRequest->closed_at->diffForHumans() }}
           @endif
         </div>
 
