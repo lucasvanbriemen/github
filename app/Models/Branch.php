@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PullRequest;
+use App\Models\Commit;
 
 class Branch extends Model
 {
@@ -12,6 +13,7 @@ class Branch extends Model
 
     public $fillable = [
         'updated_at',
+        'created_at',
         'name',
         'repository_id'
     ];
@@ -19,6 +21,12 @@ class Branch extends Model
     public function hasPullRequest()
     {
         return $this->hasOne(PullRequest::class, 'head_branch', 'name');
+    }
+
+    public function commits()
+    {
+        return $this->hasMany(Commit::class, 'branch_id', 'id')
+            ->orderBy('created_at', 'desc');
     }
 
     public function showNotice()
