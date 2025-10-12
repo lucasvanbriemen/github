@@ -319,3 +319,11 @@
     }
   }
 }
+
+.add-inline-comment-wrapper {
+  background-color: var(--background-color) !important;
+
+  .inline-comment-form {
+    padding: 1rem;
+  }
+}

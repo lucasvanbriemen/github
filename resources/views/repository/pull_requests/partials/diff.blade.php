@@ -151,20 +151,16 @@
     </div>
   @endforeach
 
-  <table>
+  <table class="comment-holder-table" hidden>
+    {{-- Hidden by default, moved into place when adding a comment --}}
     <tr class="add-inline-comment-wrapper">
       <td colspan="2" class="inline-comment-form">
-        <div class="inline-comment-form-header">
-          <span class="inline-comment-side-badge" style="background-color: #ef444420; color: #ef4444;">
-            ${sideLabel} line ${lineNumber}
-          </span>
-          <span class="inline-comment-file-path">${filePath}</span>
-        </div>
-        <textarea
-          class="inline-comment-textarea"
+        <x-markdown-editor
+          name="inline-comment"
+          id="inline-comment"
           placeholder="Add a comment..."
-          rows="3"
-        ></textarea>
+        />
+
         <div class="inline-comment-form-actions">
           <button class="button-primary inline-comment-submit">Add comment</button>
           <button class="button-secondary inline-comment-cancel">Cancel</button>
