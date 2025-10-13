@@ -9,6 +9,7 @@ use App\Models\IssueComment;
 use App\Models\Repository;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
+use App\Events\PullRequestWebhookReceived;
 
 class ProcessIssueCommentWebhook implements ShouldQueue
 {
@@ -41,20 +42,26 @@ class ProcessIssueCommentWebhook implements ShouldQueue
                 ->first();
 
             if (! $pr) {
-                // If PR doesn't exist, dispatch issue webhook to create it first
-                IssuesWebhookReceived::dispatch($payload);
+                // If PR doesn't exist, we need to create it via the PR webhook, not the issue webhook
+                // Create a mock PR webhook payload
+                $prPayload = (object) [
+                    'action' => 'opened',
+                    'pull_request' => $issueData,
+                    'repository' => $repositoryData,
+                ];
+                PullRequestWebhookReceived::dispatch($prPayload);
                 return false;
             }
 
             $issueData->id = $pr->id;
-        }
-
-        // Ensure issue exists first
-        $issue = Issue::where('id', $issueData->id)->first();
-        if (! $issue) {
-            // If the issue doesn't exist, we can't add a comment to it
-            IssuesWebhookReceived::dispatch($payload);
-            return false;
+        } else {
+            // Ensure issue exists first (only for actual issues, not PRs)
+            $issue = Issue::where('id', $issueData->id)->first();
+            if (! $issue) {
+                // If the issue doesn't exist, we can't add a comment to it
+                IssuesWebhookReceived::dispatch($payload);
+                return false;
+            }
         }
 
         IssueComment::updateOrCreate(

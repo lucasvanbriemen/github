@@ -36,8 +36,6 @@ export default {
 
     const mergeButton = document.querySelector(".merge-pr");
     const closeButton = document.querySelector(".close-pr");
-    mergeButton.addEventListener("click", () => this.mergePullRequest());
-    closeButton.addEventListener("click", () => this.closePullRequest());
 
     if (mergeButton) {
       mergeButton.addEventListener("click", () => this.mergePullRequest());
