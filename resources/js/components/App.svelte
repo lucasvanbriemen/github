@@ -24,8 +24,13 @@
 <style lang="scss">
   :global(body) {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: Roboto, sans-serif;
     background-color: var(--background-color);
+  }
+
+  :global(*) {
+    font-family: var(--font-family);
     color: var(--text-color);
+    transition: all 0.3s ease;
   }
 </style>
