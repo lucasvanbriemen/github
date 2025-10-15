@@ -12,6 +12,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::patch('/organizations', [OrganizationController::class, 'updateOrganizations'])
         ->name('organizations.update');
 
+    Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
+        ->name('organizations.get');
+
     Route::prefix('organization/{organization}/{repository}')->group(function () {
         Route::get('tree/{file_path?}', [RepositoryController::class, 'show_file_tree'])
             ->where('file_path', '.*')

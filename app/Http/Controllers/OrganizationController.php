@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiHelper;
 use App\Models\Organization;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
@@ -30,5 +29,11 @@ class OrganizationController extends Controller
         $repositories = $organization->repositories;
 
         return view('organization.show', compact('organization', 'repositories'));
+    }
+
+    public static function getOrganizations()
+    {
+        $organizations = Organization::all();
+        return response()->json($organizations);
     }
 }

@@ -23,7 +23,7 @@ export default {
 
   makeRequest(method, url, data = null, headers = {}, background = false) {
     if (!background) {
-      app.setLoading(true);
+      // app.setLoading(true);
     }
     const options = {
       method,
@@ -39,7 +39,7 @@ export default {
 
     return fetch(url, options)
       .then(async (response) => {
-        app.setLoading(false);
+        // app.setLoading(false);
         if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
           return response.text();
         })

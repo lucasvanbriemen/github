@@ -1,3 +1,5 @@
+import api from "./api.js";
+
 export default {
   themeUrl: "https://components.lucasvanbriemen.nl/api/colors?theme=THEME_NAME",
   selectedTheme: "auto",
