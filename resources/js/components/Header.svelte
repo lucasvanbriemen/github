@@ -2,67 +2,46 @@
   import { onMount } from 'svelte';
 
   let organizations = [];
+  let selectedOrganization = null;
+  let selectedRepository = null;
 
   onMount(async () => {
     const res = await fetch('/api/organizations');
     organizations = await res.json();
   });
 
-  function selectOrganization(selectedOrg) {
-    organizations = organizations.map(org => ({
-      ...org,
-      selected: org === selectedOrg,
-      // Clear selected repository when changing organization
-      repositories: org.repositories.map(repo => ({ ...repo, selected: false }))
-    }));
+  function selectOrganization(org) {
+    selectedOrganization = org;
+    selectedRepository = null;
   }
 
-  function selectRepository(organization, selectedRepo) {
-    organizations = organizations.map(org => {
-      if (org === organization) {
-        return {
-          ...org,
-          repositories: org.repositories.map(repo => ({
-            ...repo,
-            selected: repo === selectedRepo
-          }))
-        };
-      }
-      return org;
-    });
-
-    goToRepository(organization, selectedRepo);
+  function selectRepository(org, repo) {
+    selectedOrganization = org;
+    selectedRepository = repo;
+    goToRepository(org, repo);
   }
 
-  function goToRepository(organization, repository) {
-    window.location.href = `#/${organization.name}/${repository.name}`;
+  function goToRepository(org, repo) {
+    window.location.href = `#/${org.name}/${repo.name}`;
   }
 </script>
 
 <header>
-  {#each organizations as organization}
-    <div class="organization" class:selected={organization.selected}>
-      <button on:click={() => selectOrganization(organization)}>
-        <img src="{organization.avatar_url}" alt="{organization.name} Avatar" width="50" height="50" />
-        <span class="name">{organization.name}</span>
+  {#each organizations as org}
+    <div class="organization" class:selected={selectedOrganization === org}>
+      <button on:click={() => selectOrganization(org)}>
+        <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
+        <span class="name">{org.name}</span>
       </button>
 
       <div class="repos">
-        {#each organization.repositories as repository}
-          <a 
-            href={`#/${organization.name}/${repository.name}`}
-            class="repo" 
-            class:selected={repository.selected} 
-            on:click={() => selectRepository(organization, repository)}
-          >
-            {repository.name}
-          </a>
+        {#each org.repositories as repo}
+          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={selectedRepository === repo} on:click={() => selectRepository(org, repo)}>{repo.name}</a>
         {/each}
       </div>
     </div>
   {/each}
 </header>
-
 
 <style>
   header {
