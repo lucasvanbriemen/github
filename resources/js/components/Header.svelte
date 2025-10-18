@@ -11,12 +11,31 @@
   function selectOrganization(selectedOrg) {
     organizations = organizations.map(org => ({
       ...org,
-      selected: org === selectedOrg
+      selected: org === selectedOrg,
+      // Clear selected repository when changing organization
+      repositories: org.repositories.map(repo => ({ ...repo, selected: false }))
     }));
   }
 
-  function goToRepository(repositoryName) {
-    window.location.href = `#/${organizations[0].name}/${repositoryName}`;
+  function selectRepository(organization, selectedRepo) {
+    organizations = organizations.map(org => {
+      if (org === organization) {
+        return {
+          ...org,
+          repositories: org.repositories.map(repo => ({
+            ...repo,
+            selected: repo === selectedRepo
+          }))
+        };
+      }
+      return org;
+    });
+
+    goToRepository(organization, selectedRepo);
+  }
+
+  function goToRepository(organization, repository) {
+    window.location.href = `#/${organization.name}/${repository.name}`;
   }
 </script>
 
@@ -30,8 +49,14 @@
 
       <div class="repos">
         {#each organization.repositories as repository}
-          <!-- Go to repository page -->
-          <span class="repo" on:click={goToRepository(repository.name)}>{repository.name}</span>
+          <a 
+            href={`#/${organization.name}/${repository.name}`}
+            class="repo" 
+            class:selected={repository.selected} 
+            on:click={() => selectRepository(organization, repository)}
+          >
+            {repository.name}
+          </a>
         {/each}
       </div>
     </div>
@@ -91,6 +116,11 @@
             background-color: var(--background-color-one);
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
+            text-decoration: none;
+
+            &.selected {
+              background-color: var(--primary-color);
+            }
           }
         }
       }
