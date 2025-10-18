@@ -5,9 +5,21 @@
   let selectedOrganization = null;
   let selectedRepository = null;
 
+  function updateSelectionFromHash() {
+    const hash = window.location.hash || '';
+    const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+    const orgName = parts[0] || null;
+    const repoName = parts[1] || null;
+
+    selectedOrganization = organizations.find(o => o.name === orgName);
+    selectedRepository = selectedOrganization.repositories.find(r => r.name === repoName);
+  }
+
   onMount(async () => {
     const res = await fetch('/api/organizations');
     organizations = await res.json();
+    updateSelectionFromHash();
+    window.addEventListener('hashchange', updateSelectionFromHash);
   });
 
   function selectOrganization(org) {
