@@ -33,7 +33,7 @@ class OrganizationController extends Controller
 
     public static function getOrganizations()
     {
-        $organizations = Organization::all();
+        $organizations = Organization::with('repositories')->get();
         return response()->json($organizations);
     }
 }

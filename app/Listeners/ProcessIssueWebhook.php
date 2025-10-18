@@ -8,7 +8,7 @@ use App\Models\Issue;
 use App\Models\Repository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ProcessIssueWebhook implements ShouldQueue
+class ProcessIssueWebhook
 {
     /**
      * Create the event listener.

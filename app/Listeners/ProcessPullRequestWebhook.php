@@ -27,9 +27,12 @@ class ProcessPullRequestWebhook //implements ShouldQueue
     {
         $payload = $event->payload;
 
-        if (!$payload || !isset($payload->pull_request) || !isset($payload->repository)) {
+        
+        if (!isset($payload->pull_request, $payload->repository, $payload->review)) {
+            \Log::warning('Malformed pull_request_review payload', ['payload' => $payload]);
             return false;
         }
+
         $prData = $payload->pull_request;
         $repositoryData = $payload->repository;
 

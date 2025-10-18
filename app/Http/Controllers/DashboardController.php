@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Issue;
 use App\Models\Repository;
+use App\Models\Organization;
+use Illuminate\Database\Eloquent\Casts\Json;
 
 class DashboardController extends Controller
 {

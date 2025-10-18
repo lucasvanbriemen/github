@@ -11,16 +11,25 @@
 
 <header>
   {#each organizations as organization}
-    <span>{organization.name}</span><br />
+    <div class="organization">
+      <div>
+        <img src="{organization.avatar_url}" alt="{organization.name} Avatar" width="50" height="50" />
+        <span class="name">{organization.name}</span>
+      </div>
+
+      <div class="repos">
+        {#each organization.repositories as repository}
+          <span class="repo">{repository.name}</span>
+        {/each}
+      </div>
+    </div>
   {/each}
 </header>
 
 <style>
   header {
-    background-color: #f8f9fa;
+    background-color: var(--background-color-one);
     padding: 1rem;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   span {

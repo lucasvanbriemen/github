@@ -49,7 +49,7 @@ class CleanupMiscategorizedIssues extends Command
                 ->first();
 
             if ($pr) {
-                $this->warn("Found issue #{$issue->number} in {$issue->repository->full_name} that is actually PR #{$pr->number}");
+                $this->warn("Found issue #{$issue->number} in {$issue->repository->name} that is actually PR #{$pr->number}");
 
                 if (!$isDryRun) {
                     $issue->delete();
