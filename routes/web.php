@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 // SPA Entry Point - Serve the SPA for all routes
 // All routing is handled client-side by Svelte
-// Route::get('/{any?}', function () {
-//     return view('spa');
-// })->where('any', '.*')->name('spa');
+Route::get('/{any?}', function () {
+    return view('spa');
+})->where('any', '.*')->name('spa');
 
 
 // use App\Http\Controllers\DashboardController;
@@ -23,9 +23,9 @@ use Illuminate\Support\Facades\Route;
 
 // Route::middleware(IsLoggedIn::class)->group(function () {
 //     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/webhook_sender', function () {
-        return view('webhook_sender');
-    })->name('webhook_sender');
+    // Route::get('/webhook_sender', function () {
+    //     return view('webhook_sender');
+    // })->name('webhook_sender');
 
 //     Route::get('/proxy/image', [ImageProxyController::class, 'proxy'])->name('image.proxy');
 
