@@ -10,7 +10,7 @@ use App\Models\Branch;
 use App\Models\Repository;
 use App\Models\ViewedFile;
 
-class ProcessPushWebhook implements ShouldQueue
+class ProcessPushWebhook // implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -23,7 +23,7 @@ class ProcessPushWebhook implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(PushWebhookReceived $event): void
+    public function handle(PushWebhookReceived $event)
     {
         $payload = $event->payload;
 
@@ -37,11 +37,12 @@ class ProcessPushWebhook implements ShouldQueue
                 'html_url' => $payload->repository->html_url,
                 'description' => $payload->repository->description,
                 'owner_login' => $payload->repository->owner->login,
+                'last_updated' => now(),
             ]
         );
 
         // Ensure the branch exists
-        $branchName = str_replace('refs/heads/', '', $payload->ref);
+        $branchName = str_replace('refs/heads/', '', $payload->ref ?? '');
         $branch = Branch::updateOrCreate(
             [
                 'name' => $branchName,
