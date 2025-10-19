@@ -213,8 +213,11 @@ class IssueController extends Controller
     {
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $issues = $repository->issues()
-            ->get();
+        $page = request()->query('page', 1);
+
+        $issues = $repository
+            ->issues()
+            ->paginate(50, ['title', 'state'], 'page', $page);
 
         return response()->json($issues);
     }

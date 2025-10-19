@@ -7,10 +7,20 @@
   let repository = $derived(params.repository || '');
   let issues = $state([]);
   let page = $state(1);
+  let paginationLinks = $state([]);
+
+  let lastPage = $state(1);
+
+  async function getIssues(page) {
+    const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${page}`);
+    let json = await res.json();
+    lastPage = json.lastPage;
+    issues = json.data;
+    paginationLinks = json.links;
+  }
 
   onMount(async () => {
-    const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${page}`);
-    issues = await res.json();
+    await getIssues(page);
   });
 
 </script>
@@ -21,14 +31,25 @@
     {#each issues as issue}
       <div class="issue">
         <h3>{issue.title}</h3>
-        <p>{issue.body}</p>
       </div>
     {/each}
+
+    {#if paginationLinks}
+      <div class="pagination">
+        {#each paginationLinks as link}
+          <a on:click={() => getIssues(link.page)}>{link.page}</a>
+        {/each}
+      </div>
+    {/if}
   </div>
 </div>
   
 <style>
   .repo-dashboard {
     height: 100%;
+
+    display: flex;
+    gap: 0.5rem;
+    overflow: auto;
   }
 </style>

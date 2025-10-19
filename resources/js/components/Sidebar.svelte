@@ -51,6 +51,8 @@
     border-right: 1px solid var(--color-border);
     position: relative;
     height: 100%;
+    position: sticky;
+    top: 0;
 
     .nav {
       position: absolute;
