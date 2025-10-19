@@ -35,9 +35,6 @@
 
 <div class="sidebar">
   <div class="nav">
-    <button class="dropdown" on:click={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
-      {selectedSection}
-    </button>
     {#if dropdownOpen}
       <div class="dropdown-menu">
         <a class="item" on:click={() => linkTo('')}>Home</a>
@@ -45,6 +42,9 @@
         <a class="item" on:click={() => linkTo('prs')}>PRs</a>
       </div>
     {/if}
+    <button class="dropdown" on:click={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
+      {selectedSection}
+    </button>
   </div>
 </div>
 
@@ -77,6 +77,25 @@
 
         &:hover {
           background-color: var(--primary-color-dark);
+        }
+      }
+
+      .dropdown-menu {
+        background-color: var(--background-color-two);
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+
+        .item {
+          padding: 0.5rem;
+          border-radius: 0.25rem;
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--primary-color);
+          }
         }
       }
     }
