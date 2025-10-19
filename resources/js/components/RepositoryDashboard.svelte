@@ -1,10 +1,11 @@
 <script>
   import { onMount } from 'svelte';
+  import Sidebar from './Sidebar.svelte';
 
-  const { params = {} } = $props();
+  let { params = {} } = $props();
   let organizations = [];
-  let name = params.name || '';
-  let repository = params.repository || '';
+  let name = $derived(params.name || '');
+  let repository = $derived(params.repository || '');
 
   onMount(async () => {
     const res = await fetch('/api/organizations');
@@ -13,24 +14,15 @@
 
 </script>
 
-<div class="repo-header">
-  <span class="org">{name}</span>
-  <span class="sep">/</span>
-  <span class="repo">{repository}</span>
-  <!-- Extend this area to render repo-specific dashboard data -->
-  
+<div class="repo-dashboard">
+  <Sidebar {params} />
+  <div class="repo-main">
+    <!-- Placeholder main area for repository dashboard / issues / PRs routes -->
+  </div>
 </div>
-
+  
 <style>
-  .repo-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+  .repo-dashboard {
+    height: 100%;
   }
-
-  .org, .repo { color: var(--text-color); }
-  .sep { opacity: 0.7; }
 </style>

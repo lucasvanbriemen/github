@@ -1,0 +1,84 @@
+<script>
+  import { onMount } from 'svelte';
+
+  let { params = {} } = $props();
+
+  let org = $derived(params.name || '');
+  let repo = $derived(params.repository || '');
+
+  let dropdownOpen = $state(false);
+  let selectedSection = $state('home'); // 'home', 'issues', 'prs'
+
+  function parseHash() {
+    const hash = (window.location.hash || '').replace(/^#\/?/, '');
+    const parts = hash.split('/').filter(Boolean);
+    // parts: [org, repo, section?, id?]
+    org = parts[0] || org;
+    repo = parts[1] || repo;
+  }
+
+  function linkTo(path = '') {
+    // path examples: '', 'issues', 'issues/123', 'prs', 'prs/45'
+    selectedSection = path.split('/')[0] || 'home';
+    const route = `#/${org}/${repo}${path ? '/' + path : ''}`;
+    window.location.hash = route;
+    dropdownOpen = false;
+  }
+
+  onMount(() => {
+    parseHash();
+    const onHash = () => parseHash();
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  });
+</script>
+
+<div class="sidebar">
+  <div class="nav">
+    <button class="dropdown" on:click={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
+      {selectedSection}
+    </button>
+    {#if dropdownOpen}
+      <div class="dropdown-menu">
+        <a class="item" on:click={() => linkTo('')}>Home</a>
+        <a class="item" on:click={() => linkTo('issues')}>Issues</a>
+        <a class="item" on:click={() => linkTo('prs')}>PRs</a>
+      </div>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .sidebar {
+    width: 15vw;
+    background-color: var(--background-color-one);
+    border-right: 1px solid var(--color-border);
+    position: relative;
+    height: 100%;
+
+    .nav {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      width: calc(15vw - 1rem);
+
+      .dropdown {
+        display: flex;
+        background-color: transparent;
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        width: 100%;
+        height: 3rem;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1rem;
+
+        &:hover {
+          background-color: var(--primary-color-dark);
+        }
+      }
+    }
+  }
+</style>
