@@ -9,14 +9,15 @@
   let page = $state(1);
   let paginationLinks = $state([]);
 
-  let lastPage = $state(1);
-
-  async function getIssues(page) {
-    const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${page}`);
+  async function getIssues(pageNr) {
+    const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${pageNr}`);
     let json = await res.json();
-    lastPage = json.lastPage;
+    page = json.page;
     issues = json.data;
     paginationLinks = json.links;
+    console.log(paginationLinks);
+    console.log(page);
+    console.log(pageNr);
   }
 
   onMount(async () => {
@@ -34,10 +35,14 @@
       </div>
     {/each}
 
-    {#if paginationLinks}
+    {#if paginationLinks.length > 1}
       <div class="pagination">
-        {#each paginationLinks as link}
-          <a on:click={() => getIssues(link.page)}>{link.page}</a>
+       {#each paginationLinks as link}
+          {#if link.page !== null}
+            <a on:click={() => getIssues(link.page)} class:active={link.active}>
+              {@html link.label}
+            </a>
+          {/if}
         {/each}
       </div>
     {/if}
@@ -47,9 +52,41 @@
 <style>
   .repo-dashboard {
     height: 100%;
+    width: 100%;
 
     display: flex;
     gap: 0.5rem;
     overflow: auto;
+
+    .repo-main {
+      width: calc(85vw - 2rem);
+      .pagination {
+        border: 1px solid var(--border-color);
+        border-radius: 0.25rem;
+        width: 25%;
+        margin: 1rem auto;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+
+        a {
+          font-weight: bold;
+          cursor: pointer;
+          padding: 0.25rem 0.5rem;
+          border-radius: 5rem;
+          text-decoration: none;
+          border: 2px solid var(--primary-color-dark);
+
+          &:hover {
+            background-color: var(--primary-color-dark);
+          }
+
+          &.active {
+            background-color: var(--primary-color);
+          }
+        }
+      }
+    }
   }
 </style>
