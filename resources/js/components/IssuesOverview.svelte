@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
+  import Pagination from './Pagination.svelte';
 
   let { params = {} } = $props();
   let name = $derived(params.name || '');
@@ -31,15 +32,7 @@
     {/each}
 
     {#if paginationLinks.length > 3}
-      <div class="pagination">
-       {#each paginationLinks as link}
-          {#if link.page !== null}
-            <a on:click={() => getIssues(link.page)} class:active={link.active}>
-              {@html link.label}
-            </a>
-          {/if}
-        {/each}
-      </div>
+      <Pagination links={paginationLinks} onSelect={(page) => getIssues(page)} />
     {/if}
   </div>
 </div>
@@ -55,33 +48,7 @@
 
     .repo-main {
       width: calc(85vw - 2rem);
-      .pagination {
-        border: 1px solid var(--border-color);
-        border-radius: 0.25rem;
-        width: 25%;
-        margin: 1rem auto;
-        padding: 1rem;
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-
-        a {
-          font-weight: bold;
-          cursor: pointer;
-          padding: 0.25rem 0.5rem;
-          border-radius: 5rem;
-          text-decoration: none;
-          border: 2px solid var(--primary-color-dark);
-
-          &:hover {
-            background-color: var(--primary-color-dark);
-          }
-
-          &.active {
-            background-color: var(--primary-color);
-          }
-        }
-      }
+      /* Pagination styles moved to Pagination.svelte */
     }
   }
 </style>
