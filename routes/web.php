@@ -1,13 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\IsLoggedIn;
 
 // SPA Entry Point - Serve the SPA for all routes
 // All routing is handled client-side by Svelte
-Route::get('/{any?}', function () {
-    return view('spa');
-})->where('any', '.*')->name('spa');
-
+Route::middleware(IsLoggedIn::class)->group(function () {
+    Route::get('/{any?}', function () {
+        return view('spa');
+    })->where('any', '.*')->name('spa');
+});
 
 // use App\Http\Controllers\DashboardController;
 // use App\Http\Controllers\ImageProxyController;
@@ -15,7 +17,6 @@ Route::get('/{any?}', function () {
 // use App\Http\Controllers\PullRequestController;
 // use App\Http\Controllers\OrganizationController;
 // use App\Http\Controllers\RepositoryController;
-// use App\Http\Middleware\IsLoggedIn;
 // use App\Models\PullRequestReview;
 // use App\Mail\PullRequestReviewed;
 // use App\GithubConfig;
