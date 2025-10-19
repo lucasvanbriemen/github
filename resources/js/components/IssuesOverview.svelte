@@ -30,7 +30,7 @@
       </div>
     {/each}
 
-    {#if paginationLinks.length > 1}
+    {#if paginationLinks.length > 3}
       <div class="pagination">
        {#each paginationLinks as link}
           {#if link.page !== null}
