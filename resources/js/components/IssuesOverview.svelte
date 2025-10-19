@@ -15,7 +15,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedSection="Home" />
+  <Sidebar {params} selectedSection="Issues" />
   <div class="repo-main">
   </div>
 </div>

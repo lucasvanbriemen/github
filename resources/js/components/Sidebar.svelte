@@ -1,13 +1,12 @@
 <script>
   import { onMount } from 'svelte';
 
-  let { params = {} } = $props();
+  let { selectedSection, params = {} } = $props();
 
   let org = $derived(params.name || '');
   let repo = $derived(params.repository || '');
 
   let dropdownOpen = $state(false);
-  let selectedSection = $state('home'); // 'home', 'issues', 'prs'
 
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
@@ -19,7 +18,6 @@
 
   function linkTo(path = '') {
     // path examples: '', 'issues', 'issues/123', 'prs', 'prs/45'
-    selectedSection = path.split('/')[0] || 'home';
     const route = `#/${org}/${repo}${path ? '/' + path : ''}`;
     window.location.hash = route;
     dropdownOpen = false;

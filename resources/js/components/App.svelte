@@ -5,12 +5,14 @@
   import Dashboard from './Dashboard.svelte';
   import Organization from './Organization.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
+  import IssuesOverview from './IssuesOverview.svelte';
   import theme from '../theme.js';
 
   const routes = {
     '/': Dashboard,
     '/:name': Organization,
     '/:name/:repository': RepositoryDashboard,
+    '/:name/:repository/issues': IssuesOverview,
   };
 
   onMount(async () => {
