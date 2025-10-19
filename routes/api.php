@@ -14,6 +14,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
     Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
         ->name('organizations.get');
+    
+    Route::get('/org/{organization}/repo/{repository}/issues', [IssueController::class, 'listIssues'])
+        ->name('organizations.repositories.get');
 
     Route::prefix('organization/{organization}/{repository}')->group(function () {
         Route::get('tree/{file_path?}', [RepositoryController::class, 'show_file_tree'])

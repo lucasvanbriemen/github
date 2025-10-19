@@ -208,4 +208,14 @@ class IssueController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function listIssues($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $issues = $repository->issues()
+            ->get();
+
+        return response()->json($issues);
+    }
 }

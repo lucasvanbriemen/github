@@ -23,25 +23,9 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
-    public function issues($state = 'open', $assignee = GithubConfig::USERID)
+    public function issues()
     {
-        $query = $this->hasMany(Issue::class, 'repository_id', 'id')
-            ->with('assignees', 'openedBy')
-            ->orderBy('created_at', 'desc');
-
-        if ($state !== 'all') {
-            $query->where('state', $state);
-        }
-
-        if ($assignee === 'none') {
-            $query->whereDoesntHave('assignees');
-        } elseif ($assignee !== 'any') {
-            $query->whereHas('assignees', function ($q) use ($assignee) {
-                $q->where('github_users.id', $assignee);
-            });
-        }
-
-        return $query;
+        return $this->hasMany(Issue::class, 'repository_id', 'id');
     }
 
     public function pullRequests($state = 'open', $assignee = GithubConfig::USERID)
