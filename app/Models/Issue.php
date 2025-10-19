@@ -2,57 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Issue extends Model
+class Issue extends Item
 {
-    protected $primaryKey = 'id';
+    protected $table = 'items';
 
-    protected $keyType = 'int';
-
-    public $incrementing = false;
-
-    public $timestamps = true;
-
-    public function repository()
+    protected static function booted()
     {
-        return $this->belongsTo(Repository::class, 'repository_id', 'id');
-    }
+        static::addGlobalScope('type', function ($query) {
+            $query->where('type', 'issue');
+        });
 
-    public function openedBy()
-    {
-        return $this->belongsTo(GithubUser::class, 'opened_by_id', 'id');
+        static::creating(function ($model) {
+            $model->type = 'issue';
+        });
     }
-
-    public function assignees()
-    {
-        return $this->belongsToMany(GithubUser::class, 'issue_assignees', 'issue_id', 'user_id', 'id', 'id');
-    }
-
-    public function getAssigneesDataAttribute()
-    {
-        return $this->assignees()->get();
-    }
-
-    public function comments()
-    {
-        return $this->hasMany(IssueComment::class, 'issue_id', 'id');
-    }
-
-    protected $fillable = [
-        'repository_id',
-        'id',
-        'number',
-        'title',
-        'body',
-        'last_updated',
-        'state',
-        'labels',
-        'opened_by_id',
-    ];
 
     protected $casts = [
         'labels' => 'array',
-        'last_updated' => 'datetime',
     ];
 }
