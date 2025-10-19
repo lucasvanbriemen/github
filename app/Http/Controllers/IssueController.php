@@ -217,7 +217,12 @@ class IssueController extends Controller
 
         $issues = $repository
             ->issues()
-            ->paginate(50, ['title', 'state'], 'page', $page);
+            ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id'])
+            ->with([
+                'openedBy:id,name,avatar_url',
+                'assignees:id,name,avatar_url',
+            ])
+            ->paginate(50, ['*'], 'page', $page);
 
         return response()->json($issues);
     }

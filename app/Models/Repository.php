@@ -25,7 +25,10 @@ class Repository extends Model
 
     public function issues()
     {
-        return $this->hasMany(Issue::class, 'repository_id', 'id');
+        $query = $this->hasMany(Issue::class, 'repository_id', 'id');
+        $query->with('assignees', 'openedBy');
+
+        return $query;
     }
 
     public function pullRequests($state = 'open', $assignee = GithubConfig::USERID)
