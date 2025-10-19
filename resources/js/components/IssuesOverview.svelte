@@ -6,22 +6,17 @@
   let name = $derived(params.name || '');
   let repository = $derived(params.repository || '');
   let issues = $state([]);
-  let page = $state(1);
   let paginationLinks = $state([]);
 
   async function getIssues(pageNr) {
     const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${pageNr}`);
     let json = await res.json();
-    page = json.page;
     issues = json.data;
     paginationLinks = json.links;
-    console.log(paginationLinks);
-    console.log(page);
-    console.log(pageNr);
   }
 
   onMount(async () => {
-    await getIssues(page);
+    await getIssues(1);
   });
 
 </script>
