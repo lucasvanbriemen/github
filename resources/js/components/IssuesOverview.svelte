@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
   import Pagination from './Pagination.svelte';
+  import ListItem from './ListItem.svelte';
 
   let { params = {} } = $props();
   let name = $derived(params.name || '');
@@ -25,10 +26,8 @@
 <div class="repo-dashboard">
   <Sidebar {params} selectedSection="Issues" />
   <div class="repo-main">
-    {#each issues as issue}
-      <div class="issue">
-        <h3>{issue.title}</h3>
-      </div>
+    {#each issues as item}
+      <ListItem {item} />
     {/each}
 
     {#if paginationLinks.length > 3}
@@ -43,12 +42,15 @@
     width: 100%;
 
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
     overflow: auto;
 
     .repo-main {
-      width: calc(85vw - 2rem);
-      /* Pagination styles moved to Pagination.svelte */
+      width: calc(85vw - 3rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
     }
   }
 </style>

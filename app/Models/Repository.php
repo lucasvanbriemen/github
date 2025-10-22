@@ -28,6 +28,8 @@ class Repository extends Model
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');
         $query->with('assignees', 'openedBy');
 
+        $query->orderBy('created_at', 'desc');
+
         return $query;
     }
 
