@@ -27,7 +27,7 @@
   <Sidebar {params} selectedSection="Issues" />
   <div class="repo-main">
     {#each issues as item}
-      <ListItem {item} />
+      <ListItem {item} itemType="issue" />
     {/each}
 
     {#if paginationLinks.length > 3}
