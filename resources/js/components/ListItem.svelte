@@ -3,12 +3,16 @@
   let { item, itemType } = $props();
 
   function openItem(number) {
-    const base = window.location.href; // if using hash routing
-    window.location.href = `${base}/${number}`;
+    window.location.href = itemUrl(number);
+  }
+
+  function itemUrl(number) {
+    const base = window.location.href;
+    return `${base}/${number}`;
   }
 </script>
 
-<a class="list-item" data-type="{itemType}" on:click={() => openItem(item.number)} href="javascript:void(0);">
+<a class="list-item" data-type="{itemType}" on:click={() => openItem(item.number)} href="{itemUrl(item.number)}">
   <div class="state-icon">
     {#if itemType === 'issue'}
       <svg color="open.fg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" display="inline-block" overflow="visible" style="vertical-align:text-bottom" class="icon {item.state}">
