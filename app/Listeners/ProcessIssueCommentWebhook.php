@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Issue;
 use App\Models\IssueComment;
 use App\Models\Repository;
+use App\Models\GithubUser;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
@@ -63,6 +64,8 @@ class ProcessIssueCommentWebhook implements ShouldQueue
                 return false;
             }
         }
+
+        GithubUser::updateFromWebhook($userData);
 
         IssueComment::updateOrCreate(
             ['id' => $commentData->id],

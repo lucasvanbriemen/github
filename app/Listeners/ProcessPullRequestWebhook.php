@@ -9,8 +9,9 @@ use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
 use App\Helpers\ApiHelper;
+use Carbon\Carbon;
 
-class ProcessPullRequestWebhook //implements ShouldQueue
+class ProcessPullRequestWebhook implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -50,7 +51,9 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         }
 
         if ($state === 'closed' && isset($prData->closed_at)) {
-            $closedAt = $prData->closed_at;
+            $dt = new \DateTime($prData->closed_at);
+            $dt->setTimezone(new \DateTimeZone('UTC'));
+            $closedAt = $dt->format('Y-m-d H:i:s');
         } else {
             $closedAt = null;
         }

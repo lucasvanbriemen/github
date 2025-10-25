@@ -51,6 +51,11 @@ class ProcessPushWebhook // implements ShouldQueue
             ['updated_at' => now()]
         );
 
+        // If there are no commits, we can stop here
+        if (!isset($payload->commits) || empty($payload->commits)) {
+            return;
+        }
+
         // Process commits
         foreach ($payload->commits as $commitData) {
             $author = GithubUser::where('name', $commitData->author->username)->first();
