@@ -33,11 +33,11 @@
 
 <div class="sidebar">
   <div class="nav">
-      <div class="dropdown-menu" class:open={dropdownOpen}>
-        <a class="item" on:click={() => linkTo('')}>Home</a>
-        <a class="item" on:click={() => linkTo('issues')}>Issues</a>
-        <a class="item" on:click={() => linkTo('prs')}>PRs</a>
-      </div>
+    <div class="dropdown-menu" class:open={dropdownOpen}>
+      <a class="item" on:click={() => linkTo('')}>Home</a>
+      <a class="item" on:click={() => linkTo('issues')}>Issues</a>
+      <a class="item" on:click={() => linkTo('prs')}>PRs</a>
+    </div>
     <button class="dropdown" on:click={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
       {selectedSection}
     </button>
