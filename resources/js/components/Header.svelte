@@ -16,7 +16,7 @@
   }
 
   onMount(async () => {
-    const res = await fetch('/api/organizations');
+    const res = await fetch('/api/org');
     organizations = await res.json();
     updateSelectionFromHash();
     window.addEventListener('hashchange', updateSelectionFromHash);

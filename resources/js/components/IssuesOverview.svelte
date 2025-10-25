@@ -10,7 +10,7 @@
   let issues = $state([]);
   let paginationLinks = $state([]);
 
-  async function getIssues(pageNr) {
+  async function getIssues(pageNr = 1) {
     const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${pageNr}`);
     let json = await res.json();
     issues = json.data;
@@ -23,7 +23,7 @@
   }
 
   onMount(async () => {
-    await getIssues(1);
+    await getIssues();
   });
 
 </script>
