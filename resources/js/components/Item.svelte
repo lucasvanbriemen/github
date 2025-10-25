@@ -7,7 +7,7 @@
   let number = $derived(params.number || '');
 
   onMount(async () => {
-    const res = await fetch(`/api/org/${name}/repo/${repository}/issues/${number}`);
+    const res = await fetch(`/api/org/${name}/repo/${repository}/item/${number}`);
     let json = await res.json();
     console.log(json);
   });

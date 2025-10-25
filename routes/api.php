@@ -7,6 +7,7 @@ use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ItemController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org', [OrganizationController::class, 'getOrganizations'])
@@ -14,6 +15,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     
     Route::get('/org/{organization}/repo/{repository}/issues', [IssueController::class, 'listIssues'])
         ->name('organizations.repositories.get');
+
+    Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
+        ->name('organizations.repositories.item.show');
 
     // Route::prefix('organization/{organization}/{repository}')->group(function () {
     //     Route::get('tree/{file_path?}', [RepositoryController::class, 'show_file_tree'])
