@@ -51,9 +51,7 @@ class ProcessPullRequestWebhook implements ShouldQueue
         }
 
         if ($state === 'closed' && isset($prData->closed_at)) {
-            $dt = new \DateTime($prData->closed_at);
-            $dt->setTimezone(new \DateTimeZone('UTC'));
-            $closedAt = $dt->format('Y-m-d H:i:s');
+            $closedAt = $prData->closed_at;
         } else {
             $closedAt = null;
         }

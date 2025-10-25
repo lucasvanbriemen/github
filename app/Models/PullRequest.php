@@ -105,6 +105,14 @@ class PullRequest extends Item
             ]
         );
 
+        if ($prData->state === 'closed' || isset($prData->closed_at)) {
+            $dt = new \DateTime($prData->closed_at);
+            $dt->setTimezone(new \DateTimeZone('UTC'));
+            $closedAt = $dt->format('Y-m-d H:i:s');
+        } else {
+            $closedAt = null;
+        }
+
         // Update PR-specific fields in pull_requests table if it exists
         if (\Schema::hasTable('pull_requests')) {
             \DB::table('pull_requests')->updateOrInsert(
@@ -114,7 +122,7 @@ class PullRequest extends Item
                     'base_branch' => $prData->base->ref,
                     'head_sha' => $prData->head->sha ?? null,
                     'merge_base_sha' => $prData->base->sha ?? null,
-                    'closed_at' => $prData->closed_at ?? null,
+                    'closed_at' => $closedAt,
                 ]
             );
         }
