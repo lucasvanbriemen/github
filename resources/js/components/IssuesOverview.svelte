@@ -14,6 +14,11 @@
     const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${pageNr}`);
     let json = await res.json();
     issues = json.data;
+
+    for (let i = 0; i < issues.length; i++) {
+      issues[i].labels = JSON.parse(issues[i].labels);
+    }
+
     paginationLinks = json.links;
   }
 

@@ -2,10 +2,6 @@
   import { onMount } from "svelte";
   let { item, itemType } = $props();
 
-  onMount(() => {
-    console.log(item);
-  });
-
   function openItem(number) {
     const base = window.location.href; // if using hash routing
     window.location.href = `${base}/${number}`;
@@ -25,7 +21,17 @@
 
   <div class="content">
     <h3>{item.title}</h3>
-    <div class="meta">opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.name} </div>
+    <div class="meta">
+      opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.name}
+
+      {#if item.labels.length > 0}
+        <div class="labels">
+          {#each item.labels as label}
+            <span class="label" style="background-color: #{label.color}4D; color: #{label.color}; border: 1px solid #{label.color};">{label.name}</span>
+          {/each}
+        </div>
+      {/if}
+    </div>
   </div>
 
   <div class="assignees">
@@ -86,6 +92,13 @@
         }
 
         color: var(--text-color-secondary);
+
+        .label {
+          margin: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 1rem;
+          font-size: 0.75rem;
+        }
       }
     }
 
