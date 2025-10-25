@@ -5,9 +5,14 @@
   onMount(() => {
     console.log(item);
   });
+
+  function openItem(number) {
+    const base = window.location.href; // if using hash routing
+    window.location.href = `${base}/${number}`;
+  }
 </script>
 
-<article class="list-item">
+<a class="list-item" data-type="{itemType}" on:click={() => openItem(item.number)} href="javascript:void(0);">
   <div class="state-icon">
     {#if itemType === 'issue'}
       <svg color="open.fg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" display="inline-block" overflow="visible" style="vertical-align:text-bottom" class="icon {item.state}">
@@ -30,13 +35,16 @@
       {/each}
     {/if}
   </div>
-</article>
+</a>
 
 <style>
   .list-item {
-    padding: 0.5rem 1rem;
+    padding: calc(0.5rem - 4px) calc(1rem - 4px);
     background-color: var(--background-color-one);
     border-radius: 1rem;
+    border: 2px solid var(--background-color-one);
+
+    text-decoration: none;
 
     display: flex;
     align-items: center;
@@ -98,6 +106,11 @@
           margin-left: 0.25rem;
         }
       }
+    }
+
+    &:hover {
+      cursor: pointer;
+      border: 2px solid var(--primary-color-dark);
     }
   }
 </style>
