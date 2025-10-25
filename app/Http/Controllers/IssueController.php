@@ -222,7 +222,7 @@ class IssueController extends Controller
                 'openedBy:id,name,avatar_url',
                 'assignees:id,name,avatar_url',
             ])
-            ->paginate(50, ['*'], 'page', $page);
+            ->paginate(30, ['*'], 'page', $page);
 
         $issues->getCollection()->transform(function ($issue) {
             $issue->created_at_human = $issue->created_at->diffForHumans();

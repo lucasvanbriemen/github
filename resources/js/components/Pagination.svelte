@@ -9,7 +9,8 @@
 
 <nav class="pagination">
   {#each links as link}
-    {#if link.page !== null}
+    <!-- If there is no url or if the label isnt a number -->
+    {#if link.page !== null && /^\d+$/.test(link.label)}
       <a on:click={() => handleClick(link)} class:active={link.active}>
         {@html link.label}
       </a>
