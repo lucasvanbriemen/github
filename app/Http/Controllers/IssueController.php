@@ -225,7 +225,7 @@ class IssueController extends Controller
             ->paginate(50, ['*'], 'page', $page);
 
         $issues->getCollection()->transform(function ($issue) {
-            $issue->created_at = $issue->created_at->diffForHumans();
+            $issue->created_at_human = $issue->created_at->diffForHumans();
             return $issue;
     });
 
