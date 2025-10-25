@@ -20,7 +20,15 @@
 
   <div class="content">
     <h3>{item.title}</h3>
-    <div class="meta">{item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.name} </div>
+    <div class="meta">opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.name} </div>
+  </div>
+
+  <div class="assignees">
+    {#if item.assignees.length > 0}
+      {#each item.assignees as assignee}
+        <img src="{assignee.avatar_url}" alt="">
+      {/each}
+    {/if}
   </div>
 </article>
 
@@ -70,6 +78,25 @@
         }
 
         color: var(--text-color-secondary);
+      }
+    }
+
+    .assignees {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+
+      img {
+        height: 2rem;
+        width: 2rem;
+        border-radius: 50%;
+        margin-left: -1.25rem;
+      }
+
+      &:hover {
+        img {
+          margin-left: 0.25rem;
+        }
       }
     }
   }
