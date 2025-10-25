@@ -3,7 +3,7 @@
 
   let { selectedSection, params = {} } = $props();
 
-  let org = $derived(params.name || '');
+  let organization = $derived(params.organization || '');
   let repo = $derived(params.repository || '');
 
   let dropdownOpen = $state(false);
@@ -11,14 +11,14 @@
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
     const parts = hash.split('/').filter(Boolean);
-    // parts: [org, repo, section?, id?]
-    org = parts[0] || org;
+    // parts: [organization, repo, section?, id?]
+    organization = parts[0] || organization;
     repo = parts[1] || repo;
   }
 
   function linkTo(path = '') {
     // path examples: '', 'issues', 'issues/123', 'prs', 'prs/45'
-    const route = `#/${org}/${repo}${path ? '/' + path : ''}`;
+    const route = `#/${organization}/${repo}${path ? '/' + path : ''}`;
     window.location.hash = route;
     dropdownOpen = false;
   }

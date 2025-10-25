@@ -11,10 +11,10 @@
 
   const routes = {
     '/': Dashboard,
-    '/:name': Organization,
-    '/:name/:repository': RepositoryDashboard,
-    '/:name/:repository/issues': IssuesOverview,
-    '/:name/:repository/issues/:number': Item,
+    '/:organization': Organization,
+    '/:organization/:repository': RepositoryDashboard,
+    '/:organization/:repository/issues': IssuesOverview,
+    '/:organization/:repository/issues/:number': Item,
   };
 
   onMount(async () => {

@@ -5,18 +5,13 @@
   import ListItem from './ListItem.svelte';
 
   let { params = {} } = $props();
-  let name = $derived(params.name || '');
+  let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
   let issues = $state([]);
   let paginationLinks = $state([]);
 
   async function getIssues(pageNr = 1) {
-    const res = await fetch(
-      `${route('organizations.repositories.get', {
-          organization: name,
-          repository: repository,
-      })}?page=${pageNr}`
-    );
+    const res = await fetch(`${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}`);
     let json = await res.json();
     issues = json.data;
 

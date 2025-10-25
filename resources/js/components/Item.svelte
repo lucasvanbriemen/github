@@ -2,12 +2,12 @@
   import { onMount } from 'svelte';
 
   let { params = {} } = $props();
-  let name = $derived(params.name || '');
+  let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
   let number = $derived(params.number || '');
 
   onMount(async () => {
-    const res = await fetch(route(`organizations.repositories.item.show`, { organization: name, repository, number }));
+    const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     let json = await res.json();
     console.log(json);
   });

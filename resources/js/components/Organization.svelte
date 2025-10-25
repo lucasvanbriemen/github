@@ -1,10 +1,10 @@
 <script>
   let { params = {} } = $props();
-  let name = $derived(params.name || '');
+  let organization = $derived(params.organization || '');
 </script>
 
 <div class="organization">
-  <h1>Organization: {name}</h1>
+  <h1>Organization: {organization}</h1>
   <a href="#/">Back to Home</a>
 </div>
 
