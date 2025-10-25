@@ -11,7 +11,12 @@
   let paginationLinks = $state([]);
 
   async function getIssues(pageNr = 1) {
-    const res = await fetch(`/api/org/${name}/repo/${repository}/issues?page=${pageNr}`);
+    const res = await fetch(
+        `${route('organizations.repositories.get', {
+            organization: name,
+            repository: repository,
+        })}?page=${pageNr}`
+    );
     let json = await res.json();
     issues = json.data;
 
