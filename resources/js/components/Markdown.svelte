@@ -20,7 +20,7 @@
     border: 2px solid var(--border-color);
     border-radius: 1rem;
 
-    :global(p), :global(li) {
+    :global(p), :global(li), :global(strong) {
       color: var(--text-color-secondary);
     }
 
