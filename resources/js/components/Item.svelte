@@ -23,11 +23,11 @@
   <div class="item-main">
     <div class="item-header">
       <h2>{item.title}</h2>
-      <span><ItemIcon itemType={item.type} state={item.state} /> {item.state}</span>
+      <span class="item-state item-state-{item.state}"><ItemIcon itemType={item.type} state={item.state} /> {item.state}</span>
     </div>
 
     <div class="item-body">
-      <div>created  {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
+      <div>created {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
 
       <Markdown content={item.body} />
     </div>
@@ -56,6 +56,20 @@
 
         h2 {
           margin: 0;
+        }
+
+        .item-state {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+          color: var(--success-color);
+          width: fit-content;
+          padding: 0.25rem 0.5rem;
+
+          &.item-state-closed {
+            color: var(--error-color);
+          }
         }
 
         div {
