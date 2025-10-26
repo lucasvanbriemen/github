@@ -18,12 +18,8 @@ class ItemController extends Controller
                 $query->with('author');
             }])
             ->firstOrFail();
-        
-        return response()->json([
-            'organization' => $organization,
-            'repository' => $repository,
-            'item' => $item,
-        ]);
+
+        return response()->json($item);
     }
 
   
