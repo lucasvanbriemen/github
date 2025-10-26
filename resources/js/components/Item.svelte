@@ -21,7 +21,7 @@
   <div class="item-main">
     <div class="item-header">
       <h2>{item.title}</h2>
-      <p>Created by {item.opened_by?.name} {item.created_at_human}</p>
+      <div> created  {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
     </div>
   </div>
 </div>
@@ -33,12 +33,37 @@
     display: flex;
     gap: 1rem;
     overflow: auto;
+
     .item-main {
       width: calc(85vw - 3rem);
       display: flex;
       flex-direction: column;
       gap: 1rem;
       margin-top: 1rem;
+
+      .item-header {
+        background-color: var(--background-color-one);
+        padding: 1rem;
+        border-radius: 0.5rem;
+
+        h2 {
+          margin: 0;
+        }
+
+        div {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+          color: var(--text-color-secondary);
+        }
+
+        img {
+          width: 1rem;
+          height: 1rem;
+          border-radius: 50%;
+        }
+      }
     }
   }
 </style>
