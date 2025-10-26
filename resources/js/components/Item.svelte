@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
-  import ItemIcon from './ItemIcon.svelte';
   import Markdown from './Markdown.svelte';
 
   let { params = {} } = $props();
@@ -23,11 +22,13 @@
   <div class="item-main">
     <div class="item-header">
       <h2>{item.title}</h2>
-      <span class="item-state item-state-{item.state}"><ItemIcon itemType={item.type} state={item.state} /> {item.state}</span>
+      <div>
+        created {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}
+        <span class="item-state item-state-{item.state}">{item.state}</span>
+      </div>
     </div>
 
     <div class="item-body">
-      <div>created {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
 
       <Markdown content={item.body} />
     </div>
@@ -62,13 +63,16 @@
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          margin-top: 0.5rem;
-          color: var(--success-color);
+          color: white;
+          text-transform: capitalize;
+          
           width: fit-content;
-          padding: 0.25rem 0.5rem;
-
+          padding: 0.25rem;
+          background-color: var(--success-color);
+          border-radius: 0.5rem;
+          
           &.item-state-closed {
-            color: var(--error-color);
+            background-color: var(--error-color);
           }
         }
 
