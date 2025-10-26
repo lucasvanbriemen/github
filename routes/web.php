@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\IsLoggedIn;
+use App\Http\Controllers\ImageProxyController;
+
+// To proxy images from private repositories
+Route::get('/proxy/image', [ImageProxyController::class, 'proxy'])->name('image.proxy');
 
 // SPA Entry Point - Serve the SPA for all routes
 // All routing is handled client-side by Svelte
@@ -11,8 +15,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     })->where('any', '.*')->name('spa');
 });
 
+
+
 // use App\Http\Controllers\DashboardController;
-// use App\Http\Controllers\ImageProxyController;
 // use App\Http\Controllers\IssueController;
 // use App\Http\Controllers\PullRequestController;
 // use App\Http\Controllers\OrganizationController;
@@ -28,7 +33,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     //     return view('webhook_sender');
     // })->name('webhook_sender');
 
-//     Route::get('/proxy/image', [ImageProxyController::class, 'proxy'])->name('image.proxy');
 
 //     Route::prefix('organization/{organization}')->group(function () {
 //         Route::get('/', [OrganizationController::class, 'show'])->name('organization.show');

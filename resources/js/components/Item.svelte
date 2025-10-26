@@ -1,6 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
+  import { marked } from 'marked';
+  import 'github-markdown-css/github-markdown-dark.css';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -8,10 +10,12 @@
   let number = $derived(params.number || '');
 
   let item = $state({});
+  let markdown = $state('');
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
+    markdown = marked.parse(item.body);
   });
 </script>
 
@@ -21,7 +25,13 @@
   <div class="item-main">
     <div class="item-header">
       <h2>{item.title}</h2>
-      <div> created  {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
+      <div>created  {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
+    </div>
+
+    <div class="item-body">
+      <div class="markdown-body">
+ {@html markdown}
+      </div>
     </div>
   </div>
 </div>
@@ -64,6 +74,7 @@
           border-radius: 50%;
         }
       }
+
     }
   }
 </style>
