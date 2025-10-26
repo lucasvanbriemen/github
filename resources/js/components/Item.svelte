@@ -102,6 +102,40 @@
           border-radius: 50%;
         }
       }
+
+      .item-comment {
+        padding: 0.25rem 0;
+        display: flex;
+        flex-direction: column;
+
+        .item-comment-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--text-color-secondary);
+          background-color: var(--background-color-one);
+          padding: 1rem;
+          border-radius: 1rem 1rem 0 0;
+
+          img {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+          }
+        }
+
+        .item-comment-body {
+          :global(.markdown-body) {
+            border: 2px solid var(--background-color-one);
+            border-radius: 0 0 1rem 1rem;
+
+            /* Most comments dont have a hiarchy, so we dont need to style it */
+            :global(p), :global(li), :global(strong) {
+              color: var(--text-color);
+            }
+          }
+        }
+      }
     }
   }
 </style>
