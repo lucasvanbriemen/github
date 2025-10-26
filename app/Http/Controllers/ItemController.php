@@ -21,6 +21,10 @@ class ItemController extends Controller
         
         $item->body = self::processMarkdownImages($item->body);
         $item->created_at_human = $item->created_at->diffForHumans();
+        foreach ($item->comments as $comment) {
+            $comment->body = self::processMarkdownImages($comment->body);
+            $comment->created_at_human = $comment->created_at->diffForHumans();
+        }
 
         return response()->json($item);
     }

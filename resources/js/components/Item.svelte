@@ -13,6 +13,7 @@
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
+    console.log(item);
   });
 </script>
 
@@ -29,9 +30,20 @@
     </div>
 
     <div class="item-body">
-
       <Markdown content={item.body} />
     </div>
+
+    {#each item.comments as comment}
+      <div class="item-comment">
+        <div class="item-comment-header">
+          <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+          <span>{comment.author?.name} commented {comment.created_at_human}</span>
+        </div>
+        <div class="item-comment-body">
+          <Markdown content={comment.body} />
+        </div>
+      </div>
+    {/each}
   </div>
 </div>
 
