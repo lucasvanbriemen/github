@@ -3,7 +3,7 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
-use App\Models\IssueComment;
+use App\Models\ItemComment;
 use App\Models\PullRequestComment;
 use App\Models\PullRequestReview;
 
@@ -30,7 +30,7 @@ class CommentRenderer extends Component
     private function getViewForItem(): ?string
     {
         return match(true) {
-            $this->item instanceof IssueComment => 'repository.pull_requests.partials.issue-comment',
+            $this->item instanceof ItemComment => 'repository.pull_requests.partials.issue-comment',
             $this->item instanceof PullRequestComment && !$this->item->in_reply_to_id => 'repository.pull_requests.partials.pr-comment',
             $this->item instanceof PullRequestReview => 'repository.pull_requests.partials.pr-review',
             default => null
@@ -46,7 +46,7 @@ class CommentRenderer extends Component
         ];
 
         return match(true) {
-            $this->item instanceof IssueComment => array_merge($baseData, ['comment' => $this->item]),
+            $this->item instanceof ItemComment => array_merge($baseData, ['comment' => $this->item]),
             $this->item instanceof PullRequestComment => array_merge($baseData, [
                 'comment' => $this->item,
                 'replies' => $this->item->replies ?? collect()

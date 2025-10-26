@@ -54,7 +54,7 @@ class Item extends Model
 
     public function comments()
     {
-        return $this->hasMany(IssueComment::class, 'issue_id', 'id');
+        return $this->hasMany(ItemComment::class, 'issue_id', 'id');
     }
 
     // Scope to get only issues

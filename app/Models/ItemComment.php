@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class IssueComment extends Model
+class ItemComment extends Model
 {
     protected $primaryKey = 'id';
 

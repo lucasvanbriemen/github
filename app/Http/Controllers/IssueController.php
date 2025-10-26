@@ -8,7 +8,7 @@ use App\Models\Issue;
 use App\Models\Organization;
 use App\Models\Repository;
 use Illuminate\Http\Request;
-use App\Models\IssueComment;
+use App\Models\ItemComment;
 use App\Models\PullRequest;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
@@ -73,7 +73,7 @@ class IssueController extends Controller
 
     public function resolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
     {
-        $comment = IssueComment::where('id', $commentId)->firstOrFail();
+        $comment = ItemComment::where('id', $commentId)->firstOrFail();
         $comment->resolved = true;
         $comment->save();
         return response()->json(['resolved' => $comment->resolved]);
@@ -81,7 +81,7 @@ class IssueController extends Controller
 
     public function unresolveComment($organizationName, $repositoryName, $issueNumber, $commentId, Request $request)
     {
-        $comment = IssueComment::where('id', $commentId)->firstOrFail();
+        $comment = ItemComment::where('id', $commentId)->firstOrFail();
         $comment->resolved = false;
         $comment->save();
         return response()->json(['resolved' => $comment->resolved]);
