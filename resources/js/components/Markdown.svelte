@@ -1,7 +1,6 @@
 <script>
   import { marked } from 'marked';
   import 'github-markdown-css/github-markdown-dark.css';
-  import { onMount } from 'svelte';
 
   export let content = ''; // default to empty string
 
