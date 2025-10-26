@@ -31,5 +31,9 @@
     :global(a) {
       color: var(--primary-color);
     }
+
+    :global(pre) {
+      background-color: var(--background-color-one);
+    }
   }
 </style>
