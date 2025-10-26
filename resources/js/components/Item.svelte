@@ -12,29 +12,28 @@
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
-    console.log(item)
   });
 </script>
 
-<div class="repo-dashboard">
+<div class="item-overview">
   <Sidebar {params} selectedSection="Issues" />
 
-  <div class="repo-main">
-    {item.title}
+  <div class="item-main">
+    <div class="item-header">
+      <h2>{item.title}</h2>
+      <p>Created by {item.opened_by?.name} {item.created_at_human}</p>
+    </div>
   </div>
-
 </div>
-  
+
 <style>
-  .repo-dashboard {
+  .item-overview {
     height: 100%;
     width: 100%;
-
     display: flex;
     gap: 1rem;
     overflow: auto;
-
-    .repo-main {
+    .item-main {
       width: calc(85vw - 3rem);
       display: flex;
       flex-direction: column;

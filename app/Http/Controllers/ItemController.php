@@ -19,6 +19,8 @@ class ItemController extends Controller
             }])
             ->firstOrFail();
 
+        $item->created_at_human = $item->created_at->diffForHumans();
+
         return response()->json($item);
     }
 
