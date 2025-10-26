@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
+  import ItemIcon from './ItemIcon.svelte';
   import Markdown from './Markdown.svelte';
 
   let { params = {} } = $props();
@@ -22,10 +23,12 @@
   <div class="item-main">
     <div class="item-header">
       <h2>{item.title}</h2>
-      <div>created  {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
+      <span><ItemIcon itemType={item.type} state={item.state} /> {item.state}</span>
     </div>
 
     <div class="item-body">
+      <div>created  {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}</div>
+
       <Markdown content={item.body} />
     </div>
   </div>
@@ -69,7 +72,6 @@
           border-radius: 50%;
         }
       }
-
     }
   }
 </style>
