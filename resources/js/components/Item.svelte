@@ -120,6 +120,11 @@
         padding: 0.25rem 0;
         display: flex;
         flex-direction: column;
+
+        &:last-child {
+          padding-bottom: 1rem;
+        }
+
         .item-comment-header {
           display: flex;
           align-items: center;
