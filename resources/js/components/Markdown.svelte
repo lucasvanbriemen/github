@@ -35,5 +35,9 @@
     :global(pre) {
       background-color: var(--background-color-one);
     }
+
+    :global(img) {
+      border-radius: 1rem;
+    }
   }
 </style>

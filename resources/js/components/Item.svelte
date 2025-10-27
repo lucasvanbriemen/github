@@ -13,8 +13,11 @@
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
-    console.log(item);
   });
+
+  function toggleResolved(comment) {
+    comment.resolved = !comment.resolved;
+  }
 </script>
 
 <div class="item-overview">
@@ -34,11 +37,11 @@
     </div>
 
     {#each item.comments as comment}
-      <div class="item-comment">
-        <div class="item-comment-header">
+      <div class="item-comment" class:item-comment-resolved={comment.resolved}>
+        <button class="item-comment-header" on:click={() => toggleResolved(comment)}>
           <img src={comment.author?.avatar_url} alt={comment.author?.name} />
           <span>{comment.author?.name} commented {comment.created_at_human}</span>
-        </div>
+        </button>
         <div class="item-comment-body">
           <Markdown content={comment.body} />
         </div>
@@ -107,7 +110,6 @@
         padding: 0.25rem 0;
         display: flex;
         flex-direction: column;
-
         .item-comment-header {
           display: flex;
           align-items: center;
@@ -116,6 +118,9 @@
           background-color: var(--background-color-one);
           padding: 1rem;
           border-radius: 1rem 1rem 0 0;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
 
           img {
             width: 1rem;
@@ -128,11 +133,23 @@
           :global(.markdown-body) {
             border: 2px solid var(--background-color-one);
             border-radius: 0 0 1rem 1rem;
+            height: auto;
 
             /* Most comments dont have a hiarchy, so we dont need to style it */
             :global(p), :global(li), :global(strong) {
               color: var(--text-color);
             }
+          }
+        }
+        
+        &.item-comment-resolved {
+          .item-comment-header {
+            border-radius: 1rem;
+          }
+
+          .item-comment-body {
+            height: 0;
+            overflow: hidden;
           }
         }
       }
