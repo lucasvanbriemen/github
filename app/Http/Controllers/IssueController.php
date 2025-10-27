@@ -214,15 +214,21 @@ class IssueController extends Controller
         [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $page = request()->query('page', 1);
+        $state = request()->query('state', 'open');
 
-        $issues = $repository
+        $query = $repository
             ->issues()
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
             ->with([
                 'openedBy:id,name,avatar_url',
                 'assignees:id,name,avatar_url',
-            ])
-            ->paginate(30, ['*'], 'page', $page);
+            ]);
+
+        if ($state !== 'all') {
+            $query->where('state', $state);
+        }
+
+        $issues = $query->paginate(30, ['*'], 'page', $page);
 
         $issues->getCollection()->transform(function ($issue) {
             $issue->created_at_human = $issue->created_at->diffForHumans();

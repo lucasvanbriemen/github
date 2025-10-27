@@ -9,9 +9,14 @@
   let repository = $derived(params.repository || '');
   let issues = $state([]);
   let paginationLinks = $state([]);
+  let currentPage = $state(1);
+
+  let state = $state('open');
 
   async function getIssues(pageNr = 1) {
-    const res = await fetch(`${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}`);
+    currentPage = pageNr;
+
+    const res = await fetch(`${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}&state=${state}`);
     let json = await res.json();
     issues = json.data;
 
@@ -22,6 +27,11 @@
     paginationLinks = json.links;
   }
 
+  function filterIssue(event) {
+    state = event.detail.state;
+    getIssues(currentPage);
+  }
+
   onMount(async () => {
     await getIssues();
   });
@@ -29,7 +39,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedSection="Issues" />
+  <Sidebar {params} selectedDropdownSection="Issues" showDetailsFrom="item-list" on:filterChange={filterIssue} />
   <div class="repo-main">
     {#each issues as item}
       <ListItem {item} itemType="issue" />

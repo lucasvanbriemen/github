@@ -1,12 +1,20 @@
 <script>
   import { onMount } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
 
-  let { selectedSection, params = {} } = $props();
+  let { selectedDropdownSection, showDetailsFrom, params = {} } = $props();
 
   let organization = $derived(params.organization || '');
   let repo = $derived(params.repository || '');
 
   let dropdownOpen = $state(false);
+  let state = $state('open');
+
+  function handleFilterChange(e) {
+    state = e.target.value;
+    dispatch('filterChange', { state });
+  }
 
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
@@ -32,6 +40,12 @@
 </script>
 
 <div class="sidebar">
+  <select name="state" bind:value={state} on:change={handleFilterChange}>
+    <option value="open">Open</option>
+    <option value="closed">Closed</option>
+    <option value="all">All</option>
+  </select>
+
   <div class="nav">
     <div class="dropdown-menu" class:open={dropdownOpen}>
       <a class="item" on:click={() => linkTo('')}>Home</a>
@@ -39,7 +53,7 @@
       <a class="item" on:click={() => linkTo('prs')}>PRs</a>
     </div>
     <button class="dropdown" on:click={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
-      {selectedSection}
+      {selectedDropdownSection}
     </button>
   </div>
 </div>
