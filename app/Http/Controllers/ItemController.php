@@ -28,27 +28,6 @@ class ItemController extends Controller
         return response()->json($item);
     }
 
-    public static function updateComment($organizationName, $repositoryName, $issueNumber, $comment_id)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $item = Item::where('repository_id', $repository->id)
-            ->where('number', $issueNumber)
-            ->firstOrFail();
-
-        $comment = $item->comments()->where('id', $comment_id)->firstOrFail();
-
-        $data = request()->validate([
-            'resolved' => 'required|boolean',
-        ]);
-
-        $comment->resolved = $data['resolved'];
-        $comment->save();
-
-        return response()->json(['success' => true, 'comment' => $comment]);
-    }
-
-  
     // For a private repo, we need to proxy images through our server instead of using the normal link
     // As you need to be authenticated to view them
     // So we use a proxy route to fetch and serve the images 

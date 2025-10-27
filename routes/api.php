@@ -2,12 +2,11 @@
 
 use App\Http\Controllers\IncomingWebhookController;
 use App\Http\Controllers\IssueController;
-use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\OrganizationController;
-use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemCommentController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org', [OrganizationController::class, 'getOrganizations'])
@@ -19,7 +18,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
         ->name('organizations.repositories.item.show');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemController::class, 'updateComment'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemCommentController::class, 'update'])
         ->name('organizations.repositories.item.comment');
 
     // Route::prefix('organization/{organization}/{repository}')->group(function () {
