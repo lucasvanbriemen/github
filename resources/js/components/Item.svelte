@@ -17,6 +17,16 @@
 
   function toggleResolved(comment) {
     comment.resolved = !comment.resolved;
+
+    fetch(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resolved: comment.resolved,
+      }),
+    });
   }
 </script>
 
