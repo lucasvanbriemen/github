@@ -81,4 +81,17 @@ class RepositoryController extends Controller
 
         return array_merge($sortedFolders, $sortedFiles);
     }
+
+    private static function getRepositoryWithOrganization($organizationName, $repositoryName)
+    {
+        $organization = Organization::where('name', $organizationName)->first();
+
+        $query = Repository::with('organization')->where('name', $repositoryName);
+        if ($organization) {
+            $query->where('organization_id', $organization->id);
+        }
+        $repository = $query->firstOrFail();
+
+        return [$organization, $repository];
+    }
 }
