@@ -29,6 +29,7 @@
 
   function filterIssue(event) {
     state = event.detail.state;
+    currentPage = 1;
     getIssues(currentPage);
   }
 

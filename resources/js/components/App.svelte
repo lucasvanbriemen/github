@@ -23,7 +23,7 @@
 </script>
 
 <Header />
-<Router {routes} />
+<Router {routes} useHash={false} />
 
 
 <style lang="scss">
