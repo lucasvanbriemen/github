@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
+  import SearchSelect from './SearchSelect.svelte';
   const dispatch = createEventDispatcher();
 
   let { selectedDropdownSection, showDetailsFrom, params = {} } = $props();
@@ -11,8 +12,14 @@
   let dropdownOpen = $state(false);
   let state = $state('open');
 
-  function handleFilterChange(e) {
-    state = e.target.value;
+  const stateOptions = [
+    { value: 'open', label: 'Open' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'all', label: 'All' }
+  ];
+
+  function handleFilterChange(event) {
+    state = event.detail.value;
     dispatch('filterChange', { state });
   }
 
@@ -41,11 +48,15 @@
 
 <div class="sidebar">
   {#if showDetailsFrom === 'item-list'}
-    <select name="state" bind:value={state} on:change={handleFilterChange}>
-      <option value="open">Open</option>
-      <option value="closed">Closed</option>
-      <option value="all">All</option>
-    </select>
+    <div class="filter-section">
+      <SearchSelect
+        name="state"
+        options={stateOptions}
+        bind:value={state}
+        on:change={handleFilterChange}
+        placeholder="Filter by state..."
+      />
+    </div>
   {/if}
 
   <div class="nav">
@@ -69,6 +80,11 @@
     height: 100%;
     position: sticky;
     top: 0;
+
+    .filter-section {
+      padding: 1rem 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
 
     .nav {
       position: absolute;
