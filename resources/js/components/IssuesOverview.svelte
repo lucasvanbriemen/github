@@ -12,11 +12,18 @@
   let currentPage = $state(1);
 
   let state = $state('open');
+  let assignees = $state([]);
 
   async function getIssues(pageNr = 1) {
     currentPage = pageNr;
 
-    const res = await fetch(`${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}&state=${state}`);
+    let url = `${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}&state=${state}`;
+    if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
+      const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
+      url += `&assignee=${assigneeParam}`;
+    }
+
+    const res = await fetch(url);
     let json = await res.json();
     issues = json.data;
 
@@ -29,6 +36,8 @@
 
   function filterIssue(event) {
     state = event.detail.state;
+    assignees = event.detail.assignees;
+
     currentPage = 1;
     getIssues(currentPage);
   }

@@ -19,11 +19,7 @@
   ];
 
   let assignees = $state([]);
-
-  function handleFilterChange(event) {
-    state = event.detail.value;
-    dispatch('filterChange', { state });
-  }
+  let selectedAssignee = $state('');
 
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
@@ -73,9 +69,25 @@
         name="state"
         options={stateOptions}
         bind:value={state}
-        on:change={handleFilterChange}
-        placeholder="Filter by state..."
+        on:change={(e) => {
+          state = e.detail.value;
+          dispatch('filterChange', { state, assignees: selectedAssignee });
+        }}
       />
+    </div>
+
+    <div class="filter-section">
+      <SearchSelect
+        name="assignee"
+        options={assignees}
+        bind:value={selectedAssignee}
+        on:change={(e) => {
+          selectedAssignee = e.detail.value;
+          dispatch('filterChange', { state, assignees: selectedAssignee });
+        }}
+        multiple={true}
+      />
+
     </div>
   {/if}
 
