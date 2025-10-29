@@ -3,6 +3,7 @@
 use App\Http\Controllers\IncomingWebhookController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
@@ -14,6 +15,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     
     Route::get('/org/{organization}/repo/{repository}/issues', [IssueController::class, 'listIssues'])
         ->name('organizations.repositories.get');
+
+    Route::get('/org/{organization}/repo/{repository}/contributors', [RepositoryController::class, 'getContributors'])
+        ->name('organizations.repositories.get.contributors');
 
     Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
         ->name('organizations.repositories.item.show');

@@ -7,7 +7,7 @@
   let { selectedDropdownSection, showDetailsFrom, params = {} } = $props();
 
   let organization = $derived(params.organization || '');
-  let repo = $derived(params.repository || '');
+  let repository = $derived(params.repository || '');
 
   let dropdownOpen = $state(false);
   let state = $state('open');
@@ -18,6 +18,8 @@
     { value: 'all', label: 'All' }
   ];
 
+  let assignees = $state([]);
+
   function handleFilterChange(event) {
     state = event.detail.value;
     dispatch('filterChange', { state });
@@ -26,20 +28,38 @@
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
     const parts = hash.split('/').filter(Boolean);
-    // parts: [organization, repo, section?, id?]
+    // parts: [organization, repository, section?, id?]
     organization = parts[0] || organization;
-    repo = parts[1] || repo;
+    repository = parts[1] || repository;
   }
 
   function linkTo(path = '') {
     // path examples: '', 'issues', 'issues/123', 'prs', 'prs/45'
-    const route = `#/${organization}/${repo}${path ? '/' + path : ''}`;
+    const route = `#/${organization}/${repository}${path ? '/' + path : ''}`;
     window.location.hash = route;
     dropdownOpen = false;
   }
 
+  async function getContributors() {
+    const res = await fetch(`${route('organizations.repositories.get.contributors', {organization, repository})}`);
+    assignees = await res.json();
+
+    // We have to format it into the {value, label} format for SearchSelect
+    assignees = assignees.map(assignee => ({
+      value: assignee.login,
+      label: assignee.name
+    }));
+
+    console.log(assignees);
+  }
+
   onMount(() => {
     parseHash();
+
+    if (showDetailsFrom == 'item-list') {
+      getContributors();
+    }
+
     const onHash = () => parseHash();
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);

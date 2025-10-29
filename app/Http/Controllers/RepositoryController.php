@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\Repository;
 use Highlight\Highlighter;
 use Illuminate\Http\Request;
+use App\Services\RepositoryService;
 
 class RepositoryController extends Controller
 {
@@ -82,16 +83,17 @@ class RepositoryController extends Controller
         return array_merge($sortedFolders, $sortedFiles);
     }
 
-    private static function getRepositoryWithOrganization($organizationName, $repositoryName)
+    public function getContributors($organizationName, $repositoryName)
     {
-        $organization = Organization::where('name', $organizationName)->first();
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $query = Repository::with('organization')->where('name', $repositoryName);
-        if ($organization) {
-            $query->where('organization_id', $organization->id);
+        $contributorsPivot = $repository->contributors()->get();
+        $contributors = [];
+
+        foreach ($contributorsPivot as $contributor) {
+            $contributors[] = $contributor->githubUser;
         }
-        $repository = $query->firstOrFail();
 
-        return [$organization, $repository];
+        return response()->json($contributors);
     }
 }

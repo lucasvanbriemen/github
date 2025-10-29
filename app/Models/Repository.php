@@ -18,7 +18,7 @@ class Repository extends Model
         return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
 
-    public function users()
+    public function contributors()
     {
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
