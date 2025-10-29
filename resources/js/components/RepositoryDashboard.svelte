@@ -6,7 +6,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedSection="Home" />
+  <Sidebar {params} selectedDropdownSection="Home" showDetailsFrom="repo-dashboard" />
   <div class="repo-main">
   </div>
 </div>

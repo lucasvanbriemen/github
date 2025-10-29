@@ -40,11 +40,13 @@
 </script>
 
 <div class="sidebar">
-  <select name="state" bind:value={state} on:change={handleFilterChange}>
-    <option value="open">Open</option>
-    <option value="closed">Closed</option>
-    <option value="all">All</option>
-  </select>
+  {#if showDetailsFrom === 'item-list'}
+    <select name="state" bind:value={state} on:change={handleFilterChange}>
+      <option value="open">Open</option>
+      <option value="closed">Closed</option>
+      <option value="all">All</option>
+    </select>
+  {/if}
 
   <div class="nav">
     <div class="dropdown-menu" class:open={dropdownOpen}>
