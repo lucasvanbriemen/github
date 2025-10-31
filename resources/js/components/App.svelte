@@ -23,8 +23,7 @@
 </script>
 
 <Header />
-<Router {routes} useHash={false} />
-
+<Router {routes} />
 
 <style lang="scss">
   :global(body) {

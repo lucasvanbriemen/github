@@ -19,7 +19,7 @@
   ];
 
   let assignees = $state([]);
-  let selectedAssignee = $state('');
+  let selectedAssignee = $state([]);
 
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
@@ -46,7 +46,10 @@
       label: assignee.name
     }));
 
-    console.log(assignees);
+    const currentUserId = Number(window.USER_ID);
+    if (currentUserId && assignees.some(a => a.value === currentUserId)) {
+      selectedAssignee = [currentUserId];
+    }
   }
 
   onMount(() => {

@@ -215,6 +215,7 @@ class IssueController extends Controller
 
         $page = request()->query('page', 1);
         $state = request()->query('state', 'open');
+        $isInitialLoad = request()->query('isInitialLoad', false);
 
         $query = $repository
             ->issues()
@@ -233,6 +234,13 @@ class IssueController extends Controller
         if (!empty($assignees)) {
             $query->whereHas('assignees', function ($q) use ($assignees) {
                 $q->whereIn('id', $assignees);
+            });
+        }
+
+        if ($isInitialLoad) {
+            // By default, we want to have me as assignee on initial load
+            $query->whereHas('assignees', function ($q) {
+                $q->where('id', GithubConfig::USERID);
             });
         }
 

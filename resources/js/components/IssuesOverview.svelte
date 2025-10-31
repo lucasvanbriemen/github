@@ -14,13 +14,17 @@
   let state = $state('open');
   let assignees = $state([]);
 
-  async function getIssues(pageNr = 1) {
+  async function getIssues(pageNr = 1, isInitialLoad = false) {
     currentPage = pageNr;
 
     let url = `${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}&state=${state}`;
     if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
       const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
       url += `&assignee=${assigneeParam}`;
+    }
+
+    if (isInitialLoad) {
+      url += `&isInitialLoad=true`;
     }
 
     const res = await fetch(url);
@@ -43,7 +47,7 @@
   }
 
   onMount(async () => {
-    await getIssues();
+    await getIssues(currentPage, true);
   });
 
 </script>

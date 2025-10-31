@@ -6,6 +6,10 @@ $routes = collect(Route::getRoutes())->map(function ($route) {
         'method' => $route->methods()[0],
     ];
 })->values();
+
+$userID = \App\GithubConfig::USERID;
+$username = \App\GithubConfig::USERNAME;
+
 @endphp
 
 <!DOCTYPE html>
@@ -19,6 +23,8 @@ $routes = collect(Route::getRoutes())->map(function ($route) {
 <body>
     <script>
         const API_ROUTES = @json($routes);
+        window.USER_ID = "{{ $userID }}";
+        window.USERNAME = "{{ $username }}";
 
         function route(name, params = {}) {
             const route = API_ROUTES.find(r => r.name === name);
