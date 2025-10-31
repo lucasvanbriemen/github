@@ -228,6 +228,14 @@ class IssueController extends Controller
             $query->where('state', $state);
         }
 
+        $assigneesList = request()->query('assignee', null);
+        $assignees = array_filter(array_map('trim', explode(',', $assigneesList)));
+        if (!empty($assignees)) {
+            $query->whereHas('assignees', function ($q) use ($assignees) {
+                $q->whereIn('id', $assignees);
+            });
+        }
+
         $issues = $query->paginate(30, ['*'], 'page', $page);
 
         $issues->getCollection()->transform(function ($issue) {

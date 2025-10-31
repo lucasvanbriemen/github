@@ -42,7 +42,7 @@
 
     // We have to format it into the {value, label} format for SearchSelect
     assignees = assignees.map(assignee => ({
-      value: assignee.login,
+      value: assignee.id,
       label: assignee.name
     }));
 

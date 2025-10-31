@@ -35,8 +35,7 @@
     if (!searchQuery) return options;
     const q = searchQuery.toLowerCase();
     return options.filter(opt =>
-      opt.label.toLowerCase().includes(q) ||
-      opt.value.toLowerCase().includes(q)
+      opt.label.toLowerCase().includes(q)
     );
   });
 
