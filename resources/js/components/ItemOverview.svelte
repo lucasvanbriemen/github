@@ -20,7 +20,7 @@
   async function getItems(pageNr = 1, isInitialLoad = false) {
     currentPage = pageNr;
 
-    let url = `${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}&state=${state}`;
+    let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
     if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
       const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
       url += `&assignee=${assigneeParam}`;

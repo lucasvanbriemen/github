@@ -12,9 +12,9 @@ use App\Http\Controllers\ItemCommentController;
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org', [OrganizationController::class, 'getOrganizations'])
         ->name('organizations.get');
-    
-    Route::get('/org/{organization}/repo/{repository}/issues', [IssueController::class, 'listIssues'])
-        ->name('organizations.repositories.get');
+
+    Route::get('/org/{organization}/repo/{repository}/items/{type}', [ItemController::class, 'index'])
+        ->name('organizations.repositories.items.get');
 
     Route::get('/org/{organization}/repo/{repository}/contributors', [RepositoryController::class, 'getContributors'])
         ->name('organizations.repositories.get.contributors');
