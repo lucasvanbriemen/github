@@ -15,7 +15,7 @@
   let type = $derived(path.includes('/prs') ? 'pr' : 'issue');
 
   let state = $state('open');
-  let assignees = $state([]);
+  let assignees = $state(window.USER_ID);
 
   async function getItems(pageNr = 1, isInitialLoad = false) {
     currentPage = pageNr;
