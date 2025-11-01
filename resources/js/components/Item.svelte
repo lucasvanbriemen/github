@@ -34,6 +34,7 @@
 <div class="item-overview">
   <Sidebar {params} selectedDropdownSection="Issues" showDetailsFrom="item">
     <div class="group">
+      <span class="group-title">Assignees</span>
       {#each item.assignees as assignee}
         <div class="assignee">
           <img src={assignee.avatar_url} alt={assignee.name} />
@@ -71,6 +72,35 @@
 </div>
 
 <style>
+
+  .group {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    width: calc(95% - 1rem);
+    margin: 1rem auto 0 auto;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .group-title {
+      font-size: 0.75rem;
+      color: var(--text-color-secondary);
+    }
+
+    .assignee {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      img {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+      }
+    }
+  }
+
   .item-overview {
     height: 100%;
     width: 100%;
