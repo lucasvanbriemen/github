@@ -13,7 +13,9 @@
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
-    console.log(item);
+    
+    item.labels = JSON.parse(item.labels);
+    console.log(item.labels);
   });
 
   function toggleResolved(comment) {
@@ -41,6 +43,15 @@
           <span>{assignee.name}</span>
         </div>
       {/each}
+    </div>
+
+    <div class="group">
+      <span class="group-title">Labels</span>
+      <div class="labels">
+        {#each item.labels as label}
+          <span class="label" style="background-color: #{label.color}4D; color: #{label.color}; border: 1px solid #{label.color};">{label.name}</span>
+        {/each}
+      </div>
     </div>
   </Sidebar>
 
@@ -98,6 +109,19 @@
         height: 1.5rem;
         border-radius: 50%;
       }
+    }
+
+    .labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+        .label {
+          margin: 0.25rem 0;
+          padding: 0.25rem 0.5rem;
+          border-radius: 1rem;
+          font-size: 0.75rem;
+        }
     }
   }
 
