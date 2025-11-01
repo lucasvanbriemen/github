@@ -120,6 +120,16 @@
     position: sticky;
     top: 0;
 
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: -1rem;
+      height: 1rem;
+      width: 1rem;
+      background: radial-gradient(circle at bottom right, transparent 1rem, var(--background-color-one) 1rem);
+    }
+
     .filter-section {
       padding: 1rem 0.5rem;
       border-bottom: 1px solid var(--border-color);
