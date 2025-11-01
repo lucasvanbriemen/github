@@ -208,49 +208,4 @@ class IssueController extends Controller
 
         return response()->json(['status' => 'success']);
     }
-
-    public function listIssues($organizationName, $repositoryName)
-    {
-        [$organization, $repository] = $this->getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $page = request()->query('page', 1);
-        $state = request()->query('state', 'open');
-        $isInitialLoad = request()->query('isInitialLoad', false);
-
-        $query = $repository
-            ->issues()
-            ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
-            ->with([
-                'openedBy:id,name,avatar_url',
-                'assignees:id,name,avatar_url',
-            ]);
-
-        if ($state !== 'all') {
-            $query->where('state', $state);
-        }
-
-        $assigneesList = request()->query('assignee', null);
-        $assignees = array_filter(array_map('trim', explode(',', $assigneesList)));
-        if (!empty($assignees)) {
-            $query->whereHas('assignees', function ($q) use ($assignees) {
-                $q->whereIn('id', $assignees);
-            });
-        }
-
-        if ($isInitialLoad) {
-            // By default, we want to have me as assignee on initial load
-            $query->whereHas('assignees', function ($q) {
-                $q->where('id', GithubConfig::USERID);
-            });
-        }
-
-        $issues = $query->paginate(30, ['*'], 'page', $page);
-
-        $issues->getCollection()->transform(function ($issue) {
-            $issue->created_at_human = $issue->created_at->diffForHumans();
-            return $issue;
-        });
-
-        return response()->json($issues);
-    }
 }
