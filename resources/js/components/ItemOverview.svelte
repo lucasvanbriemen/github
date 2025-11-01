@@ -63,7 +63,7 @@
     {/each}
 
     {#if paginationLinks.length > 3}
-      <Pagination links={paginationLinks} onSelect={(page) => getIssues(page)} />
+      <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />
     {/if}
   </div>
 </div>
