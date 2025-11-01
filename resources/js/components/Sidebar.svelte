@@ -4,7 +4,7 @@
   import SearchSelect from './SearchSelect.svelte';
   const dispatch = createEventDispatcher();
 
-  let { selectedDropdownSection, showDetailsFrom, params = {} } = $props();
+  let { selectedDropdownSection, showDetailsFrom, params = {}, children } = $props();
 
   let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
@@ -92,6 +92,10 @@
       />
 
     </div>
+  {/if}
+
+  {#if showDetailsFrom === 'item'}
+    {@render children() }
   {/if}
 
   <div class="nav">

@@ -13,6 +13,7 @@
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
+    console.log(item);
   });
 
   function toggleResolved(comment) {
@@ -31,7 +32,16 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {params} selectedSection="Issues" />
+  <Sidebar {params} selectedDropdownSection="Issues" showDetailsFrom="item">
+    <div class="group">
+      {#each item.assignees as assignee}
+        <div class="assignee">
+          <img src={assignee.avatar_url} alt={assignee.name} />
+          <span>{assignee.name}</span>
+        </div>
+      {/each}
+    </div>
+  </Sidebar>
 
   <div class="item-main">
     <div class="item-header">

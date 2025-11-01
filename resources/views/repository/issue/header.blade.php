@@ -15,7 +15,7 @@
         "any" => "Any",
         \App\GithubConfig::USERID => "Me"
       ];
-      foreach ($repository->users as $repositoryUser) {
+      foreach ($repository->contributors as $repositoryUser) {
 
         if ($repositoryUser->githubUser->id == \App\GithubConfig::USERID) {
           continue;

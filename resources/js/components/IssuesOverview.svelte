@@ -53,7 +53,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedDropdownSection="Issues" showDetailsFrom="item-list" on:filterChange={filterIssue} />
+  <Sidebar {params} selectedDropdownSection="Issuses" showDetailsFrom="item-list" on:filterChange={filterIssue} />
   <div class="repo-main">
     {#each issues as item}
       <ListItem {item} itemType="issue" />
