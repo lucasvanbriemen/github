@@ -13,45 +13,33 @@ class ItemController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $page = request()->query('page', 1);
         $state = request()->query('state', 'open');
         $isInitialLoad = request()->query('isInitialLoad', false);
-
-        $query = $repository
-            ->issues()
+        
+        $assigneesList = request()->query('assignee', null);
+        $assignees = array_filter(array_map('trim', explode(',', $assigneesList)));
+        
+        if ($isInitialLoad && empty($assignees)) {
+            // By default, we want to have me as assignee on initial load
+            $assignees[] = GithubConfig::USERID;
+        }
+        
+        $query = $repository->items($type, $state, $assignees)
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
             ->with([
                 'openedBy:id,name,avatar_url',
                 'assignees:id,name,avatar_url',
             ]);
+            
+        $page = request()->query('page', 1);
+        $items = $query->paginate(30, ['*'], 'page', $page);
 
-        if ($state !== 'all') {
-            $query->where('state', $state);
-        }
-
-        $assigneesList = request()->query('assignee', null);
-        $assignees = array_filter(array_map('trim', explode(',', $assigneesList)));
-        if (!empty($assignees)) {
-            $query->whereHas('assignees', function ($q) use ($assignees) {
-                $q->whereIn('id', $assignees);
-            });
-        }
-
-        if ($isInitialLoad) {
-            // By default, we want to have me as assignee on initial load
-            $query->whereHas('assignees', function ($q) {
-                $q->where('id', GithubConfig::USERID);
-            });
-        }
-
-        $issues = $query->paginate(30, ['*'], 'page', $page);
-
-        $issues->getCollection()->transform(function ($issue) {
-            $issue->created_at_human = $issue->created_at->diffForHumans();
-            return $issue;
+        $items->getCollection()->transform(function ($item) {
+            $item->created_at_human = $item->created_at->diffForHumans();
+            return $item;
         });
 
-        return response()->json($issues);
+        return response()->json($items);
     }
 
     public static function show($organizationName, $repositoryName, $issueNumber)

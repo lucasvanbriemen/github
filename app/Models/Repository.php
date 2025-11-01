@@ -23,10 +23,20 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
-    public function issues()
+    public function issues($state = 'open', $assignees = [GithubConfig::USERID])
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');
         $query->with('assignees', 'openedBy');
+
+        if ($state !== 'all') {
+            $query->where('state', $state);
+        }
+
+        if (!in_array('any', $assignees)) {
+            $query->whereHas('assignees', function ($q) use ($assignees) {
+                $q->whereIn('github_users.id', $assignees);
+            });
+        }
 
         $query->orderBy('created_at', 'desc');
 
@@ -39,19 +49,30 @@ class Repository extends Model
             ->with('assignees', 'openedBy')
             ->orderBy('updated_at', 'desc');
 
-        if ($state !== 'all') {
-            $query->where('state', $state);
-        }
+        // if ($state !== 'all') {
+        //     $query->where('state', $state);
+        // }
 
-        if ($assignee === 'none') {
-            $query->whereDoesntHave('assignees');
-        } elseif ($assignee !== 'any') {
-            $query->whereHas('assignees', function ($q) use ($assignee) {
-                $q->where('github_users.id', $assignee);
-            });
-        }
+        // if ($assignee === 'none') {
+        //     $query->whereDoesntHave('assignees');
+        // } elseif ($assignee !== 'any') {
+        //     $query->whereHas('assignees', function ($q) use ($assignee) {
+        //         $q->where('github_users.id', $assignee);
+        //     });
+        // }
 
         return $query;
+    }
+
+    public function items($type, $state = null, $assignee = null)
+    {
+        if ($type === 'issue') {
+            return $this->issues($state, $assignee);
+        } elseif ($type === 'pr') {
+            return $this->pullRequests($state, $assignee);
+        }
+
+        throw new \InvalidArgumentException("Invalid item type: $type");
     }
 
     public function branches()
