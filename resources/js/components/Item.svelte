@@ -88,7 +88,7 @@
 
     {#each item.comments as comment}
       <div class="item-comment" class:item-comment-resolved={comment.resolved}>
-        <button class="item-comment-header" on:click={() => toggleResolved(comment)}>
+        <button class="item-comment-header" onclick={() => toggleResolved(comment)}>
           <img src={comment.author?.avatar_url} alt={comment.author?.name} />
           <span>{comment.author?.name} commented {comment.created_at_human}</span>
         </button>
