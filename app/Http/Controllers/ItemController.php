@@ -108,23 +108,9 @@ class ItemController extends Controller
             'requestedReviewers.user',
             'pullRequestReviews' => function($query) {
                 $query->with('user')->orderBy('created_at', 'asc');
-            },
-            'pullRequestComments' => function($query) {
-                $query->with(['author', 'replies.author'])->whereNull('in_reply_to_id')->orderBy('created_at', 'asc');
+                $query->with('comments');
             }
         ]);
-
-        // Process PR comments markdown images
-        foreach ($item->pullRequestComments as $comment) {
-            $comment->body = self::processMarkdownImages($comment->body);
-            $comment->created_at_human = $comment->created_at->diffForHumans();
-
-            // Process replies
-            foreach ($comment->replies as $reply) {
-                $reply->body = self::processMarkdownImages($reply->body);
-                $reply->created_at_human = $reply->created_at->diffForHumans();
-            }
-        }
 
         // Process PR reviews markdown images
         foreach ($item->pullRequestReviews as $review) {
@@ -132,6 +118,16 @@ class ItemController extends Controller
                 $review->body = self::processMarkdownImages($review->body);
             }
             $review->created_at_human = $review->created_at->diffForHumans();
+
+            foreach ($review->comments as $comment) {
+                $comment->body = self::processMarkdownImages($comment->body);
+                $comment->created_at_human = $comment->created_at->diffForHumans();
+
+                foreach ($comment->replies as $reply) {
+                    $reply->body = self::processMarkdownImages($reply->body);
+                    $reply->created_at_human = $reply->created_at->diffForHumans();
+                }
+            }
         }
     }
 }
