@@ -18,6 +18,8 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
+        "@bytemd/plugin-gfm": "^1.22.0",
+        "bytemd": "^1.22.0",
         "diff2html": "^3.4.52",
         "fast-glob": "^3.3.3",
         "github-markdown-css": "^5.8.1",

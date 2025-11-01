@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
   import Markdown from './Markdown.svelte';
+  import MarkdownEditor from './MarkdownEditor.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -9,11 +10,12 @@
   let number = $derived(params.number || '');
 
   let item = $state({});
+  let newComment = $state('');
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
-    
+
     item.labels = JSON.parse(item.labels);
     console.log(item.labels);
   });
@@ -79,6 +81,8 @@
         </div>
       </div>
     {/each}
+
+    <MarkdownEditor bind:value={newComment} placeholder="Add a comment..." />
   </div>
 </div>
 
