@@ -11,10 +11,13 @@
   let paginationLinks = $state([]);
   let currentPage = $state(1);
 
+  const path = window.location.pathname;
+  let type = $derived(path.includes('/prs') ? 'pr' : 'issue');
+
   let state = $state('open');
   let assignees = $state([]);
 
-  async function getIssues(pageNr = 1, isInitialLoad = false) {
+  async function getItems(pageNr = 1, isInitialLoad = false) {
     currentPage = pageNr;
 
     let url = `${route('organizations.repositories.get', {organization, repository})}?page=${pageNr}&state=${state}`;
@@ -43,11 +46,11 @@
     assignees = event.detail.assignees;
 
     currentPage = 1;
-    getIssues(currentPage);
+    getItems(currentPage);
   }
 
   onMount(async () => {
-    await getIssues(currentPage, true);
+    await getItems(currentPage, true);
   });
 
 </script>

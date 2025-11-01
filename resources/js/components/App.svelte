@@ -5,7 +5,7 @@
   import Dashboard from './Dashboard.svelte';
   import Organization from './Organization.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
-  import IssuesOverview from './IssuesOverview.svelte';
+  import ItemOverview from './ItemOverview.svelte';
   import Item from './Item.svelte';
   import theme from '../theme.js';
 
@@ -13,8 +13,9 @@
     '/': Dashboard,
     '/:organization': Organization,
     '/:organization/:repository': RepositoryDashboard,
-    '/:organization/:repository/issues': IssuesOverview,
+    '/:organization/:repository/issues': ItemOverview,
     '/:organization/:repository/issues/:number': Item,
+    '/:organization/:repository/prs': ItemOverview,
   };
 
   onMount(async () => {
