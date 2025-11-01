@@ -11,8 +11,9 @@
   let paginationLinks = $state([]);
   let currentPage = $state(1);
 
-  const path = window.location.pathname;
-  let type = $derived(path.includes('/prs') ? 'pr' : 'issue');
+  const path = window.location.hash;
+  const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
+  const selectedDropdownSection = $derived(type === 'issue' ? 'Issues' : 'Pull Requests');
 
   let state = $state('open');
   let assignees = $state(window.USER_ID);
@@ -51,12 +52,14 @@
 
   onMount(async () => {
     await getItems(currentPage, true);
+    console.log(selectedDropdownSection)
+    console.log(type)
   });
 
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedDropdownSection="Issuses" showDetailsFrom="item-list" on:filterChange={filterIssue} />
+  <Sidebar {params} selectedDropdownSection={selectedDropdownSection} showDetailsFrom="item-list" on:filterChange={filterIssue} />
   <div class="repo-main">
     {#each issues as item}
       <ListItem {item} itemType="issue" />
