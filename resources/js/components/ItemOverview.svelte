@@ -67,7 +67,7 @@
     paginationLinks = json.links;
   }
 
-  function filterIssue() {
+  function filterItem() {
     currentPage = 1;
     getItems(currentPage);
   }
@@ -87,7 +87,7 @@
         options={stateOptions}
         bind:value={state}
         on:change={() => {
-          filterIssue()
+          filterItem()
         }}
       />
 
@@ -96,7 +96,7 @@
         options={assignees}
         bind:value={selectedAssignee}
         on:change={() => {
-          filterIssue();
+          filterItem();
         }}
         multiple={true}
       />

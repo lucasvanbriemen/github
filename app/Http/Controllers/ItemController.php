@@ -60,6 +60,11 @@ class ItemController extends Controller
             $comment->created_at_human = $comment->created_at->diffForHumans();
         }
 
+        // If its a PR we also want to load that specific data
+        if ($item->isPullRequest()) {
+            self::loadPullRequestData($item);
+        }
+
         return response()->json($item);
     }
 
@@ -93,5 +98,40 @@ class ItemController extends Controller
         );
 
         return $content;
+    }
+
+    private static function loadPullRequestData($item)
+    {
+        // Load PR-specific details (branches, SHAs, etc.)
+        $item->load([
+            'details',
+            'requestedReviewers.user',
+            'pullRequestReviews' => function($query) {
+                $query->with('user')->orderBy('created_at', 'asc');
+            },
+            'pullRequestComments' => function($query) {
+                $query->with(['author', 'replies.author'])->whereNull('in_reply_to_id')->orderBy('created_at', 'asc');
+            }
+        ]);
+
+        // Process PR comments markdown images
+        foreach ($item->pullRequestComments as $comment) {
+            $comment->body = self::processMarkdownImages($comment->body);
+            $comment->created_at_human = $comment->created_at->diffForHumans();
+
+            // Process replies
+            foreach ($comment->replies as $reply) {
+                $reply->body = self::processMarkdownImages($reply->body);
+                $reply->created_at_human = $reply->created_at->diffForHumans();
+            }
+        }
+
+        // Process PR reviews markdown images
+        foreach ($item->pullRequestReviews as $review) {
+            if ($review->body) {
+                $review->body = self::processMarkdownImages($review->body);
+            }
+            $review->created_at_human = $review->created_at->diffForHumans();
+        }
     }
 }

@@ -68,4 +68,30 @@ class Item extends Model
     {
         return $query->where('type', 'pull_request');
     }
+
+    public function isPullRequest()
+    {
+        return $this->type === 'pull_request';
+    }
+
+    // PR-specific relationships (only populated for pull requests)
+    public function details()
+    {
+        return $this->hasOne(PullRequestDetails::class, 'id', 'id');
+    }
+
+    public function requestedReviewers()
+    {
+        return $this->hasMany(RequestedReviewer::class, 'pull_request_id', 'id');
+    }
+
+    public function pullRequestReviews()
+    {
+        return $this->hasMany(PullRequestReview::class, 'pull_request_id', 'id');
+    }
+
+    public function pullRequestComments()
+    {
+        return $this->hasMany(PullRequestComment::class, 'pull_request_id', 'id');
+    }
 }
