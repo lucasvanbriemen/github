@@ -3,6 +3,7 @@
   import Sidebar from './Sidebar.svelte';
   import Pagination from './Pagination.svelte';
   import ListItem from './ListItem.svelte';
+  import SearchSelect from './SearchSelect.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -15,8 +16,32 @@
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
   const selectedDropdownSection = $derived(type === 'issue' ? 'Issues' : 'Pull Requests');
 
+  const stateOptions = [
+    { value: 'open', label: 'Open' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'all', label: 'All' }
+  ];
+
   let state = $state('open');
   let assignees = $state(window.USER_ID);
+  let selectedAssignee = $state([]);
+
+  async function getContributors() {
+    const res = await fetch(`${route('organizations.repositories.get.contributors', {organization, repository})}`);
+    assignees = await res.json();
+
+    // We have to format it into the {value, label} format for SearchSelect
+    assignees = assignees.map(assignee => ({
+      value: assignee.id,
+      label: assignee.name
+    }));
+
+    const currentUserId = Number(window.USER_ID);
+    if (currentUserId && assignees.some(a => a.value === currentUserId)) {
+      selectedAssignee = [currentUserId];
+    }
+  }
+
 
   async function getItems(pageNr = 1, isInitialLoad = false) {
     currentPage = pageNr;
@@ -42,24 +67,42 @@
     paginationLinks = json.links;
   }
 
-  function filterIssue(event) {
-    state = event.detail.state;
-    assignees = event.detail.assignees;
-
+  function filterIssue() {
     currentPage = 1;
     getItems(currentPage);
   }
 
   onMount(async () => {
-    await getItems(currentPage, true);
-    console.log(selectedDropdownSection)
-    console.log(type)
+    getContributors();
+    getItems(currentPage, true);
   });
 
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedDropdownSection={selectedDropdownSection} showDetailsFrom="item-list" on:filterChange={filterIssue} />
+  <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
+    <div class="filter-section">
+      <SearchSelect
+        name="state"
+        options={stateOptions}
+        bind:value={state}
+        on:change={() => {
+          filterIssue()
+        }}
+      />
+
+      <SearchSelect
+        name="assignee"
+        options={assignees}
+        bind:value={selectedAssignee}
+        on:change={() => {
+          filterIssue();
+        }}
+        multiple={true}
+      />
+
+    </div>
+  </Sidebar>
   <div class="repo-main">
     {#each issues as item}
       <ListItem {item} itemType="issue" />

@@ -1,25 +1,12 @@
 <script>
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
-  import SearchSelect from './SearchSelect.svelte';
-  const dispatch = createEventDispatcher();
-
-  let { selectedDropdownSection, showDetailsFrom, params = {}, children } = $props();
+  let { selectedDropdownSection, params = {}, children } = $props();
 
   let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
 
   let dropdownOpen = $state(false);
-  let state = $state('open');
-
-  const stateOptions = [
-    { value: 'open', label: 'Open' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'all', label: 'All' }
-  ];
-
-  let assignees = $state([]);
-  let selectedAssignee = $state([]);
 
   function parseHash() {
     const hash = (window.location.hash || '').replace(/^#\/?/, '');
@@ -36,28 +23,8 @@
     dropdownOpen = false;
   }
 
-  async function getContributors() {
-    const res = await fetch(`${route('organizations.repositories.get.contributors', {organization, repository})}`);
-    assignees = await res.json();
-
-    // We have to format it into the {value, label} format for SearchSelect
-    assignees = assignees.map(assignee => ({
-      value: assignee.id,
-      label: assignee.name
-    }));
-
-    const currentUserId = Number(window.USER_ID);
-    if (currentUserId && assignees.some(a => a.value === currentUserId)) {
-      selectedAssignee = [currentUserId];
-    }
-  }
-
   onMount(() => {
     parseHash();
-
-    if (showDetailsFrom == 'item-list') {
-      getContributors();
-    }
 
     const onHash = () => parseHash();
     window.addEventListener('hashchange', onHash);
@@ -66,37 +33,7 @@
 </script>
 
 <div class="sidebar">
-  {#if showDetailsFrom === 'item-list'}
-    <div class="filter-section">
-      <SearchSelect
-        name="state"
-        options={stateOptions}
-        bind:value={state}
-        on:change={(e) => {
-          state = e.detail.value;
-          dispatch('filterChange', { state, assignees: selectedAssignee });
-        }}
-      />
-    </div>
-
-    <div class="filter-section">
-      <SearchSelect
-        name="assignee"
-        options={assignees}
-        bind:value={selectedAssignee}
-        on:change={(e) => {
-          selectedAssignee = e.detail.value;
-          dispatch('filterChange', { state, assignees: selectedAssignee });
-        }}
-        multiple={true}
-      />
-
-    </div>
-  {/if}
-
-  {#if showDetailsFrom === 'item'}
-    {@render children() }
-  {/if}
+  {@render children?.() }
 
   <div class="nav">
     <div class="dropdown-menu" class:open={dropdownOpen}>

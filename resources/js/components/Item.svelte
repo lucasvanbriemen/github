@@ -9,8 +9,6 @@
   let number = $derived(params.number || '');
 
   let item = $state({});
-  let newComment = $state('');
-  let editItem = $state(false);
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
@@ -36,7 +34,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {params} selectedDropdownSection="Issues" showDetailsFrom="item">
+  <Sidebar {params} selectedDropdownSection="Issues">
     <div class="group">
       <span class="group-title">Assignees</span>
       {#each item.assignees as assignee}
@@ -55,22 +53,11 @@
         {/each}
       </div>
     </div>
-
-    {#if editItem}
-      <button class="edit-button button-primary-outline" on:click={() => editItem = false}>Cancel</button>
-      <button class="edit-button button-primary-outline" on:click={() => editItem = false}>Save</button>
-    {:else}
-      <button class="edit-button button-primary-outline" on:click={() => editItem = true}>Edit Issue</button>
-    {/if}
   </Sidebar>
 
   <div class="item-main">
     <div class="item-header">
-      {#if editItem}
-        <h2>Edit Issue</h2>
-      {:else}
-        <h2>{item.title}</h2>
-      {/if}
+      <h2>{item.title}</h2>
       <div>
         created {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}
         <span class="item-state item-state-{item.state}">{item.state}</span>

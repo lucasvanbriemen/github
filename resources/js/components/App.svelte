@@ -19,7 +19,7 @@
   };
 
   onMount(async () => {
-    await theme.applyTheme();
+    theme.applyTheme();
   });
 </script>
 
