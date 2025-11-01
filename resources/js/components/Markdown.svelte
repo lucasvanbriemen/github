@@ -38,6 +38,8 @@
 
     :global(img) {
       border-radius: 1rem;
+      max-width: 50% !important;
+      height: fit-content !important;
     }
   }
 </style>
