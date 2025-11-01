@@ -7,15 +7,21 @@
   let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
   let number = $derived(params.number || '');
-
+  
   let item = $state({});
+  let isPR = $state(false);
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
 
-    item.labels = JSON.parse(item.labels);
-    console.log(item.labels);
+    try {
+      item.labels = JSON.parse(item.labels);
+    } catch (e) {
+      item.labels = [];
+    }
+
+    isPR = item.type === 'pull_request';
   });
 
   function toggleResolved(comment) {
@@ -63,6 +69,12 @@
         <span class="item-state item-state-{item.state}">{item.state}</span>
       </div>
     </div>
+
+    {#if isPR}
+      <div class="item-header-pr">
+        <span class="item-header-pr-title"><img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name} wants to merge {item.details.head_branch} into {item.details.base_branch}</span>
+      </div>
+    {/if}
 
     <div class="item-body">
       <Markdown content={item.body} />
@@ -178,6 +190,20 @@
           margin-top: 0.5rem;
           color: var(--text-color-secondary);
         }
+
+        img {
+          width: 1rem;
+          height: 1rem;
+          border-radius: 50%;
+        }
+      }
+
+      .item-header-pr-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-color-secondary);
+        margin: 0.5rem 0;
 
         img {
           width: 1rem;
