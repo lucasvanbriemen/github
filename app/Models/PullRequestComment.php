@@ -26,6 +26,6 @@ class PullRequestComment extends Model
         return $this->hasMany(PullRequestComment::class, 'in_reply_to_id', 'id');
     }
 
-    protected $fillable = ['id', 'pull_request_id', 'user_id', 'body', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line'];
+    protected $fillable = ['id', 'pull_request_id', 'user_id', 'body', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line', 'pull_request_review_id'];
 
 }

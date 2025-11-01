@@ -56,6 +56,7 @@ class ProcessPullRequestReviewCommentWebhook
                 'path' => $commentData->path ?? '',
                 'side' => $sideValue,
                 'original_line' => $commentData->original_line ?? null,
+                'pull_request_review_id' => $commentData->pull_request_review_id ?? null,
             ]
         );
 

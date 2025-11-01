@@ -22,7 +22,13 @@
     }
 
     isPR = item.type === 'pull_request';
+
+    // On a PR we need to sort the following
+    sortPRComments(item.comments);
   });
+
+  function sortPRComments(comments) {
+  }
 
   function toggleResolved(comment) {
     comment.resolved = !comment.resolved;
