@@ -43,23 +43,23 @@ class Repository extends Model
         return $query;
     }
 
-    public function pullRequests($state = 'open', $assignee = GithubConfig::USERID)
+    public function pullRequests($state = 'open', $assignees = [GithubConfig::USERID])
     {
         $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy')
             ->orderBy('updated_at', 'desc');
 
-        // if ($state !== 'all') {
-        //     $query->where('state', $state);
-        // }
+        if ($state !== 'all') {
+            $query->where('state', $state);
+        }
 
-        // if ($assignee === 'none') {
-        //     $query->whereDoesntHave('assignees');
-        // } elseif ($assignee !== 'any') {
-        //     $query->whereHas('assignees', function ($q) use ($assignee) {
-        //         $q->where('github_users.id', $assignee);
-        //     });
-        // }
+        if (!in_array('any', $assignees)) {
+            $query->whereHas('assignees', function ($q) use ($assignees) {
+                $q->whereIn('github_users.id', $assignees);
+            });
+        }
+
+        $query->orderBy('created_at', 'desc');
 
         return $query;
     }
