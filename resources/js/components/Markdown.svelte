@@ -28,6 +28,14 @@
       opacity: 0.8;
     }
 
+    :global(hr) {
+      background-color: var(--text-color-secondary);
+      height: 1px;
+      border: none;
+      opacity: 0.5;
+      width: 90%;
+    }
+
     :global(a) {
       color: var(--primary-color);
     }
