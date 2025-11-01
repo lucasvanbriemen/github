@@ -28,6 +28,14 @@
       opacity: 0.8;
     }
 
+    :global(p ~ blockquote) {
+      margin-bottom: 0.25rem;
+    }
+
+    :global(blockquote + p) {
+      margin-bottom: 1.25rem;
+    }
+
     :global(hr) {
       background-color: var(--text-color-secondary);
       height: 1px;
