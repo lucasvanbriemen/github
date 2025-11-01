@@ -16,6 +16,7 @@
     '/:organization/:repository/issues': ItemOverview,
     '/:organization/:repository/issues/:number': Item,
     '/:organization/:repository/prs': ItemOverview,
+    '/:organization/:repository/prs/:number': Item,
   };
 
   onMount(async () => {
