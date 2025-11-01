@@ -53,15 +53,49 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         ]);
 
         // We also need to create/update RequestedReviewer (since thats how we show reviews in the UI sidebar)
-        RequestedReviewer::updateOrCreate(
-            [
-                'pull_request_id' => $prData->id,
-                'user_id' => $userData->id,
-            ],
-            [
-                'state' => $reviewData->state,
-            ]
-        );
+        // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED
+        // A CHANGES_REQUESTED review blocks the PR until the reviewer APPROVEs
+        // Also: If someone is in requested_reviewers, they're PENDING (their review was dismissed or they were re-requested)
+
+        $existingReviewer = RequestedReviewer::where('pull_request_id', $prData->id)
+            ->where('user_id', $userData->id)
+            ->first();
+
+        $newState = strtolower($reviewData->state);
+
+        // Check if this user is in the PR's requested_reviewers list
+        $isInRequestedReviewers = collect($prData->requested_reviewers ?? [])->pluck('id')->contains($userData->id);
+
+        // If they're in requested_reviewers, they're pending (dismissed or re-requested)
+        if ($isInRequestedReviewers) {
+            $newState = 'pending';
+        }
+        // If dismissed, treat as pending
+        elseif ($newState === 'dismissed') {
+            $newState = 'pending';
+        }
+
+        $shouldUpdate = true;
+
+        // If they previously requested changes, only update if the new state clears or updates the block
+        if ($existingReviewer && $existingReviewer->state === 'changes_requested' && !$isInRequestedReviewers) {
+            // Only these states should overwrite CHANGES_REQUESTED
+            if (!in_array($newState, ['approved', 'changes_requested', 'pending'])) {
+                $shouldUpdate = false;
+            }
+        }
+
+        if ($shouldUpdate) {
+            RequestedReviewer::updateOrCreate(
+                [
+                    'pull_request_id' => $prData->id,
+                    'user_id' => $userData->id,
+                ],
+                [
+                    'state' => $newState,
+                ]
+            );
+        }
 
         // im not assisned to the pr (or the author) dont send the email
         // if ($prData->user->id !== GithubConfig::USERID && !collect($prData->requested_reviewers)->pluck('id')->contains(GithubConfig::USERID)) {

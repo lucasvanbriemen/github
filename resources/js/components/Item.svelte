@@ -65,6 +65,19 @@
         {/each}
       </div>
     </div>
+
+    {#if isPR}
+      <div class="group">
+        <span class="group-title">Reviewers</span>
+        {#each item.requested_reviewers as reviewer}
+          <div class="reviewer">
+            <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
+            <span>{reviewer.user.name}</span>
+            <span>{reviewer.state}</span>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </Sidebar>
 
   <div class="item-main">
@@ -118,7 +131,7 @@
       color: var(--text-color-secondary);
     }
 
-    .assignee {
+    .assignee, .reviewer {
       display: flex;
       align-items: center;
       gap: 0.5rem;
