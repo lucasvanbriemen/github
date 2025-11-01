@@ -86,9 +86,10 @@
 
   .group {
     border: 1px solid var(--border-color);
+    background-color: var(--background-color);
     border-radius: 0.5rem;
     width: calc(95% - 1rem);
-    margin: 1rem auto 0 auto;
+    margin: 1rem auto -0.5rem auto;
     padding: 0.5rem;
     display: flex;
     flex-direction: column;

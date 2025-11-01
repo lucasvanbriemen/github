@@ -144,8 +144,8 @@
       .dropdown {
         display: flex;
         background-color: transparent;
-        background-color: var(--primary-color);
-        border: none;
+        background-color: var(--background-color);
+        border: 2px solid var(--primary-color-dark);
         border-radius: 0.5rem;
         padding: 1rem;
         width: 100%;
