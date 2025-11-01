@@ -249,7 +249,7 @@ class IssueController extends Controller
         $issues->getCollection()->transform(function ($issue) {
             $issue->created_at_human = $issue->created_at->diffForHumans();
             return $issue;
-    });
+        });
 
         return response()->json($issues);
     }
