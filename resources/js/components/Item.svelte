@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
   import Markdown from './Markdown.svelte';
-  import MarkdownEditor from './MarkdownEditor.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -11,6 +10,7 @@
 
   let item = $state({});
   let newComment = $state('');
+  let editItem = $state(false);
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
@@ -55,11 +55,22 @@
         {/each}
       </div>
     </div>
+
+    {#if editItem}
+      <button class="edit-button button-primary-outline" on:click={() => editItem = false}>Cancel</button>
+      <button class="edit-button button-primary-outline" on:click={() => editItem = false}>Save</button>
+    {:else}
+      <button class="edit-button button-primary-outline" on:click={() => editItem = true}>Edit Issue</button>
+    {/if}
   </Sidebar>
 
   <div class="item-main">
     <div class="item-header">
-      <h2>{item.title}</h2>
+      {#if editItem}
+        <h2>Edit Issue</h2>
+      {:else}
+        <h2>{item.title}</h2>
+      {/if}
       <div>
         created {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}
         <span class="item-state item-state-{item.state}">{item.state}</span>
@@ -81,8 +92,6 @@
         </div>
       </div>
     {/each}
-
-    <MarkdownEditor bind:value={newComment} placeholder="Add a comment..." />
   </div>
 </div>
 
@@ -128,6 +137,11 @@
           font-size: 0.75rem;
         }
     }
+  }
+
+  .edit-button {
+    margin-top: 1rem;
+    margin-left: 2.5%;
   }
 
   .item-overview {

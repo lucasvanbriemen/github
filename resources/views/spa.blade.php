@@ -18,7 +18,7 @@ $username = \App\GithubConfig::USERNAME;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'Laravel') }}</title>
-    @vite(['resources/js/main.js'])
+    @vite(['resources/js/main.js', 'resources/scss/shared/button.scss'])
 </head>
 <body>
     <script>
