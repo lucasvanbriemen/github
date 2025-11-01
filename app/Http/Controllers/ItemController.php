@@ -16,7 +16,7 @@ class ItemController extends Controller
         $state = request()->query('state', 'open');
         $isInitialLoad = request()->query('isInitialLoad', false);
         
-        $assigneesList = request()->query('assignee', null);
+        $assigneesList = request()->query('assignee', 'any');
         $assignees = array_filter(array_map('trim', explode(',', $assigneesList)));
         
         if ($isInitialLoad && empty($assignees)) {
