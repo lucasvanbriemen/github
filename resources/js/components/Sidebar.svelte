@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte';
-  import { createEventDispatcher } from 'svelte';
   let { selectedDropdownSection, params = {}, children } = $props();
 
   let organization = $derived(params.organization || '');
@@ -25,10 +24,7 @@
 
   onMount(() => {
     parseHash();
-
-    const onHash = () => parseHash();
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    window.addEventListener('hashchange', parseHash);
   });
 </script>
 
