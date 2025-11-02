@@ -15,24 +15,6 @@
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
 
-    console.log('DEBUG: Loaded item:', {
-      type: item.type,
-      isPR: item.type === 'pull_request',
-      commentsCount: item.comments?.length || 0,
-      reviewsCount: item.pull_request_reviews?.length || 0
-    });
-
-    if (item.pull_request_reviews) {
-      item.pull_request_reviews.forEach((review, idx) => {
-        console.log(`DEBUG: Review ${idx}:`, {
-          id: review.id,
-          hasBody: review.body !== null && review.body !== '',
-          bodyLength: review.body?.length || 0,
-          commentsCount: review.comments?.length || 0
-        });
-      });
-    }
-
     try {
       item.labels = JSON.parse(item.labels);
     } catch (e) {
@@ -129,12 +111,6 @@
         {#if review.body !== null && review.body !== ''}
           <div class="item-comment" class:item-comment-resolved={review.resolved}>
             <button class="item-comment-header" onclick={() => {
-              console.log(`DEBUG: Review ${reviewIndex} header clicked:`, {
-                id: review.id,
-                user: review.user?.name,
-                hasBody: true,
-                commentsCount: review.comments?.length || 0
-              });
               toggleResolved(review);
             }}>
               <img src={review.user.avatar_url} alt={review.user.name} />
