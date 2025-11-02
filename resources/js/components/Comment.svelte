@@ -97,6 +97,9 @@
   .item-comment-body :global(.markdown-body li),
   .item-comment-body :global(.markdown-body strong) {
     color: var(--text-color);
+  }
+
+  .item-comment-body :global(.markdown-body) {
     border: none !important;
   }
 
