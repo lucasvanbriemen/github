@@ -9,9 +9,10 @@ use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
 use App\Helpers\ApiHelper;
+use RuntimeException;
 use Carbon\Carbon;
 
-class ProcessPullRequestWebhook implements ShouldQueue
+class ProcessPullRequestWebhook //implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -28,9 +29,9 @@ class ProcessPullRequestWebhook implements ShouldQueue
     {
         $payload = $event->payload;
 
-        
-        if (!isset($payload->pull_request, $payload->repository, $payload->review)) {
-            \Log::warning('Malformed pull_request_review payload', ['payload' => $payload]);
+
+        if (!isset($payload->pull_request, $payload->repository)) {
+            \Log::warning('Malformed pull_request payload', ['payload' => $payload]);
             return false;
         }
 

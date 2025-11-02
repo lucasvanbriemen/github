@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Sidebar from './Sidebar.svelte';
   import Markdown from './Markdown.svelte';
+  import Comment from './Comment.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -24,7 +25,13 @@
     isPR = item.type === 'pull_request';
   });
 
-  function toggleResolved(comment) {
+  // Generate label style with proper color formatting
+  function getLabelStyle(label) {
+    return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
+  }
+
+  // Toggle functions for different comment types
+  function toggleItemComment(comment) {
     comment.resolved = !comment.resolved;
 
     fetch(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
@@ -37,10 +44,40 @@
       }),
     });
   }
+
+  function toggleItemReview(review) {
+    review.resolved = !review.resolved;
+
+    fetch(route(`organizations.repositories.item.review`, { organization, repository, number, review_id: review.id }), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resolved: review.resolved,
+      }),
+    });
+  }
+
+  function toggleItemReviewComment(comment) {
+    comment.resolved = !comment.resolved;
+
+    fetch(route(`organizations.repositories.item.review.comment`, { organization, repository, number, review_id: comment.review_id, comment_id: comment.id }), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resolved: comment.resolved,
+      }),
+    });
+  }
 </script>
 
 <div class="item-overview">
+  <!-- SIDEBAR: Assignees, Labels, and Reviewers -->
   <Sidebar {params} selectedDropdownSection="Issues">
+    <!-- Assignees Section -->
     <div class="group">
       <span class="group-title">Assignees</span>
       {#each item.assignees as assignee}
@@ -51,15 +88,19 @@
       {/each}
     </div>
 
+    <!-- Labels Section -->
     <div class="group">
       <span class="group-title">Labels</span>
       <div class="labels">
         {#each item.labels as label}
-          <span class="label" style="background-color: #{label.color}4D; color: #{label.color}; border: 1px solid #{label.color};">{label.name}</span>
+          <span class="label" style={getLabelStyle(label)}>
+            {label.name}
+          </span>
         {/each}
       </div>
     </div>
 
+    <!-- Reviewers Section (PR only) -->
     {#if isPR}
       <div class="group">
         <span class="group-title">Reviewers</span>
@@ -74,75 +115,64 @@
     {/if}
   </Sidebar>
 
+  <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">
+    <!-- Item Header: Title and Metadata -->
     <div class="item-header">
       <h2>{item.title}</h2>
       <div>
-        created {item.created_at_human} by <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name}
+        created {item.created_at_human} by
+        <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
+        {item.opened_by?.name}
         <span class="item-state item-state-{item.state}">{item.state}</span>
       </div>
     </div>
 
+    <!-- PR Header: Branch Information (PR only) -->
     {#if isPR}
       <div class="item-header-pr">
-        <span class="item-header-pr-title"><img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} /> {item.opened_by?.name} wants to merge {item.details.head_branch} into {item.details.base_branch}</span>
+        <span class="item-header-pr-title">
+          <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
+          {item.opened_by?.name} wants to merge
+          {item.details.head_branch} into {item.details.base_branch}
+        </span>
       </div>
     {/if}
 
+    <!-- Item Body: Main Description -->
     <div class="item-body">
       <Markdown content={item.body} />
     </div>
 
+    <!-- Regular Comments -->
     {#each item.comments as comment}
-      <div class="item-comment" class:item-comment-resolved={comment.resolved}>
-        <button class="item-comment-header" onclick={() => toggleResolved(comment)}>
-          <img src={comment.author?.avatar_url} alt={comment.author?.name} />
-          <span>{comment.author?.name} commented {comment.created_at_human}</span>
-        </button>
-        <div class="item-comment-body">
-          <Markdown content={comment.body} />
-        </div>
-      </div>
+      <Comment {comment} onToggle={toggleItemComment} />
     {/each}
 
+    <!-- PR Reviews and Review Comments (PR only) -->
     {#if isPR}
-      {#each item.pull_request_reviews as review, reviewIndex}
-        <!-- Review summary (if body exists) -->
+      {#each item.pull_request_reviews as review}
+        <!-- Review Summary (shown if review has a body) -->
         {#if review.body !== null && review.body !== ''}
-          <div class="item-comment" class:item-comment-resolved={review.resolved}>
-            <button class="item-comment-header" onclick={() => { toggleResolved(review); }}>
-              <img src={review.user.avatar_url} alt={review.user.name} />
-              <span>{review.user.name} reviewed {review.created_at_human}</span>
-            </button>
-            <div class="item-comment-body">
-              <Markdown content={review.body} />
-            </div>
-          </div>
+          <Comment
+            comment={{
+              ...review,
+              author: review.user,
+              created_at_human: review.created_at_human + ' (review)'
+            }}
+            onToggle={toggleItemReview}
+          />
         {/if}
 
-        <!-- Review line comments (always render, independent of review body) -->
-        {#each review.comments as comment, commentIndex}
-          <div class="item-comment" class:item-comment-resolved={comment.resolved} class:part-of-review={review.body !== null && review.body !== ''}>
-            <button class="item-comment-header" onclick={() => { toggleResolved(comment); }}>
-              <img src={comment.author?.avatar_url} alt={comment.author?.name} />
-              <span>{comment.author?.name} commented {comment.created_at_human}</span>
-            </button>
-            <div class="item-comment-body">
-              <Markdown content={comment.body} />
-
-              {#each comment.replies as reply, replyIndex}
-                <div class="item-comment" class:item-comment-resolved={reply.resolved}>
-                  <button class="item-comment-header" onclick={() => { toggleResolved(reply); }}>
-                    <img src={reply.author?.avatar_url} alt={reply.author?.name} />
-                    <span>{reply.author?.name} replied {reply.created_at_human}</span>
-                  </button>
-                  <div class="item-comment-body">
-                    <Markdown content={reply.body} />
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </div>
+        <!-- Review Line Comments with Replies -->
+        {#each review.comments as comment}
+          <Comment
+            comment={comment}
+            onToggle={toggleItemReviewComment}
+            onToggleReply={toggleItemComment}
+            indent={review.body !== null && review.body !== ''}
+            showReplies={true}
+          />
         {/each}
       {/each}
     {/if}
@@ -267,67 +297,6 @@
         }
       }
 
-      .part-of-review {
-        margin-left: 1rem;
-      }
-
-
-      .item-comment {
-        padding: 0.25rem 0;
-        display: flex;
-        flex-direction: column;
-
-        &:last-child {
-          padding-bottom: 1rem;
-        }
-
-        .item-comment {
-          margin-left: 1rem;
-        }
-
-        .item-comment-header {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: var(--text-color-secondary);
-          background-color: var(--background-color-one);
-          padding: 1rem;
-          border-radius: 1rem 1rem 0 0;
-          border: none;
-          cursor: pointer;
-          font-size: 14px;
-
-          img {
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-          }
-        }
-
-        .item-comment-body {
-          :global(.markdown-body) {
-            border: 2px solid var(--background-color-one);
-            border-radius: 0 0 1rem 1rem;
-            height: auto;
-
-            /* Most comments dont have a hiarchy, so we dont need to style it */
-            :global(p), :global(li), :global(strong) {
-              color: var(--text-color);
-            }
-          }
-        }
-        
-        &.item-comment-resolved {
-          .item-comment-header {
-            border-radius: 1rem;
-          }
-
-          .item-comment-body {
-            height: 0;
-            overflow: hidden;
-          }
-        }
-      }
     }
   }
 </style>
