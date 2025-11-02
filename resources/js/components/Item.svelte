@@ -144,21 +144,12 @@
               <Markdown content={review.body} />
             </div>
           </div>
-        {:else}
-          <!-- Review with no body - just log it -->
-          <span style="display:none;"><!-- DEBUG: Review {reviewIndex} (ID: {review.id}) has no body, comments: {review.comments?.length || 0} --></span>
         {/if}
 
         <!-- Review line comments (always render, independent of review body) -->
         {#each review.comments as comment, commentIndex}
           <div class="item-comment" class:item-comment-resolved={comment.resolved} class:part-of-review={review.body !== null && review.body !== ''}>
             <button class="item-comment-header" onclick={() => {
-              console.log(`DEBUG: Review ${reviewIndex}, Comment ${commentIndex}:`, {
-                commentId: comment.id,
-                author: comment.author?.name,
-                bodyPreview: comment.body?.substring(0, 50) || 'EMPTY',
-                repliesCount: comment.replies?.length || 0
-              });
               toggleResolved(comment);
             }}>
               <img src={comment.author?.avatar_url} alt={comment.author?.name} />
@@ -170,11 +161,6 @@
               {#each comment.replies as reply, replyIndex}
                 <div class="item-comment" class:item-comment-resolved={reply.resolved}>
                   <button class="item-comment-header" onclick={() => {
-                    console.log(`DEBUG: Reply ${replyIndex}:`, {
-                      replyId: reply.id,
-                      author: reply.author?.name,
-                      bodyPreview: reply.body?.substring(0, 50) || 'EMPTY'
-                    });
                     toggleResolved(reply);
                   }}>
                     <img src={reply.author?.avatar_url} alt={reply.author?.name} />
