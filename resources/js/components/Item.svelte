@@ -110,9 +110,7 @@
         <!-- Review summary (if body exists) -->
         {#if review.body !== null && review.body !== ''}
           <div class="item-comment" class:item-comment-resolved={review.resolved}>
-            <button class="item-comment-header" onclick={() => {
-              toggleResolved(review);
-            }}>
+            <button class="item-comment-header" onclick={() => { toggleResolved(review); }}>
               <img src={review.user.avatar_url} alt={review.user.name} />
               <span>{review.user.name} reviewed {review.created_at_human}</span>
             </button>
@@ -125,9 +123,7 @@
         <!-- Review line comments (always render, independent of review body) -->
         {#each review.comments as comment, commentIndex}
           <div class="item-comment" class:item-comment-resolved={comment.resolved} class:part-of-review={review.body !== null && review.body !== ''}>
-            <button class="item-comment-header" onclick={() => {
-              toggleResolved(comment);
-            }}>
+            <button class="item-comment-header" onclick={() => { toggleResolved(comment); }}>
               <img src={comment.author?.avatar_url} alt={comment.author?.name} />
               <span>{comment.author?.name} commented {comment.created_at_human}</span>
             </button>
@@ -136,9 +132,7 @@
 
               {#each comment.replies as reply, replyIndex}
                 <div class="item-comment" class:item-comment-resolved={reply.resolved}>
-                  <button class="item-comment-header" onclick={() => {
-                    toggleResolved(reply);
-                  }}>
+                  <button class="item-comment-header" onclick={() => { toggleResolved(reply); }}>
                     <img src={reply.author?.avatar_url} alt={reply.author?.name} />
                     <span>{reply.author?.name} replied {reply.created_at_human}</span>
                   </button>
