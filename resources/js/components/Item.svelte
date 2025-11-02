@@ -154,29 +154,34 @@
       {#each item.pull_request_reviews as review}
         <!-- Only render if review has a body or comments -->
         {#if (review.body !== null && review.body !== '') || (review.comments && review.comments.length > 0)}
-          <!-- Review Summary (shown if review has a body) -->
-          <div class="item-comment" class:item-comment-resolved={review.resolved}>
+          <div class="review-block" class:review-resolved={review.resolved}>
+            <!-- Review Summary (shown if review has a body) -->
             {#if review.body !== null && review.body !== ''}
-              <Comment
-                comment={{
-                  ...review,
-                  author: review.user,
-                  created_at_human: review.created_at_human + ' (review)'
-                }}
-                onToggle={toggleItemReview}
-              />
+              <div class="review-header">
+                <button class="item-comment-header" onclick={() => toggleItemReview(review)}>
+                  <img src={review.user?.avatar_url} alt={review.user?.name} />
+                  <span>{review.user?.name} {review.created_at_human} (review)</span>
+                </button>
+              </div>
+              <div class="review-body">
+                <div class="item-comment-content">
+                  <Markdown content={review.body} />
+                </div>
+              </div>
             {/if}
 
             <!-- Review Line Comments with Replies -->
-            {#each review.comments as comment}
-              <Comment
-                comment={comment}
-                onToggle={toggleItemReviewComment}
-                onToggleReply={toggleItemReviewComment}
-                indent={review.body !== null && review.body !== ''}
-                showReplies={true}
-              />
-            {/each}
+            <div class="review-comments">
+              {#each review.comments as comment}
+                <Comment
+                  comment={comment}
+                  onToggle={toggleItemReviewComment}
+                  onToggleReply={toggleItemReviewComment}
+                  indent={review.body !== null && review.body !== ''}
+                  showReplies={true}
+                />
+              {/each}
+            </div>
           </div>
         {/if}
       {/each}
@@ -185,6 +190,57 @@
 </div>
 
 <style>
+  .review-block {
+    padding: 0.25rem 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .review-header .item-comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color-secondary);
+    background-color: var(--background-color-one);
+    padding: 1rem;
+    border-radius: 1rem 1rem 0 0;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .review-header .item-comment-header img {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+  }
+
+  .review-body .item-comment-content {
+    border: 2px solid var(--background-color-one);
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  .review-body :global(.markdown-body) {
+    height: auto;
+    border: none !important;
+  }
+
+  .review-body :global(.markdown-body p),
+  .review-body :global(.markdown-body li),
+  .review-body :global(.markdown-body strong) {
+    color: var(--text-color);
+  }
+
+  .review-resolved .review-header .item-comment-header {
+    border-radius: 1rem;
+  }
+
+  .review-resolved .review-body,
+  .review-resolved .review-comments {
+    height: 0;
+    overflow: hidden;
+  }
 
   .group {
     border: 1px solid var(--border-color);
