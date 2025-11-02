@@ -62,7 +62,7 @@
   function toggleItemReviewComment(comment) {
     comment.resolved = !comment.resolved;
 
-    fetch(route(`organizations.repositories.item.review.comment`, { organization, repository, number, review_id: comment.review_id, comment_id: comment.id }), {
+    fetch(route(`organizations.repositories.item.review.comment`, { organization, repository, number, comment_id: comment.id }), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -172,7 +172,7 @@
               <Comment
                 comment={comment}
                 onToggle={toggleItemReviewComment}
-                onToggleReply={toggleItemComment}
+                onToggleReply={toggleItemReviewComment}
                 indent={review.body !== null && review.body !== ''}
                 showReplies={true}
               />

@@ -1,5 +1,6 @@
 <script>
   import Markdown from './Markdown.svelte';
+  import Self from './Comment.svelte';
 
   let {
     comment,
@@ -32,11 +33,7 @@
       {#if showReplies && comment.replies}
         <div class="item-comment-replies">
           {#each comment.replies as reply}
-            <svelte:self
-              comment={reply}
-              onToggle={onToggleReply}
-              indent={true}
-            />
+            <Self comment={reply} onToggle={onToggleReply} indent={true} />
           {/each}
         </div>
       {/if}

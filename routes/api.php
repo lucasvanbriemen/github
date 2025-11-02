@@ -22,8 +22,14 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
         ->name('organizations.repositories.item.show');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemCommentController::class, 'update'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemCommentController::class, 'updateItem'])
         ->name('organizations.repositories.item.comment');
+
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [ItemCommentController::class, 'updateReview'])
+        ->name('organizations.repositories.item.review');
+
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [ItemCommentController::class, 'updateReviewComment'])
+        ->name('organizations.repositories.item.review.comment');
 
     // Route::prefix('organization/{organization}/{repository}')->group(function () {
     //     Route::get('tree/{file_path?}', [RepositoryController::class, 'show_file_tree'])
