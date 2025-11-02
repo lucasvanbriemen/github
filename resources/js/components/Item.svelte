@@ -7,13 +7,31 @@
   let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
   let number = $derived(params.number || '');
-  
+
   let item = $state({});
   let isPR = $state(false);
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
+
+    console.log('DEBUG: Loaded item:', {
+      type: item.type,
+      isPR: item.type === 'pull_request',
+      commentsCount: item.comments?.length || 0,
+      reviewsCount: item.pull_request_reviews?.length || 0
+    });
+
+    if (item.pull_request_reviews) {
+      item.pull_request_reviews.forEach((review, idx) => {
+        console.log(`DEBUG: Review ${idx}:`, {
+          id: review.id,
+          hasBody: review.body !== null && review.body !== '',
+          bodyLength: review.body?.length || 0,
+          commentsCount: review.comments?.length || 0
+        });
+      });
+    }
 
     try {
       item.labels = JSON.parse(item.labels);
@@ -22,13 +40,7 @@
     }
 
     isPR = item.type === 'pull_request';
-
-    // On a PR we need to sort the following
-    sortPRComments(item.comments);
   });
-
-  function sortPRComments(comments) {
-  }
 
   function toggleResolved(comment) {
     comment.resolved = !comment.resolved;
@@ -110,6 +122,74 @@
         </div>
       </div>
     {/each}
+
+    {#if isPR}
+      {#each item.pull_request_reviews as review, reviewIndex}
+        <!-- Review summary (if body exists) -->
+        {#if review.body !== null && review.body !== ''}
+          <div class="item-comment" class:item-comment-resolved={review.resolved}>
+            <button class="item-comment-header" onclick={() => {
+              console.log(`DEBUG: Review ${reviewIndex} header clicked:`, {
+                id: review.id,
+                user: review.user?.name,
+                hasBody: true,
+                commentsCount: review.comments?.length || 0
+              });
+              toggleResolved(review);
+            }}>
+              <img src={review.user.avatar_url} alt={review.user.name} />
+              <span>{review.user.name} reviewed {review.created_at_human}</span>
+            </button>
+            <div class="item-comment-body">
+              <Markdown content={review.body} />
+            </div>
+          </div>
+        {:else}
+          <!-- Review with no body - just log it -->
+          <span style="display:none;"><!-- DEBUG: Review {reviewIndex} (ID: {review.id}) has no body, comments: {review.comments?.length || 0} --></span>
+        {/if}
+
+        <!-- Review line comments (always render, independent of review body) -->
+        {#each review.comments as comment, commentIndex}
+          <div class="item-comment" class:item-comment-resolved={comment.resolved} class:part-of-review={review.body !== null && review.body !== ''}>
+            <button class="item-comment-header" onclick={() => {
+              console.log(`DEBUG: Review ${reviewIndex}, Comment ${commentIndex}:`, {
+                commentId: comment.id,
+                author: comment.author?.name,
+                bodyPreview: comment.body?.substring(0, 50) || 'EMPTY',
+                repliesCount: comment.replies?.length || 0
+              });
+              toggleResolved(comment);
+            }}>
+              <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+              <span>{comment.author?.name} commented {comment.created_at_human}</span>
+            </button>
+            <div class="item-comment-body">
+              <Markdown content={comment.body} />
+
+              {#each comment.replies as reply, replyIndex}
+                <div class="item-comment" class:item-comment-resolved={reply.resolved}>
+                  <button class="item-comment-header" onclick={() => {
+                    console.log(`DEBUG: Reply ${replyIndex}:`, {
+                      replyId: reply.id,
+                      author: reply.author?.name,
+                      bodyPreview: reply.body?.substring(0, 50) || 'EMPTY'
+                    });
+                    toggleResolved(reply);
+                  }}>
+                    <img src={reply.author?.avatar_url} alt={reply.author?.name} />
+                    <span>{reply.author?.name} replied {reply.created_at_human}</span>
+                  </button>
+                  <div class="item-comment-body">
+                    <Markdown content={reply.body} />
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/each}
+      {/each}
+    {/if}
   </div>
 </div>
 
@@ -231,6 +311,11 @@
         }
       }
 
+      .part-of-review {
+        margin-left: 1rem;
+      }
+
+
       .item-comment {
         padding: 0.25rem 0;
         display: flex;
@@ -238,6 +323,10 @@
 
         &:last-child {
           padding-bottom: 1rem;
+        }
+
+        .item-comment {
+          margin-left: 1rem;
         }
 
         .item-comment-header {
