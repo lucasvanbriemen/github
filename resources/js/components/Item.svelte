@@ -152,28 +152,33 @@
     <!-- PR Reviews and Review Comments (PR only) -->
     {#if isPR}
       {#each item.pull_request_reviews as review}
-        <!-- Review Summary (shown if review has a body) -->
-        {#if review.body !== null && review.body !== ''}
-          <Comment
-            comment={{
-              ...review,
-              author: review.user,
-              created_at_human: review.created_at_human + ' (review)'
-            }}
-            onToggle={toggleItemReview}
-          />
-        {/if}
+        <!-- Only render if review has a body or comments -->
+        {#if (review.body !== null && review.body !== '') || (review.comments && review.comments.length > 0)}
+          <!-- Review Summary (shown if review has a body) -->
+          <div class="item-comment" class:item-comment-resolved={review.resolved}>
+            {#if review.body !== null && review.body !== ''}
+              <Comment
+                comment={{
+                  ...review,
+                  author: review.user,
+                  created_at_human: review.created_at_human + ' (review)'
+                }}
+                onToggle={toggleItemReview}
+              />
+            {/if}
 
-        <!-- Review Line Comments with Replies -->
-        {#each review.comments as comment}
-          <Comment
-            comment={comment}
-            onToggle={toggleItemReviewComment}
-            onToggleReply={toggleItemComment}
-            indent={review.body !== null && review.body !== ''}
-            showReplies={true}
-          />
-        {/each}
+            <!-- Review Line Comments with Replies -->
+            {#each review.comments as comment}
+              <Comment
+                comment={comment}
+                onToggle={toggleItemReviewComment}
+                onToggleReply={toggleItemComment}
+                indent={review.body !== null && review.body !== ''}
+                showReplies={true}
+              />
+            {/each}
+          </div>
+        {/if}
       {/each}
     {/if}
   </div>

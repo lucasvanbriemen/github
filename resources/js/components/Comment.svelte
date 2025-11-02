@@ -26,17 +26,21 @@
   </button>
 
   <div class="item-comment-body">
-    <Markdown content={comment.body} />
+    <div class="item-comment-content">
+      <Markdown content={comment.body} />
 
-    {#if showReplies && comment.replies}
-      {#each comment.replies as reply}
-        <svelte:self
-          comment={reply}
-          onToggle={onToggleReply}
-          indent={true}
-        />
-      {/each}
-    {/if}
+      {#if showReplies && comment.replies}
+        <div class="item-comment-replies">
+          {#each comment.replies as reply}
+            <svelte:self
+              comment={reply}
+              onToggle={onToggleReply}
+              indent={true}
+            />
+          {/each}
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -45,10 +49,16 @@
     padding: 0.25rem 0;
     display: flex;
     flex-direction: column;
+
+    .item-comment {
+      .item-comment-content {
+        border: none !important;
+      }
+    }
   }
 
   .item-comment.indent {
-    margin-left: 1rem;
+    margin-left: 1.5rem;
   }
 
   .item-comment:last-child {
@@ -74,9 +84,12 @@
     border-radius: 50%;
   }
 
-  .item-comment-body :global(.markdown-body) {
+  .item-comment-content {
     border: 2px solid var(--background-color-one);
     border-radius: 0 0 1rem 1rem;
+  }
+
+  .item-comment-body :global(.markdown-body) {
     height: auto;
   }
 
@@ -84,6 +97,15 @@
   .item-comment-body :global(.markdown-body li),
   .item-comment-body :global(.markdown-body strong) {
     color: var(--text-color);
+    border: none !important;
+  }
+
+  .item-comment-replies {
+    padding: 0 0.5rem 0.5rem 0.5rem;
+  }
+
+  .item-comment-replies .item-comment {
+    padding: 0.5rem 0 0 0;
   }
 
   .item-comment-resolved .item-comment-header {
