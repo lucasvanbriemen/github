@@ -1,5 +1,6 @@
 <script>
   import Markdown from './Markdown.svelte';
+  import DiffHunk from './DiffHunk.svelte';
   import Self from './Comment.svelte';
 
   let {
@@ -28,6 +29,13 @@
 
   <div class="item-comment-body">
     <div class="item-comment-content">
+      <DiffHunk
+        diffHunk={comment.diff_hunk}
+        path={comment.path}
+        startLine={comment.line_start}
+        endLine={comment.line_end}
+      />
+
       <Markdown content={comment.body} />
 
       {#if showReplies && comment.replies}
@@ -86,6 +94,10 @@
     border-radius: 0 0 1rem 1rem;
   }
 
+  .item-comment-content :global(.diff-hunk) {
+    margin: 0.5rem;
+  }
+
   .item-comment-body :global(.markdown-body) {
     height: auto;
   }
@@ -102,6 +114,10 @@
 
   .item-comment-replies {
     padding: 0 0.5rem 0.5rem 0.5rem;
+
+    :global(.diff-hunk) {
+      display: none;
+    }
   }
 
   .item-comment-replies .item-comment {
