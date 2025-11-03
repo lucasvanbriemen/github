@@ -8,7 +8,6 @@ $routes = collect(Route::getRoutes())->map(function ($route) {
 })->values();
 
 $userID = \App\GithubConfig::USERID;
-$username = \App\GithubConfig::USERNAME;
 
 @endphp
 
@@ -18,20 +17,15 @@ $username = \App\GithubConfig::USERNAME;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'Laravel') }}</title>
-    @vite(['resources/js/main.js', 'resources/scss/shared/button.scss'])
+    @vite(['resources/js/main.js', 'resources/scss/components/global.scss'])
 </head>
 <body>
     <script>
         const API_ROUTES = @json($routes);
         window.USER_ID = "{{ $userID }}";
-        window.USERNAME = "{{ $username }}";
 
         function route(name, params = {}) {
             const route = API_ROUTES.find(r => r.name === name);
-            if (!route) {
-                throw new Error(`Route with name "${name}" not found.`);
-            }
-
             let uri = route.uri;
 
             for (const [key, value] of Object.entries(params)) {

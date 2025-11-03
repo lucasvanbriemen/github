@@ -81,28 +81,26 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
-    <div class="filter-section">
-      <SearchSelect
-        name="state"
-        options={stateOptions}
-        bind:value={state}
-        on:change={() => {
-          filterItem()
-        }}
-      />
+    <SearchSelect
+      name="state"
+      options={stateOptions}
+      bind:value={state}
+      on:change={() => {
+        filterItem()
+      }}
+    />
 
-      <SearchSelect
-        name="assignee"
-        options={assignees}
-        bind:value={selectedAssignee}
-        on:change={() => {
-          filterItem();
-        }}
-        multiple={true}
-      />
-
-    </div>
+    <SearchSelect
+      name="assignee"
+      options={assignees}
+      bind:value={selectedAssignee}
+      on:change={() => {
+        filterItem();
+      }}
+      multiple={true}
+    />
   </Sidebar>
+
   <div class="repo-main">
     {#each issues as item}
       <ListItem {item} itemType="issue" />
@@ -114,21 +112,6 @@
   </div>
 </div>
   
-<style>
-  .repo-dashboard {
-    height: 100%;
-    width: 100%;
-
-    display: flex;
-    gap: 1rem;
-    overflow: auto;
-
-    .repo-main {
-      width: calc(85vw - 3rem);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-  }
+<style lang="scss">
+  @import '../../scss/components/item-overview' ;
 </style>

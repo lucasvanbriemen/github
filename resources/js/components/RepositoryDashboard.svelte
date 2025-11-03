@@ -11,8 +11,6 @@
   </div>
 </div>
   
-<style>
-  .repo-dashboard {
-    height: 100%;
-  }
+<style lang="scss">
+  @import '../../scss/components/repository-dashboard.scss';
 </style>

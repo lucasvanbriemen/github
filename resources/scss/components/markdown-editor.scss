@@ -1,0 +1,137 @@
+.markdown-editor-container {
+  width: 70%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+}
+
+:global(.markdown-editor-container .bytemd) {
+  height: fit-content;
+  border: none;
+  background-color: var(--background-color);
+}
+
+:global(.markdown-editor-container .bytemd-toolbar) {
+  background-color: var(--background-color-one);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem;
+}
+
+:global(.markdown-editor-container .bytemd-toolbar-icon) {
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+:global(.markdown-editor-container .bytemd-toolbar-icon:hover) {
+  opacity: 1;
+  background-color: var(--background-color);
+}
+
+:global(.markdown-editor-container .bytemd-body) {
+  background-color: var(--background-color);
+}
+
+:global(.markdown-editor-container .bytemd-editor) {
+  background-color: var(--background-color);
+  width: 100% !important;
+}
+
+:global(.markdown-editor-container .CodeMirror-lines) {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+:global(.markdown-editor-container .CodeMirror) {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  height: 100%;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+}
+
+:global(.markdown-editor-container .CodeMirror-cursor) {
+  border-left-color: var(--text-color);
+}
+
+:global(.markdown-editor-container .CodeMirror-selected) {
+  background-color: rgba(128, 128, 128, 0.2);
+}
+
+:global(.markdown-editor-container .CodeMirror-gutters) {
+  background-color: var(--background-color-one);
+  border-right: 1px solid var(--border-color);
+}
+
+:global(.markdown-editor-container .CodeMirror-linenumber) {
+  color: var(--text-color-secondary);
+}
+
+:global(.markdown-editor-container .bytemd-preview) {
+  background-color: var(--background-color);
+  padding: 1rem;
+  display: none;
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body) {
+  background-color: transparent;
+  color: var(--text-color);
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body h1),
+:global(.markdown-editor-container .bytemd-preview .markdown-body h2),
+:global(.markdown-editor-container .bytemd-preview .markdown-body h3),
+:global(.markdown-editor-container .bytemd-preview .markdown-body h4),
+:global(.markdown-editor-container .bytemd-preview .markdown-body h5),
+:global(.markdown-editor-container .bytemd-preview .markdown-body h6) {
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body p),
+:global(.markdown-editor-container .bytemd-preview .markdown-body li),
+:global(.markdown-editor-container .bytemd-preview .markdown-body strong),
+:global(.markdown-editor-container .bytemd-preview .markdown-body em),
+:global(.markdown-editor-container .bytemd-preview .markdown-body code) {
+  color: var(--text-color);
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body code) {
+  background-color: var(--background-color-one);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body pre) {
+  background-color: var(--background-color-one);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body blockquote) {
+  border-left: 4px solid var(--border-color);
+  color: var(--text-color-secondary);
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body a) {
+  color: var(--link-color, #0969da);
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body table) {
+  border-color: var(--border-color);
+}
+
+:global(.markdown-editor-container .bytemd-preview .markdown-body th),
+:global(.markdown-editor-container .bytemd-preview .markdown-body td) {
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+:global(.markdown-editor-container .bytemd-status) {
+  display: none;
+}
+
+:global(.markdown-editor-container .bytemd-split) {
+  background-color: var(--border-color);
+}
