@@ -17,11 +17,6 @@
     background: radial-gradient(circle at bottom right, transparent 1rem, var(--background-color-one) 1rem);
   }
 
-  .filter-section {
-    padding: 1rem 0.5rem;
-    border-bottom: 1px solid var(--border-color);
-  }
-
   .nav {
     position: absolute;
     bottom: 0.5rem;
@@ -60,6 +55,7 @@
         padding: 0.5rem;
         border-radius: 0.25rem;
         cursor: pointer;
+        text-decoration: none;
 
         &:hover {
           background-color: var(--primary-color);

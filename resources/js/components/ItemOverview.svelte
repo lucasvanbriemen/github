@@ -81,28 +81,26 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
-    <div class="filter-section">
-      <SearchSelect
-        name="state"
-        options={stateOptions}
-        bind:value={state}
-        on:change={() => {
-          filterItem()
-        }}
-      />
+    <SearchSelect
+      name="state"
+      options={stateOptions}
+      bind:value={state}
+      on:change={() => {
+        filterItem()
+      }}
+    />
 
-      <SearchSelect
-        name="assignee"
-        options={assignees}
-        bind:value={selectedAssignee}
-        on:change={() => {
-          filterItem();
-        }}
-        multiple={true}
-      />
-
-    </div>
+    <SearchSelect
+      name="assignee"
+      options={assignees}
+      bind:value={selectedAssignee}
+      on:change={() => {
+        filterItem();
+      }}
+      multiple={true}
+    />
   </Sidebar>
+
   <div class="repo-main">
     {#each issues as item}
       <ListItem {item} itemType="issue" />

@@ -15,13 +15,6 @@
     repository = parts[1] || repository;
   }
 
-  function linkTo(path = '') {
-    // path examples: '', 'issues', 'issues/123', 'prs', 'prs/45'
-    const route = `#/${organization}/${repository}${path ? '/' + path : ''}`;
-    window.location.hash = route;
-    dropdownOpen = false;
-  }
-
   onMount(() => {
     parseHash();
     window.addEventListener('hashchange', parseHash);
@@ -33,11 +26,11 @@
 
   <div class="nav">
     <div class="dropdown-menu" class:open={dropdownOpen}>
-      <a class="item" on:click={() => linkTo('')}>Home</a>
-      <a class="item" on:click={() => linkTo('issues')}>Issues</a>
-      <a class="item" on:click={() => linkTo('prs')}>Pull Requests</a>
+      <a class="item" href="#/{organization}/{repository}" onclick={() => dropdownOpen = false}>Overview</a>
+      <a class="item" href="#/{organization}/{repository}/issues" onclick={() => dropdownOpen = false}>Issues</a>
+      <a class="item" href="#/{organization}/{repository}/prs" onclick={() => dropdownOpen = false}>Pull Requests</a>
     </div>
-    <button class="dropdown" on:click={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
+    <button class="dropdown" onclick={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
       {selectedDropdownSection}
     </button>
   </div>
