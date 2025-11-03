@@ -11,6 +11,10 @@
 
   let item = $state({});
   let isPR = $state(false);
+  let files = $state([]);
+  let loadingFiles = $state(false);
+  let collapsedFiles = $state(new Set());
+  let activeTab = $state('conversation'); // 'conversation' or 'files'
 
   onMount(async () => {
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
@@ -23,7 +27,26 @@
     }
 
     isPR = item.type === 'pull_request';
+
+    // If it's a PR, load the file diffs
+    if (isPR) {
+      loadFiles();
+    }
   });
+
+  async function loadFiles() {
+    loadingFiles = true;
+    try {
+      const res = await fetch(route(`organizations.repositories.item.files`, { organization, repository, number }));
+      const data = await res.json();
+      files = data.files || [];
+    } catch (e) {
+      console.error('Failed to load files:', e);
+      files = [];
+    } finally {
+      loadingFiles = false;
+    }
+  }
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -71,6 +94,63 @@
         resolved: comment.resolved,
       }),
     });
+  }
+
+  // Diff view helper functions
+  function toggleFile(fileName) {
+    if (collapsedFiles.has(fileName)) {
+      collapsedFiles.delete(fileName);
+    } else {
+      collapsedFiles.add(fileName);
+    }
+    collapsedFiles = new Set(collapsedFiles);
+  }
+
+  function getFileStatus(file) {
+    if (file.from === '/dev/null') return 'added';
+    if (file.to === '/dev/null') return 'deleted';
+    if (file.from !== file.to) return 'renamed';
+    return 'modified';
+  }
+
+  function getFileName(file) {
+    return file.to === '/dev/null' ? file.from : file.to;
+  }
+
+  function processChunk(chunk) {
+    const lines = [];
+    let leftIndex = chunk.oldStart;
+    let rightIndex = chunk.newStart;
+
+    for (const change of chunk.changes) {
+      if (change.type === 'normal') {
+        lines.push({
+          left: { lineNumber: leftIndex++, content: change.content, type: 'normal' },
+          right: { lineNumber: rightIndex++, content: change.content, type: 'normal' }
+        });
+      } else if (change.type === 'del') {
+        lines.push({
+          left: { lineNumber: leftIndex++, content: change.content, type: 'del' },
+          right: { lineNumber: null, content: '', type: 'empty' }
+        });
+      } else if (change.type === 'add') {
+        const prevLine = lines.length > 0 ? lines[lines.length - 1] : null;
+        if (prevLine && prevLine.right.type === 'empty' && prevLine.left.type === 'del') {
+          lines[lines.length - 1].right = { lineNumber: rightIndex++, content: change.content, type: 'add' };
+        } else {
+          lines.push({
+            left: { lineNumber: null, content: '', type: 'empty' },
+            right: { lineNumber: rightIndex++, content: change.content, type: 'add' }
+          });
+        }
+      }
+    }
+
+    return lines;
+  }
+
+  function getLinePrefix(type) {
+    return type === 'add' ? '+' : (type === 'del' ? '-' : ' ');
   }
 </script>
 
@@ -137,54 +217,159 @@
           {item.details.head_branch} into {item.details.base_branch}
         </span>
       </div>
+
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button
+          class="tab-button"
+          class:active={activeTab === 'conversation'}
+          onclick={() => activeTab = 'conversation'}
+        >
+          Conversation
+        </button>
+        <button
+          class="tab-button"
+          class:active={activeTab === 'files'}
+          onclick={() => activeTab = 'files'}
+        >
+          Files changed
+        </button>
+      </div>
     {/if}
 
-    <!-- Item Body: Main Description -->
-    <div class="item-body">
-      <Markdown content={item.body} />
-    </div>
+    <!-- Conversation Tab Content -->
+    {#if !isPR || activeTab === 'conversation'}
+      <!-- Item Body: Main Description -->
+      <div class="item-body">
+        <Markdown content={item.body} />
+      </div>
 
-    <!-- Regular Comments -->
-    {#each item.comments as comment}
-      <Comment {comment} onToggle={toggleItemComment} />
-    {/each}
-
-    <!-- PR Reviews and Review Comments (PR only) -->
-    {#if isPR}
-      {#each item.pull_request_reviews as review}
-        <!-- Only render if review has a body or comments -->
-        {#if (review.body !== null && review.body !== '') || (review.comments && review.comments.length > 0)}
-          <div class="review-block" class:review-resolved={review.resolved}>
-            <!-- Review Summary (shown if review has a body) -->
-            {#if review.body !== null && review.body !== ''}
-              <div class="review-header">
-                <button class="item-comment-header" onclick={() => toggleItemReview(review)}>
-                  <img src={review.user?.avatar_url} alt={review.user?.name} />
-                  <span>{review.user?.name} {review.created_at_human} (review)</span>
-                </button>
-              </div>
-              <div class="review-body">
-                <div class="item-comment-content">
-                  <Markdown content={review.body} />
-                </div>
-              </div>
-            {/if}
-
-            <!-- Review Line Comments with Replies -->
-            <div class="review-comments">
-              {#each review.comments as comment}
-                <Comment
-                  comment={comment}
-                  onToggle={toggleItemReviewComment}
-                  onToggleReply={toggleItemReviewComment}
-                  indent={review.body !== null && review.body !== ''}
-                  showReplies={true}
-                />
-              {/each}
-            </div>
-          </div>
-        {/if}
+      <!-- Regular Comments -->
+      {#each item.comments as comment}
+        <Comment {comment} onToggle={toggleItemComment} />
       {/each}
+
+      <!-- PR Reviews and Review Comments (PR only) -->
+      {#if isPR}
+        {#each item.pull_request_reviews as review}
+          <!-- Only render if review has a body or comments -->
+          {#if (review.body !== null && review.body !== '') || (review.comments && review.comments.length > 0)}
+            <div class="review-block" class:review-resolved={review.resolved}>
+              <!-- Review Summary (shown if review has a body) -->
+              {#if review.body !== null && review.body !== ''}
+                <div class="review-header">
+                  <button class="item-comment-header" onclick={() => toggleItemReview(review)}>
+                    <img src={review.user?.avatar_url} alt={review.user?.name} />
+                    <span>{review.user?.name} {review.created_at_human} (review)</span>
+                  </button>
+                </div>
+                <div class="review-body">
+                  <div class="item-comment-content">
+                    <Markdown content={review.body} />
+                  </div>
+                </div>
+              {/if}
+
+              <!-- Review Line Comments with Replies -->
+              <div class="review-comments">
+                {#each review.comments as comment}
+                  <Comment
+                    comment={comment}
+                    onToggle={toggleItemReviewComment}
+                    onToggleReply={toggleItemReviewComment}
+                    indent={review.body !== null && review.body !== ''}
+                    showReplies={true}
+                  />
+                {/each}
+              </div>
+            </div>
+          {/if}
+        {/each}
+      {/if}
+    {/if}
+
+    <!-- Files Changed Tab Content (PR only) -->
+    {#if isPR && activeTab === 'files'}
+      <div class="pr-files">
+        {#if loadingFiles}
+          <div class="loading">Loading files...</div>
+        {:else if files.length === 0}
+          <div class="diff-empty">No changes</div>
+        {:else}
+          {#each files as file}
+            {@const fileName = getFileName(file)}
+            {@const fileStatus = getFileStatus(file)}
+            {@const isCollapsed = collapsedFiles.has(fileName)}
+
+            <div class="diff-file">
+              <!-- File Header -->
+              <button class="diff-file-header" onclick={() => toggleFile(fileName)}>
+                <div class="diff-file-header-left">
+                  <span class="diff-file-status diff-file-status-{fileStatus}">{fileStatus}</span>
+                  <span class="diff-file-name">{fileName}</span>
+                </div>
+                <div class="diff-file-stats">
+                  <span class="diff-stats-additions">+{file.additions ?? 0}</span>
+                  <span class="diff-stats-deletions">-{file.deletions ?? 0}</span>
+                </div>
+              </button>
+
+              <!-- Diff Content -->
+              {#if !isCollapsed}
+                <div class="diff-table-container">
+                  <table class="diff-table diff-table-side-by-side">
+                    <tbody>
+                      {#each file.chunks as chunk}
+                        {@const lines = processChunk(chunk)}
+
+                        {#each lines as linePair}
+                          <tr class="diff-line-row">
+                            <!-- Left side -->
+                            {#if !linePair.left || linePair.left.type === 'empty'}
+                              <td class="diff-line-number diff-line-number-empty"></td>
+                              <td class="diff-line-content diff-line-empty"></td>
+                            {:else}
+                              {@const line = linePair.left}
+                              {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
+                              {@const prefix = getLinePrefix(line.type)}
+
+                              <td class="diff-line-number {typeClass}">
+                                {line.lineNumber}
+                              </td>
+                              <td class="diff-line-content {typeClass}">
+                                <span class="diff-line-prefix">{prefix}</span>
+                                <span class="diff-line-code">{line.content}</span>
+                              </td>
+                            {/if}
+
+                            <!-- Right side -->
+                            {#if !linePair.right || linePair.right.type === 'empty'}
+                              <td class="diff-line-number diff-line-number-empty"></td>
+                              <td class="diff-line-content diff-line-empty"></td>
+                            {:else}
+                              {@const line = linePair.right}
+                              {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
+                              {@const prefix = getLinePrefix(line.type)}
+
+                              <td class="diff-line-number {typeClass}">
+                                {line.lineNumber}
+                              </td>
+                              <td class="diff-line-content {typeClass}">
+                                <span class="diff-line-prefix">{prefix}</span>
+                                <span class="diff-line-code">{line.content}</span>
+                              </td>
+                            {/if}
+                          </tr>
+                        {/each}
+                      {/each}
+                    </tbody>
+                  </table>
+                </div>
+              {/if}
+            </div>
+          {/each}
+        {/if}
+      </div>
     {/if}
   </div>
 </div>
@@ -363,6 +548,241 @@
         }
       }
 
+    }
+  }
+
+  .tab-navigation {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    .tab-button {
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-color-secondary);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+
+      &:hover {
+        color: var(--text-color);
+        border-bottom-color: var(--border-color);
+      }
+
+      &.active {
+        color: var(--text-color);
+        border-bottom-color: var(--primary-color);
+      }
+    }
+  }
+
+  .pr-files {
+    .loading {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-color-secondary);
+    }
+
+    .diff-empty {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-color-secondary);
+      background-color: var(--background-color-one);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+    }
+
+    .diff-file {
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      background-color: var(--background-color-one);
+      overflow: hidden;
+    }
+
+    .diff-file-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: var(--background-color-one);
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      width: 100%;
+      border: none;
+      text-align: left;
+
+      &:hover {
+        background-color: var(--background-color-two);
+      }
+    }
+
+    .diff-file-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .diff-file-status {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background-color: var(--background-color-two);
+      color: var(--text-color);
+    }
+
+    .diff-file-status-added {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+
+    .diff-file-status-deleted {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .diff-file-status-modified {
+      background-color: rgba(234, 179, 8, 0.15);
+      color: #eab308;
+    }
+
+    .diff-file-status-renamed {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+
+    .diff-file-name {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .diff-file-stats {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+
+    .diff-stats-additions {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .diff-stats-deletions {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .diff-table-container {
+      background-color: var(--background-color-one);
+      overflow-x: auto;
+    }
+
+    .diff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      background-color: var(--background-color-one);
+
+      tr {
+        background-color: var(--background-color-one);
+      }
+    }
+
+    .diff-line-number {
+      padding: 0.125rem 0.5rem;
+      text-align: right;
+      vertical-align: top;
+      user-select: none;
+      color: var(--text-color-secondary);
+      background-color: var(--background-color-two);
+      border-right: 1px solid var(--border-color);
+      min-width: 50px;
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .diff-line-number-empty {
+      background-color: var(--background-color-two);
+      border-right: 1px solid var(--border-color);
+    }
+
+    .diff-line-content {
+      padding: 0.125rem 0.5rem;
+      vertical-align: top;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: var(--text-color);
+      background-color: var(--background-color-one);
+    }
+
+    .diff-line-prefix {
+      user-select: none;
+      margin-right: 0.5rem;
+      opacity: 0.5;
+    }
+
+    .diff-line-code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .diff-line-empty {
+      background-color: var(--background-color-two);
+      opacity: 0.3;
+    }
+
+    .diff-line-add {
+      background-color: rgba(34, 197, 94, 0.1);
+
+      &.diff-line-number {
+        background-color: rgba(34, 197, 94, 0.15);
+        border-right-color: rgba(34, 197, 94, 0.3);
+      }
+
+      .diff-line-prefix {
+        color: #22c55e;
+        opacity: 1;
+        font-weight: 700;
+      }
+    }
+
+    .diff-line-del {
+      background-color: rgba(239, 68, 68, 0.1);
+
+      &.diff-line-number {
+        background-color: rgba(239, 68, 68, 0.15);
+        border-right-color: rgba(239, 68, 68, 0.3);
+      }
+
+      .diff-line-prefix {
+        color: #ef4444;
+        opacity: 1;
+        font-weight: 700;
+      }
+    }
+
+    .diff-table-side-by-side {
+      td {
+        width: 50%;
+      }
+
+      .diff-line-number {
+        width: 1%;
+      }
     }
   }
 </style>

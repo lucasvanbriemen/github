@@ -6,6 +6,7 @@ use App\Models\Item;
 use App\Services\RepositoryService;
 use App\GithubConfig;
 use Github\Api\Repo;
+use App\Helpers\DiffRenderer;
 
 class ItemController extends Controller
 {
@@ -129,5 +130,28 @@ class ItemController extends Controller
                 }
             }
         }
+    }
+
+    public static function getFiles($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        // Only return files for PRs
+        if (!$item->isPullRequest()) {
+            return response()->json(['files' => []]);
+        }
+
+        // Get the diff from GitHub using the same method as PullRequestController
+        $diffString = PullRequestController::getDiff($organizationName, $repositoryName, $number);
+
+        // Parse diff using DiffRenderer
+        $renderer = new DiffRenderer($diffString);
+        $files = $renderer->getFiles();
+
+        return response()->json(['files' => $files]);
     }
 }
