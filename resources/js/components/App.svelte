@@ -11,7 +11,6 @@
 
   const routes = {
     '/': Dashboard,
-    '/:organization': Organization,
     '/:organization/:repository': RepositoryDashboard,
     '/:organization/:repository/issues': ItemOverview,
     '/:organization/:repository/issues/:number': Item,
