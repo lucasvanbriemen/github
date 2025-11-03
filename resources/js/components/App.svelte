@@ -28,25 +28,5 @@
 <Router {routes} />
 
 <style lang="scss">
-  :global(body) {
-    margin: 0;
-    font-family: Roboto, sans-serif;
-    background-color: var(--background-color);
-    min-height: 100vh;
-    min-width: 100vw;
-  }
-
-  /* Ensure the SPA root fills the viewport */
-  :global(#app) {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global(*) {
-    font-family: var(--font-family);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-  }
+  @import '../../scss/components/app.scss';
 </style>

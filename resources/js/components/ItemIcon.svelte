@@ -14,14 +14,5 @@
 </div>
   
 <style>
-  .icon {
-    height: 1.5rem;
-    width: 1.5rem;
-    margin-top: 0.25rem;
-    fill: var(--success-color);
-
-    &.closed {
-      fill: var(--error-color);
-    }
-  }
+  @import '../../scss/components/item-icon.scss';
 </style>

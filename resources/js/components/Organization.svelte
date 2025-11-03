@@ -8,17 +8,6 @@
   <a href="#/">Back to Home</a>
 </div>
 
-<style>
-  .organization {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    flex-direction: column;
-  }
-
-  h1 {
-    font-size: 3rem;
-    font-weight: bold;
-  }
+<style lang="scss">
+  @import '../../scss/components/organization.scss';
 </style>
