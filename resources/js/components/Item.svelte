@@ -152,6 +152,13 @@
   function getLinePrefix(type) {
     return type === 'add' ? '+' : (type === 'del' ? '-' : ' ');
   }
+
+  // Check if file is too large to render (similar to GitHub)
+  const MAX_DIFF_LINES = 400;
+  function isFileTooLarge(file) {
+    const totalLines = (file.additions ?? 0) + (file.deletions ?? 0);
+    return totalLines > MAX_DIFF_LINES;
+  }
 </script>
 
 <div class="item-overview">
@@ -316,55 +323,61 @@
 
               <!-- Diff Content -->
               {#if !isCollapsed}
-                <div class="diff-table-container">
-                  <table class="diff-table diff-table-side-by-side">
-                    <tbody>
-                      {#each file.chunks as chunk}
-                        {@const lines = processChunk(chunk)}
+                {#if isFileTooLarge(file)}
+                  <div class="diff-too-large">
+                    Large diffs are not rendered.
+                  </div>
+                {:else}
+                  <div class="diff-table-container">
+                    <table class="diff-table diff-table-side-by-side">
+                      <tbody>
+                        {#each file.chunks as chunk}
+                          {@const lines = processChunk(chunk)}
 
-                        {#each lines as linePair}
-                          <tr class="diff-line-row">
-                            <!-- Left side -->
-                            {#if !linePair.left || linePair.left.type === 'empty'}
-                              <td class="diff-line-number diff-line-number-empty"></td>
-                              <td class="diff-line-content diff-line-empty"></td>
-                            {:else}
-                              {@const line = linePair.left}
-                              {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
-                              {@const prefix = getLinePrefix(line.type)}
+                          {#each lines as linePair}
+                            <tr class="diff-line-row">
+                              <!-- Left side -->
+                              {#if !linePair.left || linePair.left.type === 'empty'}
+                                <td class="diff-line-number diff-line-number-empty"></td>
+                                <td class="diff-line-content diff-line-empty"></td>
+                              {:else}
+                                {@const line = linePair.left}
+                                {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
+                                {@const prefix = getLinePrefix(line.type)}
 
-                              <td class="diff-line-number {typeClass}">
-                                {line.lineNumber}
-                              </td>
-                              <td class="diff-line-content {typeClass}">
-                                <span class="diff-line-prefix">{prefix}</span>
-                                <span class="diff-line-code">{line.content}</span>
-                              </td>
-                            {/if}
+                                <td class="diff-line-number {typeClass}">
+                                  {line.lineNumber}
+                                </td>
+                                <td class="diff-line-content {typeClass}">
+                                  <span class="diff-line-prefix">{prefix}</span>
+                                  <span class="diff-line-code">{line.content}</span>
+                                </td>
+                              {/if}
 
-                            <!-- Right side -->
-                            {#if !linePair.right || linePair.right.type === 'empty'}
-                              <td class="diff-line-number diff-line-number-empty"></td>
-                              <td class="diff-line-content diff-line-empty"></td>
-                            {:else}
-                              {@const line = linePair.right}
-                              {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
-                              {@const prefix = getLinePrefix(line.type)}
+                              <!-- Right side -->
+                              {#if !linePair.right || linePair.right.type === 'empty'}
+                                <td class="diff-line-number diff-line-number-empty"></td>
+                                <td class="diff-line-content diff-line-empty"></td>
+                              {:else}
+                                {@const line = linePair.right}
+                                {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
+                                {@const prefix = getLinePrefix(line.type)}
 
-                              <td class="diff-line-number {typeClass}">
-                                {line.lineNumber}
-                              </td>
-                              <td class="diff-line-content {typeClass}">
-                                <span class="diff-line-prefix">{prefix}</span>
-                                <span class="diff-line-code">{line.content}</span>
-                              </td>
-                            {/if}
-                          </tr>
+                                <td class="diff-line-number {typeClass}">
+                                  {line.lineNumber}
+                                </td>
+                                <td class="diff-line-content {typeClass}">
+                                  <span class="diff-line-prefix">{prefix}</span>
+                                  <span class="diff-line-code">{line.content}</span>
+                                </td>
+                              {/if}
+                            </tr>
+                          {/each}
                         {/each}
-                      {/each}
-                    </tbody>
-                  </table>
-                </div>
+                      </tbody>
+                    </table>
+                  </div>
+                {/if}
               {/if}
             </div>
           {/each}

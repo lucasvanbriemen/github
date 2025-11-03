@@ -221,6 +221,13 @@
     border-radius: 1rem;
   }
 
+  .diff-too-large {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+    background-color: var(--background-color-one);
+  }
+
   .diff-file {
     border: 1px solid var(--border-color);
     border-radius: 1rem;
