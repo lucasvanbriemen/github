@@ -114,21 +114,6 @@
   </div>
 </div>
   
-<style>
-  .repo-dashboard {
-    height: 100%;
-    width: 100%;
-
-    display: flex;
-    gap: 1rem;
-    overflow: auto;
-
-    .repo-main {
-      width: calc(85vw - 3rem);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-  }
+<style lang="scss">
+  @import '../../scss/components/item-overview' ;
 </style>
