@@ -3,7 +3,6 @@
   import Router from 'svelte-spa-router';
   import Header from './Header.svelte';
   import Dashboard from './Dashboard.svelte';
-  import Organization from './Organization.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './ItemOverview.svelte';
   import Item from './Item.svelte';
@@ -25,7 +24,3 @@
 
 <Header />
 <Router {routes} />
-
-<style lang="scss">
-  @import '../../scss/components/app.scss';
-</style>
