@@ -26,10 +26,6 @@ $userID = \App\GithubConfig::USERID;
 
         function route(name, params = {}) {
             const route = API_ROUTES.find(r => r.name === name);
-            if (!route) {
-                throw new Error(`Route with name "${name}" not found.`);
-            }
-
             let uri = route.uri;
 
             for (const [key, value] of Object.entries(params)) {
