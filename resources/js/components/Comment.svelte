@@ -51,7 +51,6 @@
 
 <style>
   .item-comment {
-    padding: 0.25rem 0;
     display: flex;
     flex-direction: column;
 
@@ -64,10 +63,6 @@
 
   .item-comment.indent {
     margin-left: 1.5rem;
-  }
-
-  .item-comment:last-child {
-    padding-bottom: 1rem;
   }
 
   .item-comment-header {
@@ -120,8 +115,10 @@
     }
   }
 
-  .item-comment-replies .item-comment {
-    padding: 0.5rem 0 0 0;
+  .item-comment-replies {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .item-comment-resolved .item-comment-header {

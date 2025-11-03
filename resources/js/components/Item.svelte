@@ -191,7 +191,6 @@
 
 <style>
   .review-block {
-    padding: 0.25rem 0;
     display: flex;
     flex-direction: column;
   }
@@ -230,6 +229,12 @@
   .review-body :global(.markdown-body li),
   .review-body :global(.markdown-body strong) {
     color: var(--text-color);
+  }
+
+  .review-comments {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .review-resolved .review-header .item-comment-header {

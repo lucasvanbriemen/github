@@ -24,8 +24,9 @@
       if (line.startsWith('+')) {
         type = 'added';
         // Only include lines within the range if specified
-        if (start !== null && end !== null) {
-          if (currentLine >= start && currentLine <= end) {
+        if (end !== null) {
+          const effectiveStart = start ?? end - 3; // Default to 3 lines before end if start not provided
+          if (currentLine >= effectiveStart && currentLine <= end) {
             hunkLines.push({ type, content: displayLine, lineNumber: currentLine });
           }
         } else {
@@ -38,9 +39,10 @@
         // Removed lines don't increment currentLine
       } else if (line.trim() !== '') {
         // Context line
-        if (start !== null && end !== null) {
+        if (end !== null) {
+          const effectiveStart = start ?? end - 3; // Default to 3 lines before end if start not provided
           // Include some context around the target lines
-          if (currentLine >= start - 3 && currentLine <= end + 3) {
+          if (currentLine >= effectiveStart - 3 && currentLine <= end + 3) {
             hunkLines.push({ type, content: displayLine, lineNumber: currentLine });
           }
         } else {
