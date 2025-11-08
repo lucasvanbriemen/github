@@ -12,7 +12,7 @@
   let issues = $state([]);
   let paginationLinks = $state([]);
   let currentPage = $state(1);
-  let isLoading = $state(false);
+  let isLoading = $state(true);
 
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
@@ -85,31 +85,13 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
-    <SearchSelect
-      name="state"
-      options={stateOptions}
-      bind:value={state}
-      on:change={() => {
-        filterItem()
-      }}
-    />
-
-    <SearchSelect
-      name="assignee"
-      options={assignees}
-      bind:value={selectedAssignee}
-      on:change={() => {
-        filterItem();
-      }}
-      multiple={true}
-    />
+    <SearchSelect name="state" options={stateOptions} bind:value={state} on:change={() => { filterItem() }}/>
+    <SearchSelect name="assignee" options={assignees} bind:value={selectedAssignee} on:change={() => { filterItem(); }} multiple={true} />
   </Sidebar>
 
   <div class="repo-main">
     {#if isLoading}
-      {#each Array(10) as _, i}
-        <ListItemSkeleton />
-      {/each}
+      <ListItemSkeleton />
     {:else}
       {#each issues as item}
         <ListItem {item} itemType="issue" />

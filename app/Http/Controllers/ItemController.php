@@ -93,7 +93,7 @@ class ItemController extends Controller
             '/<img([^>]*\s+)?src=["\']?(https:\/\/(?:github\.com|raw\.githubusercontent\.com|user-images\.githubusercontent\.com)[^"\'>\s]+)["\']?([^>]*)>/i',
             function ($matches) {
                 $proxyUrl = route('image.proxy') . '?url=' . urlencode($matches[2]);
-                return "<img{$matches[1]}src=\"{$proxyUrl}\"{$matches[3]}>";
+                return "<br><img{$matches[1]}src=\"{$proxyUrl}\"{$matches[3]}>";
             },
             $content
         );
