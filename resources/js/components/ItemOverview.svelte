@@ -3,6 +3,7 @@
   import Sidebar from './Sidebar.svelte';
   import Pagination from './Pagination.svelte';
   import ListItem from './ListItem.svelte';
+  import ListItemSkeleton from './ListItemSkeleton.svelte';
   import SearchSelect from './SearchSelect.svelte';
 
   let { params = {} } = $props();
@@ -11,6 +12,7 @@
   let issues = $state([]);
   let paginationLinks = $state([]);
   let currentPage = $state(1);
+  let isLoading = $state(false);
 
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
@@ -44,6 +46,7 @@
 
 
   async function getItems(pageNr = 1, isInitialLoad = false) {
+    isLoading = true;
     currentPage = pageNr;
 
     let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
@@ -65,6 +68,7 @@
     }
 
     paginationLinks = json.links;
+    isLoading = false;
   }
 
   function filterItem() {
@@ -102,12 +106,18 @@
   </Sidebar>
 
   <div class="repo-main">
-    {#each issues as item}
-      <ListItem {item} itemType="issue" />
-    {/each}
+    {#if isLoading}
+      {#each Array(10) as _, i}
+        <ListItemSkeleton />
+      {/each}
+    {:else}
+      {#each issues as item}
+        <ListItem {item} itemType="issue" />
+      {/each}
 
-    {#if paginationLinks.length > 3}
-      <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />
+      {#if paginationLinks.length > 3}
+        <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />
+      {/if}
     {/if}
   </div>
 </div>

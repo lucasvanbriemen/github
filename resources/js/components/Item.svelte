@@ -3,6 +3,7 @@
   import Sidebar from './Sidebar.svelte';
   import Markdown from './Markdown.svelte';
   import Comment from './Comment.svelte';
+  import ItemSkeleton from './ItemSkeleton.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -15,8 +16,10 @@
   let loadingFiles = $state(false);
   let collapsedFiles = $state(new Set());
   let activeTab = $state('conversation'); // 'conversation' or 'files'
+  let isLoading = $state(true);
 
   onMount(async () => {
+    isLoading = true;
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
 
@@ -32,6 +35,8 @@
     if (isPR) {
       loadFiles();
     }
+
+    isLoading = false;
   });
 
   async function loadFiles() {
@@ -164,56 +169,61 @@
 <div class="item-overview">
   <!-- SIDEBAR: Assignees, Labels, and Reviewers -->
   <Sidebar {params} selectedDropdownSection="Issues">
-    <!-- Assignees Section -->
-    <div class="group">
-      <span class="group-title">Assignees</span>
-      {#each item.assignees as assignee}
-        <div class="assignee">
-          <img src={assignee.avatar_url} alt={assignee.name} />
-          <span>{assignee.name}</span>
-        </div>
-      {/each}
-    </div>
-
-    <!-- Labels Section -->
-    <div class="group">
-      <span class="group-title">Labels</span>
-      <div class="labels">
-        {#each item.labels as label}
-          <span class="label" style={getLabelStyle(label)}>
-            {label.name}
-          </span>
-        {/each}
-      </div>
-    </div>
-
-    <!-- Reviewers Section (PR only) -->
-    {#if isPR}
+    {#if !isLoading}
+      <!-- Assignees Section -->
       <div class="group">
-        <span class="group-title">Reviewers</span>
-        {#each item.requested_reviewers as reviewer}
-          <div class="reviewer">
-            <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
-            <span>{reviewer.user.name}</span>
-            <span>{reviewer.state}</span>
+        <span class="group-title">Assignees</span>
+        {#each item.assignees as assignee}
+          <div class="assignee">
+            <img src={assignee.avatar_url} alt={assignee.name} />
+            <span>{assignee.name}</span>
           </div>
         {/each}
       </div>
+
+      <!-- Labels Section -->
+      <div class="group">
+        <span class="group-title">Labels</span>
+        <div class="labels">
+          {#each item.labels as label}
+            <span class="label" style={getLabelStyle(label)}>
+              {label.name}
+            </span>
+          {/each}
+        </div>
+      </div>
+
+      <!-- Reviewers Section (PR only) -->
+      {#if isPR}
+        <div class="group">
+          <span class="group-title">Reviewers</span>
+          {#each item.requested_reviewers as reviewer}
+            <div class="reviewer">
+              <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
+              <span>{reviewer.user.name}</span>
+              <span>{reviewer.state}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
     {/if}
   </Sidebar>
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">
-    <!-- Item Header: Title and Metadata -->
-    <div class="item-header">
-      <h2>{item.title}</h2>
-      <div>
-        created {item.created_at_human} by
-        <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-        {item.opened_by?.name}
-        <span class="item-state item-state-{item.state}">{item.state}</span>
+    {#if isLoading}
+      <ItemSkeleton />
+    {:else}
+      <!-- Item Header: Title and Metadata -->
+      <div class="item-header">
+        <h2>{item.title}</h2>
+        <div>
+          created {item.created_at_human} by
+          <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
+          {item.opened_by?.name}
+          <span class="item-state item-state-{item.state}">{item.state}</span>
+        </div>
       </div>
-    </div>
 
     <!-- PR Header: Branch Information (PR only) -->
     {#if isPR}
@@ -383,6 +393,7 @@
           {/each}
         {/if}
       </div>
+    {/if}
     {/if}
   </div>
 </div>
