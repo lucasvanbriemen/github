@@ -29,7 +29,7 @@
   let selectedAssignee = $state([]);
 
   async function getContributors() {
-    const res = await fetch(`${route('organizations.repositories.get.contributors', {organization, repository})}`);
+    const res = await fetch(`${route('organizations.repositories.contributors.get', {organization, repository})}`);
     assignees = await res.json();
 
     // We have to format it into the {value, label} format for SearchSelect
@@ -50,10 +50,10 @@
     currentPage = pageNr;
 
     let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
-    if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
-      const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
-      url += `&assignee=${assigneeParam}`;
-    }
+    // if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
+    //   const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
+    //   url += `&assignee=${assigneeParam}`;
+    // }
 
     if (isInitialLoad) {
       url += `&isInitialLoad=true`;
