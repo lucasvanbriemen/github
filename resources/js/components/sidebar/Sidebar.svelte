@@ -37,5 +37,5 @@
 </div>
 
 <style lang="scss">
-  @import "../../scss/components/sidebar";
+  @import "../../../scss/components/sidebar/sidebar";
 </style>

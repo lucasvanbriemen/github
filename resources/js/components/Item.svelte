@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './Sidebar.svelte';
+  import Sidebar from './sidebar/Sidebar.svelte';
   import Markdown from './Markdown.svelte';
   import Comment from './Comment.svelte';
   import ItemSkeleton from './ItemSkeleton.svelte';

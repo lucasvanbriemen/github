@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './Sidebar.svelte';
+  import Sidebar from './sidebar/Sidebar.svelte';
+  import SidebarGroup from './sidebar/group.svelte';
   import Pagination from './Pagination.svelte';
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
@@ -85,15 +86,13 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
-    <div class="group">
-      <span class="group-title">State</span>
+    <SidebarGroup title="State">
       <SearchSelect name="state" options={stateOptions} bind:value={state} on:change={() => { filterItem() }}/>
-    </div>
+    </SidebarGroup>
 
-    <div class="group">
-      <span class="group-title">Assignees</span>
+    <SidebarGroup title="Assignees">
       <SearchSelect name="assignee" options={assignees} bind:value={selectedAssignee} on:change={() => { filterItem(); }} multiple={true} />
-    </div>
+    </SidebarGroup>
   </Sidebar>
 
   <div class="repo-main">
