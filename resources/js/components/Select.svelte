@@ -35,12 +35,10 @@
 
   function handleOpen() {
     open = true;
-    searchQuery = multiple ? '' : displayValue();
   }
 
   function handleClose() {
     open = false;
-    searchQuery = '';
   }
 
   function handleClickOutside(event) {
@@ -48,53 +46,13 @@
       handleClose();
     }
   }
-
-  function handleKeydown(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      const q = searchQuery.trim().toLowerCase();
-
-      // Try exact match first
-      let target = filteredOptions().find(opt =>
-        opt.label.toLowerCase() === q || opt.value.toLowerCase() === q
-      );
-
-      // Otherwise use first visible option
-      if (!target && filteredOptions().length > 0) {
-        target = filteredOptions()[0];
-      }
-
-      if (target) {
-        selectOption(target.value);
-      }
-      handleClose();
-    } else if (event.key === 'Escape') {
-      handleClose();
-    }
-  }
-
   function selectOption(optionValue) {
-    if (multiple) {
-      if (!Array.isArray(selectedValue)) {
-        selectedValue = [];
-      }
-      const index = value.indexOf(optionValue);
-      if (index > -1) {
-        selectedValue = selectedValue.filter(v => v !== optionValue);
-      } else {
-        selectedValue = [...selectedValue, optionValue];
-      }
-    } else {
       selectedValue = optionValue;
       handleClose();
-    }
     dispatch('change', { selectedValue });
   }
 
   function isSelected(optionValue) {
-    if (multiple) {
-      return Array.isArray(selectedValue) && selectedValue.includes(optionValue);
-    }
     return selectedValue === optionValue;
   }
 
@@ -126,7 +84,6 @@
       on:input={(e) => searchQuery = e.target.value}
       on:focus={handleOpen}
       on:click={handleOpen}
-      on:keydown={handleKeydown}
     />
 
     {#if open}
