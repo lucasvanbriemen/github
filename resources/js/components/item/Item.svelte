@@ -387,5 +387,5 @@
 </div>
 
 <style lang="scss">
-  @import '../../../scss/components/item.scss';
+  @import '../../../scss/components/item/item.scss';
 </style>

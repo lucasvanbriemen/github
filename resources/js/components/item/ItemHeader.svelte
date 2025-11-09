@@ -13,5 +13,5 @@
 </div>
 
 <style lang="scss">
-  @import '../../../scss/components/item.scss';
+  @import '../../../scss/components/item/header.scss';
 </style>
