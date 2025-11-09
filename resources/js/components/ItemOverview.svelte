@@ -36,7 +36,7 @@
     // We have to format it into the {value, label} format for Select component
     assignees = assignees.map(assignee => ({
       value: assignee.id,
-      label: assignee.name
+      label: assignee.display_name,
     }));
 
     const currentUserId = Number(window.USER_ID);

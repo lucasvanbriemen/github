@@ -175,7 +175,7 @@
         {#each item.assignees as assignee}
           <div class="assignee">
             <img src={assignee.avatar_url} alt={assignee.name} />
-            <span>{assignee.name}</span>
+            <span>{assignee.display_name}</span>
           </div>
         {/each}
       </SidebarGroup>
@@ -195,7 +195,7 @@
           {#each item.requested_reviewers as reviewer}
             <div class="reviewer">
               <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
-              <span>{reviewer.user.name}</span>
+              <span>{reviewer.user.display_name}</span>
               <span>{reviewer.state}</span>
             </div>
           {/each}
@@ -215,7 +215,7 @@
         <div>
           created {item.created_at_human} by
           <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-          {item.opened_by?.name}
+          {item.opened_by?.display_name}
           <span class="item-state item-state-{item.state}">{item.state}</span>
         </div>
       </div>
@@ -225,7 +225,7 @@
       <div class="item-header-pr">
         <span class="item-header-pr-title">
           <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-          {item.opened_by?.name} wants to merge
+          {item.opened_by?.display_name} wants to merge
           {item.details.head_branch} into {item.details.base_branch}
         </span>
       </div>

@@ -28,7 +28,7 @@ class ItemController extends Controller
         $query = $repository->items($type, $state, $assignees)
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
             ->with([
-                'openedBy:id,name,avatar_url',
+                'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
             ]);
             
