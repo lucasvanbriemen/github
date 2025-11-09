@@ -3,42 +3,31 @@
 
   const dispatch = createEventDispatcher();
 
-  let {
-    name = 'select',
-    selectableItems = [],
-    selectedValue = $bindable(),
-    placeholder = 'Search...',
-    multiple = false,
-    searchable = false
-  } = $props();
+  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = false } = $props();
 
-  let open = $state(false);
+  let menuOpen = $state(false);
   let searchQuery = $state('');
   let inputElement;
 
-  // For single select, display the current selection
-  // For multi-select, show count or placeholder
   let displayValue = $derived(() => {
-    const opt = selectableItems.find(o => o.value === selectedValue);
-    return opt?.label || '';
+    const selectedItem = selectableItems.find(o => o.value === selectedValue);
+    return selectedItem?.label || '';
   });
 
-  // Filter selectableItems based on search query
+  // Filter selectableItems based on search query if we can search
   let filteredOptions = $derived(() => {
-    if (!searchQuery) return selectableItems;
-    if (!searchable) return selectableItems;
-    const q = searchQuery.toLowerCase();
-    return selectableItems.filter(opt =>
-      opt.label.toLowerCase().includes(q)
-    );
+    if (!searchQuery || !searchable) return selectableItems;
+
+    const query = searchQuery.toLowerCase();
+    return selectableItems.filter(option => option.label.toLowerCase().includes(query));
   });
 
   function handleOpen() {
-    open = true;
+    menuOpen = true;
   }
 
   function handleClose() {
-    open = false;
+    menuOpen = false;
   }
 
   function handleClickOutside(event) {
@@ -47,8 +36,8 @@
     }
   }
   function selectOption(optionValue) {
-      selectedValue = optionValue;
-      handleClose();
+    selectedValue = optionValue;
+    handleClose();
     dispatch('change', { selectedValue });
   }
 
@@ -74,19 +63,19 @@
     {/each}
   </select>
 
-  <div class="select-ui-wrapper" class:open>
+  <div class="select-ui-wrapper" class:open={menuOpen}>
     <input
       bind:this={inputElement}
       class="search-input"
       type="text"
       {placeholder}
-      value={open ? searchQuery : displayValue()}
+      value={menuOpen ? searchQuery : displayValue()}
       on:input={(e) => searchQuery = e.target.value}
       on:focus={handleOpen}
       on:click={handleOpen}
     />
 
-    {#if open}
+    {#if menuOpen}
       <div class="option-wrapper">
         {#each filteredOptions() as option (option.value)}
           <div
@@ -97,9 +86,6 @@
             aria-selected={isSelected(option.value)}
           >
             <span class="main-text">{option.label}</span>
-            {#if multiple && isSelected(option.value)}
-              <span class="checkmark">✓</span>
-            {/if}
           </div>
         {/each}
         {#if filteredOptions().length === 0}
