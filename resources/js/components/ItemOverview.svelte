@@ -51,14 +51,7 @@
     currentPage = pageNr;
 
     let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
-    // if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
-    //   const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
-    //   url += `&assignee=${assigneeParam}`;
-    // }
-
-    if (isInitialLoad) {
-      url += `&isInitialLoad=true`;
-    }
+    url += `&assignee=${selectedAssignee}`;
 
     const res = await fetch(url);
     let json = await res.json();

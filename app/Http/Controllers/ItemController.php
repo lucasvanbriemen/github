@@ -15,17 +15,9 @@ class ItemController extends Controller
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $state = request()->query('state', 'open');
-        $isInitialLoad = request()->query('isInitialLoad', false);
+        $assignee = request()->query('assignee', 'any');
         
-        $assigneesList = request()->query('assignee', 'any');
-        $assignees = array_filter(array_map('trim', explode(',', $assigneesList)));
-        
-        if ($isInitialLoad && empty($assignees)) {
-            // By default, we want to have me as assignee on initial load
-            $assignees[] = GithubConfig::USERID;
-        }
-        
-        $query = $repository->items($type, $state, $assignees)
+        $query = $repository->items($type, $state, $assignee)
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
