@@ -6,6 +6,7 @@
   import Comment from '../Comment.svelte';
   import ItemSkeleton from '../ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
+  import FileTab from './FileTab.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -46,7 +47,7 @@
     try {
       const res = await fetch(route(`organizations.repositories.item.files`, { organization, repository, number }));
       const data = await res.json();
-      files = data.files || [];
+      files = data || [];
     } catch (e) {
       console.error('Failed to load files:', e);
       files = [];
@@ -169,7 +170,6 @@
 </script>
 
 <div class="item-overview">
-  <!-- SIDEBAR: Assignees, Labels, and Reviewers -->
   <Sidebar {params} selectedDropdownSection="Issues">
 
     {#if !isLoading}
@@ -295,92 +295,7 @@
 
     <!-- Files Changed Tab Content (PR only) -->
     {#if isPR && activeTab === 'files'}
-      <div class="pr-files">
-        {#if loadingFiles}
-          <div class="loading">Loading files...</div>
-        {:else if files.length === 0}
-          <div class="diff-empty">No changes</div>
-        {:else}
-          {#each files as file}
-            {@const fileName = getFileName(file)}
-            {@const fileStatus = getFileStatus(file)}
-            {@const isCollapsed = collapsedFiles.has(fileName)}
-
-            <div class="diff-file">
-              <!-- File Header -->
-              <button class="diff-file-header" onclick={() => toggleFile(fileName)}>
-                <div class="diff-file-header-left">
-                  <span class="diff-file-status diff-file-status-{fileStatus}">{fileStatus}</span>
-                  <span class="diff-file-name">{fileName}</span>
-                </div>
-                <div class="diff-file-stats">
-                  <span class="diff-stats-additions">+{file.additions ?? 0}</span>
-                  <span class="diff-stats-deletions">-{file.deletions ?? 0}</span>
-                </div>
-              </button>
-
-              <!-- Diff Content -->
-              {#if !isCollapsed}
-                {#if isFileTooLarge(file)}
-                  <div class="diff-too-large">
-                    Large diffs are not rendered.
-                  </div>
-                {:else}
-                  <div class="diff-table-container">
-                    <table class="diff-table diff-table-side-by-side">
-                      <tbody>
-                        {#each file.chunks as chunk}
-                          {@const lines = processChunk(chunk)}
-
-                          {#each lines as linePair}
-                            <tr class="diff-line-row">
-                              <!-- Left side -->
-                              {#if !linePair.left || linePair.left.type === 'empty'}
-                                <td class="diff-line-number diff-line-number-empty"></td>
-                                <td class="diff-line-content diff-line-empty"></td>
-                              {:else}
-                                {@const line = linePair.left}
-                                {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
-                                {@const prefix = getLinePrefix(line.type)}
-
-                                <td class="diff-line-number {typeClass}">
-                                  {line.lineNumber}
-                                </td>
-                                <td class="diff-line-content {typeClass}">
-                                  <span class="diff-line-prefix">{prefix}</span>
-                                  <span class="diff-line-code">{line.content}</span>
-                                </td>
-                              {/if}
-
-                              <!-- Right side -->
-                              {#if !linePair.right || linePair.right.type === 'empty'}
-                                <td class="diff-line-number diff-line-number-empty"></td>
-                                <td class="diff-line-content diff-line-empty"></td>
-                              {:else}
-                                {@const line = linePair.right}
-                                {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
-                                {@const prefix = getLinePrefix(line.type)}
-
-                                <td class="diff-line-number {typeClass}">
-                                  {line.lineNumber}
-                                </td>
-                                <td class="diff-line-content {typeClass}">
-                                  <span class="diff-line-prefix">{prefix}</span>
-                                  <span class="diff-line-code">{line.content}</span>
-                                </td>
-                              {/if}
-                            </tr>
-                          {/each}
-                        {/each}
-                      </tbody>
-                    </table>
-                  </div>
-                {/if}
-              {/if}
-            </div>
-          {/each}
-        {/if}
-      </div>
+      <FileTab {params} files={files} loadingFiles={loadingFiles} />
     {/if}
     {/if}
   </div>

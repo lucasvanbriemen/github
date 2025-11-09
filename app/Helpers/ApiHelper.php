@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use App\Models\SystemInfo;
-
 class ApiHelper
 {
     public const BASE_URL = 'https://api.github.com';

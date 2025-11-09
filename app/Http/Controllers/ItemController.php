@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Services\RepositoryService;
-use App\GithubConfig;
-use Github\Api\Repo;
+use App\Models\PullRequest;
 use App\Helpers\DiffRenderer;
+use App\Helpers\ApiHelper;
 
 class ItemController extends Controller
 {
@@ -128,22 +128,27 @@ class ItemController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $item = Item::where('repository_id', $repository->id)
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
             ->where('number', $number)
             ->firstOrFail();
 
-        // Only return files for PRs
-        if (!$item->isPullRequest()) {
-            return response()->json(['files' => []]);
+        // For merged PRs, use merge_base_sha to preserve the original diff
+        // For open/closed PRs, compare branches normally
+        if ($pullRequest->state === 'merged' && $pullRequest->merge_base_sha && $pullRequest->head_sha) {
+            // Compare from merge base to the head SHA at time of merge
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->merge_base_sha}...{$pullRequest->head_sha}";
+        } else {
+            // Compare branches for open/closed PRs
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
         }
 
-        // Get the diff from GitHub using the same method as PullRequestController
-        $diffString = PullRequestController::getDiff($organizationName, $repositoryName, $number);
-
+        $diff = ApiHelper::githubApi($url);
+        
         // Parse diff using DiffRenderer
-        $renderer = new DiffRenderer($diffString);
+        $renderer = new DiffRenderer($diff);
         $files = $renderer->getFiles();
+        return $files;
 
-        return response()->json(['files' => $files]);
+        return response()->json($files);
     }
 }

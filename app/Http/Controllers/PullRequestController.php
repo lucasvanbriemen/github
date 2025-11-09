@@ -319,11 +319,6 @@ class PullRequestController extends Controller
 
     public static function getDiff($organizationName, $repositoryName, $pullRequestNumber)
     {
-        // User repositories have "user" as organization name in the URL, while being null in the DB
-        if ($organizationName === 'user') {
-            $organizationName = null;
-        }
-
         [$organization, $repository] = self::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $pullRequest = PullRequest::where('repository_id', $repository->id)
