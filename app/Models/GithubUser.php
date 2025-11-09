@@ -18,6 +18,7 @@ class GithubUser extends Model
         'name',
         'avatar_url',
         'type',
+        'display_name',
     ];
 
     public function repositories()
@@ -39,6 +40,10 @@ class GithubUser extends Model
 
     public static function updateFromWebhook($userData)
     {
+
+        $existingUser = self::find($userData->id);
+        $displayName = $existingUser ? $existingUser->display_name : $userData->name ;
+
         return self::updateOrCreate(
             ['id' => $userData->id],
             [
@@ -46,6 +51,7 @@ class GithubUser extends Model
                 'name' => $userData->name ?? $userData->login ?? '',
                 'avatar_url' => $userData->avatar_url ?? null,
                 'type' => $userData->type ?? 'User',
+                'display_name' => $displayName
             ]
         );
     }
