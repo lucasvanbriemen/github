@@ -5,7 +5,7 @@
   import Pagination from './Pagination.svelte';
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
-  import SearchSelect from './SearchSelect.svelte';
+  import Select from './Select.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -33,7 +33,7 @@
     const res = await fetch(`${route('organizations.repositories.contributors.get', {organization, repository})}`);
     assignees = await res.json();
 
-    // We have to format it into the {value, label} format for SearchSelect
+    // We have to format it into the {value, label} format for Select component
     assignees = assignees.map(assignee => ({
       value: assignee.id,
       label: assignee.name
@@ -87,11 +87,11 @@
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
     <SidebarGroup title="State">
-      <SearchSelect name="state" options={stateOptions} bind:value={state} on:change={() => { filterItem() }}/>
+      <Select name="state" selectableItems={stateOptions} bind:value={state} on:change={() => { filterItem() }}/>
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">
-      <SearchSelect name="assignee" options={assignees} bind:value={selectedAssignee} on:change={() => { filterItem(); }} multiple={true} />
+      <!-- <Select name="assignee" selectableItems={assignees} bind:value={selectedAssignee} on:change={() => { filterItem(); }} multiple={true} /> -->
     </SidebarGroup>
   </Sidebar>
 

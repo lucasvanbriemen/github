@@ -5,7 +5,7 @@
 
   let {
     name = 'select',
-    options = [],
+    selectableItems = [],
     value = $bindable(),
     placeholder = 'Search...',
     multiple = false
@@ -18,23 +18,15 @@
   // For single select, display the current selection
   // For multi-select, show count or placeholder
   let displayValue = $derived(() => {
-    if (multiple) {
-      if (!Array.isArray(value) || value.length === 0) return '';
-      if (value.length === 1) {
-        const opt = options.find(o => o.value === value[0]);
-        return opt?.label || value[0];
-      }
-      return `${value.length} selected`;
-    }
-    const opt = options.find(o => o.value === value);
+    const opt = selectableItems.find(o => o.value === value);
     return opt?.label || '';
   });
 
-  // Filter options based on search query
+  // Filter selectableItems based on search query
   let filteredOptions = $derived(() => {
-    if (!searchQuery) return options;
+    if (!searchQuery) return selectableItems;
     const q = searchQuery.toLowerCase();
-    return options.filter(opt =>
+    return selectableItems.filter(opt =>
       opt.label.toLowerCase().includes(q)
     );
   });
@@ -117,7 +109,7 @@
 
 <div class="search-select-wrapper">
   <select {name} style="display: none;" bind:value>
-    {#each options as option}
+    {#each selectableItems as option}
       <option value={option.value}>{option.label}</option>
     {/each}
   </select>
