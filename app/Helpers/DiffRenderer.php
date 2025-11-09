@@ -31,14 +31,22 @@ class DiffRenderer
 
     private function parseCommits(): void
     {
-       
+        // Todo
     }
 
     private function parseFiles(): void
     {
         $filesObject = $this->diff->files;
-        $this->files = $filesObject;
-
+        
+        foreach ($filesObject as $file) {
+            $parsedFile = [
+                'filename' => $file->filename,
+                'status' => $file->status,
+                'additions' => $file->additions,
+                'deletions' => $file->deletions,
+            ];
+            $this->files[] = $parsedFile;
+        }
 
         // $lines = explode("\n", $this->diffString);
         // $currentFile = null;
