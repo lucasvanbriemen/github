@@ -87,7 +87,7 @@
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
     <SidebarGroup title="State">
-      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} on:change={() => { filterItem() }}/>
+      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={({ selectedValue }) => { filterItem(selectedValue) }}/>
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">

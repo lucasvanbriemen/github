@@ -3,7 +3,7 @@
 
   const dispatch = createEventDispatcher();
 
-  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = false } = $props();
+  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = false, onChange } = $props();
 
   let menuOpen = $state(false);
   let searchQuery = $state('');
@@ -35,18 +35,15 @@
       handleClose();
     }
   }
+
   function selectOption(optionValue) {
     selectedValue = optionValue;
     handleClose();
-    dispatch('change', { selectedValue });
-  }
-
-  function isSelected(optionValue) {
-    return selectedValue === optionValue;
+    onChange?.({ selectedValue });
   }
 
   $effect(() => {
-    if (open) {
+    if (menuOpen) {
       document.addEventListener('click', handleClickOutside);
       inputElement?.focus();
       return () => {
@@ -69,24 +66,23 @@
       class="search-input"
       type="text"
       {placeholder}
-      value={menuOpen ? searchQuery : displayValue()}
-      on:input={(e) => searchQuery = e.target.value}
-      on:focus={handleOpen}
-      on:click={handleOpen}
+      readonly={searchable === false}
+      value={(menuOpen && searchable) ? searchQuery : displayValue()}
+      oninput={(event) => searchQuery = event.target.value}
+      onclick={handleOpen}
     />
 
     {#if menuOpen}
       <div class="option-wrapper">
         {#each filteredOptions() as option (option.value)}
-          <div
+          <button
             class="option-item"
-            class:active={isSelected(option.value)}
-            on:click={() => selectOption(option.value)}
-            role="option"
-            aria-selected={isSelected(option.value)}
+            class:active={selectedValue == option.value}
+            onclick={() => selectOption(option.value)}
+            type="button"
           >
             <span class="main-text">{option.label}</span>
-          </div>
+          </button>
         {/each}
         {#if filteredOptions().length === 0}
           <div class="no-results">No results found</div>
