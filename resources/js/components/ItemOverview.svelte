@@ -58,7 +58,11 @@
     issues = json.data;
 
     for (let i = 0; i < issues.length; i++) {
-      issues[i].labels = JSON.parse(issues[i].labels);
+      try {
+        issues[i].labels = JSON.parse(issues[i].labels);
+      } catch (e) {
+        issues[i].labels = [];
+      }
     }
 
     paginationLinks = json.links;
