@@ -26,8 +26,8 @@
   ];
 
   let state = $state('open');
-  let assignees = $state(window.USER_ID);
-  let selectedAssignee = $state([]);
+  let assignees = $state([]);
+  let selectedAssignee = $state(window.USER_ID);
 
   async function getContributors() {
     const res = await fetch(`${route('organizations.repositories.contributors.get', {organization, repository})}`);
@@ -41,7 +41,7 @@
 
     const currentUserId = Number(window.USER_ID);
     if (currentUserId && assignees.some(a => a.value === currentUserId)) {
-      selectedAssignee = [currentUserId];
+      selectedAssignee = currentUserId;
     }
   }
 
@@ -87,11 +87,11 @@
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
     <SidebarGroup title="State">
-      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={({ selectedValue }) => { filterItem(selectedValue) }}/>
+      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }}/>
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">
-      <!-- <Select name="assignee" selectableItems={assignees} bind:value={selectedAssignee} on:change={() => { filterItem(); }} multiple={true} /> -->
+      <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} searchable={true} />
     </SidebarGroup>
   </Sidebar>
 
