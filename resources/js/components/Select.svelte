@@ -6,9 +6,10 @@
   let {
     name = 'select',
     selectableItems = [],
-    value = $bindable(),
+    selectedValue = $bindable(),
     placeholder = 'Search...',
-    multiple = false
+    multiple = false,
+    searchable = false
   } = $props();
 
   let open = $state(false);
@@ -18,13 +19,14 @@
   // For single select, display the current selection
   // For multi-select, show count or placeholder
   let displayValue = $derived(() => {
-    const opt = selectableItems.find(o => o.value === value);
+    const opt = selectableItems.find(o => o.value === selectedValue);
     return opt?.label || '';
   });
 
   // Filter selectableItems based on search query
   let filteredOptions = $derived(() => {
     if (!searchQuery) return selectableItems;
+    if (!searchable) return selectableItems;
     const q = searchQuery.toLowerCase();
     return selectableItems.filter(opt =>
       opt.label.toLowerCase().includes(q)
@@ -73,27 +75,27 @@
 
   function selectOption(optionValue) {
     if (multiple) {
-      if (!Array.isArray(value)) {
-        value = [];
+      if (!Array.isArray(selectedValue)) {
+        selectedValue = [];
       }
       const index = value.indexOf(optionValue);
       if (index > -1) {
-        value = value.filter(v => v !== optionValue);
+        selectedValue = selectedValue.filter(v => v !== optionValue);
       } else {
-        value = [...value, optionValue];
+        selectedValue = [...selectedValue, optionValue];
       }
     } else {
-      value = optionValue;
+      selectedValue = optionValue;
       handleClose();
     }
-    dispatch('change', { value });
+    dispatch('change', { selectedValue });
   }
 
   function isSelected(optionValue) {
     if (multiple) {
-      return Array.isArray(value) && value.includes(optionValue);
+      return Array.isArray(selectedValue) && selectedValue.includes(optionValue);
     }
-    return value === optionValue;
+    return selectedValue === optionValue;
   }
 
   $effect(() => {
@@ -108,7 +110,7 @@
 </script>
 
 <div class="search-select-wrapper">
-  <select {name} style="display: none;" bind:value>
+  <select {name} style="display: none;" bind:value={selectedValue}>
     {#each selectableItems as option}
       <option value={option.value}>{option.label}</option>
     {/each}
