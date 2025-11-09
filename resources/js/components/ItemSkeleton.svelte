@@ -37,8 +37,6 @@
 
 <style lang="scss">
   .item-skeleton {
-    padding: 20px;
-
     .skeleton-header {
       margin-bottom: 24px;
       padding: 20px;
