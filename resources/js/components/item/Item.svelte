@@ -1,10 +1,11 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './sidebar/Sidebar.svelte';
-  import SidebarGroup from './sidebar/group.svelte';
-  import Markdown from './Markdown.svelte';
-  import Comment from './Comment.svelte';
-  import ItemSkeleton from './ItemSkeleton.svelte';
+  import Sidebar from '../sidebar/Sidebar.svelte';
+  import SidebarGroup from '../sidebar/group.svelte';
+  import Markdown from '../Markdown.svelte';
+  import Comment from '../Comment.svelte';
+  import ItemSkeleton from '../ItemSkeleton.svelte';
+  import ItemHeader from './ItemHeader.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -170,6 +171,7 @@
 <div class="item-overview">
   <!-- SIDEBAR: Assignees, Labels, and Reviewers -->
   <Sidebar {params} selectedDropdownSection="Issues">
+
     {#if !isLoading}
       <SidebarGroup title="Assignees">
         {#each item.assignees as assignee}
@@ -209,16 +211,7 @@
     {#if isLoading}
       <ItemSkeleton />
     {:else}
-      <!-- Item Header: Title and Metadata -->
-      <div class="item-header">
-        <h2>{item.title}</h2>
-        <div>
-          created {item.created_at_human} by
-          <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-          {item.opened_by?.display_name}
-          <span class="item-state item-state-{item.state}">{item.state}</span>
-        </div>
-      </div>
+      <ItemHeader {item} />
 
     <!-- PR Header: Branch Information (PR only) -->
     {#if isPR}
@@ -394,5 +387,5 @@
 </div>
 
 <style lang="scss">
-  @import '../../scss/components/item.scss';
+  @import '../../../scss/components/item.scss';
 </style>
