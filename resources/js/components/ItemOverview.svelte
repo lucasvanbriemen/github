@@ -1,9 +1,11 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './Sidebar.svelte';
+  import Sidebar from './sidebar/Sidebar.svelte';
+  import SidebarGroup from './sidebar/group.svelte';
   import Pagination from './Pagination.svelte';
   import ListItem from './ListItem.svelte';
-  import SearchSelect from './SearchSelect.svelte';
+  import ListItemSkeleton from './ListItemSkeleton.svelte';
+  import Select from './Select.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -11,6 +13,7 @@
   let issues = $state([]);
   let paginationLinks = $state([]);
   let currentPage = $state(1);
+  let isLoading = $state(true);
 
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
@@ -23,48 +26,47 @@
   ];
 
   let state = $state('open');
-  let assignees = $state(window.USER_ID);
-  let selectedAssignee = $state([]);
+  let assignees = $state([]);
+  let selectedAssignee = $state(window.USER_ID);
 
   async function getContributors() {
-    const res = await fetch(`${route('organizations.repositories.get.contributors', {organization, repository})}`);
+    const res = await fetch(`${route('organizations.repositories.contributors.get', {organization, repository})}`);
     assignees = await res.json();
 
-    // We have to format it into the {value, label} format for SearchSelect
+    // We have to format it into the {value, label} format for Select component
     assignees = assignees.map(assignee => ({
       value: assignee.id,
-      label: assignee.name
+      label: assignee.display_name,
     }));
 
     const currentUserId = Number(window.USER_ID);
     if (currentUserId && assignees.some(a => a.value === currentUserId)) {
-      selectedAssignee = [currentUserId];
+      selectedAssignee = currentUserId;
     }
   }
 
 
   async function getItems(pageNr = 1, isInitialLoad = false) {
+    isLoading = true;
     currentPage = pageNr;
 
     let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
-    if (assignees && (Array.isArray(assignees) ? assignees.length > 0 : true)) {
-      const assigneeParam = Array.isArray(assignees) ? assignees.join(',') : assignees;
-      url += `&assignee=${assigneeParam}`;
-    }
-
-    if (isInitialLoad) {
-      url += `&isInitialLoad=true`;
-    }
+    url += `&assignee=${selectedAssignee}`;
 
     const res = await fetch(url);
     let json = await res.json();
     issues = json.data;
 
     for (let i = 0; i < issues.length; i++) {
-      issues[i].labels = JSON.parse(issues[i].labels);
+      try {
+        issues[i].labels = JSON.parse(issues[i].labels);
+      } catch (e) {
+        issues[i].labels = [];
+      }
     }
 
     paginationLinks = json.links;
+    isLoading = false;
   }
 
   function filterItem() {
@@ -81,33 +83,26 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
-    <SearchSelect
-      name="state"
-      options={stateOptions}
-      bind:value={state}
-      on:change={() => {
-        filterItem()
-      }}
-    />
+    <SidebarGroup title="State">
+      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }}/>
+    </SidebarGroup>
 
-    <SearchSelect
-      name="assignee"
-      options={assignees}
-      bind:value={selectedAssignee}
-      on:change={() => {
-        filterItem();
-      }}
-      multiple={true}
-    />
+    <SidebarGroup title="Assignees">
+      <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} searchable={true} />
+    </SidebarGroup>
   </Sidebar>
 
   <div class="repo-main">
-    {#each issues as item}
-      <ListItem {item} itemType="issue" />
-    {/each}
+    {#if isLoading}
+      <ListItemSkeleton />
+    {:else}
+      {#each issues as item}
+        <ListItem {item} itemType="issue" />
+      {/each}
 
-    {#if paginationLinks.length > 3}
-      <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />
+      {#if paginationLinks.length > 3}
+        <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />
+      {/if}
     {/if}
   </div>
 </div>

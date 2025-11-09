@@ -15,7 +15,7 @@
   <div class="content">
     <h3>{item.title}</h3>
     <div class="meta">
-      opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.name}
+      opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.display_name}
 
       {#if item.labels.length > 0}
         <div class="labels">

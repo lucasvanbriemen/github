@@ -23,7 +23,7 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
-    public function issues($state = 'open', $assignees = [GithubConfig::USERID])
+    public function issues($state = 'open', $assignee = 'any')
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');
         $query->with('assignees', 'openedBy');
@@ -32,9 +32,9 @@ class Repository extends Model
             $query->where('state', $state);
         }
 
-        if (!in_array('any', $assignees)) {
-            $query->whereHas('assignees', function ($q) use ($assignees) {
-                $q->whereIn('github_users.id', $assignees);
+        if ($assignee !== 'any') {
+            $query->whereHas('assignees', function ($q) use ($assignee) {
+                $q->where('github_users.id', $assignee);
             });
         }
 
@@ -43,19 +43,18 @@ class Repository extends Model
         return $query;
     }
 
-    public function pullRequests($state = 'open', $assignees = [GithubConfig::USERID])
+    public function pullRequests($state = 'open', $assignee = 'any')
     {
         $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
-            ->with('assignees', 'openedBy')
-            ->orderBy('updated_at', 'desc');
+            ->with('assignees', 'openedBy');
 
         if ($state !== 'all') {
             $query->where('state', $state);
         }
 
-        if (!in_array('any', $assignees)) {
-            $query->whereHas('assignees', function ($q) use ($assignees) {
-                $q->whereIn('github_users.id', $assignees);
+        if ($assignee !== 'any') {
+            $query->whereHas('assignees', function ($q) use ($assignee) {
+                $q->where('github_users.id', $assignee);
             });
         }
 

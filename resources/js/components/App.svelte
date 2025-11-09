@@ -5,7 +5,7 @@
   import Dashboard from './Dashboard.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './ItemOverview.svelte';
-  import Item from './Item.svelte';
+  import Item from './item/Item.svelte';
   import theme from '../theme.js';
 
   const routes = {

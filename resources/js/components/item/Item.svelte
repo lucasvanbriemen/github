@@ -1,8 +1,12 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './Sidebar.svelte';
-  import Markdown from './Markdown.svelte';
-  import Comment from './Comment.svelte';
+  import Sidebar from '../sidebar/Sidebar.svelte';
+  import SidebarGroup from '../sidebar/group.svelte';
+  import Markdown from '../Markdown.svelte';
+  import Comment from '../Comment.svelte';
+  import ItemSkeleton from '../ItemSkeleton.svelte';
+  import ItemHeader from './ItemHeader.svelte';
+  import FileTab from './FileTab.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -15,8 +19,10 @@
   let loadingFiles = $state(false);
   let collapsedFiles = $state(new Set());
   let activeTab = $state('conversation'); // 'conversation' or 'files'
+  let isLoading = $state(true);
 
   onMount(async () => {
+    isLoading = true;
     const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
     item = await res.json();
 
@@ -32,6 +38,8 @@
     if (isPR) {
       loadFiles();
     }
+
+    isLoading = false;
   });
 
   async function loadFiles() {
@@ -39,7 +47,7 @@
     try {
       const res = await fetch(route(`organizations.repositories.item.files`, { organization, repository, number }));
       const data = await res.json();
-      files = data.files || [];
+      files = data || [];
     } catch (e) {
       console.error('Failed to load files:', e);
       files = [];
@@ -152,68 +160,65 @@
   function getLinePrefix(type) {
     return type === 'add' ? '+' : (type === 'del' ? '-' : ' ');
   }
+
+  // Check if file is too large to render (similar to GitHub)
+  const MAX_DIFF_LINES = 400;
+  function isFileTooLarge(file) {
+    const totalLines = (file.additions ?? 0) + (file.deletions ?? 0);
+    return totalLines > MAX_DIFF_LINES;
+  }
 </script>
 
 <div class="item-overview">
-  <!-- SIDEBAR: Assignees, Labels, and Reviewers -->
   <Sidebar {params} selectedDropdownSection="Issues">
-    <!-- Assignees Section -->
-    <div class="group">
-      <span class="group-title">Assignees</span>
-      {#each item.assignees as assignee}
-        <div class="assignee">
-          <img src={assignee.avatar_url} alt={assignee.name} />
-          <span>{assignee.name}</span>
-        </div>
-      {/each}
-    </div>
 
-    <!-- Labels Section -->
-    <div class="group">
-      <span class="group-title">Labels</span>
-      <div class="labels">
-        {#each item.labels as label}
-          <span class="label" style={getLabelStyle(label)}>
-            {label.name}
-          </span>
-        {/each}
-      </div>
-    </div>
-
-    <!-- Reviewers Section (PR only) -->
-    {#if isPR}
-      <div class="group">
-        <span class="group-title">Reviewers</span>
-        {#each item.requested_reviewers as reviewer}
-          <div class="reviewer">
-            <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
-            <span>{reviewer.user.name}</span>
-            <span>{reviewer.state}</span>
+    {#if !isLoading}
+      <SidebarGroup title="Assignees">
+        {#each item.assignees as assignee}
+          <div class="assignee">
+            <img src={assignee.avatar_url} alt={assignee.name} />
+            <span>{assignee.display_name}</span>
           </div>
         {/each}
-      </div>
+      </SidebarGroup>
+
+      <SidebarGroup title="Labels">
+        <div class="labels">
+          {#each item.labels as label}
+            <span class="label" style={getLabelStyle(label)}>
+              {label.name}
+            </span>
+          {/each}
+        </div>
+      </SidebarGroup>
+
+      {#if isPR}
+        <SidebarGroup title="Reviewers">
+          {#each item.requested_reviewers as reviewer}
+            <div class="reviewer">
+              <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
+              <span>{reviewer.user.display_name}</span>
+              <span>{reviewer.state}</span>
+            </div>
+          {/each}
+        </SidebarGroup>
+      {/if}
     {/if}
   </Sidebar>
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">
-    <!-- Item Header: Title and Metadata -->
-    <div class="item-header">
-      <h2>{item.title}</h2>
-      <div>
-        created {item.created_at_human} by
-        <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-        {item.opened_by?.name}
-        <span class="item-state item-state-{item.state}">{item.state}</span>
-      </div>
-    </div>
+    {#if isLoading}
+      <ItemSkeleton />
+    {:else}
+      <ItemHeader {item} />
 
     <!-- PR Header: Branch Information (PR only) -->
     {#if isPR}
       <div class="item-header-pr">
         <span class="item-header-pr-title">
           <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-          {item.opened_by?.name} wants to merge
+          {item.opened_by?.display_name} wants to merge
           {item.details.head_branch} into {item.details.base_branch}
         </span>
       </div>
@@ -290,90 +295,12 @@
 
     <!-- Files Changed Tab Content (PR only) -->
     {#if isPR && activeTab === 'files'}
-      <div class="pr-files">
-        {#if loadingFiles}
-          <div class="loading">Loading files...</div>
-        {:else if files.length === 0}
-          <div class="diff-empty">No changes</div>
-        {:else}
-          {#each files as file}
-            {@const fileName = getFileName(file)}
-            {@const fileStatus = getFileStatus(file)}
-            {@const isCollapsed = collapsedFiles.has(fileName)}
-
-            <div class="diff-file">
-              <!-- File Header -->
-              <button class="diff-file-header" onclick={() => toggleFile(fileName)}>
-                <div class="diff-file-header-left">
-                  <span class="diff-file-status diff-file-status-{fileStatus}">{fileStatus}</span>
-                  <span class="diff-file-name">{fileName}</span>
-                </div>
-                <div class="diff-file-stats">
-                  <span class="diff-stats-additions">+{file.additions ?? 0}</span>
-                  <span class="diff-stats-deletions">-{file.deletions ?? 0}</span>
-                </div>
-              </button>
-
-              <!-- Diff Content -->
-              {#if !isCollapsed}
-                <div class="diff-table-container">
-                  <table class="diff-table diff-table-side-by-side">
-                    <tbody>
-                      {#each file.chunks as chunk}
-                        {@const lines = processChunk(chunk)}
-
-                        {#each lines as linePair}
-                          <tr class="diff-line-row">
-                            <!-- Left side -->
-                            {#if !linePair.left || linePair.left.type === 'empty'}
-                              <td class="diff-line-number diff-line-number-empty"></td>
-                              <td class="diff-line-content diff-line-empty"></td>
-                            {:else}
-                              {@const line = linePair.left}
-                              {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
-                              {@const prefix = getLinePrefix(line.type)}
-
-                              <td class="diff-line-number {typeClass}">
-                                {line.lineNumber}
-                              </td>
-                              <td class="diff-line-content {typeClass}">
-                                <span class="diff-line-prefix">{prefix}</span>
-                                <span class="diff-line-code">{line.content}</span>
-                              </td>
-                            {/if}
-
-                            <!-- Right side -->
-                            {#if !linePair.right || linePair.right.type === 'empty'}
-                              <td class="diff-line-number diff-line-number-empty"></td>
-                              <td class="diff-line-content diff-line-empty"></td>
-                            {:else}
-                              {@const line = linePair.right}
-                              {@const typeClass = line.type === 'normal' ? '' : `diff-line-${line.type}`}
-                              {@const prefix = getLinePrefix(line.type)}
-
-                              <td class="diff-line-number {typeClass}">
-                                {line.lineNumber}
-                              </td>
-                              <td class="diff-line-content {typeClass}">
-                                <span class="diff-line-prefix">{prefix}</span>
-                                <span class="diff-line-code">{line.content}</span>
-                              </td>
-                            {/if}
-                          </tr>
-                        {/each}
-                      {/each}
-                    </tbody>
-                  </table>
-                </div>
-              {/if}
-            </div>
-          {/each}
-        {/if}
-      </div>
+      <FileTab {params} files={files} loadingFiles={loadingFiles} />
+    {/if}
     {/if}
   </div>
 </div>
 
 <style lang="scss">
-  @import '../../scss/components/item.scss';
+  @import '../../../scss/components/item/item.scss';
 </style>
