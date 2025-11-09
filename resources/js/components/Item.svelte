@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Sidebar from './sidebar/Sidebar.svelte';
+  import SidebarGroup from './sidebar/group.svelte';
   import Markdown from './Markdown.svelte';
   import Comment from './Comment.svelte';
   import ItemSkeleton from './ItemSkeleton.svelte';
@@ -170,20 +171,16 @@
   <!-- SIDEBAR: Assignees, Labels, and Reviewers -->
   <Sidebar {params} selectedDropdownSection="Issues">
     {#if !isLoading}
-      <!-- Assignees Section -->
-      <div class="group">
-        <span class="group-title">Assignees</span>
+      <SidebarGroup title="Assignees">
         {#each item.assignees as assignee}
           <div class="assignee">
             <img src={assignee.avatar_url} alt={assignee.name} />
             <span>{assignee.name}</span>
           </div>
         {/each}
-      </div>
+      </SidebarGroup>
 
-      <!-- Labels Section -->
-      <div class="group">
-        <span class="group-title">Labels</span>
+      <SidebarGroup title="Labels">
         <div class="labels">
           {#each item.labels as label}
             <span class="label" style={getLabelStyle(label)}>
@@ -191,12 +188,10 @@
             </span>
           {/each}
         </div>
-      </div>
+      </SidebarGroup>
 
-      <!-- Reviewers Section (PR only) -->
       {#if isPR}
-        <div class="group">
-          <span class="group-title">Reviewers</span>
+        <SidebarGroup title="Reviewers">
           {#each item.requested_reviewers as reviewer}
             <div class="reviewer">
               <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
@@ -204,7 +199,7 @@
               <span>{reviewer.state}</span>
             </div>
           {/each}
-        </div>
+        </SidebarGroup>
       {/if}
     {/if}
   </Sidebar>

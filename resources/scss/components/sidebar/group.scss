@@ -14,23 +14,4 @@
     font-size: 0.75rem;
     color: var(--text-color-secondary);
   }
-
-  .assignee, .reviewer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    img {
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-    }
-  }
-
-  .label {
-    margin: 0.25rem 0;
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-  }
 }
