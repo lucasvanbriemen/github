@@ -39,15 +39,7 @@
                     <div class="diff-line-content {row.left.type === 'add' ? 'diff-line-add' : row.left.type === 'del' ? 'diff-line-del' : row.left.type === 'empty' ? 'diff-line-empty' : ''}" style="flex:1;">
                       {#if row.left.type !== 'empty'}
                         <span class="diff-line-prefix">{prefix(row.left.type)}</span>
-                        <span class="diff-line-code">
-                          {#if row.left.segments}
-                            {#each row.left.segments as seg}
-                              <span class={seg.type === 'change' ? 'intraline-change' : ''}>{seg.text}</span>
-                            {/each}
-                          {:else}
-                            {row.left.content}
-                          {/if}
-                        </span>
+                        <span class="diff-line-code">{row.left.content}</span>
                       {/if}
                     </div>
                     <div class="diff-line-number {row.right.type === 'add' ? 'diff-line-add' : row.right.type === 'del' ? 'diff-line-del' : ''} {row.right.type === 'empty' ? 'diff-line-number-empty' : ''}" style="text-align:right;">
@@ -56,15 +48,7 @@
                     <div class="diff-line-content {row.right.type === 'add' ? 'diff-line-add' : row.right.type === 'del' ? 'diff-line-del' : row.right.type === 'empty' ? 'diff-line-empty' : ''}" style="flex:1;">
                       {#if row.right.type !== 'empty'}
                         <span class="diff-line-prefix">{prefix(row.right.type)}</span>
-                        <span class="diff-line-code">
-                          {#if row.right.segments}
-                            {#each row.right.segments as seg}
-                              <span class={seg.type === 'change' ? 'intraline-change' : ''}>{seg.text}</span>
-                            {/each}
-                          {:else}
-                            {row.right.content}
-                          {/if}
-                        </span>
+                        <span class="diff-line-code">{row.right.content}</span>
                       {/if}
                     </div>
                   </div>
@@ -83,8 +67,4 @@
   /* Ensure div-based rows align like table cells */
   .diff-table-side-by-side .diff-row > .diff-line-number { min-width: 50px; width: 50px; }
   .diff-table-side-by-side .diff-row > .diff-line-content { min-width: 0; }
-
-  /* Intra-line highlighting (GitHub-like) */
-  .diff-line-add .intraline-change { background-color: rgba(34, 197, 94, 0.35); border-radius: 2px; }
-  .diff-line-del .intraline-change { background-color: rgba(239, 68, 68, 0.35); border-radius: 2px; }
 </style>

@@ -233,37 +233,20 @@ class DiffRenderer
                 $rightContent = (string)($r['content'] ?? '');
                 [$leftSeg, $rightSeg] = $this->computeIntralineSegments($leftContent, $rightContent);
 
-                // If most of the new (or old) content differs, treat as separate delete/add
-                $threshold = 0.9;
-                $newRatio = $this->changeRatio($rightSeg, strlen($rightContent));
-                $oldRatio = $this->changeRatio($leftSeg, strlen($leftContent));
-                if ($newRatio >= $threshold || $oldRatio >= $threshold) {
-                    // Emit two rows: standalone deletion and standalone addition
-                    $rows[] = [
-                        'left' => ['num' => $oldNo, 'type' => 'del', 'content' => $leftContent],
-                        'right' => ['num' => null, 'type' => 'empty', 'content' => ''],
-                    ];
-                    $rows[] = [
-                        'left' => ['num' => null, 'type' => 'empty', 'content' => ''],
-                        'right' => ['num' => $newNo, 'type' => 'add', 'content' => $rightContent],
-                    ];
-                } else {
-                    // Pair with intra-line highlight segments
-                    $rows[] = [
-                        'left' => [
-                            'num' => $oldNo,
-                            'type' => 'del',
-                            'content' => $leftContent,
-                            'segments' => $leftSeg,
-                        ],
-                        'right' => [
-                            'num' => $newNo,
-                            'type' => 'add',
-                            'content' => $rightContent,
-                            'segments' => $rightSeg,
-                        ],
-                    ];
-                }
+                $rows[] = [
+                    'left' => [
+                        'num' => $oldNo,
+                        'type' => 'del',
+                        'content' => $leftContent,
+                        'segments' => $leftSeg,
+                    ],
+                    'right' => [
+                        'num' => $newNo,
+                        'type' => 'add',
+                        'content' => $rightContent,
+                        'segments' => $rightSeg,
+                    ],
+                ];
                 $iOld++; $iNew++; $oldNo++; $newNo++;
                 continue;
             }
@@ -312,23 +295,6 @@ class DiffRenderer
         }
 
         return $rows;
-    }
-
-    /**
-     * Calculate the fraction of characters within segments marked as 'change'.
-     */
-    private function changeRatio(array $segments, int $totalLen): float
-    {
-        if ($totalLen <= 0) {
-            return 0.0;
-        }
-        $changed = 0;
-        foreach ($segments as $seg) {
-            if (($seg['type'] ?? 'equal') === 'change') {
-                $changed += strlen((string)($seg['text'] ?? ''));
-            }
-        }
-        return $changed / max(1, $totalLen);
     }
 
     /**
