@@ -21,23 +21,6 @@ class GithubUser extends Model
         'display_name',
     ];
 
-    public function repositories()
-    {
-        return $this->belongsToMany(Repository::class, 'repository_users', 'user_id', 'repository_id', 'id', 'id')
-            ->withPivot('name', 'avatar_url')
-            ->withTimestamps();
-    }
-
-    public function assignedIssues()
-    {
-        return $this->belongsToMany(Issue::class, 'issue_assignees', 'user_id', 'issue_id', 'id', 'id');
-    }
-
-    public function openedIssues()
-    {
-        return $this->hasMany(Issue::class, 'opened_by_id', 'id');
-    }
-
     public static function updateFromWebhook($userData)
     {
 

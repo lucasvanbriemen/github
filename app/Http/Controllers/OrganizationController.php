@@ -23,14 +23,6 @@ class OrganizationController extends Controller
         return response()->json(['message' => 'Organizations updated successfully'], 200);
     }
 
-    public function show($name)
-    {
-        $organization = Organization::where('name', $name)->firstOrFail();
-        $repositories = $organization->repositories;
-
-        return view('organization.show', compact('organization', 'repositories'));
-    }
-
     public static function getOrganizations()
     {
         $organizations = Organization::with('repositories')->get();

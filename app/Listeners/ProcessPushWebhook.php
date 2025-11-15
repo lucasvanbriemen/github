@@ -8,7 +8,6 @@ use App\Models\Commit;
 use App\Models\GithubUser;
 use App\Models\Branch;
 use App\Models\Repository;
-use App\Models\ViewedFile;
 
 class ProcessPushWebhook // implements ShouldQueue
 {
@@ -73,12 +72,6 @@ class ProcessPushWebhook // implements ShouldQueue
                     'message' => $commitData->message,
                 ]
             );
-
-            foreach (array_merge($commitData->added, $commitData->modified, $commitData->removed) as $filePath) {
-                ViewedFile::where('branch_id', $branch->id)
-                    ->where('file_path', $filePath)
-                    ->delete();
-            }
         }
     }
 }

@@ -3,7 +3,6 @@
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryUserController;
 use App\Models\Console;
-use App\Models\SystemInfo;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -12,17 +11,14 @@ Artisan::command('organizations:update', function () {
 
     try {
         OrganizationController::updateOrganizations();
-        $this->info('Organizations updated successfully!');
         Console::create(['command' => 'organizations:update', 'successful' => true, 'executed_at' => now()]);
     } catch (\Exception $e) {
-        $this->error('Failed to update organizations: '.$e->getMessage());
         Console::create(['command' => 'organizations:update', 'successful' => false, 'executed_at' => now()]);
     }
 })->purpose('Update organizations from GitHub API');
 
 Artisan::command('system:remove_expired', function () {
     $this->info('Removing expired system info from the database...');
-    SystemInfo::removeExpired();
     $this->info('Expired system info removed successfully!');
     Console::create(['command' => 'system:remove_expired', 'successful' => true, 'executed_at' => now()]);
 })->purpose('Remove expired system info from the database');
