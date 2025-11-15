@@ -34,6 +34,10 @@ class DiffRenderer
        
     }
 
+    /**
+     * Parse files from GitHub compare API response
+     * and transform patches into structured hunks/rows.
+     */
     private function parseFiles(): void
     {
         $filesObject = $this->diff->files;
@@ -49,7 +53,8 @@ class DiffRenderer
             $file_to_parse['additions'] = $file->additions;
             $file_to_parse['deletions'] = $file->deletions;
 
-            $file_to_parse['changes'] = $this->formatPatchString($file->patch);
+            // Build diff hunks and aligned rows for this file
+            $file_to_parse['changes'] = $this->formatPatchString($file->patch ?? null);
 
             $parsed_files[] = $file_to_parse;
         }
@@ -58,7 +63,13 @@ class DiffRenderer
 
     }
 
-    private function formatPatchString(string $patch)
+    /**
+     * Convert a unified diff patch string into structured hunks with
+     * - old/new line blocks (raw)
+     * - rows: aligned pairs for side-by-side display
+     *   including intra-line segments for add/del pairs.
+     */
+    private function formatPatchString(?string $patch)
     {
         // Return a structure per the comment:
         // [
@@ -71,7 +82,7 @@ class DiffRenderer
 
         $hunks = [];
 
-        if ($patch === '') {
+        if ($patch === null || $patch === '') {
             return $hunks;
         }
 
@@ -179,6 +190,198 @@ class DiffRenderer
         // Flush the last hunk if present
         $flushHunk();
 
+        // Post-process: combine old/new side lines into aligned rows per hunk
+        foreach ($hunks as &$hunk) {
+            $hunk['rows'] = $this->buildRowsForHunk($hunk);
+        }
+        unset($hunk);
+
         return $hunks;
+    }
+
+    /**
+     * Given a hunk with old/new lines, generate aligned rows for side-by-side view.
+     * Also computes intra-line segments for add/del pairs to enable fine-grained highlighting.
+     */
+    private function buildRowsForHunk(array $hunk): array
+    {
+        $rows = [];
+        $oldLines = $hunk['old']['lines'] ?? [];
+        $newLines = $hunk['new']['lines'] ?? [];
+        $iOld = 0;
+        $iNew = 0;
+        $oldNo = $hunk['old']['start'] ?? null;
+        $newNo = $hunk['new']['start'] ?? null;
+
+        while ($iOld < count($oldLines) || $iNew < count($newLines)) {
+            $l = $iOld < count($oldLines) ? $oldLines[$iOld] : null;
+            $r = $iNew < count($newLines) ? $newLines[$iNew] : null;
+
+            // Context lines align 1:1
+            if ($l && $r && ($l['type'] ?? '') === 'normal' && ($r['type'] ?? '') === 'normal') {
+                $rows[] = [
+                    'left' => ['num' => $oldNo, 'type' => 'normal', 'content' => $l['content'] ?? ''],
+                    'right' => ['num' => $newNo, 'type' => 'normal', 'content' => $r['content'] ?? ''],
+                ];
+                $iOld++; $iNew++; $oldNo++; $newNo++;
+                continue;
+            }
+
+            // Changed line: pair deletion with addition
+            if ($l && ($l['type'] ?? '') === 'del' && $r && ($r['type'] ?? '') === 'add') {
+                $leftContent = (string)($l['content'] ?? '');
+                $rightContent = (string)($r['content'] ?? '');
+                [$leftSeg, $rightSeg] = $this->computeIntralineSegments($leftContent, $rightContent);
+
+                // If most of the new (or old) content differs, treat as separate delete/add
+                $threshold = 0.9;
+                $newRatio = $this->changeRatio($rightSeg, strlen($rightContent));
+                $oldRatio = $this->changeRatio($leftSeg, strlen($leftContent));
+                if ($newRatio >= $threshold || $oldRatio >= $threshold) {
+                    // Emit two rows: standalone deletion and standalone addition
+                    $rows[] = [
+                        'left' => ['num' => $oldNo, 'type' => 'del', 'content' => $leftContent],
+                        'right' => ['num' => null, 'type' => 'empty', 'content' => ''],
+                    ];
+                    $rows[] = [
+                        'left' => ['num' => null, 'type' => 'empty', 'content' => ''],
+                        'right' => ['num' => $newNo, 'type' => 'add', 'content' => $rightContent],
+                    ];
+                } else {
+                    // Pair with intra-line highlight segments
+                    $rows[] = [
+                        'left' => [
+                            'num' => $oldNo,
+                            'type' => 'del',
+                            'content' => $leftContent,
+                            'segments' => $leftSeg,
+                        ],
+                        'right' => [
+                            'num' => $newNo,
+                            'type' => 'add',
+                            'content' => $rightContent,
+                            'segments' => $rightSeg,
+                        ],
+                    ];
+                }
+                $iOld++; $iNew++; $oldNo++; $newNo++;
+                continue;
+            }
+
+            // Standalone deletion
+            if ($l && ($l['type'] ?? '') === 'del') {
+                $rows[] = [
+                    'left' => ['num' => $oldNo, 'type' => 'del', 'content' => (string)($l['content'] ?? '')],
+                    'right' => ['num' => null, 'type' => 'empty', 'content' => ''],
+                ];
+                $iOld++; $oldNo++;
+                continue;
+            }
+
+            // Standalone addition
+            if ($r && ($r['type'] ?? '') === 'add') {
+                $rows[] = [
+                    'left' => ['num' => null, 'type' => 'empty', 'content' => ''],
+                    'right' => ['num' => $newNo, 'type' => 'add', 'content' => (string)($r['content'] ?? '')],
+                ];
+                $iNew++; $newNo++;
+                continue;
+            }
+
+            // Fallbacks: mirror remaining context if sides misaligned
+            if ($l && ($l['type'] ?? '') === 'normal' && !$r) {
+                $rows[] = [
+                    'left' => ['num' => $oldNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
+                    'right' => ['num' => $newNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
+                ];
+                $iOld++; $oldNo++; if ($newNo !== null) { $newNo++; }
+                continue;
+            }
+
+            if ($r && ($r['type'] ?? '') === 'normal' && !$l) {
+                $rows[] = [
+                    'left' => ['num' => $oldNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
+                    'right' => ['num' => $newNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
+                ];
+                $iNew++; $newNo++; if ($oldNo !== null) { $oldNo++; }
+                continue;
+            }
+
+            // Safety: prevent infinite loop on unexpected input
+            break;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Calculate the fraction of characters within segments marked as 'change'.
+     */
+    private function changeRatio(array $segments, int $totalLen): float
+    {
+        if ($totalLen <= 0) {
+            return 0.0;
+        }
+        $changed = 0;
+        foreach ($segments as $seg) {
+            if (($seg['type'] ?? 'equal') === 'change') {
+                $changed += strlen((string)($seg['text'] ?? ''));
+            }
+        }
+        return $changed / max(1, $totalLen);
+    }
+
+    /**
+     * Compute intra-line diff segments for a pair of texts.
+     * Returns two arrays of segments [ ['text' => string, 'type' => 'equal'|'change'], ...]
+     * The middle differing portion is marked as 'change'.
+     */
+    private function computeIntralineSegments(string $old, string $new): array
+    {
+        if ($old === $new) {
+            $seg = [['text' => $old, 'type' => 'equal']];
+            return [$seg, $seg];
+        }
+
+        $oldLen = strlen($old);
+        $newLen = strlen($new);
+
+        // Longest common prefix
+        $prefix = 0;
+        $limit = min($oldLen, $newLen);
+        while ($prefix < $limit && $old[$prefix] === $new[$prefix]) {
+            $prefix++;
+        }
+
+        // Longest common suffix, ensuring no overlap with prefix
+        $suffix = 0;
+        while ($suffix < ($limit - $prefix)
+            && $old[$oldLen - 1 - $suffix] === $new[$newLen - 1 - $suffix]) {
+            $suffix++;
+        }
+
+        $oldMid = substr($old, $prefix, $oldLen - $prefix - $suffix);
+        $newMid = substr($new, $prefix, $newLen - $prefix - $suffix);
+        $pre = substr($old, 0, $prefix);
+        $suf = $suffix > 0 ? substr($old, $oldLen - $suffix) : '';
+        $preNew = substr($new, 0, $prefix);
+        $sufNew = $suffix > 0 ? substr($new, $newLen - $suffix) : '';
+
+        $leftSeg = [];
+        $rightSeg = [];
+
+        if ($pre !== '') { $leftSeg[] = ['text' => $pre, 'type' => 'equal']; }
+        if ($oldMid !== '') { $leftSeg[] = ['text' => $oldMid, 'type' => 'change']; }
+        if ($suf !== '') { $leftSeg[] = ['text' => $suf, 'type' => 'equal']; }
+
+        if ($preNew !== '') { $rightSeg[] = ['text' => $preNew, 'type' => 'equal']; }
+        if ($newMid !== '') { $rightSeg[] = ['text' => $newMid, 'type' => 'change']; }
+        if ($sufNew !== '') { $rightSeg[] = ['text' => $sufNew, 'type' => 'equal']; }
+
+        // If either middle is empty, segments array may end up only equals — that's fine
+        if (!$leftSeg) { $leftSeg[] = ['text' => $old, 'type' => 'equal']; }
+        if (!$rightSeg) { $rightSeg[] = ['text' => $new, 'type' => 'equal']; }
+
+        return [$leftSeg, $rightSeg];
     }
 }
