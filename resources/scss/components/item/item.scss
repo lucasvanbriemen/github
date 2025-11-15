@@ -59,12 +59,19 @@
 .reviewer {
   display: flex;
   align-items: center;
+  position: relative;
   gap: 0.5rem;
+  width: 100%;
 
   img {
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 50%;
+  }
+
+  :global(.icon) {
+    position: absolute;
+    right: 0;
   }
 }
 

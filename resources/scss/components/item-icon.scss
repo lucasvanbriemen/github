@@ -1,10 +1,10 @@
-.icon {
+:global(.icon) {
   height: 1.5rem;
   width: 1.5rem;
   margin-top: 0.25rem;
-  fill: var(--success-color);
+  color: var(--success-color);
+}
 
-  &.closed {
-    fill: var(--error-color);
-  }
+:global(.icon.closed) {
+  color: var(--error-color);
 }
