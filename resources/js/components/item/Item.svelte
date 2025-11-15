@@ -107,13 +107,15 @@
 
     <!-- PR Header: Branch Information (PR only) -->
     {#if isPR}
-      <div class="item-header-pr">
-        <span class="item-header-pr-title">
-          <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-          {item.opened_by?.display_name} wants to merge
-          {item.details.head_branch} into {item.details.base_branch}
-        </span>
-      </div>
+      {#if activeTab === 'conversation'}
+        <div class="item-header-pr">
+          <span class="item-header-pr-title">
+            <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
+            {item.opened_by?.display_name} wants to merge
+            {item.details.head_branch} into {item.details.base_branch}
+          </span>
+        </div>
+      {/if}
 
       <Navigation bind:activeTab />
     {/if}
