@@ -12,7 +12,6 @@
 </script>
 
 <Sidebar {params} selectedDropdownSection="Issues">
-
   {#if !isLoading}
     <SidebarGroup title="Assignees">
       {#each item.assignees as assignee}
@@ -39,7 +38,7 @@
           <div class="reviewer">
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
             <span>{reviewer.user.display_name}</span>
-            <Icon name={reviewer.state} size={16} className={`icon ${reviewer.state}`} />
+            <Icon name={reviewer.state} className={`icon ${reviewer.state}`} />
           </div>
         {/each}
       </SidebarGroup>
