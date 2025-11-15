@@ -4,6 +4,13 @@ A personal dashboard for managing GitHub repositories, pull requests, and issues
 
 MIT
 
+## Icons
+
+- Component: `resources/js/components/Icon.svelte`
+- Usage: `<Icon name="plus" size="16" />` or `<Icon name="cross" />`
+- Sources: SVG files in `resources/svg` (e.g., `plus.svg`, `cross.svg`).
+- Behavior: Loads the matching SVG by name and inlines it; size is controlled via `size` (number or CSS value). Icon color follows `currentColor`.
+
 ## Utilities
 
 - Replaying stored incoming webhooks:

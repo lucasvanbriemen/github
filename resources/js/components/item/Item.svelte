@@ -7,6 +7,7 @@
   import FileTab from './FileTab.svelte';
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
+  import Icon from '../Icon.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -90,7 +91,7 @@
             <div class="reviewer">
               <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
               <span>{reviewer.user.display_name}</span>
-              <span>{reviewer.state}</span>
+              <Icon name={reviewer.state} size={16} className={`icon ${reviewer.state}`} />
             </div>
           {/each}
         </SidebarGroup>
