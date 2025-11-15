@@ -7,13 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Item extends Model
 {
     protected $table = 'items';
-
     protected $primaryKey = 'id';
-
     protected $keyType = 'int';
-
     public $incrementing = false;
-
     public $timestamps = true;
 
     protected $fillable = [
