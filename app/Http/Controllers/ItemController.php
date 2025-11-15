@@ -100,6 +100,11 @@ class ItemController extends Controller
             'details',
             'requestedReviewers.user',
             'pullRequestReviews' => function($query) {
+                // Include reviews with content OR those that have comments attached
+                // (standalone PR comments may be attached to an empty-body review)
+                $query->where(function($q) {
+                    $q->whereNotNull('body')->where('body', '<>', '');
+                })->orWhereHas('childComments');
                 $query->with('user')->orderBy('created_at', 'asc');
                 $query->with('childComments');
             }
@@ -120,6 +125,21 @@ class ItemController extends Controller
                     $reply->body = self::processMarkdownImages($reply->body);
                     $reply->created_at_human = $reply->created_at->diffForHumans();
                 }
+            }
+        }
+
+        // Process standalone PR comments (not attached to a review)
+        foreach ($item->pullRequestComments as $comment) {
+            if ($comment->body) {
+                $comment->body = self::processMarkdownImages($comment->body);
+            }
+            $comment->created_at_human = $comment->created_at->diffForHumans();
+
+            foreach ($comment->childComments as $reply) {
+                if ($reply->body) {
+                    $reply->body = self::processMarkdownImages($reply->body);
+                }
+                $reply->created_at_human = $reply->created_at->diffForHumans();
             }
         }
     }
