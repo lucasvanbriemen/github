@@ -1,0 +1,26 @@
+.tab-navigation {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--background-color-one);
+  width: fit-content;
+  border-radius: 1rem;
+
+  .tab-button {
+    padding: 0.75rem 1rem;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 1rem;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    font-size: 0.875rem;
+
+    &:hover {
+      border-color: var(--border-color);
+    }
+
+    &.active {
+      color: var(--text-color);
+      border-color: var(--primary-color-dark);
+    }
+  }
+}
