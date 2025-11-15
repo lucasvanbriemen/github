@@ -1,24 +1,24 @@
 <script>
   // Make activeTab bindable from parent (Svelte runes)
   let { activeTab = $bindable('conversation') } = $props();
+
+  const TABS = [
+    { value: "conversation", label: "Conversation" },
+    { value: "files", label: "Files changed" }
+  ];
 </script>
 
 <!-- Tab Navigation -->
 <div class="tab-navigation">
-  <button
-    class="tab-button"
-    class:active={activeTab === 'conversation'}
-    onclick={() => activeTab = 'conversation'}
-  >
-    Conversation
-  </button>
-  <button
-    class="tab-button"
-    class:active={activeTab === 'files'}
-    onclick={() => activeTab = 'files'}
-  >
-    Files changed
-  </button>
+  {#each TABS as tab}
+    <button
+      class="tab-button"
+      class:active={activeTab === tab.value}
+      onclick={() => activeTab = tab.value}
+    >
+      {tab.label}
+    </button>
+  {/each}
 </div>
 
 
