@@ -143,7 +143,7 @@ class ItemController extends Controller
         }
 
         $diff = ApiHelper::githubApi($url);
-        return $diff;
+        // return $diff;
 
         // Parse diff using DiffRenderer
         $renderer = new DiffRenderer($diff);

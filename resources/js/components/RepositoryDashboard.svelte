@@ -1,6 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
-  import Sidebar from './Sidebar.svelte';
+  import Sidebar from './sidebar/Sidebar.svelte';
 
   let { params = {} } = $props();
 </script>

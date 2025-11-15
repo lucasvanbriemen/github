@@ -39,91 +39,146 @@ class DiffRenderer
         $filesObject = $this->diff->files;
         $this->files = $filesObject;
 
+        $parsed_files = [];
 
-        // $lines = explode("\n", $this->diffString);
-        // $currentFile = null;
-        // $currentChunk = null;
+        foreach ($this->files as $file) {
+            $file_to_parse = [];
 
-        // foreach ($lines as $line) {
-        //     // File header: diff --git a/file b/file
-        //     if (preg_match('/^diff --git a\/(.+) b\/(.+)$/', $line, $matches)) {
-        //         // Save previous file
-        //         if ($currentChunk && $currentFile) {
-        //             $currentFile['chunks'][] = $currentChunk;
-        //         }
-        //         if ($currentFile) {
-        //             $this->files[] = $currentFile;
-        //         }
+            $file_to_parse['filename'] = $file->filename;
+            $file_to_parse['status'] = $file->status;
+            $file_to_parse['additions'] = $file->additions;
+            $file_to_parse['deletions'] = $file->deletions;
 
-        //         $currentFile = [
-        //             'from' => $matches[1],
-        //             'to' => $matches[2],
-        //             'chunks' => [],
-        //             'additions' => 0,
-        //             'deletions' => 0,
-        //         ];
-        //         $currentChunk = null;
-        //     }
-        //     // Skip metadata lines (new file mode, index, etc.) and "No newline at end of file"
-        //     elseif (preg_match('/^(new file mode|deleted file mode|index|similarity index|rename|copy|\\\\)/', $line)) {
-        //         continue;
-        //     }
-        //     // Old file: --- a/file or --- /dev/null
-        //     elseif (preg_match('/^--- (.+)$/', $line, $matches)) {
-        //         if ($currentFile) {
-        //             $currentFile['from'] = $matches[1] === '/dev/null' ? '/dev/null' : preg_replace('/^a\//', '', $matches[1]);
-        //         }
-        //     }
-        //     // New file: +++ b/file or +++ /dev/null
-        //     elseif (preg_match('/^\+\+\+ (.+)$/', $line, $matches)) {
-        //         if ($currentFile) {
-        //             $currentFile['to'] = $matches[1] === '/dev/null' ? '/dev/null' : preg_replace('/^b\//', '', $matches[1]);
-        //         }
-        //     }
-        //     // Chunk header: @@ -1,4 +1,5 @@
-        //     elseif (preg_match('/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)$/', $line, $matches)) {
-        //         if ($currentChunk && $currentFile) {
-        //             $currentFile['chunks'][] = $currentChunk;
-        //         }
-        //         $currentChunk = [
-        //             'oldStart' => (int)$matches[1],
-        //             'oldLines' => isset($matches[2]) && $matches[2] !== '' ? (int)$matches[2] : 1,
-        //             'newStart' => (int)$matches[3],
-        //             'newLines' => isset($matches[4]) && $matches[4] !== '' ? (int)$matches[4] : 1,
-        //             'content' => trim($matches[5] ?? ''),
-        //             'changes' => [],
-        //         ];
-        //     }
-        //     // Change lines
-        //     elseif ($currentChunk !== null) {
-        //         // Skip completely empty lines, but process lines that start with space/+/-
-        //         if (strlen($line) === 0) {
-        //             continue;
-        //         }
+            $file_to_parse['changes'] = $this->formatPatchString($file->patch);
 
-        //         $firstChar = $line[0];
-        //         if ($firstChar === '+') {
-        //             $currentChunk['changes'][] = ['type' => 'add', 'content' => substr($line, 1)];
-        //             if ($currentFile) {
-        //                 $currentFile['additions']++;
-        //             }
-        //         } elseif ($firstChar === '-') {
-        //             $currentChunk['changes'][] = ['type' => 'del', 'content' => substr($line, 1)];
-        //             if ($currentFile) {
-        //                 $currentFile['deletions']++;
-        //             }
-        //         } elseif ($firstChar === ' ') {
-        //             $currentChunk['changes'][] = ['type' => 'normal', 'content' => substr($line, 1)];
-        //         }
-        //     }
-        // }
+            $parsed_files[] = $file_to_parse;
+        }
 
-        // // Add last chunk and file
-        // if ($currentChunk && $currentFile) {
-        //     $currentFile['chunks'][] = $currentChunk;
-        // }
-        // if ($currentFile) {
-        //     $this->files[] = $currentFile;
-        // }
+        $this->files = $parsed_files;
+
+    }
+
+    private function formatPatchString(string $patch)
+    {
+        // Return a structure per the comment:
+        // [
+        //   [
+        //     'old' => ['start' => int, 'end' => int, 'lines' => [[type, content], ...]],
+        //     'new' => ['start' => int, 'end' => int, 'lines' => [[type, content], ...]],
+        //   ],
+        //   ...
+        // ]
+
+        $hunks = [];
+
+        if ($patch === '') {
+            return $hunks;
+        }
+
+        $lines = preg_split("/\r?\n/", $patch);
+        if ($lines === false) {
+            return $hunks;
+        }
+
+        $currentHunk = null;
+        $oldLine = 0;
+        $newLine = 0;
+
+        $flushHunk = function () use (&$hunks, &$currentHunk, $oldLine, $newLine) {
+            if ($currentHunk === null) {
+                return;
+            }
+            // Set end positions based on last consumed line numbers
+            $currentHunk['old']['end'] = $currentHunk['old']['start'] > 0
+                ? max($currentHunk['old']['start'], $oldLine - 1)
+                : 0;
+            $currentHunk['new']['end'] = $currentHunk['new']['start'] > 0
+                ? max($currentHunk['new']['start'], $newLine - 1)
+                : 0;
+            $hunks[] = $currentHunk;
+            $currentHunk = null;
+        };
+
+        foreach ($lines as $rawLine) {
+            // New hunk header
+            if (preg_match('/^@@ -(?P<old_start>\d+)(?:,(?P<old_count>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_count>\d+))? @@/', $rawLine, $m)) {
+                // close the previous hunk if any
+                $flushHunk();
+
+                $oldStart = (int)($m['old_start'] ?? 0);
+                $newStart = (int)($m['new_start'] ?? 0);
+                $oldLine = $oldStart;
+                $newLine = $newStart;
+
+                $currentHunk = [
+                    'old' => [
+                        'start' => $oldStart,
+                        'end' => $oldStart, // will be updated as we parse
+                        'lines' => [],
+                    ],
+                    'new' => [
+                        'start' => $newStart,
+                        'end' => $newStart, // will be updated as we parse
+                        'lines' => [],
+                    ],
+                ];
+                continue;
+            }
+
+            // Outside any hunk; ignore non-hunk lines (file headers, metadata)
+            if ($currentHunk === null) {
+                continue;
+            }
+
+            // Handle special meta lines like "\\ No newline at end of file" — skip
+            if (strlen($rawLine) > 0 && $rawLine[0] === '\\') {
+                continue;
+            }
+
+            // Classify line by first char
+            $prefix = $rawLine[0] ?? ' ';
+            $content = ($prefix === '+' || $prefix === '-' || $prefix === ' ')
+                ? substr($rawLine, 1)
+                : $rawLine;
+
+            switch ($prefix) {
+                case '+':
+                    // Addition: only affects new side
+                    $currentHunk['new']['lines'][] = [
+                        'type' => 'add',
+                        'content' => $content,
+                    ];
+                    $newLine++;
+                    break;
+
+                case '-':
+                    // Deletion: only affects old side
+                    $currentHunk['old']['lines'][] = [
+                        'type' => 'del',
+                        'content' => $content,
+                    ];
+                    $oldLine++;
+                    break;
+
+                default:
+                    // Context line: present on both sides
+                    $currentHunk['old']['lines'][] = [
+                        'type' => 'normal',
+                        'content' => $content,
+                    ];
+                    $currentHunk['new']['lines'][] = [
+                        'type' => 'normal',
+                        'content' => $content,
+                    ];
+                    $oldLine++;
+                    $newLine++;
+                    break;
+            }
+        }
+
+        // Flush the last hunk if present
+        $flushHunk();
+
+        return $hunks;
     }
 }
