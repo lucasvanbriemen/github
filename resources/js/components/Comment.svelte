@@ -24,7 +24,7 @@
 >
   <button class="item-comment-header" onclick={() => onToggle(comment)}>
     <img src={comment.author?.avatar_url} alt={comment.author?.name} />
-    <span>{comment.author?.name} {actionText}</span>
+    <span>{comment.author?.display_name} {actionText}</span>
   </button>
 
   <div class="item-comment-body">
