@@ -7,6 +7,8 @@
   import ItemSkeleton from '../ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
   import FileTab from './FileTab.svelte';
+  import Conversation from './Conversation.svelte';
+  import Navigation from './Navigation.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -223,74 +225,12 @@
         </span>
       </div>
 
-      <!-- Tab Navigation -->
-      <div class="tab-navigation">
-        <button
-          class="tab-button"
-          class:active={activeTab === 'conversation'}
-          onclick={() => activeTab = 'conversation'}
-        >
-          Conversation
-        </button>
-        <button
-          class="tab-button"
-          class:active={activeTab === 'files'}
-          onclick={() => activeTab = 'files'}
-        >
-          Files changed
-        </button>
-      </div>
+      <Navigation bind:activeTab />
     {/if}
 
     <!-- Conversation Tab Content -->
     {#if !isPR || activeTab === 'conversation'}
-      <!-- Item Body: Main Description -->
-      <div class="item-body">
-        <Markdown content={item.body} />
-      </div>
-
-      <!-- Regular Comments -->
-      {#each item.comments as comment}
-        <Comment {comment} onToggle={toggleItemComment} />
-      {/each}
-
-      <!-- PR Reviews and Review Comments (PR only) -->
-      {#if isPR}
-        {#each item.pull_request_reviews as review}
-          <!-- Only render if review has a body or comments -->
-          {#if (review.body !== null && review.body !== '') || (review.comments && review.comments.length > 0)}
-            <div class="review-block" class:review-resolved={review.resolved}>
-              <!-- Review Summary (shown if review has a body) -->
-              {#if review.body !== null && review.body !== ''}
-                <div class="review-header">
-                  <button class="item-comment-header" onclick={() => toggleItemReview(review)}>
-                    <img src={review.user?.avatar_url} alt={review.user?.name} />
-                    <span>{review.user?.name} {review.created_at_human} (review)</span>
-                  </button>
-                </div>
-                <div class="review-body">
-                  <div class="item-comment-content">
-                    <Markdown content={review.body} />
-                  </div>
-                </div>
-              {/if}
-
-              <!-- Review Line Comments with Replies -->
-              <div class="review-comments">
-                {#each review.comments as comment}
-                  <Comment
-                    comment={comment}
-                    onToggle={toggleItemReviewComment}
-                    onToggleReply={toggleItemReviewComment}
-                    indent={review.body !== null && review.body !== ''}
-                    showReplies={true}
-                  />
-                {/each}
-              </div>
-            </div>
-          {/if}
-        {/each}
-      {/if}
+      <Conversation {item} />
     {/if}
 
     <!-- Files Changed Tab Content (PR only) -->
