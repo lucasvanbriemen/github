@@ -19,7 +19,7 @@ class PullRequestReview extends Model
         return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
     }
 
-    public function user()
+    public function author()
     {
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }

@@ -105,7 +105,7 @@ class ItemController extends Controller
                 $query->where(function($q) {
                     $q->whereNotNull('body')->where('body', '<>', '');
                 })->orWhereHas('childComments');
-                $query->with('user')->orderBy('created_at', 'asc');
+                $query->with('author')->orderBy('created_at', 'asc');
                 $query->with('childComments');
             }
         ]);
