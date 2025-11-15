@@ -4,7 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\IncommingWebhook;
 use Illuminate\Console\Command;
-use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 
 class ReplayIncomingWebhooks extends Command
 {
@@ -61,38 +62,34 @@ class ReplayIncomingWebhooks extends Command
 
     protected function replay(IncommingWebhook $webhook, bool $dryRun = false): void
     {
-        // Build an internal request to the API route.
-        $uri = '/api/incoming_hook';
+        // Determine the event class from the stored event name
+        $eventType = $webhook->event ?: 'unknown';
+        $studly = Str::studly($eventType);
+        $class = "App\\Events\\{$studly}WebhookReceived";
 
-        // Provide both header and input fallback for event.
-        $server = [
-            'HTTP_X_GITHUB_EVENT' => $webhook->event,
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => 'application/json',
-        ];
-
-        $parameters = [
-            // Controller accepts these as fallbacks if header is absent
-            'event' => $webhook->event,
-            'x_github_event' => $webhook->event,
-            // Send the original raw payload as the `payload` input
-            'payload' => $webhook->payload,
-        ];
-
-        if ($dryRun) {
-            $this->comment("  -> Would POST {$uri} with event='{$webhook->event}' and stored payload");
+        if (!class_exists($class)) {
+            $this->error("  -> Event class {$class} not found for event '{$eventType}'");
             return;
         }
 
-        $request = HttpRequest::create($uri, 'POST', $parameters, [], [], $server);
+        // Decode the stored raw payload
+        try {
+            $payload = json_decode($webhook->payload ?? '{}', false, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            $this->error('  -> Invalid stored payload JSON: ' . $e->getMessage());
+            return;
+        }
+
+        if ($dryRun) {
+            $this->comment("  -> Would dispatch {$class} with stored payload");
+            return;
+        }
 
         try {
-            $response = app('router')->dispatch($request);
-            $status = $response->getStatusCode();
-            $this->info("  -> Dispatched, response status: {$status}");
+            Event::dispatch(new $class($payload));
+            $this->info("  -> Dispatched {$class}");
         } catch (\Throwable $e) {
-            $this->error('  -> Error dispatching: ' . $e->getMessage());
+            $this->error('  -> Error dispatching event: ' . $e->getMessage());
         }
     }
 }
-
