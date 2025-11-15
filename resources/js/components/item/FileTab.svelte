@@ -25,21 +25,25 @@
           <div class="file-changes">
             {#each file.changes as hunk}
               {#each (hunk.rows || []) as changedLinePair}
-                <div class="diff-row">
-                  <span class="diff-line-number diff-line-{changedLinePair.left.type}">{changedLinePair.left.num}</span>
-                  <div class="diff-line-content diff-line-{changedLinePair.left.type}">
-                    {#if changedLinePair.left.type !== 'empty'}
-                      <span class="diff-line-prefix">{prefix(changedLinePair.left.type)}</span>
-                      <span class="diff-line-code">{changedLinePair.left.content}</span>
-                    {/if}
+                <div class="changed-line-pair">
+                  <div class="side left-side">
+                    <span class="line-number diff-line-{changedLinePair.left.type}">{changedLinePair.left.number}</span>
+                    <div class="diff-line-content diff-line-{changedLinePair.left.type}">
+                      {#if changedLinePair.left.type !== 'empty'}
+                        <span class="prefix">{prefix(changedLinePair.left.type)}</span>
+                        <code class="code">{changedLinePair.left.content}</code>
+                      {/if}
+                    </div>
                   </div>
 
-                  <span class="diff-line-number diff-line-{changedLinePair.right.type}">{changedLinePair.right.num}</span>
-                  <div class="diff-line-content diff-line-{changedLinePair.right.type}">
-                    {#if changedLinePair.right.type !== 'empty'}
-                      <span class="diff-line-prefix">{prefix(changedLinePair.right.type)}</span>
-                      <span class="diff-line-code">{changedLinePair.right.content}</span>
-                    {/if}
+                  <div class="side right-side">
+                    <span class="line-number diff-line-{changedLinePair.right.type}">{changedLinePair.right.number}</span>
+                    <div class="diff-line-content diff-line-{changedLinePair.right.type}">
+                      {#if changedLinePair.right.type !== 'empty'}
+                        <span class="prefix">{prefix(changedLinePair.right.type)}</span>
+                        <code class="code">{changedLinePair.right.content}</code>
+                      {/if}
+                    </div>
                   </div>
                 </div>
               {/each}

@@ -83,7 +83,7 @@
     background-color: var(--background-color-one);
   }
 
-  .diff-line-number {
+  .line-number {
     padding: 0.125rem 0.5rem;
     text-align: right;
     vertical-align: top;
@@ -112,13 +112,13 @@
     background-color: var(--background-color-one);
   }
 
-  .diff-line-prefix {
+  .prefix {
     user-select: none;
     margin-right: 0.5rem;
     opacity: 0.5;
   }
 
-  .diff-line-code {
+  .code {
     white-space: pre-wrap;
     word-wrap: break-word;
   }
@@ -136,7 +136,7 @@
       border-right-color: rgba(34, 197, 94, 0.3);
     }
 
-    .diff-line-prefix {
+    .prefix {
       color: #22c55e;
       opacity: 1;
       font-weight: 700;
@@ -151,7 +151,7 @@
       border-right-color: rgba(239, 68, 68, 0.3);
     }
 
-    .diff-line-prefix {
+    .prefix {
       color: #ef4444;
       opacity: 1;
       font-weight: 700;
@@ -159,6 +159,11 @@
   }
 }
 
-.diff-row {
+.changed-line-pair {
   display: flex;
+
+  .side {
+    flex: 1;
+    display: flex;
+  }
 }

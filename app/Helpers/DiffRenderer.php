@@ -220,8 +220,8 @@ class DiffRenderer
             // Context lines align 1:1
             if ($l && $r && ($l['type'] ?? '') === 'normal' && ($r['type'] ?? '') === 'normal') {
                 $rows[] = [
-                    'left' => ['num' => $oldNo, 'type' => 'normal', 'content' => $l['content'] ?? ''],
-                    'right' => ['num' => $newNo, 'type' => 'normal', 'content' => $r['content'] ?? ''],
+                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => $l['content'] ?? ''],
+                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => $r['content'] ?? ''],
                 ];
                 $iOld++; $iNew++; $oldNo++; $newNo++;
                 continue;
@@ -235,13 +235,13 @@ class DiffRenderer
 
                 $rows[] = [
                     'left' => [
-                        'num' => $oldNo,
+                        'number' => $oldNo,
                         'type' => 'del',
                         'content' => $leftContent,
                         'segments' => $leftSeg,
                     ],
                     'right' => [
-                        'num' => $newNo,
+                        'number' => $newNo,
                         'type' => 'add',
                         'content' => $rightContent,
                         'segments' => $rightSeg,
@@ -254,8 +254,8 @@ class DiffRenderer
             // Standalone deletion
             if ($l && ($l['type'] ?? '') === 'del') {
                 $rows[] = [
-                    'left' => ['num' => $oldNo, 'type' => 'del', 'content' => (string)($l['content'] ?? '')],
-                    'right' => ['num' => null, 'type' => 'empty', 'content' => ''],
+                    'left' => ['number' => $oldNo, 'type' => 'del', 'content' => (string)($l['content'] ?? '')],
+                    'right' => ['number' => null, 'type' => 'empty', 'content' => ''],
                 ];
                 $iOld++; $oldNo++;
                 continue;
@@ -264,8 +264,8 @@ class DiffRenderer
             // Standalone addition
             if ($r && ($r['type'] ?? '') === 'add') {
                 $rows[] = [
-                    'left' => ['num' => null, 'type' => 'empty', 'content' => ''],
-                    'right' => ['num' => $newNo, 'type' => 'add', 'content' => (string)($r['content'] ?? '')],
+                    'left' => ['number' => null, 'type' => 'empty', 'content' => ''],
+                    'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string)($r['content'] ?? '')],
                 ];
                 $iNew++; $newNo++;
                 continue;
@@ -274,8 +274,8 @@ class DiffRenderer
             // Fallbacks: mirror remaining context if sides misaligned
             if ($l && ($l['type'] ?? '') === 'normal' && !$r) {
                 $rows[] = [
-                    'left' => ['num' => $oldNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
-                    'right' => ['num' => $newNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
+                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
+                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
                 ];
                 $iOld++; $oldNo++; if ($newNo !== null) { $newNo++; }
                 continue;
@@ -283,8 +283,8 @@ class DiffRenderer
 
             if ($r && ($r['type'] ?? '') === 'normal' && !$l) {
                 $rows[] = [
-                    'left' => ['num' => $oldNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
-                    'right' => ['num' => $newNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
+                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
+                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
                 ];
                 $iNew++; $newNo++; if ($oldNo !== null) { $oldNo++; }
                 continue;
