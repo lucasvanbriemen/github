@@ -24,21 +24,21 @@
 
           <div class="file-changes">
             {#each file.changes as hunk}
-              {#each (hunk.rows || []) as row}
+              {#each (hunk.rows || []) as changedLinePair}
                 <div class="diff-row">
-                  <span class="diff-line-number diff-line-{row.left.type}">{row.left.num ?? ''}</span>
-                  <div class="diff-line-content diff-line-{row.left.type}">
-                    {#if row.left.type !== 'empty'}
-                      <span class="diff-line-prefix">{prefix(row.left.type)}</span>
-                      <span class="diff-line-code">{row.left.content}</span>
+                  <span class="diff-line-number diff-line-{changedLinePair.left.type}">{changedLinePair.left.num}</span>
+                  <div class="diff-line-content diff-line-{changedLinePair.left.type}">
+                    {#if changedLinePair.left.type !== 'empty'}
+                      <span class="diff-line-prefix">{prefix(changedLinePair.left.type)}</span>
+                      <span class="diff-line-code">{changedLinePair.left.content}</span>
                     {/if}
                   </div>
 
-                  <span class="diff-line-number diff-line-{row.right.type}">{row.right.num ?? ''}</span>
-                  <div class="diff-line-content diff-line-{row.right.type}">
-                    {#if row.right.type !== 'empty'}
-                      <span class="diff-line-prefix">{prefix(row.right.type)}</span>
-                      <span class="diff-line-code">{row.right.content}</span>
+                  <span class="diff-line-number diff-line-{changedLinePair.right.type}">{changedLinePair.right.num}</span>
+                  <div class="diff-line-content diff-line-{changedLinePair.right.type}">
+                    {#if changedLinePair.right.type !== 'empty'}
+                      <span class="diff-line-prefix">{prefix(changedLinePair.right.type)}</span>
+                      <span class="diff-line-code">{changedLinePair.right.content}</span>
                     {/if}
                   </div>
                 </div>
