@@ -24,10 +24,10 @@ class PullRequestReview extends Model
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }
 
-    public function comments()
+    public function childComments()
     {
         $query = $this->hasMany(PullRequestComment::class, 'pull_request_review_id', 'id');
-        $query->with(['author', 'replies.author'])->whereNull('in_reply_to_id')->orderBy('created_at', 'asc');
+        $query->with(['author', 'childComments.author'])->whereNull('in_reply_to_id')->orderBy('created_at', 'asc');
 
         return $query;
     }

@@ -101,7 +101,7 @@ class ItemController extends Controller
             'requestedReviewers.user',
             'pullRequestReviews' => function($query) {
                 $query->with('user')->orderBy('created_at', 'asc');
-                $query->with('comments');
+                $query->with('childComments');
             }
         ]);
 
@@ -112,11 +112,11 @@ class ItemController extends Controller
             }
             $review->created_at_human = $review->created_at->diffForHumans();
 
-            foreach ($review->comments as $comment) {
+            foreach ($review->childComments as $comment) {
                 $comment->body = self::processMarkdownImages($comment->body);
                 $comment->created_at_human = $comment->created_at->diffForHumans();
 
-                foreach ($comment->replies as $reply) {
+                foreach ($comment->childComments as $reply) {
                     $reply->body = self::processMarkdownImages($reply->body);
                     $reply->created_at_human = $reply->created_at->diffForHumans();
                 }
@@ -149,7 +149,5 @@ class ItemController extends Controller
         $renderer = new DiffRenderer($diff);
         $files = $renderer->getFiles();
         return $files;
-
-        return response()->json($files);
     }
 }

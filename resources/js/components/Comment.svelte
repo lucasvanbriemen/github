@@ -3,13 +3,7 @@
   import DiffHunk from './DiffHunk.svelte';
   import Self from './Comment.svelte';
 
-  let {
-    comment,
-    onToggle,
-    onToggleReply = onToggle,
-    showReplies = false,
-    indent = false
-  } = $props();
+  let { comment, onToggle, onToggleReply = onToggle, showReplies = false, indent = false } = $props();
 
   // Determine the action text based on the created_at_human format
   let actionText = comment.created_at_human?.includes('(review)')
@@ -38,9 +32,9 @@
 
       <Markdown content={comment.body} />
 
-      {#if showReplies && comment.replies}
+      {#if comment.child_comments}
         <div class="item-comment-replies">
-          {#each comment.replies as reply}
+          {#each comment.child_comments as reply}
             <Self comment={reply} onToggle={onToggleReply} indent={true} />
           {/each}
         </div>
@@ -50,5 +44,5 @@
 </div>
 
 <style lang="scss">
-  @import '../../scss/components/comment.scss';
+  @import '../../scss/components/comment';
 </style>

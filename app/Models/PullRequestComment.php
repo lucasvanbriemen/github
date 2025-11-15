@@ -21,7 +21,7 @@ class PullRequestComment extends Model
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }
 
-    public function replies()
+    public function childComments()
     {
         return $this->hasMany(PullRequestComment::class, 'in_reply_to_id', 'id');
     }

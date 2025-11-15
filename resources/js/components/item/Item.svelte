@@ -77,7 +77,7 @@
 
     <!-- Conversation Tab Content -->
     {#if !isPR || activeTab === 'conversation'}
-      <Conversation {item} />
+      <Conversation {item} {params} />
     {/if}
 
     <!-- Files Changed Tab Content (PR only) -->
