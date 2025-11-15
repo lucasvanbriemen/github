@@ -21,66 +21,76 @@
     margin-bottom: 1rem;
     background-color: var(--background-color-one);
     overflow: hidden;
-  }
 
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    background-color: var(--background-color-one);
-    border-bottom: 1px solid var(--border-color);
-    cursor: pointer;
-    width: 100%;
-    border: none;
-    text-align: left;
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background-color: var(--background-color-one);
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      width: 100%;
+      border: none;
+      text-align: left;
 
-    &:hover {
-      background-color: var(--background-color-two);
+      &:hover {
+        background-color: var(--background-color-two);
+      }
+
+      .file-status {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background-color: var(--background-color-two);
+        color: var(--text-color);
+
+        &-added {
+          background-color: rgba(34, 197, 94, 0.15);
+          color: #22c55e;
+        }
+
+        &-deleted {
+          background-color: rgba(239, 68, 68, 0.15);
+          color: #ef4444;
+        }
+
+        &-modified {
+          background-color: rgba(234, 179, 8, 0.15);
+          color: #eab308;
+        }
+
+        &-renamed {
+          background-color: rgba(59, 130, 246, 0.15);
+          color: #3b82f6;
+        }
+      }
+
+      .file-name {
+        font-size: 0.875rem;
+      }
     }
-  }
 
-  .file-status {
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    background-color: var(--background-color-two);
-    color: var(--text-color);
-  }
+    .file-changes {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      background-color: var(--background-color-one);
 
-  .file-status-added {
-    background-color: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-  }
+      .changed-line-pair {
+        display: flex;
 
-  .file-status-deleted {
-    background-color: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-  }
-
-  .file-status-modified {
-    background-color: rgba(234, 179, 8, 0.15);
-    color: #eab308;
-  }
-
-  .file-status-renamed {
-    background-color: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-
-  .file-name {
-    font-size: 0.875rem;
-  }
-
-  .file-changes {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    background-color: var(--background-color-one);
+        .side {
+          flex: 1;
+          display: flex;
+          
+        }
+      }
+    }
   }
 
   .line-number {
@@ -97,11 +107,6 @@
     text-align: right;
   }
 
-  .diff-line-empty {
-    background-color: var(--background-color-two);
-    border-right: 1px solid var(--border-color);
-  }
-
   .diff-line-content {
     padding: 0.125rem 0.5rem;
     vertical-align: top;
@@ -110,21 +115,22 @@
     color: var(--text-color);
     flex: 1;
     background-color: var(--background-color-one);
+
+    .prefix {
+      user-select: none;
+      margin-right: 0.5rem;
+      opacity: 0.5;
+    }
+
+    .code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
   }
 
-  .prefix {
-    user-select: none;
-    margin-right: 0.5rem;
-    opacity: 0.5;
-  }
-
-  .code {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
 
   .diff-line-empty {
-    background-color: var(--background-color-two);
+    background-color: var(--background-color);
     opacity: 0.3;
   }
 
@@ -156,14 +162,5 @@
       opacity: 1;
       font-weight: 700;
     }
-  }
-}
-
-.changed-line-pair {
-  display: flex;
-
-  .side {
-    flex: 1;
-    display: flex;
   }
 }
