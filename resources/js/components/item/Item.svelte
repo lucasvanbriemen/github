@@ -2,8 +2,6 @@
   import { onMount } from 'svelte';
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
-  import Markdown from '../Markdown.svelte';
-  import Comment from '../Comment.svelte';
   import ItemSkeleton from '../ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
   import FileTab from './FileTab.svelte';
@@ -19,7 +17,6 @@
   let isPR = $state(false);
   let files = $state([]);
   let loadingFiles = $state(false);
-  let collapsedFiles = $state(new Set());
   let activeTab = $state('conversation'); // 'conversation' or 'files'
   let isLoading = $state(true);
 
@@ -61,113 +58,6 @@
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
     return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
-  }
-
-  // Toggle functions for different comment types
-  function toggleItemComment(comment) {
-    comment.resolved = !comment.resolved;
-
-    fetch(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: comment.resolved,
-      }),
-    });
-  }
-
-  function toggleItemReview(review) {
-    review.resolved = !review.resolved;
-
-    fetch(route(`organizations.repositories.item.review`, { organization, repository, number, review_id: review.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: review.resolved,
-      }),
-    });
-  }
-
-  function toggleItemReviewComment(comment) {
-    comment.resolved = !comment.resolved;
-
-    fetch(route(`organizations.repositories.item.review.comment`, { organization, repository, number, comment_id: comment.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: comment.resolved,
-      }),
-    });
-  }
-
-  // Diff view helper functions
-  function toggleFile(fileName) {
-    if (collapsedFiles.has(fileName)) {
-      collapsedFiles.delete(fileName);
-    } else {
-      collapsedFiles.add(fileName);
-    }
-    collapsedFiles = new Set(collapsedFiles);
-  }
-
-  function getFileStatus(file) {
-    if (file.from === '/dev/null') return 'added';
-    if (file.to === '/dev/null') return 'deleted';
-    if (file.from !== file.to) return 'renamed';
-    return 'modified';
-  }
-
-  function getFileName(file) {
-    return file.to === '/dev/null' ? file.from : file.to;
-  }
-
-  function processChunk(chunk) {
-    const lines = [];
-    let leftIndex = chunk.oldStart;
-    let rightIndex = chunk.newStart;
-
-    for (const change of chunk.changes) {
-      if (change.type === 'normal') {
-        lines.push({
-          left: { lineNumber: leftIndex++, content: change.content, type: 'normal' },
-          right: { lineNumber: rightIndex++, content: change.content, type: 'normal' }
-        });
-      } else if (change.type === 'del') {
-        lines.push({
-          left: { lineNumber: leftIndex++, content: change.content, type: 'del' },
-          right: { lineNumber: null, content: '', type: 'empty' }
-        });
-      } else if (change.type === 'add') {
-        const prevLine = lines.length > 0 ? lines[lines.length - 1] : null;
-        if (prevLine && prevLine.right.type === 'empty' && prevLine.left.type === 'del') {
-          lines[lines.length - 1].right = { lineNumber: rightIndex++, content: change.content, type: 'add' };
-        } else {
-          lines.push({
-            left: { lineNumber: null, content: '', type: 'empty' },
-            right: { lineNumber: rightIndex++, content: change.content, type: 'add' }
-          });
-        }
-      }
-    }
-
-    return lines;
-  }
-
-  function getLinePrefix(type) {
-    return type === 'add' ? '+' : (type === 'del' ? '-' : ' ');
-  }
-
-  // Check if file is too large to render (similar to GitHub)
-  const MAX_DIFF_LINES = 400;
-  function isFileTooLarge(file) {
-    const totalLines = (file.additions ?? 0) + (file.deletions ?? 0);
-    return totalLines > MAX_DIFF_LINES;
   }
 </script>
 
