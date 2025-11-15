@@ -1,17 +1,26 @@
 <script>
+  import { onMount } from 'svelte';
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Icon from '../Icon.svelte';
 
   let { item, isPR, isLoading, params = {} } = $props();
+  let selectedDropdownSection = $state('Issues');
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
     return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
   }
+
+  onMount(async () => {
+    if (isPR) {
+      selectedDropdownSection = 'Pull Requests';
+    }
+  });
+
 </script>
 
-<Sidebar {params} selectedDropdownSection="Issues">
+<Sidebar {params} {selectedDropdownSection}>
   {#if !isLoading}
     <SidebarGroup title="Assignees">
       {#each item.assignees as assignee}

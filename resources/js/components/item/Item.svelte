@@ -50,7 +50,6 @@
 </script>
 
 <div class="item-overview">
-
   <Sidebar {item} {isPR} {isLoading} {params} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
