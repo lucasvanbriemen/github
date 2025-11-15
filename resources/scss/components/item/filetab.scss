@@ -1,7 +1,4 @@
 /* Ensure div-based rows align like table cells */
-.diff-table-side-by-side .diff-row > .diff-line-number { min-width: 50px; width: 50px; }
-.diff-table-side-by-side .diff-row > .diff-line-content { min-width: 0; }
-
 .pr-files {
   .loading {
     padding: 2rem;
@@ -18,14 +15,7 @@
     border-radius: 1rem;
   }
 
-  .diff-too-large {
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-color-secondary);
-    background-color: var(--background-color-one);
-  }
-
-  .diff-file {
+  .file {
     border: 1px solid var(--border-color);
     border-radius: 1rem;
     margin-bottom: 1rem;
@@ -33,10 +23,10 @@
     overflow: hidden;
   }
 
-  .diff-file-header {
+  .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
     padding: 1rem;
     background-color: var(--background-color-one);
     border-bottom: 1px solid var(--border-color);
@@ -50,13 +40,7 @@
     }
   }
 
-  .diff-file-header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .diff-file-status {
+  .file-status {
     padding: 0.25rem 0.5rem;
     border-radius: 0.5rem;
     font-size: 0.75rem;
@@ -66,67 +50,37 @@
     color: var(--text-color);
   }
 
-  .diff-file-status-added {
+  .file-status-added {
     background-color: rgba(34, 197, 94, 0.15);
     color: #22c55e;
   }
 
-  .diff-file-status-deleted {
+  .file-status-deleted {
     background-color: rgba(239, 68, 68, 0.15);
     color: #ef4444;
   }
 
-  .diff-file-status-modified {
+  .file-status-modified {
     background-color: rgba(234, 179, 8, 0.15);
     color: #eab308;
   }
 
-  .diff-file-status-renamed {
+  .file-status-renamed {
     background-color: rgba(59, 130, 246, 0.15);
     color: #3b82f6;
   }
 
-  .diff-file-name {
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  .file-name {
     font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-color);
   }
 
-  .diff-file-stats {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  }
-
-  .diff-stats-additions {
-    color: #22c55e;
-    font-weight: 600;
-  }
-
-  .diff-stats-deletions {
-    color: #ef4444;
-    font-weight: 600;
-  }
-
-  .diff-table-container {
-    background-color: var(--background-color-one);
-    overflow-x: auto;
-  }
-
-  .diff-table {
+  .file-changes {
     width: 100%;
     border-collapse: collapse;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 0.8125rem;
     line-height: 1.5;
     background-color: var(--background-color-one);
-
-    tr {
-      background-color: var(--background-color-one);
-    }
   }
 
   .diff-line-number {
@@ -140,9 +94,10 @@
     min-width: 50px;
     width: 1%;
     white-space: nowrap;
+    text-align: right;
   }
 
-  .diff-line-number-empty {
+  .diff-line-empty {
     background-color: var(--background-color-two);
     border-right: 1px solid var(--border-color);
   }
@@ -153,6 +108,7 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     color: var(--text-color);
+    flex: 1;
     background-color: var(--background-color-one);
   }
 
@@ -201,14 +157,8 @@
       font-weight: 700;
     }
   }
+}
 
-  .diff-table-side-by-side {
-    td {
-      width: 50%;
-    }
-
-    .diff-line-number {
-      width: 1%;
-    }
-  }
+.diff-row {
+  display: flex;
 }

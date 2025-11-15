@@ -16,45 +16,34 @@
       <div class="diff-empty">No file changes</div>
     {:else}
       {#each files as file}
-        <div class="diff-file">
-          <button class="diff-file-header" type="button">
-            <div class="diff-file-header-left">
-              <span class="diff-file-status diff-file-status-{file.status}">{file.status}</span>
-              <span class="diff-file-name">{file.filename}</span>
-            </div>
-            <div class="diff-file-stats">
-              <span class="diff-stats-additions">+{file.additions}</span>
-              <span class="diff-stats-deletions">-{file.deletions}</span>
-            </div>
+        <div class="file">
+          <button class="header" type="button">
+            <span class="file-status file-status-{file.status}">{file.status}</span>
+            <span class="file-name">{file.filename}</span>
           </button>
 
-          <div class="diff-table-container">
-            <div class="diff-table diff-table-side-by-side">
-              {#each file.changes as hunk}
-                {#each (hunk.rows || []) as row}
-                  <div class="diff-row" style="display:flex;">
-                    <div class="diff-line-number {row.left.type === 'add' ? 'diff-line-add' : row.left.type === 'del' ? 'diff-line-del' : ''} {row.left.type === 'empty' ? 'diff-line-number-empty' : ''}" style="text-align:right;">
-                      {row.left.num ?? ''}
-                    </div>
-                    <div class="diff-line-content {row.left.type === 'add' ? 'diff-line-add' : row.left.type === 'del' ? 'diff-line-del' : row.left.type === 'empty' ? 'diff-line-empty' : ''}" style="flex:1;">
-                      {#if row.left.type !== 'empty'}
-                        <span class="diff-line-prefix">{prefix(row.left.type)}</span>
-                        <span class="diff-line-code">{row.left.content}</span>
-                      {/if}
-                    </div>
-                    <div class="diff-line-number {row.right.type === 'add' ? 'diff-line-add' : row.right.type === 'del' ? 'diff-line-del' : ''} {row.right.type === 'empty' ? 'diff-line-number-empty' : ''}" style="text-align:right;">
-                      {row.right.num ?? ''}
-                    </div>
-                    <div class="diff-line-content {row.right.type === 'add' ? 'diff-line-add' : row.right.type === 'del' ? 'diff-line-del' : row.right.type === 'empty' ? 'diff-line-empty' : ''}" style="flex:1;">
-                      {#if row.right.type !== 'empty'}
-                        <span class="diff-line-prefix">{prefix(row.right.type)}</span>
-                        <span class="diff-line-code">{row.right.content}</span>
-                      {/if}
-                    </div>
+          <div class="file-changes">
+            {#each file.changes as hunk}
+              {#each (hunk.rows || []) as row}
+                <div class="diff-row">
+                  <span class="diff-line-number diff-line-{row.left.type}">{row.left.num ?? ''}</span>
+                  <div class="diff-line-content diff-line-{row.left.type}">
+                    {#if row.left.type !== 'empty'}
+                      <span class="diff-line-prefix">{prefix(row.left.type)}</span>
+                      <span class="diff-line-code">{row.left.content}</span>
+                    {/if}
                   </div>
-                {/each}
+
+                  <span class="diff-line-number diff-line-{row.right.type}">{row.right.num ?? ''}</span>
+                  <div class="diff-line-content diff-line-{row.right.type}">
+                    {#if row.right.type !== 'empty'}
+                      <span class="diff-line-prefix">{prefix(row.right.type)}</span>
+                      <span class="diff-line-code">{row.right.content}</span>
+                    {/if}
+                  </div>
+                </div>
               {/each}
-            </div>
+            {/each}
           </div>
         </div>
       {/each}
