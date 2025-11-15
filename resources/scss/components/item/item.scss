@@ -55,19 +55,6 @@
   overflow: hidden;
 }
 
-.labels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-
-  .label {
-    margin: 0.25rem 0;
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
-    font-size: 0.75rem;
-  }
-}
-
 .edit-button {
   margin-top: 1rem;
   margin-left: 2.5%;
