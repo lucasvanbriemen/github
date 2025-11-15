@@ -3,7 +3,7 @@
   import DiffHunk from './DiffHunk.svelte';
   import Self from './Comment.svelte';
 
-  let { comment, onToggle, onToggleReply = onToggle, showReplies = false, indent = false } = $props();
+  let { comment, onToggle, onToggleReply = onToggle} = $props();
 
   // Determine the action text based on the created_at_human format
   let actionText = comment.created_at_human?.includes('(review)')
@@ -11,11 +11,7 @@
     : `commented ${comment.created_at_human}`;
 </script>
 
-<div
-  class="item-comment"
-  class:item-comment-resolved={comment.resolved}
-  class:indent={indent}
->
+<div class="item-comment" class:item-comment-resolved={comment.resolved}>
   <button class="item-comment-header" onclick={() => onToggle(comment)}>
     <img src={comment.author?.avatar_url} alt={comment.author?.name} />
     <span>{comment.author?.display_name} {actionText}</span>
@@ -34,8 +30,8 @@
 
       {#if comment.child_comments}
         <div class="item-comment-replies">
-          {#each comment.child_comments as reply}
-            <Self comment={reply} onToggle={onToggleReply} indent={true} />
+          {#each comment.child_comments as comment}
+            <Self {comment} onToggle={onToggleReply} />
           {/each}
         </div>
       {/if}
