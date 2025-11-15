@@ -49,5 +49,5 @@
 
   
 <style lang="scss">
-  @import '../../../scss/components/item/item.scss';
+  @import '../../../scss/components/item/sidebar.scss';
 </style>
