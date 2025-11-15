@@ -28,15 +28,10 @@
       gap: 0.5rem;
       padding: 1rem;
       background-color: var(--background-color-one);
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
       width: 100%;
       border: none;
+      border-bottom: 2px solid var(--border-color);
       text-align: left;
-
-      &:hover {
-        background-color: var(--background-color-two);
-      }
 
       .file-status {
         padding: 0.25rem 0.5rem;
