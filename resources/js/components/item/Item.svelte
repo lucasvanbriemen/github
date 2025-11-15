@@ -1,13 +1,11 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from '../sidebar/Sidebar.svelte';
-  import SidebarGroup from '../sidebar/group.svelte';
   import ItemSkeleton from '../ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
   import FileTab from './FileTab.svelte';
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
-  import Icon from '../Icon.svelte';
+  import Sidebar from './Sidebar.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -18,7 +16,7 @@
   let isPR = $state(false);
   let files = $state([]);
   let loadingFiles = $state(false);
-  let activeTab = $state('conversation'); // 'conversation' or 'files'
+  let activeTab = $state('conversation');
   let isLoading = $state(true);
 
   onMount(async () => {
@@ -44,60 +42,16 @@
 
   async function loadFiles() {
     loadingFiles = true;
-    try {
-      const res = await fetch(route(`organizations.repositories.item.files`, { organization, repository, number }));
-      const data = await res.json();
-      files = data || [];
-    } catch (e) {
-      console.error('Failed to load files:', e);
-      files = [];
-    } finally {
-      loadingFiles = false;
-    }
-  }
-
-  // Generate label style with proper color formatting
-  function getLabelStyle(label) {
-    return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
+    const res = await fetch(route(`organizations.repositories.item.files`, { organization, repository, number }));
+    const data = await res.json();
+    files = data || [];
+    loadingFiles = false;
   }
 </script>
 
 <div class="item-overview">
-  <Sidebar {params} selectedDropdownSection="Issues">
 
-    {#if !isLoading}
-      <SidebarGroup title="Assignees">
-        {#each item.assignees as assignee}
-          <div class="assignee">
-            <img src={assignee.avatar_url} alt={assignee.name} />
-            <span>{assignee.display_name}</span>
-          </div>
-        {/each}
-      </SidebarGroup>
-
-      <SidebarGroup title="Labels">
-        <div class="labels">
-          {#each item.labels as label}
-            <span class="label" style={getLabelStyle(label)}>
-              {label.name}
-            </span>
-          {/each}
-        </div>
-      </SidebarGroup>
-
-      {#if isPR}
-        <SidebarGroup title="Reviewers">
-          {#each item.requested_reviewers as reviewer}
-            <div class="reviewer">
-              <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
-              <span>{reviewer.user.display_name}</span>
-              <Icon name={reviewer.state} size={16} className={`icon ${reviewer.state}`} />
-            </div>
-          {/each}
-        </SidebarGroup>
-      {/if}
-    {/if}
-  </Sidebar>
+  <Sidebar {item} {isPR} {isLoading} {params} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">
