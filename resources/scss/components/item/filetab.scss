@@ -1,0 +1,214 @@
+/* Ensure div-based rows align like table cells */
+.diff-table-side-by-side .diff-row > .diff-line-number { min-width: 50px; width: 50px; }
+.diff-table-side-by-side .diff-row > .diff-line-content { min-width: 0; }
+
+.pr-files {
+  .loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+  }
+
+  .diff-empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+    background-color: var(--background-color-one);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+  }
+
+  .diff-too-large {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+    background-color: var(--background-color-one);
+  }
+
+  .diff-file {
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--background-color-one);
+    overflow: hidden;
+  }
+
+  .diff-file-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--background-color-one);
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    text-align: left;
+
+    &:hover {
+      background-color: var(--background-color-two);
+    }
+  }
+
+  .diff-file-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .diff-file-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background-color: var(--background-color-two);
+    color: var(--text-color);
+  }
+
+  .diff-file-status-added {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+  }
+
+  .diff-file-status-deleted {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+
+  .diff-file-status-modified {
+    background-color: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+  }
+
+  .diff-file-status-renamed {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+  }
+
+  .diff-file-name {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .diff-file-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  }
+
+  .diff-stats-additions {
+    color: #22c55e;
+    font-weight: 600;
+  }
+
+  .diff-stats-deletions {
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  .diff-table-container {
+    background-color: var(--background-color-one);
+    overflow-x: auto;
+  }
+
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    background-color: var(--background-color-one);
+
+    tr {
+      background-color: var(--background-color-one);
+    }
+  }
+
+  .diff-line-number {
+    padding: 0.125rem 0.5rem;
+    text-align: right;
+    vertical-align: top;
+    user-select: none;
+    color: var(--text-color-secondary);
+    background-color: var(--background-color-two);
+    border-right: 1px solid var(--border-color);
+    min-width: 50px;
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .diff-line-number-empty {
+    background-color: var(--background-color-two);
+    border-right: 1px solid var(--border-color);
+  }
+
+  .diff-line-content {
+    padding: 0.125rem 0.5rem;
+    vertical-align: top;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: var(--text-color);
+    background-color: var(--background-color-one);
+  }
+
+  .diff-line-prefix {
+    user-select: none;
+    margin-right: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .diff-line-code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .diff-line-empty {
+    background-color: var(--background-color-two);
+    opacity: 0.3;
+  }
+
+  .diff-line-add {
+    background-color: rgba(34, 197, 94, 0.1);
+
+    &.diff-line-number {
+      background-color: rgba(34, 197, 94, 0.15);
+      border-right-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .diff-line-prefix {
+      color: #22c55e;
+      opacity: 1;
+      font-weight: 700;
+    }
+  }
+
+  .diff-line-del {
+    background-color: rgba(239, 68, 68, 0.1);
+
+    &.diff-line-number {
+      background-color: rgba(239, 68, 68, 0.15);
+      border-right-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .diff-line-prefix {
+      color: #ef4444;
+      opacity: 1;
+      font-weight: 700;
+    }
+  }
+
+  .diff-table-side-by-side {
+    td {
+      width: 50%;
+    }
+
+    .diff-line-number {
+      width: 1%;
+    }
+  }
+}

@@ -63,8 +63,5 @@
 </div>
 
 <style lang="scss">
-  @import '../../../scss/components/item/item.scss';
-  /* Ensure div-based rows align like table cells */
-  .diff-table-side-by-side .diff-row > .diff-line-number { min-width: 50px; width: 50px; }
-  .diff-table-side-by-side .diff-row > .diff-line-content { min-width: 0; }
+  @import '../../../scss/components/item/filetab';
 </style>

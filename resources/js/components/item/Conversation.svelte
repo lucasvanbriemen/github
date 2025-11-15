@@ -78,7 +78,3 @@
     {/if}
   {/each}
 {/if}
-
-<style lang="scss">
-  @import '../../../scss/components/item/conversation';
-</style>
