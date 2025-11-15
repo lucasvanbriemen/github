@@ -19,12 +19,15 @@
 
   <div class="item-comment-body">
     <div class="item-comment-content">
-      <DiffHunk
-        diffHunk={comment.diff_hunk}
-        path={comment.path}
-        startLine={comment.line_start}
-        endLine={comment.line_end}
-      />
+      <!-- Reply to a comment, means the top comment aleady has a diff hunk -->
+      {#if comment.diff_hunk && !comment.in_reply_to_id}
+        <DiffHunk
+          diffHunk={comment.diff_hunk}
+          path={comment.path}
+          startLine={comment.line_start}
+          endLine={comment.line_end}
+        />
+      {/if}
 
       <Markdown content={comment.body} />
 
