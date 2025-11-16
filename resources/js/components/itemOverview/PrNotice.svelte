@@ -6,7 +6,7 @@
   <b>{item.name}</b> had recent pushes 
 
   {#if item.last_commit}
-    {item.last_commit.created_at_human} ago
+    {item.last_commit.created_at_human}
   {/if}
 </div>
 

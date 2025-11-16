@@ -1,0 +1,10 @@
+.pr-notice {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 2px solid var(--primary-color-dark);
+  color: var(--text-color-secondary);
+  
+  b {
+    color: var(--text-color-secondary);
+  }
+}

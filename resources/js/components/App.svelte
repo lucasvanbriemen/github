@@ -4,7 +4,7 @@
   import Header from './Header.svelte';
   import Dashboard from './Dashboard.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
-  import ItemOverview from './itemoverview/ItemOverview.svelte';
+  import ItemOverview from './itemOverview/ItemOverview.svelte';
   import Item from './item/Item.svelte';
   import theme from '../theme.js';
 
