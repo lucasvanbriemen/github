@@ -60,12 +60,10 @@
 
 <Markdown content={item.body} />
 
-<!-- Regular Comments -->
 {#each item.comments as comment}
   <Comment {comment} onToggle={toggleItemComment} />
 {/each}
 
-<!-- PR Reviews and Review Comments (PR only) -->
 {#if isPR}
   {#each item.pull_request_reviews as review}
   {#if review.body}
