@@ -1,11 +1,12 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './sidebar/Sidebar.svelte';
-  import SidebarGroup from './sidebar/group.svelte';
-  import Pagination from './Pagination.svelte';
+  import Sidebar from '../sidebar/Sidebar.svelte';
+  import SidebarGroup from '../sidebar/group.svelte';
+  import Pagination from '../Pagination.svelte';
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
-  import Select from './Select.svelte';
+  import Select from '../Select.svelte';
+  import PrNotice from './PrNotice.svelte';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -14,6 +15,8 @@
   let paginationLinks = $state([]);
   let currentPage = $state(1);
   let isLoading = $state(true);
+  let branchesForNotice = $state([]);
+
 
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
@@ -77,7 +80,7 @@
 
   async function getBranchesForNotices() {
     const res = await fetch(route('organizations.repositories.branches.pr.notices', {organization, repository}));
-    branches = await res.json();
+    branchesForNotice = await res.json();
   }
 
   function filterItem() {
@@ -107,6 +110,12 @@
     {#if isLoading}
       <ListItemSkeleton />
     {:else}
+
+      {#each branchesForNotice as branch}
+        <PrNotice item={branch} />
+      {/each}
+
+
       {#each issues as item}
         <ListItem {item} itemType="issue" />
       {/each}
@@ -119,5 +128,5 @@
 </div>
   
 <style lang="scss">
-  @import '../../scss/components/item-overview' ;
+  @import '../../../scss/components/item-overview';
 </style>

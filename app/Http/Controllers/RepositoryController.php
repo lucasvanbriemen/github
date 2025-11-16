@@ -34,7 +34,15 @@ class RepositoryController extends Controller
 
         foreach ($branches as $branch) {
             if ($branch->showNotice()) {
+                // Add the last commit
+                $branch->load(['commits' => function ($q) {
+                    $q->orderBy('created_at', 'desc')->limit(1);
+                }]);
+
+                $branch->last_commit = $branch->commits->first();
+
                 $branchesForNotices[] = $branch;
+
             }
         }
 

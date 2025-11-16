@@ -1,5 +1,5 @@
 <script>
-  import ItemIcon from "./ItemIcon.svelte";
+  import Icon from "../Icon.svelte";
   let { item, itemType } = $props();
 
   function itemUrl(number) {
@@ -9,7 +9,7 @@
 </script>
 
 <a class="list-item" data-type="{itemType}" href="{itemUrl(item.number)}">
-  <ItemIcon {itemType} state={item.state} />
+  <Icon name="{itemType}" size="1.5rem" className="icon item-{item.state}" />
 
   <div class="content">
     <h3>{item.title}</h3>
@@ -36,5 +36,5 @@
 </a>
 
 <style lang="scss">
-  @import '../../scss/components/list-item.scss';
+  @import '../../../scss/components/list-item.scss';
 </style>
