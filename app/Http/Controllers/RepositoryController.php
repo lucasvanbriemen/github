@@ -24,4 +24,20 @@ class RepositoryController extends Controller
 
         return response()->json($contributors);
     }
+
+    public function getBranchesForPRNotices($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $branches = $repository->branches()->get();
+        $branchesForNotices = [];
+
+        foreach ($branches as $branch) {
+            if ($branch->showNotice()) {
+                $branchesForNotices[] = $branch;
+            }
+        }
+
+        return response()->json($branchesForNotices);
+    }
 }

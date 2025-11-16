@@ -17,7 +17,8 @@
 
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
-  const selectedDropdownSection = $derived(type === 'issue' ? 'Issues' : 'Pull Requests');
+  const isPR= $derived(type === 'pr');
+  const selectedDropdownSection = $derived(isPR ? 'Pull Requests' : 'Issues');
 
   const stateOptions = [
     { value: 'open', label: 'Open' },
@@ -67,6 +68,16 @@
 
     paginationLinks = json.links;
     isLoading = false;
+
+    if (isPR) {
+      // Get branches applical for a PR
+      getBranchesForNotices();
+    }
+  }
+
+  async function getBranchesForNotices() {
+    const res = await fetch(route('organizations.repositories.branches.pr.notices', {organization, repository}));
+    branches = await res.json();
   }
 
   function filterItem() {

@@ -32,6 +32,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
     Route::get('/org/{organization}/repo/{repository}/item/{number}/files', [ItemController::class, 'getFiles'])
         ->name('organizations.repositories.item.files');
+    
+    Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+        ->name('organizations.repositories.branches.pr.notices');
 
 });
 

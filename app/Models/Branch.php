@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\PullRequest;
+use App\Models\PullRequestDetails;
 use App\Models\Commit;
 
 class Branch extends Model
@@ -20,7 +20,7 @@ class Branch extends Model
 
     public function hasPullRequest()
     {
-        return $this->hasOne(PullRequest::class, 'head_branch', 'name');
+        return $this->hasOne(PullRequestDetails::class, 'head_branch', 'name');
     }
 
     public function commits()
