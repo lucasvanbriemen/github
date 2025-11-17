@@ -1,9 +1,13 @@
 .markdown-editor-container {
-  width: 70%;
+  width: 100%;
   border-radius: 0.5rem;
   overflow: hidden;
   background-color: var(--background-color);
   border: 1px solid var(--border-color);
+}
+
+:global(.markdown-editor-container .bytemd) {
+  color: var(--text-color);
 }
 
 :global(.markdown-editor-container .bytemd) {
@@ -31,6 +35,7 @@
 
 :global(.markdown-editor-container .bytemd-body) {
   background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 :global(.markdown-editor-container .bytemd-editor) {
@@ -49,6 +54,34 @@
   height: 100%;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 14px;
+}
+
+/* Make editor token colors match our markdown theme (neutral text, themed links) */
+:global(.markdown-editor-container .cm-s-default .cm-header),
+:global(.markdown-editor-container .cm-s-default .cm-quote),
+:global(.markdown-editor-container .cm-s-default .cm-keyword),
+:global(.markdown-editor-container .cm-s-default .cm-atom),
+:global(.markdown-editor-container .cm-s-default .cm-number),
+:global(.markdown-editor-container .cm-s-default .cm-def),
+:global(.markdown-editor-container .cm-s-default .cm-variable-2),
+:global(.markdown-editor-container .cm-s-default .cm-variable-3),
+:global(.markdown-editor-container .cm-s-default .cm-type),
+:global(.markdown-editor-container .cm-s-default .cm-comment),
+:global(.markdown-editor-container .cm-s-default .cm-string),
+:global(.markdown-editor-container .cm-s-default .cm-string-2),
+:global(.markdown-editor-container .cm-s-default .cm-meta),
+:global(.markdown-editor-container .cm-s-default .cm-qualifier),
+:global(.markdown-editor-container .cm-s-default .cm-builtin),
+:global(.markdown-editor-container .cm-s-default .cm-bracket),
+:global(.markdown-editor-container .cm-s-default .cm-tag),
+:global(.markdown-editor-container .cm-s-default .cm-attribute),
+:global(.markdown-editor-container .cm-s-default .cm-hr) {
+  color: var(--text-color) !important;
+}
+
+/* Links inside the editor */
+:global(.markdown-editor-container .cm-s-default .cm-link) {
+  color: var(--link-color, var(--primary-color)) !important;
 }
 
 :global(.markdown-editor-container .CodeMirror-cursor) {
@@ -134,4 +167,64 @@
 
 :global(.markdown-editor-container .bytemd-split) {
   background-color: var(--border-color);
+}
+
+:global(.markdown-editor-container .bytemd-tippy-right) {
+  display: none !important;
+}
+
+:global(div[bytemd-tippy-path="0"]) {
+  display: none !important;
+}
+
+/* Styles for the lightweight custom editor, if used */
+.markdown-editor-simple {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background-color: var(--background-color);
+  overflow: hidden;
+}
+.markdown-editor-simple .md-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem;
+  background-color: var(--background-color-one);
+  border-bottom: 1px solid var(--border-color);
+}
+.markdown-editor-simple .md-toolbar .btn {
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
+  color: var(--text-color);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.markdown-editor-simple .md-toolbar .btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+.markdown-editor-simple .md-toolbar .sep {
+  flex: 0 0 1px;
+  height: 20px;
+  background: var(--border-color);
+  margin: 0 2px;
+}
+.markdown-editor-simple .md-textarea {
+  width: 100%;
+  height: 320px;
+  resize: vertical;
+  border: 0;
+  outline: 0;
+  padding: 12px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--background-color);
+  color: var(--text-color);
+  caret-color: var(--text-color);
+}
+.markdown-editor-simple .md-textarea::placeholder {
+  color: var(--text-color-secondary);
 }

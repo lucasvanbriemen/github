@@ -39,9 +39,11 @@ class RepositoryController extends Controller
                     $q->orderBy('created_at', 'desc')->limit(1);
                 }]);
 
-                $branch->last_commit = $branch->commits->first();
-                $branch->last_commit->created_at_human = $branch->last_commit->created_at->diffForHumans();
-
+                if (!$branch->commits->isEmpty()) {
+                    $branch->last_commit = $branch->commits->first();
+                    $branch->last_commit->created_at_human = $branch->last_commit->created_at->diffForHumans();
+                }
+                
                 $branchesForNotices[] = $branch;
 
             }

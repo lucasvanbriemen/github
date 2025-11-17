@@ -91,6 +91,7 @@ class Repository extends Model
                 'private' => $repoData->private,
                 'description' => $repoData->description ?? '',
                 'last_updated' => now(),
+                'master_branch' => $repoData->default_branch,
             ]
         );
     }
@@ -105,6 +106,7 @@ class Repository extends Model
         'description',
         'pr_count',
         'issue_count',
+        'master_branch',
     ];
 
     protected $casts = [

@@ -3,8 +3,17 @@
   border-radius: 1rem;
   border: 2px solid var(--primary-color-dark);
   color: var(--text-color-secondary);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   
   b {
     color: var(--text-color-secondary);
+  }
+
+  .create-pr {
+    text-decoration: none;
+    height: fit-content;
   }
 }
