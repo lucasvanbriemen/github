@@ -28,7 +28,7 @@
 
     // Ensure options are in { value, label } shape expected by <Select>
     possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
-    possibleAssignees = (data.assignees || []).map((a) => ({ value: a.id, label: a.display_name }));
+    possibleAssignees = (data.assignees || []).map((a) => ({ value: a.login, label: a.display_name }));
     assignee = data.default_assignee;
     base_branch = data.master_branch;
 
@@ -51,7 +51,7 @@
     });
 
     if (res.ok) {
-      // window.location.href = `/${params.organization}/${params.repository}/prs/${res.json().number}`;
+      window.location.hash = `/${params.organization}/${params.repository}/prs/${Number((await res.json()).number)}`;
     }
   }
 </script>

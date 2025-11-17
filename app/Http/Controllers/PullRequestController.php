@@ -10,6 +10,7 @@ use App\Helpers\DiffRenderer;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
 use Illuminate\Support\Facades\DB;
+use GrahamCampbell\GitHub\Facades\Github;
 
 class PullRequestController extends Controller
 {
@@ -39,12 +40,8 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        // Prepare assignees array
-        $assignees = [];
         $assigneeInput = request()->input('assignee');
-        if (!empty($assigneeInput)) {
-            $assignees[] = $assigneeInput;
-        }
+        $assignees[] = $assigneeInput;
 
         $prData = [
             'title' => request()->input('title'),
@@ -54,30 +51,13 @@ class PullRequestController extends Controller
             'draft' => true,
         ];
 
-        $response = \GrahamCampbell\GitHub\Facades\Github::pullRequests()->create($organization->name, $repository->name, $prData);
+        $response = Github::pullRequests()->create($organization->name, $repository->name, $prData);
 
-        // Set assignees using the Issues API (PRs are issues in GitHub)
-        if (!empty($assignees) && isset($response['number'])) {
-            \GrahamCampbell\GitHub\Facades\Github::issues()->update($organization->name, $repository->name, $response['number'], [
-                'assignees' => $assignees,
-            ]);
-        }
-
-        // Ensure we have a proper structure to work with
-        if (!is_array($response) || !isset($response['id'])) {
-            return response()->json(['message' => 'Failed to create PR on GitHub'], 500);
-        }
-
-        // Create/update the user who opened the pull request
-        if (isset($response['user']) && is_array($response['user'])) {
-            GithubUser::updateFromWebhook((object) $response['user']);
-        }
+        Github::issues()->update($organization->name, $repository->name, $response['number'], [
+            'assignees' => $assignees,
+        ]);
 
         $state = $response['state'] ?? 'open';
-        if (($state === 'closed') && !empty($response['merged'])) {
-            $state = 'merged';
-        }
-
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
         $headSha = $response['head']['sha'] ?? null;
