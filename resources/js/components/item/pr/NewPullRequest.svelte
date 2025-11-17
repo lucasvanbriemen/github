@@ -5,6 +5,7 @@
   import SidebarGroup from '../../sidebar/group.svelte';
   import Select from '../../Select.svelte';
   import Input from '../../Input.svelte';
+  import MarkdownEditor from '../../MarkdownEditor.svelte';
 
   let { params = {} } = $props();
 
@@ -12,6 +13,7 @@
   let base_branch = $state('');
   let possibleBranches = $state([]);
   let title = $state('');
+  let body = $state('');
 
   let assignee = $state();
   let possibleAssignees = $state([]);
@@ -51,6 +53,10 @@
 
   <div class="new-pr-main">
     <Input name="title" label="Title" bind:value={title} />
+    <div class="description">
+      <label class="description__label">Description</label>
+      <MarkdownEditor bind:value={body} placeholder="Describe your changes using Markdown (GFM supported)" />
+    </div>
   </div>
 </div>
   
