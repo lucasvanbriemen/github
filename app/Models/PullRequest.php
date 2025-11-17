@@ -113,6 +113,28 @@ class PullRequest extends Item
             $closedAt = null;
         }
 
+        // Fetch the correct merge_base_sha using compare API
+        $mergeBaseSha = null;
+        $headSha = $prData->head->sha ?? null;
+
+        if ($headSha && isset($prData->base->ref) && isset($prData->head->ref)) {
+            $ownerName = $prData->base->repo->owner->login ?? null;
+            $repoName = $prData->base->repo->name ?? null;
+
+            if ($ownerName && $repoName) {
+                try {
+                    $compareData = \App\Helpers\ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}");
+
+                    if ($compareData && isset($compareData->merge_base_commit->sha)) {
+                        $mergeBaseSha = $compareData->merge_base_commit->sha;
+                    }
+                } catch (\Exception $e) {
+                    // If compare fails, fall back to null
+                    $mergeBaseSha = null;
+                }
+            }
+        }
+
         // Update PR-specific fields in pull_requests table if it exists
         if (\Schema::hasTable('pull_requests')) {
             \DB::table('pull_requests')->updateOrInsert(
@@ -120,8 +142,8 @@ class PullRequest extends Item
                 [
                     'head_branch' => $prData->head->ref,
                     'base_branch' => $prData->base->ref,
-                    'head_sha' => $prData->head->sha ?? null,
-                    'merge_base_sha' => $prData->base->sha ?? null,
+                    'head_sha' => $headSha,
+                    'merge_base_sha' => $mergeBaseSha,
                     'closed_at' => $closedAt,
                 ]
             );
