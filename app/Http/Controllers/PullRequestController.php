@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
+use App\Models\PullRequestDetails;
 use App\Models\GithubUser;
 use App\Models\Item;
 use App\Helpers\DiffRenderer;
@@ -85,15 +86,13 @@ class PullRequestController extends Controller
             ]
         );
 
-        // Persist PR-specific fields in pull_requests table
-        DB::table('pull_requests')->updateOrInsert(
+        PullRequestDetails::updateOrCreate(
             ['id' => $response['id']],
             [
                 'head_branch' => $headRef,
                 'head_sha' => $headSha,
                 'base_branch' => $baseRef,
                 'merge_base_sha' => $mergeBaseSha,
-                'updated_at' => now(),
             ]
         );
 
@@ -101,19 +100,14 @@ class PullRequestController extends Controller
         $assigneeGithubIds = [];
         if (!empty($response['assignees']) && is_array($response['assignees'])) {
             foreach ($response['assignees'] as $assignee) {
-                if (is_array($assignee) && isset($assignee['id'])) {
-                    $assigneeGithubIds[] = $assignee['id'];
-                    GithubUser::updateFromWebhook((object) $assignee);
-                }
+                $assigneeGithubIds[] = $assignee['id'];
             }
         } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
             // GitHub may return a single assignee
             $assigneeGithubIds[] = $response['assignee']['id'];
-            GithubUser::updateFromWebhook((object) $response['assignee']);
         }
-        if ($pr) {
-            $pr->assignees()->sync($assigneeGithubIds);
-        }
+        
+        $pr->assignees()->sync($assigneeGithubIds);
 
         return response()->json([
             'number' => $response['number'] ?? null,

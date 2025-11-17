@@ -33,9 +33,7 @@
   async function createPR() {
     const res = await fetch(route(`organizations.repositories.pr.create`, { organization: params.organization, repository: params.repository }), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify({
         head_branch,
         base_branch,
@@ -45,9 +43,7 @@
       }),
     });
 
-    if (res.ok) {
-      window.location.hash = `/${params.organization}/${params.repository}/prs/${Number((await res.json()).number)}`;
-    }
+    window.location.hash = `/${params.organization}/${params.repository}/prs/${Number((await res.json()).number)}`;
   }
 </script>
 
