@@ -1,5 +1,8 @@
 <script>
-  let { item } = $props();
+  let { item, params } = $props();
+
+  const org = params.organization;
+  const repo = params.repository;
 </script>
 
 <div class="pr-notice">
@@ -11,7 +14,7 @@
     {/if}
   </div>
 
-  <button type="button" class="button-primary create-pr">Create PR</button>
+  <a href="#/{org}/{repo}/pr/{item.name}" class="create-pr button-primary">Create PR</a>
 </div>
 
 <style lang="scss">
