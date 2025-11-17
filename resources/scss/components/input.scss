@@ -1,0 +1,44 @@
+.input-wrapper {
+  position: relative;
+  margin: 1.5rem 0 1rem 0;
+
+  label {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem !important;
+    font-size: 1rem !important;
+    color: var(--text-color-secondary);
+    background-color: var(--background-color-one);
+    padding: 0 0.25rem;
+    transform-origin: left top;
+    cursor: pointer;
+
+    transition: all 0.2s ease-in-out;
+  }
+
+  &:has(input:focus),
+  &:has(input:not(:placeholder-shown)),
+  &:has(input[data-filled="true"]),
+  &:has(select:focus),
+  &:has(select:not(:invalid)) {
+    label {
+      left: 0.5rem;
+      transform: scale(0.8) translateY(-1.4rem);
+    }
+  }
+
+  input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    height: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--background-color-one);
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+      border-color: var(--primary-color);
+    }
+  }
+}

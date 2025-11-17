@@ -4,12 +4,14 @@
   import Sidebar from '../../sidebar/Sidebar.svelte';
   import SidebarGroup from '../../sidebar/group.svelte';
   import Select from '../../Select.svelte';
+  import Input from '../../Input.svelte';
 
   let { params = {} } = $props();
 
   let head_branch = $state(params.branch);
   let base_branch = $state('');
   let possibleBranches = $state([]);
+  let title = $state('');
 
   let assignee = $state();
   let possibleAssignees = $state([]);
@@ -48,7 +50,7 @@
   </Sidebar>
 
   <div class="new-pr-main">
-    test
+    <Input name="title" label="Title" bind:value={title} />
   </div>
 </div>
   
