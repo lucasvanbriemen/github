@@ -39,14 +39,29 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $response = \GrahamCampbell\GitHub\Facades\Github::pullRequests()->create($organization->name, $repository->name, [
+        // Prepare assignees array
+        $assignees = [];
+        $assigneeInput = request()->input('assignee');
+        if (!empty($assigneeInput)) {
+            $assignees[] = $assigneeInput;
+        }
+
+        $prData = [
             'title' => request()->input('title'),
             'head' => request()->input('head_branch'),
             'base' => request()->input('base_branch'),
-            'assignee' => request()->input('assignee'),
             'body' => request()->input('body', ''),
             'draft' => true,
-        ]);
+        ];
+
+        $response = \GrahamCampbell\GitHub\Facades\Github::pullRequests()->create($organization->name, $repository->name, $prData);
+
+        // Set assignees using the Issues API (PRs are issues in GitHub)
+        if (!empty($assignees) && isset($response['number'])) {
+            \GrahamCampbell\GitHub\Facades\Github::issues()->update($organization->name, $repository->name, $response['number'], [
+                'assignees' => $assignees,
+            ]);
+        }
 
         // Ensure we have a proper structure to work with
         if (!is_array($response) || !isset($response['id'])) {
