@@ -3,11 +3,15 @@
 </script>
 
 <div class="pr-notice">
-  <b>{item.name}</b> had recent pushes 
+  <div>
+    <b>{item.name}</b> had recent pushes 
 
-  {#if item.last_commit}
-    {item.last_commit.created_at_human}
-  {/if}
+    {#if item.last_commit}
+      {item.last_commit.created_at_human}
+    {/if}
+  </div>
+
+  <button type="button" class="button-primary create-pr">Create PR</button>
 </div>
 
 <style lang="scss">
