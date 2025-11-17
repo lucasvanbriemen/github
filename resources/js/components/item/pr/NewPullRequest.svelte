@@ -18,11 +18,8 @@
   let assignee = $state();
   let possibleAssignees = $state([]);
 
-  let loading = $state(false);
-  
   onMount(async () => {
     // Load branches for the repository to populate the Select components
-    loading = true;
     const res = await fetch(route(`organizations.repositories.pr.metadata`, { organization: params.organization, repository: params.repository }));
     const data = await res.json();
 
@@ -31,8 +28,6 @@
     possibleAssignees = (data.assignees || []).map((a) => ({ value: a.login, label: a.display_name }));
     assignee = data.default_assignee;
     base_branch = data.master_branch;
-
-    loading = false;
   });
 
   async function createPR() {

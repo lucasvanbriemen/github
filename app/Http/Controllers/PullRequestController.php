@@ -26,7 +26,7 @@ class PullRequestController extends Controller
         });
 
         $master_branch = $repository->master_branch;
-        $default_assignee = GithubConfig::USERID;
+        $default_assignee = GithubConfig::USERNAME;
 
         return response()->json([
             'branches' => $branchNames,
