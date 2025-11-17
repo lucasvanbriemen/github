@@ -6,6 +6,7 @@ use App\Http\Controllers\RepositoryController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\ItemCommentController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
@@ -35,6 +36,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     
     Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
         ->name('organizations.repositories.branches.pr.notices');
+
+    Route::get('/org/{organization}/repo/{repository}/pr/metadata', [PullRequestController::class, 'metadata'])
+        ->name('organizations.repositories.pr.metadata');
 
 });
 
