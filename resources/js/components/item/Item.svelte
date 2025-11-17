@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import ItemSkeleton from '../ItemSkeleton.svelte';
+  import ItemSkeleton from './ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
   import FileTab from './FileTab.svelte';
   import Conversation from './Conversation.svelte';
