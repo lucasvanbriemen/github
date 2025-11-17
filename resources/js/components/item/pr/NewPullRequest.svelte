@@ -34,6 +34,26 @@
 
     loading = false;
   });
+
+  async function createPR() {
+    const res = await fetch(route(`organizations.repositories.pr.create`, { organization: params.organization, repository: params.repository }), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        head_branch,
+        base_branch,
+        title,
+        body,
+        assignee,
+      }),
+    });
+
+    if (res.ok) {
+      // window.location.href = `/${params.organization}/${params.repository}/prs/${res.json().number}`;
+    }
+  }
 </script>
 
 <div class="new-pr">
@@ -53,9 +73,10 @@
 
   <div class="new-pr-main">
     <Input name="title" label="Title" bind:value={title} />
-    <div class="description">
-      <label class="description__label">Description</label>
-      <MarkdownEditor bind:value={body} placeholder="Describe your changes using Markdown (GFM supported)" />
+    <MarkdownEditor bind:value={body} placeholder="Describe your changes..." />
+
+    <div class="submit-wrapper">
+      <button class="button-primary" onclick={createPR}>Create Pull Request</button>
     </div>
   </div>
 </div>

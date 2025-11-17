@@ -40,6 +40,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/pr/metadata', [PullRequestController::class, 'metadata'])
         ->name('organizations.repositories.pr.metadata');
 
+    Route::post('/org/{organization}/repo/{repository}/pr/create', [PullRequestController::class, 'create'])
+        ->name('organizations.repositories.pr.create');
+
 });
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
