@@ -10,7 +10,6 @@
   {/if}
 </div>
 
-
 <style lang="scss">
   @import '../../../scss/components/pr-notice';
 </style>
