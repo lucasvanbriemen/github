@@ -14,7 +14,7 @@
     {/if}
   </div>
 
-  <a href="#/{org}/{repo}/pr/{item.name}" class="create-pr button-primary">Create PR</a>
+  <a href="#/{org}/{repo}/new/pr/{item.name}" class="create-pr button-primary">Create PR</a>
 </div>
 
 <style lang="scss">
