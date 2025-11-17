@@ -9,6 +9,10 @@
 
   let head_branch = $state(params.branch);
   let base_branch = $state('');
+  let possibleBranches = $state([]);
+
+  let assignee = $state();
+  let possibleAssignees = $state([]);
 
   let loading = $state(false);
   
@@ -18,7 +22,11 @@
     const res = await fetch(route(`organizations.repositories.pr.metadata`, { organization: params.organization, repository: params.repository }));
     const data = await res.json();
 
-    console.log(data);
+    // Ensure options are in { value, label } shape expected by <Select>
+    possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
+    possibleAssignees = (data.assignees || []).map((a) => ({ value: a.id, label: a.display_name }));
+    assignee = data.default_assignee;
+    base_branch = data.master_branch;
 
     loading = false;
   });
@@ -27,11 +35,15 @@
 <div class="new-pr">
   <Sidebar {params} selectedDropdownSection="New PR">
     <SidebarGroup title="Branch to merge">
-      <Select />
+      <Select name="head_branch" value={head_branch} selectableItems={possibleBranches}  bind:selectedValue={head_branch} />
     </SidebarGroup>
 
     <SidebarGroup title="Branch to merge into">
-      <Select />
+      <Select name="base_branch" value={base_branch} selectableItems={possibleBranches} bind:selectedValue={base_branch} />
+    </SidebarGroup>
+
+    <SidebarGroup title="Assignee">
+      <Select name="assignee" value={assignee} selectableItems={possibleAssignees} bind:selectedValue={assignee} />
     </SidebarGroup>
   </Sidebar>
 

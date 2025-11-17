@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
 use App\Helpers\DiffRenderer;
+use App\GithubConfig;
 
 class PullRequestController extends Controller
 {
@@ -19,9 +20,14 @@ class PullRequestController extends Controller
             return $contributor->githubUser;
         });
 
+        $master_branch = $repository->master_branch;
+        $default_assignee = GithubConfig::USERID;
+
         return response()->json([
             'branches' => $branchNames,
             'assignees' => $assignees,
+            'default_assignee' => $default_assignee,
+            'master_branch' => $master_branch,
         ]);
     }
 }
