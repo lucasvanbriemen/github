@@ -83,6 +83,10 @@
     branchesForNotice = await res.json();
   }
 
+  function linkToNewItem(type) {
+    window.location.hash = `#/${organization}/${repository}/new/${type}`;
+  }
+
   function filterItem() {
     currentPage = 1;
     getItems(currentPage);
@@ -97,6 +101,8 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
+    <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
+
     <SidebarGroup title="State">
       <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }}/>
     </SidebarGroup>
