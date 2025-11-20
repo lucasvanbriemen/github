@@ -60,6 +60,9 @@ class ProcessPullRequestReviewCommentWebhook
             ]
         );
 
+        // If action is deleted, we just delete the comment
+        PullRequestComment::where('id', $commentData->id)->delete();
+
         return true;
     }
 }
