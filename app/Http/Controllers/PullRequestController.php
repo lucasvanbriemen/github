@@ -77,7 +77,6 @@ class PullRequestController extends Controller
         if ($compareData && isset($compareData->merge_base_commit->sha)) {
             $mergeBaseSha = $compareData->merge_base_commit->sha;
         }
-        }
 
         // Persist base fields in items table
         $pr = PullRequest::updateOrCreate(
