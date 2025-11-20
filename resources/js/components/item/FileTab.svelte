@@ -31,7 +31,6 @@
           <button class="header" type="button">
             <span class="file-status file-status-{file.status}">{file.status}</span>
             <span class="file-name">{file.filename}</span>
-            <span class="language-badge">{fileLanguages[file.filename]}</span>
           </button>
 
           <div class="file-changes">
@@ -75,15 +74,4 @@
 
 <style lang="scss">
   @import '../../../scss/components/item/filetab';
-
-  .language-badge {
-    margin-left: auto;
-    padding: 2px 8px;
-    background: #f0f0f0;
-    border-radius: 4px;
-    font-size: 11px;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: #666;
-  }
 </style>
