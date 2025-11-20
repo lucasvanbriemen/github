@@ -62,14 +62,20 @@ class PullRequestController extends Controller
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
         $headSha = $response['head']['sha'] ?? null;
+        $baseSha = $response['base']['sha'] ?? null;
         $baseRef = $response['base']['ref'] ?? null;
         $headRef = $response['head']['ref'] ?? null;
 
-        if ($headSha && $baseRef && $headRef) {
+        // Prefer comparing by SHAs (stable even if branches move/delete)
+        if ($headSha && $baseSha) {
+            $compareData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/compare/{$baseSha}...{$headSha}");
+        } elseif ($headRef && $baseRef) {
             $compareData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/compare/{$baseRef}...{$headRef}");
-            if ($compareData && isset($compareData->merge_base_commit->sha)) {
-                $mergeBaseSha = $compareData->merge_base_commit->sha;
-            }
+        } else {
+            $compareData = null;
+        }
+        if ($compareData && isset($compareData->merge_base_commit->sha)) {
+            $mergeBaseSha = $compareData->merge_base_commit->sha;
         }
 
         // Persist base fields in items table

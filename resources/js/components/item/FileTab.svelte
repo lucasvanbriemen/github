@@ -1,4 +1,7 @@
 <script>
+  import HighlightedDiffLine from '../HighlightedDiffLine.svelte';
+  import { detectLanguage } from '../../utils/syntaxHighlighter.js';
+
   let { files = [], loadingFiles = false } = $props();
 
   function prefix(type) {
@@ -6,6 +9,11 @@
     if (type === 'del') return '-';
     return ' ';
   }
+
+  let fileLanguages = [];
+  files.forEach((file) => {
+    fileLanguages[file.filename] = detectLanguage(file.filename);
+  });
 </script>
 
 <div class="pr-files">
@@ -31,7 +39,7 @@
                     <div class="diff-line-content diff-line-{changedLinePair.left.type}">
                       {#if changedLinePair.left.type !== 'empty'}
                         <span class="prefix">{prefix(changedLinePair.left.type)}</span>
-                        <code class="code">{changedLinePair.left.content}</code>
+                        <HighlightedDiffLine code={changedLinePair.left.content} language={fileLanguages[file.filename]} />
                       {/if}
                     </div>
                   </div>
@@ -41,12 +49,14 @@
                     <div class="diff-line-content diff-line-{changedLinePair.right.type}">
                       {#if changedLinePair.right.type !== 'empty'}
                         <span class="prefix">{prefix(changedLinePair.right.type)}</span>
-                        <code class="code">{changedLinePair.right.content}</code>
+                        <HighlightedDiffLine code={changedLinePair.right.content} language={fileLanguages[file.filename]} />
                       {/if}
                     </div>
                   </div>
                 </div>
               {/each}
+
+              <div class="hunk-separator"></div>
             {/each}
           </div>
         </div>

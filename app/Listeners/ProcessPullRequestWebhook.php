@@ -61,17 +61,23 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         // We need to get the diff between the merge base and the head commit, so we store the sha of both to compare instead of the base and head branch names
         $mergeBaseSha = null;
         $headSha = $prData->head->sha ?? null;
+        $baseSha = $prData->base->sha ?? null;
 
-        if ($headSha && isset($prData->base->ref)) {
-            $ownerName = $repositoryData->owner->login ?? null;
-            $repoName = $repositoryData->name ?? null;
+        $ownerName = $repositoryData->owner->login ?? null;
+        $repoName = $repositoryData->name ?? null;
 
-            if ($ownerName && $repoName) {
+        if ($ownerName && $repoName) {
+            // Prefer comparing by SHAs to avoid failures after merges or branch deletions
+            if ($baseSha && $headSha) {
+                $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$baseSha}...{$headSha}");
+            } elseif (isset($prData->base->ref, $prData->head->ref)) {
                 $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}");
+            } else {
+                $compareData = null;
+            }
 
-                if ($compareData && isset($compareData->merge_base_commit->sha)) {
-                    $mergeBaseSha = $compareData->merge_base_commit->sha;
-                }
+            if ($compareData && isset($compareData->merge_base_commit->sha)) {
+                $mergeBaseSha = $compareData->merge_base_commit->sha;
             }
         }
 
