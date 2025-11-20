@@ -15,42 +15,13 @@
   }
 
   async function highlight() {
-    try {
-      currentTheme = detectTheme();
-      highlightedHtml = await highlightCodeInline(code, language, currentTheme);
-      isLoading = false;
-    } catch (error) {
-      console.error('Failed to highlight code:', error);
-      highlightedHtml = code; // Fallback to plain text
-      isLoading = false;
-    }
+    currentTheme = detectTheme();
+    highlightedHtml = await highlightCodeInline(code, language, currentTheme);
+    isLoading = false;
   }
 
   onMount(() => {
     highlight();
-
-    // Watch for theme changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-          highlight();
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme']
-    });
-
-    return () => observer.disconnect();
-  });
-
-  // Re-highlight when code or language changes
-  $effect(() => {
-    if (code || language) {
-      highlight();
-    }
   });
 </script>
 
