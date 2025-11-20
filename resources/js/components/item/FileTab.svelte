@@ -12,9 +12,9 @@
 
   // Store detected languages for each file
   let fileLanguages = $derived(
-    files.reduce((acc, file) => {
-      acc[file.filename] = detectLanguage(file.filename);
-      return acc;
+    files.reduce((languagesByFile, file) => {
+      languagesByFile[file.filename] = detectLanguage(file.filename);
+      return languagesByFile;
     }, {})
   );
 </script>

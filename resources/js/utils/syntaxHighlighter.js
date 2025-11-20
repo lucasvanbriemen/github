@@ -43,8 +43,8 @@ const extensionToLanguage = {
 export function detectLanguage(filename) {
   if (!filename) return 'text';
 
-  const ext = filename.split('.').pop()?.toLowerCase();
-  return extensionToLanguage[ext] || 'text';
+  const file_extension = filename.split('.').pop()?.toLowerCase();
+  return extensionToLanguage[file_extension] || 'text';
 }
 
 /**
