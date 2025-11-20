@@ -10,13 +10,10 @@
     return ' ';
   }
 
-  // Store detected languages for each file
-  let fileLanguages = $derived(
-    files.reduce((languagesByFile, file) => {
-      languagesByFile[file.filename] = detectLanguage(file.filename);
-      return languagesByFile;
-    }, {})
-  );
+  let fileLanguages = [];
+  files.forEach((file) => {
+    fileLanguages[file.filename] = detectLanguage(file.filename);
+  });
 </script>
 
 <div class="pr-files">
