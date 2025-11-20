@@ -21,6 +21,7 @@ const extensionToLanguage = {
   'cpp': 'cpp',
   'cs': 'csharp',
   'css': 'css',
+  'svelte': 'javascript',
   'scss': 'scss',
   'sass': 'sass',
   'less': 'less',
