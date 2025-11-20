@@ -79,9 +79,20 @@ export async function highlightCodeInline(code, language = 'text', theme = 'gith
   for (const line of tokens.tokens) {
     for (const token of line) {
       const style = token.color ? `color: ${token.color}` : '';
-      html += `<span style="${style}">${token.content}</span>`;
+      html += `<span style="${style}">${escapeHtml(token.content)}</span>`;
     }
   }
 
   return html;
+}
+
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
 }

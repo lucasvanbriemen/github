@@ -85,6 +85,11 @@
           
         }
       }
+
+      .hunk-separator:not(:last-child) {
+        height: 2rem;
+        background-color: var(--background-color);
+      }
     }
   }
 

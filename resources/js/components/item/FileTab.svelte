@@ -39,10 +39,7 @@
                     <div class="diff-line-content diff-line-{changedLinePair.left.type}">
                       {#if changedLinePair.left.type !== 'empty'}
                         <span class="prefix">{prefix(changedLinePair.left.type)}</span>
-                        <HighlightedDiffLine
-                          code={changedLinePair.left.content}
-                          language={fileLanguages[file.filename]}
-                        />
+                        <HighlightedDiffLine code={changedLinePair.left.content} language={fileLanguages[file.filename]} />
                       {/if}
                     </div>
                   </div>
@@ -52,15 +49,14 @@
                     <div class="diff-line-content diff-line-{changedLinePair.right.type}">
                       {#if changedLinePair.right.type !== 'empty'}
                         <span class="prefix">{prefix(changedLinePair.right.type)}</span>
-                        <HighlightedDiffLine
-                          code={changedLinePair.right.content}
-                          language={fileLanguages[file.filename]}
-                        />
+                        <HighlightedDiffLine code={changedLinePair.right.content} language={fileLanguages[file.filename]} />
                       {/if}
                     </div>
                   </div>
                 </div>
               {/each}
+
+              <div class="hunk-separator"></div>
             {/each}
           </div>
         </div>
