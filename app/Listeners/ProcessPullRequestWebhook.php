@@ -29,12 +29,6 @@ class ProcessPullRequestWebhook //implements ShouldQueue
     {
         $payload = $event->payload;
 
-
-        if (!isset($payload->pull_request, $payload->repository)) {
-            \Log::warning('Malformed pull_request payload', ['payload' => $payload]);
-            return false;
-        }
-
         $prData = $payload->pull_request;
         $repositoryData = $payload->repository;
 
@@ -46,12 +40,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         // Create/update the user who opened the pull request
         GithubUser::updateFromWebhook($userData);
 
-
         $state = $prData->state;
         if ($prData->draft == true) {
             $state = 'draft';
         }
-        
         
         if ($state === 'closed' && isset($prData->merged_at) && $prData->merged_at !== null) {
             $state = 'merged';
