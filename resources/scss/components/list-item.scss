@@ -10,14 +10,20 @@
   align-items: center;
   gap: 1rem;
 
-  :global(.icon) {
+  :global(.item-open) {
     margin-top: 0.25rem;
     
     :global(svg) {
+      stroke: var(--success-color);
       fill: var(--success-color);
     }
+  }
 
-    &:global(.closed svg) {
+  :global(.item-closed) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--error-color);
       fill: var(--error-color);
     }
   }
