@@ -10,13 +10,14 @@
   align-items: center;
   gap: 1rem;
 
-  .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+  :global(.icon) {
     margin-top: 0.25rem;
-    fill: var(--success-color);
+    
+    :global(svg) {
+      fill: var(--success-color);
+    }
 
-    &.closed {
+    &:global(.closed svg) {
       fill: var(--error-color);
     }
   }
