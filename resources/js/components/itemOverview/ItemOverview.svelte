@@ -114,7 +114,9 @@
 
   <div class="repo-main">
     {#if isLoading}
-      <ListItemSkeleton />
+      {#each Array(3) as _}
+        <ListItemSkeleton />
+      {/each}
     {:else}
 
       {#each branchesForNotice as branch}
