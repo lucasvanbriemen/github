@@ -7,7 +7,7 @@
   import ItemOverview from './itemOverview/ItemOverview.svelte';
   import Item from './item/Item.svelte';
   import NewPullRequest from './item/pr/NewPullRequest.svelte';
-  import theme from '../theme.js';
+  import theme from '../lib/theme.js';
 
   const routes = {
     '/': Dashboard,

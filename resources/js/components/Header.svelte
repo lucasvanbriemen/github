@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { params, push } from 'svelte-spa-router';
+  import api from '../lib/api.js';
 
   let organizations = [];
   let selectedOrganization = null;
@@ -9,23 +10,16 @@
   onMount(async () => {
     selectedOrganization = $params?.organization || null;
     selectedRepository = $params?.repository || null;
-
-    const res = await fetch(route('organizations.get'));
-    organizations = await res.json();
+    organizations = await api.get(route('organizations.get'));
   });
 
   function selectOrganization(org) {
     selectedOrganization = org;
-    selectedRepository = null;
   }
 
   function selectRepository(org, repo) {
     selectedOrganization = org;
     selectedRepository = repo;
-    goToRepository(org, repo);
-  }
-
-  function goToRepository(org, repo) {
     push(`/${org.name}/${repo.name}`);
   }
 </script>

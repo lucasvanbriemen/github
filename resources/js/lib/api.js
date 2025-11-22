@@ -5,8 +5,8 @@ export default {
     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
   },
 
-  get(url, headers = {}, background = false) {
-    return this.makeRequest("GET", url, null, headers, background);
+  get(url, headers = {}) {
+    return this.makeRequest("GET", url, null, headers);
   },
 
   patch(url, data, headers = {}) {
@@ -21,10 +21,7 @@ export default {
     return this.makeRequest("PUT", url, data, headers);
   },
 
-  makeRequest(method, url, data = null, headers = {}, background = false) {
-    if (!background) {
-      // app.setLoading(true);
-    }
+  makeRequest(method, url, data = null, headers = {}) {
     const options = {
       method,
       headers: {
