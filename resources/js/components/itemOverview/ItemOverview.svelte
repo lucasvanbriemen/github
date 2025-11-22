@@ -17,7 +17,6 @@
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
 
-
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
   const isPR= $derived(type === 'pr');

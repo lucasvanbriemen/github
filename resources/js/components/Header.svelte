@@ -3,9 +3,9 @@
   import { params } from 'svelte-spa-router';
   import api from '../lib/api.js';
 
-  let organizations = [];
-  let selectedOrganization = $params?.organization || null;;
-  let selectedRepository = $params?.repository || null;
+  let organizations = $state([]);
+  let selectedOrganization = $state($params?.organization || null);
+  let selectedRepository = $state($params?.repository || null);
 
   onMount(async () => {
     organizations = await api.get(route('organizations.get'));
