@@ -1,25 +1,17 @@
 <script>
   import { onMount } from 'svelte';
+  import { params, push } from 'svelte-spa-router';
 
   let organizations = [];
   let selectedOrganization = null;
   let selectedRepository = null;
 
-  function updateSelectionFromHash() {
-    const hash = window.location.hash || '';
-    const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-    const orgName = parts[0] || null;
-    const repoName = parts[1] || null;
-
-    selectedOrganization = organizations.find(o => o.name === orgName);
-    selectedRepository = selectedOrganization.repositories.find(r => r.name === repoName);
-  }
-
   onMount(async () => {
+    selectedOrganization = $params?.organization || null;
+    selectedRepository = $params?.repository || null;
+
     const res = await fetch(route('organizations.get'));
     organizations = await res.json();
-    updateSelectionFromHash();
-    window.addEventListener('hashchange', updateSelectionFromHash);
   });
 
   function selectOrganization(org) {
@@ -34,7 +26,7 @@
   }
 
   function goToRepository(org, repo) {
-    window.location.href = `#/${org.name}/${repo.name}`;
+    push(`/${org.name}/${repo.name}`);
   }
 </script>
 
