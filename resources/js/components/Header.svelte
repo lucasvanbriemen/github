@@ -4,37 +4,25 @@
   import api from '../lib/api.js';
 
   let organizations = [];
-  let selectedOrganization = null;
-  let selectedRepository = null;
+  let selectedOrganization = $params?.organization || null;;
+  let selectedRepository = $params?.repository || null;
 
   onMount(async () => {
-    selectedOrganization = $params?.organization || null;
-    selectedRepository = $params?.repository || null;
     organizations = await api.get(route('organizations.get'));
   });
-
-  function selectOrganization(org) {
-    selectedOrganization = org;
-  }
-
-  function selectRepository(org, repo) {
-    selectedOrganization = org;
-    selectedRepository = repo;
-    push(`/${org.name}/${repo.name}`);
-  }
 </script>
 
 <header>
   {#each organizations as org}
     <div class="organization" class:selected={selectedOrganization === org}>
-      <button on:click={() => selectOrganization(org)}>
+      <button onclick={() => selectedOrganization = org}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
         <span class="name">{org.name}</span>
       </button>
 
       <div class="repos">
         {#each org.repositories as repo}
-          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={selectedRepository === repo} on:click={() => selectRepository(org, repo)}>{repo.name}</a>
+          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={selectedRepository === repo} onclick={() => selectedRepository = repo}>{repo.name}</a>
         {/each}
       </div>
     </div>
