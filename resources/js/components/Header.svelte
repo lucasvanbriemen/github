@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { params, push } from 'svelte-spa-router';
+  import { params } from 'svelte-spa-router';
   import api from '../lib/api.js';
 
   let organizations = [];
