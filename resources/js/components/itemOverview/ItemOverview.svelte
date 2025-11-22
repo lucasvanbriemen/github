@@ -20,7 +20,7 @@
   const path = window.location.hash;
   const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
   const isPR= $derived(type === 'pr');
-  const selectedDropdownSection = $derived(isPR ? 'Pull Requests' : 'Issues');
+  const activeItem = $derived(isPR ? 'Pull Requests' : 'Issues');
 
   const stateOptions = [
     { value: 'open', label: 'Open' },
@@ -99,7 +99,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
+  <Sidebar {params} {activeItem}>
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">

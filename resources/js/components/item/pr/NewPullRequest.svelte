@@ -48,7 +48,7 @@
 </script>
 
 <div class="new-pr">
-  <Sidebar {params} selectedDropdownSection="New PR">
+  <Sidebar {params} activeItem="New PR">
     <SidebarGroup title="Branch to merge">
       <Select name="head_branch" value={head_branch} selectableItems={possibleBranches}  bind:selectedValue={head_branch} />
     </SidebarGroup>
