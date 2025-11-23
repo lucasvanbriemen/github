@@ -17,7 +17,7 @@
     <div class="organization" class:selected={selectedOrganization === org}>
       <button onclick={() => selectedOrganization = org}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
-        <span class="name">{org.name}</span>
+        <span class="org">{org.name}</span>
       </button>
 
       <div class="repos">
