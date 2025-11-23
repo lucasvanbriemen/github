@@ -107,7 +107,11 @@ class ItemController extends Controller
                 })->orWhereHas('childComments');
                 $query->with('author')->orderBy('created_at', 'asc');
                 $query->with('childComments');
-            }
+            },
+            'pullRequestComments' => function($query) {
+                $query->with('author')->orderBy('created_at', 'asc');
+                $query->with('childComments');
+            },
         ]);
 
         // Process PR reviews markdown images
