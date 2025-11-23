@@ -18,42 +18,24 @@
   function toggleItemComment(comment) {
     comment.resolved = !comment.resolved;
 
-    fetch(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: comment.resolved,
-      }),
+    api.post(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
+      resolved: comment.resolved,
     });
   }
 
   function toggleItemReview(review) {
     review.resolved = !review.resolved;
 
-    fetch(route(`organizations.repositories.item.review`, { organization, repository, number, review_id: review.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: review.resolved,
-      }),
+    api.post(route(`organizations.repositories.item.review`, { organization, repository, number, review_id: review.id }), {
+      resolved: review.resolved,
     });
   }
 
   function toggleItemReviewComment(comment) {
     comment.resolved = !comment.resolved;
 
-    fetch(route(`organizations.repositories.item.review.comment`, { organization, repository, number, comment_id: comment.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: comment.resolved,
-      }),
+    api.post(route(`organizations.repositories.item.review.comment`, { organization, repository, number, comment_id: comment.id }), {
+      resolved: comment.resolved,
     });
   }
 </script>

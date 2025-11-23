@@ -6,7 +6,6 @@
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
-    import api from '../../lib/api';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
