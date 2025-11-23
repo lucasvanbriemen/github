@@ -91,6 +91,15 @@
 
         :global(.side-wrapper:has(.item-comment)) {
           flex-direction: column;
+
+          :global(.item-comment) {
+            border: 2px solid var(--background-color-two);
+            border-radius: 1rem;
+
+            :global(.item-comment-replies) {
+              margin-top: 1rem;
+            }
+          }
         } 
       }
 
