@@ -21,6 +21,7 @@ const extensionToLanguage = {
   'cs': 'csharp',
   'css': 'css',
   'svelte': 'jsx',
+  'svg': 'html',
   'scss': 'scss',
   'sass': 'sass',
   'less': 'less',
