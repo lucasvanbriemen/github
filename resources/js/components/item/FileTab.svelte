@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import HighlightedDiffLine from '../HighlightedDiffLine.svelte';
   import { detectLanguage } from '../../utils/syntaxHighlighter.js';
+  import Comment from '../Comment.svelte';
 
   let { files = [], item = {}, loadingFiles = false } = $props();
 
@@ -11,7 +12,7 @@
     return ' ';
   }
 
-  let comments = [];
+  let comments = $state([]);
   let fileLanguages = [];
 
 
@@ -19,6 +20,21 @@
     files.forEach((file) => {
       fileLanguages[file.filename] = detectLanguage(file.filename);
     });
+
+    // We need the item comments from the reivews and the standard comments
+    comments =  comments = item.pull_request_reviews
+      .filter(review => review.body !== null)
+      .map(review => review.child_comments)
+      .flat();
+
+    comments = comments.concat(item.pull_request_comments);
+
+    // Remove the diff_hunks from the comments
+    comments.forEach(comment => {
+      delete comment.diff_hunk;
+    });
+
+    console.log(comments);
   });
 </script>
 
@@ -49,6 +65,12 @@
                       {/if}
                     </div>
                   </div>
+
+                  {#each comments as comment}
+                    {#if comment.path === file.filename && comment.line_end === changedLinePair.right.number}
+                      <Comment {comment} />
+                    {/if}
+                  {/each}
 
                   <div class="side right-side">
                     <span class="line-number diff-line-{changedLinePair.right.type}">{changedLinePair.right.number}</span>
