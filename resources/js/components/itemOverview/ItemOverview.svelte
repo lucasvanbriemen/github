@@ -94,9 +94,9 @@
   });
 
   $effect(() => {
-    currentPage = 1;
-    branchesForNotice = [];
-    getItems(currentPage);
+    // currentPage = 1;
+    // branchesForNotice = [];
+    // getItems(currentPage);
   });
 
 </script>

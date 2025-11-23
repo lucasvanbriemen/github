@@ -28,6 +28,15 @@
     }
   }
 
+  :global(.item-merged) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--merged-color);
+      fill: var(--merged-color);
+    }
+  }
+
   .content {
     display: flex;
     flex-direction: column;
