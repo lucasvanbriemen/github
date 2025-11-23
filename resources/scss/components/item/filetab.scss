@@ -82,12 +82,16 @@
         .side-wrapper {
           display: flex;
           flex: 1;
-          
+
           .side {
             width: 100%;
             display: flex;
           }
         }
+
+        :global(.side-wrapper:has(.item-comment)) {
+          flex-direction: column;
+        } 
       }
 
       .hunk-separator:not(:last-child) {
