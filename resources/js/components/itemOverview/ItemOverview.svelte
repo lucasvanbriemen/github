@@ -94,12 +94,8 @@
   });
 
   $effect(() => {
-    // reset paging and PR-specific state when switching context
     currentPage = 1;
     branchesForNotice = [];
-
-    // refresh contributors (org/repo scoped) and items
-    getContributors();
     getItems(currentPage);
   });
 
