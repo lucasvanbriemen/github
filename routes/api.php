@@ -10,7 +10,7 @@ use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\ItemCommentController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
-    Route::get('/org', [OrganizationController::class, 'getOrganizations'])
+    Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
         ->name('organizations.get');
 
     Route::get('/org/{organization}/repo/{repository}/items/{type}', [ItemController::class, 'index'])
