@@ -7,7 +7,6 @@
   import ListItemSkeleton from './ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
-    import api from '../../lib/api';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -49,7 +48,7 @@
   }
 
 
-  async function getItems(pageNr = 1, isInitialLoad = false) {
+  async function getItems(pageNr = 1) {
     isLoading = true;
     currentPage = pageNr;
 
@@ -91,7 +90,7 @@
 
   onMount(async () => {
     getContributors();
-    getItems(currentPage, true);
+    getItems(currentPage);
   });
 
 </script>
