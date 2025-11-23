@@ -30,7 +30,7 @@ class RepositoryController extends Controller
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $branches = $repository->branches()
-            ->where('show_notice', true)
+            ->showNotice()
             ->whereHas('commits') // only branches that have at least one commit
             ->with(['commits' => function ($q) {
                 $q->orderBy('created_at', 'desc')->limit(1);
