@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
   import { params } from 'svelte-spa-router';
-  import api from '../lib/api.js';
 
   let organizations = $state([]);
   let selectedOrganization = $state($params?.organization || null);

@@ -8,6 +8,7 @@
   import Item from './item/Item.svelte';
   import NewPullRequest from './item/pr/NewPullRequest.svelte';
   import theme from '../lib/theme.js';
+  import api from '../lib/api.js';
 
   const routes = {
     '/': Dashboard,
@@ -22,6 +23,8 @@
   onMount(async () => {
     theme.applyTheme();
   });
+
+  window.api = api;
 </script>
 
 <Header />
