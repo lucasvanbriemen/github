@@ -65,13 +65,11 @@ class Repository extends Model
 
     public function items($type, $state = null, $assignee = null)
     {
-        if ($type === 'issue') {
-            return $this->issues($state, $assignee);
-        } elseif ($type === 'pr') {
+        if ($type === 'prs') {
             return $this->pullRequests($state, $assignee);
         }
 
-        throw new \InvalidArgumentException("Invalid item type: $type");
+        return $this->issues($state, $assignee);
     }
 
     public function branches()

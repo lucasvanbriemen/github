@@ -11,15 +11,15 @@
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
+  let type = $derived(params.type);
+
   let issues = $state([]);
   let paginationLinks = $state([]);
   let currentPage = $state(1);
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
 
-  const path = window.location.hash;
-  const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
-  const isPR= $derived(type === 'pr');
+  const isPR= $derived(type === 'prs');
   const activeItem = $derived(isPR ? 'Pull Requests' : 'Issues');
 
   const stateOptions = [
@@ -93,6 +93,16 @@
     getItems(currentPage);
   });
 
+  $effect(() => {
+    // reset paging and PR-specific state when switching context
+    currentPage = 1;
+    branchesForNotice = [];
+
+    // refresh contributors (org/repo scoped) and items
+    getContributors();
+    getItems(currentPage);
+  });
+
 </script>
 
 <div class="repo-dashboard">
@@ -121,7 +131,7 @@
 
 
       {#each issues as item}
-        <ListItem {item} itemType="issue" />
+        <ListItem {item} />
       {/each}
 
       {#if paginationLinks.length > 3}

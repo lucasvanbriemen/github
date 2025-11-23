@@ -1,6 +1,6 @@
 <script>
   import Icon from "../Icon.svelte";
-  let { item, itemType } = $props();
+  let { item } = $props();
 
   function itemUrl(number) {
     const base = window.location.href;
@@ -8,8 +8,8 @@
   }
 </script>
 
-<a class="list-item" data-type="{itemType}" href="{itemUrl(item.number)}">
-  <Icon name={itemType} size="1.5rem" className="item-{item.state}" />
+<a class="list-item" href="{itemUrl(item.number)}">
+  <Icon name="issue" size="1.5rem" className="item-{item.state}" />
 
   <div class="content">
     <h3>{item.title}</h3>

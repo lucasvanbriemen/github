@@ -13,11 +13,12 @@
   const routes = {
     '/': Dashboard,
     '/:organization/:repository': RepositoryDashboard,
-    '/:organization/:repository/issues': ItemOverview,
-    '/:organization/:repository/issues/:number': Item,
-    '/:organization/:repository/prs': ItemOverview,
-    '/:organization/:repository/new/pr/:branch?': NewPullRequest,
-    '/:organization/:repository/prs/:number': Item,
+
+    // Item Related
+    '/:organization/:repository/:type': ItemOverview,
+    '/:organization/:repository/:type/:number': Item,
+    '/:organization/:repository/new/:type/:branch?': NewPullRequest,
+    '/:organization/:repository/:type/:number': Item,
   };
 
   onMount(async () => {
