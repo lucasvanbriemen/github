@@ -1,8 +1,9 @@
 <script>
+  import { onMount } from 'svelte';
   import HighlightedDiffLine from '../HighlightedDiffLine.svelte';
   import { detectLanguage } from '../../utils/syntaxHighlighter.js';
 
-  let { files = [], loadingFiles = false } = $props();
+  let { files = [], item = {}, loadingFiles = false } = $props();
 
   function prefix(type) {
     if (type === 'add') return '+';
@@ -10,9 +11,14 @@
     return ' ';
   }
 
+  let comments = [];
   let fileLanguages = [];
-  files.forEach((file) => {
-    fileLanguages[file.filename] = detectLanguage(file.filename);
+
+
+  onMount(async () => {
+    files.forEach((file) => {
+      fileLanguages[file.filename] = detectLanguage(file.filename);
+    });
   });
 </script>
 

@@ -77,7 +77,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {params} {files} {loadingFiles} />
+        <FileTab {files} {item} {loadingFiles} />
       {/if}
     {/if}
   </div>
