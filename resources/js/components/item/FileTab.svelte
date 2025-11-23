@@ -56,30 +56,41 @@
             {#each file.changes as hunk}
               {#each (hunk.rows || []) as changedLinePair}
                 <div class="changed-line-pair">
-                  <div class="side left-side">
-                    <span class="line-number diff-line-{changedLinePair.left.type}">{changedLinePair.left.number}</span>
-                    <div class="diff-line-content diff-line-{changedLinePair.left.type}">
-                      {#if changedLinePair.left.type !== 'empty'}
-                        <span class="prefix">{prefix(changedLinePair.left.type)}</span>
-                        <HighlightedDiffLine code={changedLinePair.left.content} language={fileLanguages[file.filename]} />
-                      {/if}
+                  <div class="side-wrapper">
+                    <div class="side left-side">
+                      <span class="line-number diff-line-{changedLinePair.left.type}">{changedLinePair.left.number}</span>
+                      <div class="diff-line-content diff-line-{changedLinePair.left.type}">
+                        {#if changedLinePair.left.type !== 'empty'}
+                          <span class="prefix">{prefix(changedLinePair.left.type)}</span>
+                          <HighlightedDiffLine code={changedLinePair.left.content} language={fileLanguages[file.filename]} />
+                        {/if}
+                      </div>
                     </div>
+
+                    {#each comments as comment}
+                      {#if comment.path === file.filename && comment.line_end === changedLinePair.left.number && comment.side === 'LEFT'}
+                        <Comment {comment} />
+                      {/if}
+                    {/each}
                   </div>
 
-                  {#each comments as comment}
-                    {#if comment.path === file.filename && comment.line_end === changedLinePair.right.number}
-                      <Comment {comment} />
-                    {/if}
-                  {/each}
 
-                  <div class="side right-side">
-                    <span class="line-number diff-line-{changedLinePair.right.type}">{changedLinePair.right.number}</span>
-                    <div class="diff-line-content diff-line-{changedLinePair.right.type}">
-                      {#if changedLinePair.right.type !== 'empty'}
-                        <span class="prefix">{prefix(changedLinePair.right.type)}</span>
-                        <HighlightedDiffLine code={changedLinePair.right.content} language={fileLanguages[file.filename]} />
-                      {/if}
+                  <div class="side-wrapper">
+                    <div class="side right-side">
+                      <span class="line-number diff-line-{changedLinePair.right.type}">{changedLinePair.right.number}</span>
+                      <div class="diff-line-content diff-line-{changedLinePair.right.type}">
+                        {#if changedLinePair.right.type !== 'empty'}
+                          <span class="prefix">{prefix(changedLinePair.right.type)}</span>
+                          <HighlightedDiffLine code={changedLinePair.right.content} language={fileLanguages[file.filename]} />
+                        {/if}
+                      </div>
                     </div>
+
+                    {#each comments as comment}
+                      {#if comment.path === file.filename && comment.line_end === changedLinePair.right.number && comment.side === 'RIGHT'}
+                        <Comment {comment} />
+                      {/if}
+                    {/each}
                   </div>
                 </div>
               {/each}

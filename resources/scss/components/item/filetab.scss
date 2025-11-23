@@ -79,10 +79,14 @@
       .changed-line-pair {
         display: flex;
 
-        .side {
-          flex: 1;
+        .side-wrapper {
           display: flex;
+          flex: 1;
           
+          .side {
+            width: 100%;
+            display: flex;
+          }
         }
       }
 
