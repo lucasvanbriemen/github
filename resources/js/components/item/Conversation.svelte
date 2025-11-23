@@ -50,13 +50,13 @@
 <!-- PR Reviews and Review Comments (PR only) -->
 {#if isPR}
   {#each item.pull_request_reviews as review}
-  {#if review.body}
-    <Comment comment={review} onToggle={toggleItemReview} onToggleReply={toggleItemReviewComment} />
-  {:else}
-    <!-- We If you have a standlone PR comment, it will have no review content, so we render that sepertly -->
-    {#each review.child_comments as comment}
-      <Comment {comment} onToggle={toggleItemReviewComment} />
-    {/each}
+    {#if review.body}
+      <Comment comment={review} onToggle={toggleItemReview} onToggleReply={toggleItemReviewComment} />
+    {:else}
+      <!-- We If you have a standlone PR comment, it will have no review content, so we render that sepertly -->
+      {#each review.child_comments as comment}
+        <Comment {comment} onToggle={toggleItemReviewComment} />
+      {/each}
     {/if}
   {/each}
 {/if}
