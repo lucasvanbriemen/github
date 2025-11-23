@@ -7,6 +7,7 @@
   import ListItemSkeleton from './ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
+    import api from '../../lib/api';
 
   let { params = {} } = $props();
   let organization = $derived(params.organization || '');
@@ -33,8 +34,7 @@
   let selectedAssignee = $state(window.USER_ID);
 
   async function getContributors() {
-    const res = await fetch(`${route('organizations.repositories.contributors.get', {organization, repository})}`);
-    assignees = await res.json();
+    assignees = await api.get(route('organizations.repositories.contributors.get', {organization, repository}));
 
     // We have to format it into the {value, label} format for Select component
     assignees = assignees.map(assignee => ({
@@ -56,10 +56,10 @@
     let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
     url += `&assignee=${selectedAssignee}`;
 
-    const res = await fetch(url);
-    let json = await res.json();
-    issues = json.data;
-
+    const json = await api.get(url)
+    issues = json.data
+    paginationLinks = json.links
+    
     for (let i = 0; i < issues.length; i++) {
       try {
         issues[i].labels = JSON.parse(issues[i].labels);
@@ -68,7 +68,6 @@
       }
     }
 
-    paginationLinks = json.links;
     isLoading = false;
 
     if (isPR) {
@@ -78,8 +77,7 @@
   }
 
   async function getBranchesForNotices() {
-    const res = await fetch(route('organizations.repositories.branches.pr.notices', {organization, repository}));
-    branchesForNotice = await res.json();
+    branchesForNotice = await api.get(route('organizations.repositories.branches.pr.notices', {organization, repository}));
   }
 
   function linkToNewItem(type) {
