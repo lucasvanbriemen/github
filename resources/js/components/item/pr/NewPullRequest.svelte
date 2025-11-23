@@ -38,7 +38,7 @@
       assignee,
     });
 
-    window.location.hash = `/${params.organization}/${params.repository}/prs/${Number(res.number)}`;
+    window.location.hash = `#/${params.organization}/${params.repository}/prs/${Number(res.number)}`;
   }
 </script>
 

@@ -21,20 +21,13 @@
       fileLanguages[file.filename] = detectLanguage(file.filename);
     });
 
-    // We need the item comments from the reivews and the standard comments
-    comments =  comments = item.pull_request_reviews
-      .filter(review => review.body !== null)
-      .map(review => review.child_comments)
+    // Collect inline review comments from both sources and de-duplicate by id
+    comments = item.pull_request_reviews
+      .map(r => r.child_comments)
       .flat();
 
-    comments = comments.concat(item.pull_request_comments);
-
-    // Remove the diff_hunks from the comments
-    comments.forEach(comment => {
-      delete comment.diff_hunk;
-    });
-
-    console.log(comments);
+    // Remove the diff_hunks from the comments in the files tab to avoid duplication of diffs
+    comments.forEach(c => { if (c && 'diff_hunk' in c) delete c.diff_hunk; });
   });
 </script>
 
