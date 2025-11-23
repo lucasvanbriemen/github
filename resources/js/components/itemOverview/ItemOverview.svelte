@@ -34,13 +34,13 @@
   let selectedAssignee = $state(window.USER_ID);
 
   async function getContributors() {
-    assignees = await api.get(route('organizations.repositories.contributors.get', {organization, repository}));
-
-    // We have to format it into the {value, label} format for Select component
-    assignees = assignees.map(assignee => ({
-      value: assignee.id,
-      label: assignee.display_name,
-    }));
+    // Get the assnees and map them to the {value, label} format for Select component
+    assignees = await api.get(route('organizations.repositories.contributors.get', {organization, repository}))
+      .then(response => response.map(assignee => ({
+        value: assignee.id,
+        label: assignee.display_name,
+      })
+    ));
 
     const currentUserId = Number(window.USER_ID);
     if (currentUserId && assignees.some(a => a.value === currentUserId)) {
