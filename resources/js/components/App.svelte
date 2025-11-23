@@ -16,9 +16,8 @@
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,
-    '/:organization/:repository/:type/:number': Item,
     '/:organization/:repository/new/:type/:branch?': NewPullRequest,
-    '/:organization/:repository/:type/:number': Item,
+    '/:organization/:repository/:type/:number/:tab?': Item,
   };
 
   onMount(async () => {

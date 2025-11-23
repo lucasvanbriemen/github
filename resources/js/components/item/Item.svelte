@@ -11,12 +11,13 @@
   let organization = $derived(params.organization || '');
   let repository = $derived(params.repository || '');
   let number = $derived(params.number || '');
+  let activeTab = $derived(params.tab || 'conversation');
+  let type = $derived(params.type || '');
 
   let item = $state({});
   let isPR = $state(false);
   let files = $state([]);
   let loadingFiles = $state(true);
-  let activeTab = $state('conversation');
   let isLoading = $state(true);
 
   onMount(async () => {
@@ -67,7 +68,7 @@
           </div>
         {/if}
 
-        <Navigation bind:activeTab />
+        <Navigation bind:activeTab {organization} {repository} {type} {number} />
       {/if}
 
       <!-- Conversation Tab Content -->
