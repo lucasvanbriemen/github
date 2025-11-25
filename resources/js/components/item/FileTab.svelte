@@ -20,15 +20,8 @@
     return ' ';
   }
 
-  let fileLanguages = $state({});
-
   async function loadFiles() {
     files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
-    // Ensure language map is ready once files arrive
-    files.forEach((file) => {
-      fileLanguages[file.filename] = detectLanguage(file.filename);
-    });
-
     selectedFile = files[selectedFileIndex];
     loadingFiles = false;
   }
@@ -80,7 +73,7 @@
                     <div class="diff-line-content diff-line-{changedLinePair.left.type}">
                       {#if changedLinePair.left.type !== 'empty'}
                         <span class="prefix">{prefix(changedLinePair.left.type)}</span>
-                        <HighlightedDiffLine code={changedLinePair.left.content} language={fileLanguages[selectedFile.filename]} />
+                        <HighlightedDiffLine code={changedLinePair.left.content} language={detectLanguage(selectedFile.filename)} />
                       {/if}
                     </div>
                   </div>
@@ -99,7 +92,7 @@
                     <div class="diff-line-content diff-line-{changedLinePair.right.type}">
                       {#if changedLinePair.right.type !== 'empty'}
                         <span class="prefix">{prefix(changedLinePair.right.type)}</span>
-                        <HighlightedDiffLine code={changedLinePair.right.content} language={fileLanguages[selectedFile.filename]} />
+                        <HighlightedDiffLine code={changedLinePair.right.content} language={detectLanguage(selectedFile.filename)} />
                       {/if}
                     </div>
                   </div>
