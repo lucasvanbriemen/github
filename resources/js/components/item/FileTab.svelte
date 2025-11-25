@@ -4,13 +4,28 @@
   import { detectLanguage } from '../../utils/syntaxHighlighter.js';
   import Comment from '../Comment.svelte';
 
-  let { files = [], item = {}, loadingFiles = false } = $props();
+  let { item = {}, params = {} } = $props();
+  let loadingFiles = $state(true);
+  let files = $state([]);
+  let selectedFile = $state(null);
+
+  let number = $derived(item.number);
+  let organization = $derived(params.organization);
+  let repository = $derived(params.repository);
 
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
     return ' ';
   }
+
+  async function loadFiles() {
+    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
+    selectedFile = files[0];
+    loadingFiles = false;
+  }
+
+  loadFiles();
 
   let comments = $state([]);
   let fileLanguages = [];
