@@ -20,8 +20,15 @@
     return ' ';
   }
 
+  let fileLanguages = $state({});
+
   async function loadFiles() {
     files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
+    // Ensure language map is ready once files arrive
+    files.forEach((file) => {
+      fileLanguages[file.filename] = detectLanguage(file.filename);
+    });
+
     selectedFile = files[selectedFileIndex];
     loadingFiles = false;
   }
@@ -29,14 +36,9 @@
   loadFiles();
 
   let comments = $state([]);
-  let fileLanguages = [];
 
 
   onMount(async () => {
-    files.forEach((file) => {
-      fileLanguages[file.filename] = detectLanguage(file.filename);
-    });
-
     // Collect inline review comments from both sources and de-duplicate by id
     comments = item.pull_request_reviews
       .map(r => r.child_comments)
