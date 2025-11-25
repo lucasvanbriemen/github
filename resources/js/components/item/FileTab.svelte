@@ -17,7 +17,7 @@
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
-    return ' ';
+    return '  ';
   }
 
   async function loadFiles() {
