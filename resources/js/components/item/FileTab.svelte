@@ -7,6 +7,7 @@
   let { item = {}, params = {} } = $props();
   let loadingFiles = $state(true);
   let files = $state([]);
+  let selectedFileIndex = $state(0);
   let selectedFile = $state(null);
 
   let number = $derived(item.number);
@@ -21,7 +22,7 @@
 
   async function loadFiles() {
     files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
-    selectedFile = files[0];
+    selectedFile = files[selectedFileIndex];
     loadingFiles = false;
   }
 
@@ -44,7 +45,15 @@
     // Remove the diff_hunks from the comments in the files tab to avoid duplication of diffs
     comments.forEach(c => { if (c && 'diff_hunk' in c) delete c.diff_hunk; });
   });
+
+  $effect(() => {
+    selectedFile = files[selectedFileIndex];
+  });
 </script>
+
+<button onclick={() => selectedFileIndex--} class="file-nav-button" class:disabled={selectedFileIndex === 0} type="button">Previous File</button>
+<span class="file-nav-info">File {selectedFileIndex + 1} of {files.length}: {selectedFile?.filename}</span>
+<button onclick={() => selectedFileIndex++} class="file-nav-button" class:disabled={selectedFileIndex === files.length - 1} type="button">Next File</button>
 
 <div class="pr-files">
   {#if loadingFiles}
