@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Pagination from '../Pagination.svelte';
@@ -94,9 +94,15 @@
   });
 
   $effect(() => {
-    currentPage = 1;
-    branchesForNotice = [];
-    getItems(currentPage);
+    void type;
+    void organization;
+    void repository;
+
+    untrack(() => {
+      currentPage = 1;
+      branchesForNotice = [];
+      getItems(currentPage);
+    });
   });
 
 </script>
