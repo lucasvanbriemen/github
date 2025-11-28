@@ -3,7 +3,7 @@
   import HighlightedDiffLine from '../../HighlightedDiffLine.svelte';
   import { detectLanguage } from '../../../utils/syntaxHighlighter.js';
   import Comment from '../../Comment.svelte';
-  import { FileNavigation } from './FileNaviation.svelte';
+  import FileNavigation from './FileNavigation.svelte';
 
   let { item = {}, params = {} } = $props();
   let loadingFiles = $state(true);
@@ -46,7 +46,9 @@
   });
 </script>
 
-<FileNavigation {files} bind:selectedFileIndex />
+{#if !loadingFiles}
+  <FileNavigation {files} bind:selectedFileIndex bind:selectedFile />
+{/if}
 
 <div class="pr-files">
   {#if loadingFiles}
