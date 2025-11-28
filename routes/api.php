@@ -28,6 +28,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [ItemCommentController::class, 'updateReview'])
         ->name('organizations.repositories.item.review');
 
+    Route::post('/org/{organization}/repo/{repository}/pr/{number}/merge', [PullRequestController::class, 'merge'])
+        ->name('organizations.repositories.pr.merge');
+
     Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [ItemCommentController::class, 'updateReviewComment'])
         ->name('organizations.repositories.item.review.comment');
 

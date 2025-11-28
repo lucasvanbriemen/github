@@ -120,4 +120,13 @@ class PullRequestController extends Controller
             'state' => $state,
         ]);
     }
+
+    function merge($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $response = Github::pullRequests()->merge($organization->name, $repository->name, $number);
+
+        return response()->json($response);
+    }
 }

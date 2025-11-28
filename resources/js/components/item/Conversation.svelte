@@ -38,6 +38,10 @@
       resolved: comment.resolved,
     });
   }
+
+  function mergePR() {
+    api.post(route(`organizations.repositories.pr.merge`, { organization, repository, number }));
+  }
 </script>
 
 <Markdown content={item.body} />
@@ -59,4 +63,6 @@
       {/each}
     {/if}
   {/each}
+
+  <button class="button-primary" onclick={() => mergePR()} >Merge</button>
 {/if}

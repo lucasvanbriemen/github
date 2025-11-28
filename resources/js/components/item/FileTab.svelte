@@ -30,7 +30,6 @@
 
   let comments = $state([]);
 
-
   onMount(async () => {
     // Collect inline review comments from both sources and de-duplicate by id
     comments = item.pull_request_reviews
