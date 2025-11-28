@@ -15,9 +15,7 @@
   let type = $derived(params.type || '');
 
   let item = $state({});
-  let isPR = $state(false);
-  let files = $state([]);
-  let loadingFiles = $state(true);
+  let isPR = type = 'prs';
   let isLoading = $state(true);
 
   onMount(async () => {
@@ -29,10 +27,6 @@
     } catch (e) {
       item.labels = [];
     }
-
-    isPR = item.type === 'pull_request';
-
-    // If it's a PR, load the file diffs
 
     isLoading = false;
   });
@@ -48,7 +42,7 @@
     {:else}
       <ItemHeader {item} />
 
-    <!-- PR Header: Branch Information (PR only) -->
+      <!-- PR Header: Branch Information (PR only) -->
       {#if isPR}
         {#if activeTab === 'conversation'}
           <div class="item-header-pr">
