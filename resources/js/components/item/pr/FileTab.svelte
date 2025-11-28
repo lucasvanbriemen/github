@@ -1,8 +1,9 @@
 <script>
   import { onMount } from 'svelte';
-  import HighlightedDiffLine from '../HighlightedDiffLine.svelte';
-  import { detectLanguage } from '../../utils/syntaxHighlighter.js';
-  import Comment from '../Comment.svelte';
+  import HighlightedDiffLine from '../../HighlightedDiffLine.svelte';
+  import { detectLanguage } from '../../../utils/syntaxHighlighter.js';
+  import Comment from '../../Comment.svelte';
+  import { FileNavigation } from './FileNaviation.svelte';
 
   let { item = {}, params = {} } = $props();
   let loadingFiles = $state(true);
@@ -45,9 +46,7 @@
   });
 </script>
 
-<button onclick={() => selectedFileIndex--} class="file-nav-button" class:disabled={selectedFileIndex === 0} type="button">Previous File</button>
-<span class="file-nav-info">File {selectedFileIndex + 1} of {files.length}: {selectedFile?.filename}</span>
-<button onclick={() => selectedFileIndex++} class="file-nav-button" class:disabled={selectedFileIndex === files.length - 1} type="button">Next File</button>
+<FileNavigation {files} bind:selectedFileIndex />
 
 <div class="pr-files">
   {#if loadingFiles}
@@ -114,5 +113,5 @@
 </div>
 
 <style lang="scss">
-  @import '../../../scss/components/item/filetab';
+  @import '../../../../scss/components/item/pr/filetab/filetab';
 </style>
