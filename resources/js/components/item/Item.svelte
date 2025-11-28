@@ -33,17 +33,9 @@
     isPR = item.type === 'pull_request';
 
     // If it's a PR, load the file diffs
-    if (isPR) {
-      loadFiles();
-    }
 
     isLoading = false;
   });
-
-  async function loadFiles() {
-    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
-    loadingFiles = false;
-  }
 </script>
 
 <div class="item-overview">
@@ -78,7 +70,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {files} {item} {loadingFiles} />
+        <FileTab {item} {params} />
       {/if}
     {/if}
   </div>
