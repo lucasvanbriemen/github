@@ -125,7 +125,10 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $response = Github::pullRequests()->merge($organization->name, $repository->name, $number);
+        $pr = PullRequest::where('repository_id', $repository->id)->where('number', $number)->first();
+        $headSha = $pr->details->head_sha;
+
+        $response = Github::pullRequests()->merge($organization->name, $repository->name, $number, "Merge {$pr->title}",$headSha);
 
         return response()->json($response);
     }
