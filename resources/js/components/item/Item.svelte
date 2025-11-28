@@ -8,11 +8,11 @@
   import Sidebar from './Sidebar.svelte';
 
   let { params = {} } = $props();
-  let organization = $derived(params.organization || '');
-  let repository = $derived(params.repository || '');
-  let number = $derived(params.number || '');
+  let organization = $derived(params.organization);
+  let repository = $derived(params.repository);
+  let number = $derived(params.number);
   let activeTab = $derived(params.tab || 'conversation');
-  let type = $derived(params.type || '');
+  let type = $derived(params.type);
 
   let item = $state({});
   let isPR = type = 'prs';
