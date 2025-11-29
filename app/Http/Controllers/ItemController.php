@@ -96,9 +96,9 @@ class ItemController extends Controller
     private static function loadPullRequestData($item)
     {
         // Load PR-specific details (branches, SHAs, etc.)
-        // $item->load([
-        //     'details',
-        //     'requestedReviewers.user',
+        $item->load([
+            'details',
+            'requestedReviewers.user'
         //     'pullRequestReviews' => function ($query) {
         //         // Include reviews with content OR those that have comments attached
         //         // (standalone PR comments may be attached to an empty-body review)
@@ -112,7 +112,7 @@ class ItemController extends Controller
         //         $query->with('author')->orderBy('created_at', 'asc');
         //         $query->with('childComments');
         //     },
-        // ]);
+        ]);
 
         // // Process PR reviews markdown images
         // foreach ($item->pullRequestReviews as $review) {
