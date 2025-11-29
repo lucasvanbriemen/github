@@ -99,16 +99,16 @@ class ItemController extends Controller
         $item->load([
             'details',
             'requestedReviewers.user',
-            'pullRequestReviews' => function($query) {
+            'pullRequestReviews' => function ($query) {
                 // Include reviews with content OR those that have comments attached
                 // (standalone PR comments may be attached to an empty-body review)
-                $query->where(function($q) {
+                $query->where(function ($q) {
                     $q->whereNotNull('body')->where('body', '<>', '');
                 })->orWhereHas('childComments');
                 $query->with('author')->orderBy('created_at', 'asc');
                 $query->with('childComments');
             },
-            'pullRequestComments' => function($query) {
+            'pullRequestComments' => function ($query) {
                 $query->with('author')->orderBy('created_at', 'asc');
                 $query->with('childComments');
             },
