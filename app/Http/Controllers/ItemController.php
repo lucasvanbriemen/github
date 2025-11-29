@@ -106,11 +106,17 @@ class ItemController extends Controller
                     $q->whereNotNull('body')->where('body', '<>', '');
                 })->orWhereHas('childComments');
                 $query->with('author')->orderBy('created_at', 'asc');
-                $query->with('childComments');
+                $query->with(['childComments' => function($q) {
+                    $q->with(['baseComment.author', 'childComments' => function($subQ) {
+                        $subQ->with(['baseComment.author']);
+                    }]);
+                }]);
             },
             'pullRequestComments' => function ($query) {
-                $query->with('author')->orderBy('created_at', 'asc');
-                $query->with('childComments');
+                $query->orderBy('created_at', 'asc');
+                $query->with(['baseComment.author', 'childComments' => function($q) {
+                    $q->with(['baseComment.author']);
+                }]);
             },
         ]);
 
@@ -124,10 +130,18 @@ class ItemController extends Controller
             foreach ($review->childComments as $comment) {
                 $comment->body = self::processMarkdownImages($comment->body);
                 $comment->created_at_human = $comment->created_at->diffForHumans();
+                // Set author from baseComment if available
+                if ($comment->baseComment && $comment->baseComment->author) {
+                    $comment->setRelation('author', $comment->baseComment->author);
+                }
 
                 foreach ($comment->childComments as $reply) {
                     $reply->body = self::processMarkdownImages($reply->body);
                     $reply->created_at_human = $reply->created_at->diffForHumans();
+                    // Set author from baseComment if available
+                    if ($reply->baseComment && $reply->baseComment->author) {
+                        $reply->setRelation('author', $reply->baseComment->author);
+                    }
                 }
             }
         }
@@ -138,12 +152,20 @@ class ItemController extends Controller
                 $comment->body = self::processMarkdownImages($comment->body);
             }
             $comment->created_at_human = $comment->created_at->diffForHumans();
+            // Set author from baseComment if available
+            if ($comment->baseComment && $comment->baseComment->author) {
+                $comment->setRelation('author', $comment->baseComment->author);
+            }
 
             foreach ($comment->childComments as $reply) {
                 if ($reply->body) {
                     $reply->body = self::processMarkdownImages($reply->body);
                 }
                 $reply->created_at_human = $reply->created_at->diffForHumans();
+                // Set author from baseComment if available
+                if ($reply->baseComment && $reply->baseComment->author) {
+                    $reply->setRelation('author', $reply->baseComment->author);
+                }
             }
         }
     }
