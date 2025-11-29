@@ -44,6 +44,7 @@
   $effect(() => {
     selectedFile = files[selectedFileIndex];
   });
+
   function toggleItemReviewComment(comment) {
     comment.resolved = !comment.resolved;
 
