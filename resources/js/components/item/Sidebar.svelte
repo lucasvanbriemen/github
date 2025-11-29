@@ -1,11 +1,13 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Icon from '../Icon.svelte';
 
-  let { item, isPR, isLoading, activeTab, params = {} } = $props();
+  let { item, isPR, isLoading, activeTab, params = {}, files, selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
   let activeItem = $state('Issues');
+  
+  let fileList = $state([]);
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -16,6 +18,24 @@
     if (isPR) {
       activeItem = 'Pull Requests';
     }
+  });
+
+  $effect(() => {
+    void files;
+
+    untrack(() => {
+      fileList = files.map((file, index) => {
+        
+        let fullPath = file.filename;
+        // Remove everything before the last slash
+        let filename = fullPath.replace(/^.*\//, '');
+        
+        return {
+          filename: filename,
+          index: index,
+        };
+      });
+    });
   });
 
 </script>
@@ -54,6 +74,16 @@
         </SidebarGroup>
       {/if}
     {/if}
+  {:else}
+    <SidebarGroup title="Files">
+      <div class="files">
+        {#each fileList as file}
+          <button class="file" type="button" class:selected={selectedFileIndex === file.index} onclick={() => selectedFileIndex = file.index}>
+            <span class="file-name">{file.filename}</span>
+          </button>
+        {/each}
+      </div>
+    </SidebarGroup>
   {/if}
 </Sidebar>
 

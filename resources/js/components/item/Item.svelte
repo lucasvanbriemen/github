@@ -52,7 +52,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {activeTab} {params} {files} {selectedFileIndex} {selectedFile} {loadingFiles} />
+  <Sidebar {item} {isPR} {isLoading} {activeTab} {params} {files} bind:selectedFileIndex bind:selectedFile {loadingFiles} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">

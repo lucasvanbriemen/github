@@ -26,7 +26,7 @@
   });
 </script>
 
-  <FileNavigation {files} bind:selectedFileIndex bind:selectedFile />
+<FileNavigation {files} bind:selectedFileIndex bind:selectedFile />
 
 <div class="pr-files">
   {#if !files || files.length === 0}
