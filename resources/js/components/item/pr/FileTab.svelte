@@ -5,11 +5,7 @@
   import Comment from '../../Comment.svelte';
   import FileNavigation from './FileNavigation.svelte';
 
-  let { item = {}, params = {} } = $props();
-  let loadingFiles = $state(true);
-  let files = $state([]);
-  let selectedFileIndex = $state(0);
-  let selectedFile = $state(null);
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
 
   let number = $derived(item.number);
   let organization = $derived(params.organization);
@@ -20,14 +16,6 @@
     if (type === 'del') return '-';
     return '  ';
   }
-
-  async function loadFiles() {
-    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
-    selectedFile = files[selectedFileIndex];
-    loadingFiles = false;
-  }
-
-  loadFiles();
 
   let comments = $state([]);
 

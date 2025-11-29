@@ -14,6 +14,11 @@
   let activeTab = $derived(params.tab || 'conversation');
   let type = $derived(params.type);
 
+  let files = $state([]);
+  let loadingFiles = $state(true);
+  let selectedFileIndex = $state(0);
+  let selectedFile = $state(null);
+
   let item = $state({});
   let isPR = type == 'prs';
   let isLoading = $state(true);
@@ -29,7 +34,17 @@
     }
 
     isLoading = false;
+
+    if (isPR) {
+      loadFiles();
+    }
   });
+
+  async function loadFiles() {
+    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
+    selectedFile = files[selectedFileIndex];
+    loadingFiles = false;
+  }
 </script>
 
 <div class="item-overview">
@@ -64,7 +79,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {item} {params} />
+        <FileTab {item} {files} {loadingFiles} {selectedFile} {selectedFileIndex} {params} />
       {/if}
     {/if}
   </div>
