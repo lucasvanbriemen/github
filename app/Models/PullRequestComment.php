@@ -7,6 +7,8 @@ use App\Models\BaseComment;
 
 class PullRequestComment extends BaseComment
 {
+    protected $table = 'pull_request_comments';
+
     protected $keyType = 'int';
 
     public $incrementing = false;
