@@ -17,6 +17,11 @@
   let item = $state({});
   let isPR = type = 'prs';
   let isLoading = $state(true);
+  
+  let files = $state([]);
+  let selectedFileIndex = $state(0);
+  let selectedFile = $state(null);
+  let loadingFiles = $state(true);
 
   onMount(async () => {
     isLoading = true;
@@ -29,11 +34,25 @@
     }
 
     isLoading = false;
+
+    if (isPR) {
+      getFiles();
+    }
+  });
+
+  async function getFiles() {
+    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
+    selectedFile = files[selectedFileIndex];
+    loadingFiles = false;
+  }
+
+  $effect(() => {
+    selectedFile = files[selectedFileIndex];
   });
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {params} />
+  <Sidebar {item} {isPR} {isLoading} {activeTab} {params} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">
@@ -64,7 +83,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {item} {params} />
+        <FileTab bind:files bind:selectedFileIndex bind:selectedFile bind:loadingFiles {item} {params} />
       {/if}
     {/if}
   </div>

@@ -5,29 +5,13 @@
   import Comment from '../../Comment.svelte';
   import FileNavigation from './FileNavigation.svelte';
 
-  let { item = {}, params = {} } = $props();
-  let loadingFiles = $state(true);
-  let files = $state([]);
-  let selectedFileIndex = $state(0);
-  let selectedFile = $state(null);
-
-  let number = $derived(item.number);
-  let organization = $derived(params.organization);
-  let repository = $derived(params.repository);
+  let { files = $bindable([]), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), loadingFiles = $bindable(true), item = {}, params = {} } = $props();
 
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
     return '  ';
   }
-
-  async function loadFiles() {
-    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
-    selectedFile = files[selectedFileIndex];
-    loadingFiles = false;
-  }
-
-  loadFiles();
 
   let comments = $state([]);
 
@@ -39,10 +23,6 @@
 
     // Remove the diff_hunks from the comments in the files tab to avoid duplication of diffs
     comments.forEach(c => { if (c && 'diff_hunk' in c) delete c.diff_hunk; });
-  });
-
-  $effect(() => {
-    selectedFile = files[selectedFileIndex];
   });
 </script>
 
