@@ -44,6 +44,13 @@
   $effect(() => {
     selectedFile = files[selectedFileIndex];
   });
+  function toggleItemReviewComment(comment) {
+    comment.resolved = !comment.resolved;
+
+    api.post(route(`organizations.repositories.item.review.comment`, { organization, repository, number, comment_id: comment.id }), {
+      resolved: comment.resolved,
+    });
+  }
 </script>
 
 {#if !loadingFiles}
@@ -80,7 +87,7 @@
 
                   {#each comments as comment}
                     {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair.left.number && comment.side === 'LEFT'}
-                      <Comment {comment} />
+                      <Comment {comment} onToggle={toggleItemReviewComment} />
                     {/if}
                   {/each}
                 </div>
@@ -99,7 +106,7 @@
 
                   {#each comments as comment}
                     {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair.right.number && comment.side === 'RIGHT'}
-                      <Comment {comment} />
+                      <Comment {comment} onToggle={toggleItemReviewComment} />
                     {/if}
                   {/each}
                 </div>

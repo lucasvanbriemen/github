@@ -42,7 +42,7 @@
 
 <Markdown content={item.body} />
 
-<!-- Regular Comments -->
+<!-- Issue Comments -->
 {#each item.comments as comment}
   <Comment {comment} onToggle={toggleItemComment} />
 {/each}
