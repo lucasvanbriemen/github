@@ -7,7 +7,7 @@ use App\Models\PullRequestReview;
 use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
 
-class ItemCommentController extends Controller
+class BaseCommentController extends Controller
 {
     public static function updateItem($organizationName, $repositoryName, $issueNumber, $comment_id)
     {

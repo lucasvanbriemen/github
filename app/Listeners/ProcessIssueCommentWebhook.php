@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Events\IssueCommentWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Issue;
-use App\Models\ItemComment;
+use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
@@ -67,7 +67,7 @@ class ProcessIssueCommentWebhook implements ShouldQueue
 
         GithubUser::updateFromWebhook($userData);
 
-        ItemComment::updateOrCreate(
+        BaseComment::updateOrCreate(
             ['comment_id' => $commentData->id, 'type' => 'issue'],
             [
                 'comment_id' => $commentData->id,

@@ -7,7 +7,7 @@ use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PullRequestController;
-use App\Http\Controllers\ItemCommentController;
+use App\Http\Controllers\BaseCommentController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
@@ -22,13 +22,13 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
         ->name('organizations.repositories.item.show');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemCommentController::class, 'updateItem'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
         ->name('organizations.repositories.item.comment');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [ItemCommentController::class, 'updateReview'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
         ->name('organizations.repositories.item.review');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [ItemCommentController::class, 'updateReviewComment'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [BaseCommentController::class, 'updateReviewComment'])
         ->name('organizations.repositories.item.review.comment');
 
     Route::get('/org/{organization}/repo/{repository}/item/{number}/files', [ItemController::class, 'getFiles'])
