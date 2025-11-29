@@ -72,8 +72,8 @@
         </button>
 
         <div class="file-changes">
-          {#each selectedFile.changes as hunk}
-            {#each (hunk.rows || []) as changedLinePair}
+          {#each selectedFile.changes as hunk (hunk)}
+            {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
               <div class="changed-line-pair">
                 <div class="side-wrapper">
                   <div class="side left-side">
@@ -86,7 +86,7 @@
                     </div>
                   </div>
 
-                  {#each comments as comment}
+                  {#each comments as comment (comment.id)}
                     {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair.left.number && comment.side === 'LEFT'}
                       <Comment {comment} onToggle={toggleItemReviewComment} />
                     {/if}
@@ -105,7 +105,7 @@
                     </div>
                   </div>
 
-                  {#each comments as comment}
+                  {#each comments as comment (comment.id)}
                     {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair.right.number && comment.side === 'RIGHT'}
                       <Comment {comment} onToggle={toggleItemReviewComment} />
                     {/if}
