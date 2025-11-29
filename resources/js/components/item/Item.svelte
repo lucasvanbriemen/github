@@ -52,7 +52,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {activeTab} {params} />
+  <Sidebar {item} {isPR} {isLoading} {activeTab} {params} {files} {selectedFileIndex} {selectedFile} {loadingFiles} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main">
@@ -82,7 +82,7 @@
       {/if}
 
       <!-- Files Changed Tab Content (PR only) -->
-      {#if isPR && activeTab === 'files'}
+      {#if isPR && activeTab === 'files' && !loadingFiles}
         <FileTab bind:files bind:selectedFileIndex bind:selectedFile bind:loadingFiles {item} {params} />
       {/if}
     {/if}
