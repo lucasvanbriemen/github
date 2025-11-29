@@ -98,7 +98,9 @@ class ItemController extends Controller
         // Load PR-specific details (branches, SHAs, etc.)
         $item->load([
             'details',
-            'requestedReviewers.user'
+            'requestedReviewers.user',
+            'pullRequestComments.baseComment',
+            'pullRequestReviews'
         //     'pullRequestReviews' => function ($query) {
         //         // Include reviews with content OR those that have comments attached
         //         // (standalone PR comments may be attached to an empty-body review)

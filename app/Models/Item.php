@@ -50,7 +50,8 @@ class Item extends Model
 
     public function comments()
     {
-        return $this->hasMany(BaseComment::class, 'issue_id', 'id');
+        return $this->hasMany(BaseComment::class, 'issue_id', 'id')
+            ->where('type', 'issue');
     }
 
     // Scope to get only issues
@@ -88,6 +89,6 @@ class Item extends Model
 
     public function pullRequestComments()
     {
-        return $this->hasMany(PullRequestComment::class, 'pull_request_id', 'id');
+        return $this->hasMany(PullRequestComment::class, 'id', 'comment_id');
     }
 }
