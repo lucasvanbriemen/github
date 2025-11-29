@@ -8,13 +8,7 @@ class ItemComment extends Model
 {
     protected $table = 'base_comments';
 
-    protected $primaryKey = 'id';
-
-    protected $keyType = 'int';
-
-    public $incrementing = false;
-
-    protected $fillable = ['id', 'issue_id', 'user_id', 'body', 'created_at', 'updated_at', 'type', 'resolved'];
+    protected $fillable = ['comment_id', 'issue_id', 'user_id', 'body', 'created_at', 'updated_at', 'type', 'resolved'];
 
     public function issue()
     {

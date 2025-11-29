@@ -68,8 +68,9 @@ class ProcessIssueCommentWebhook implements ShouldQueue
         GithubUser::updateFromWebhook($userData);
 
         ItemComment::updateOrCreate(
-            ['id' => $commentData->id],
+            ['comment_id' => $commentData->id, 'type' => 'issue'],
             [
+                'comment_id' => $commentData->id,
                 'issue_id' => $issueData->id,
                 'user_id' => $userData->id,
                 'body' => $commentData->body ?? '',
