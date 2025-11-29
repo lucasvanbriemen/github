@@ -4,15 +4,11 @@ namespace App\Listeners;
 
 use App\Events\PullRequestReviewWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\PullRequestReview;
 use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
-use App\Mail\PullRequestReviewed;
-use App\GithubConfig;
-use Illuminate\Support\Facades\Mail;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -33,7 +29,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
 
         $reviewData = $payload->review;
         $prData = $payload->pull_request;
-        
+
         $repositoryData = $payload->repository;
         Repository::updateFromWebhook($repositoryData);
 

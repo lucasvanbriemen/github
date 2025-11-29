@@ -3,13 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseComment;
 
-class PullRequestComment extends Model
+class PullRequestComment extends BaseComment
 {
     protected $keyType = 'int';
 
     public $incrementing = false;
 
+    public function baseComment()
+    {
+        return $this->belongsTo(BaseComment::class, 'base_comment_id', 'comment_id')
+            ->where('type', 'code');
+    }
 
     public function pullRequest()
     {
@@ -26,5 +32,5 @@ class PullRequestComment extends Model
         return $this->hasMany(PullRequestComment::class, 'in_reply_to_id', 'id');
     }
 
-    protected $fillable = ['id', 'pull_request_id', 'user_id', 'body', 'base_comment_id', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line', 'pull_request_review_id'];
+    protected $fillable = ['id', 'base_comment_id', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line', 'pull_request_review_id'];
 }
