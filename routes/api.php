@@ -34,7 +34,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/item/{number}/files', [ItemController::class, 'getFiles'])
         ->name('organizations.repositories.item.files');
 
-    Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+        Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
         ->name('organizations.repositories.branches.pr.notices');
 
     Route::get('/org/{organization}/repo/{repository}/pr/metadata', [PullRequestController::class, 'metadata'])
@@ -42,7 +42,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
     Route::post('/org/{organization}/repo/{repository}/pr/create', [PullRequestController::class, 'create'])
         ->name('organizations.repositories.pr.create');
-
 });
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
