@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryUserController;
-use App\Models\Console;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
