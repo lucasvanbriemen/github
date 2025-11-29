@@ -73,6 +73,7 @@ class ProcessIssueCommentWebhook implements ShouldQueue
                 'issue_id' => $issueData->id,
                 'user_id' => $userData->id,
                 'body' => $commentData->body ?? '',
+                'type' => 'issue',
             ]
         );
 
