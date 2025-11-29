@@ -15,7 +15,7 @@
   let type = $derived(params.type);
 
   let item = $state({});
-  let isPR = type = 'prs';
+  let isPR = type == 'prs';
   let isLoading = $state(true);
 
   onMount(async () => {
