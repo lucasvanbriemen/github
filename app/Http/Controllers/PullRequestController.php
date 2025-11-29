@@ -112,24 +112,12 @@ class PullRequestController extends Controller
             // GitHub may return a single assignee
             $assigneeGithubIds[] = $response['assignee']['id'];
         }
-        
+
         $pr->assignees()->sync($assigneeGithubIds);
 
         return response()->json([
             'number' => $response['number'] ?? null,
             'state' => $state,
         ]);
-    }
-
-    function merge($organizationName, $repositoryName, $number)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $pr = PullRequest::where('repository_id', $repository->id)->where('number', $number)->first();
-        $headSha = $pr->details->head_sha;
-
-        $response = Github::pullRequests()->merge($organization->name, $repository->name, $number, "Merge {$pr->title}",$headSha);
-
-        return response()->json($response);
     }
 }
