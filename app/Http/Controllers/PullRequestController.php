@@ -5,12 +5,8 @@ namespace App\Http\Controllers;
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
 use App\Models\PullRequestDetails;
-use App\Models\GithubUser;
-use App\Models\Item;
-use App\Helpers\DiffRenderer;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
-use Illuminate\Support\Facades\DB;
 use GrahamCampbell\GitHub\Facades\Github;
 
 class PullRequestController extends Controller
