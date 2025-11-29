@@ -13,6 +13,8 @@ return new class extends Migration
     {
         // Remove the viewed_files table
         Schema::dropIfExists('viewed_files');
+        Schema::dropIfExists('pull_request_issues');
+        Schema::dropIfExists('system_info');
     }
 
     /**
