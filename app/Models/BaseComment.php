@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseComment extends Model
 {
-
     protected $table = 'base_comments';
 
     protected $fillable = ['comment_id', 'issue_id', 'user_id', 'body', 'created_at', 'updated_at', 'type', 'resolved'];
@@ -19,5 +18,18 @@ class BaseComment extends Model
     public function author()
     {
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
+    }
+
+    public function pullRequestComment()
+    {
+        return $this->hasOne(PullRequestComment::class, 'base_comment_id', 'comment_id');
+    }
+
+    public function childComments()
+    {
+        // This relationship is primarily used for PR review comments
+        // Since we can't easily define it directly on BaseComment, return an empty collection
+        // Child comments are handled by PullRequestComment.childComments() instead
+        return $this->hasMany(BaseComment::class, 'comment_id', 'id')->where('id', 0);
     }
 }

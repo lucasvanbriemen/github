@@ -99,55 +99,53 @@ class ItemController extends Controller
         $item->load([
             'details',
             'requestedReviewers.user',
-            'pullRequestComments.baseComment',
-            'pullRequestReviews'
-        //     'pullRequestReviews' => function ($query) {
-        //         // Include reviews with content OR those that have comments attached
-        //         // (standalone PR comments may be attached to an empty-body review)
-        //         $query->where(function ($q) {
-        //             $q->whereNotNull('body')->where('body', '<>', '');
-        //         })->orWhereHas('childComments');
-        //         $query->with('author')->orderBy('created_at', 'asc');
-        //         $query->with('childComments');
-        //     },
-        //     'pullRequestComments' => function ($query) {
-        //         $query->with('author')->orderBy('created_at', 'asc');
-        //         $query->with('childComments');
-        //     },
+            'pullRequestReviews' => function ($query) {
+                // Include reviews with content OR those that have comments attached
+                // (standalone PR comments may be attached to an empty-body review)
+                $query->where(function ($q) {
+                    $q->whereNotNull('body')->where('body', '<>', '');
+                })->orWhereHas('childComments');
+                $query->with('author')->orderBy('created_at', 'asc');
+                $query->with('childComments');
+            },
+            'pullRequestComments' => function ($query) {
+                $query->with('author')->orderBy('created_at', 'asc');
+                $query->with('childComments');
+            },
         ]);
 
-        // // Process PR reviews markdown images
-        // foreach ($item->pullRequestReviews as $review) {
-        //     if ($review->body) {
-        //         $review->body = self::processMarkdownImages($review->body);
-        //     }
-        //     $review->created_at_human = $review->created_at->diffForHumans();
+        // Process PR reviews markdown images
+        foreach ($item->pullRequestReviews as $review) {
+            if ($review->body) {
+                $review->body = self::processMarkdownImages($review->body);
+            }
+            $review->created_at_human = $review->created_at->diffForHumans();
 
-        //     foreach ($review->childComments as $comment) {
-        //         $comment->body = self::processMarkdownImages($comment->body);
-        //         $comment->created_at_human = $comment->created_at->diffForHumans();
+            foreach ($review->childComments as $comment) {
+                $comment->body = self::processMarkdownImages($comment->body);
+                $comment->created_at_human = $comment->created_at->diffForHumans();
 
-        //         foreach ($comment->childComments as $reply) {
-        //             $reply->body = self::processMarkdownImages($reply->body);
-        //             $reply->created_at_human = $reply->created_at->diffForHumans();
-        //         }
-        //     }
-        // }
+                foreach ($comment->childComments as $reply) {
+                    $reply->body = self::processMarkdownImages($reply->body);
+                    $reply->created_at_human = $reply->created_at->diffForHumans();
+                }
+            }
+        }
 
-        // // Process standalone PR comments (not attached to a review)
-        // foreach ($item->pullRequestComments as $comment) {
-        //     if ($comment->body) {
-        //         $comment->body = self::processMarkdownImages($comment->body);
-        //     }
-        //     $comment->created_at_human = $comment->created_at->diffForHumans();
+        // Process standalone PR comments (not attached to a review)
+        foreach ($item->pullRequestComments as $comment) {
+            if ($comment->body) {
+                $comment->body = self::processMarkdownImages($comment->body);
+            }
+            $comment->created_at_human = $comment->created_at->diffForHumans();
 
-        //     foreach ($comment->childComments as $reply) {
-        //         if ($reply->body) {
-        //             $reply->body = self::processMarkdownImages($reply->body);
-        //         }
-        //         $reply->created_at_human = $reply->created_at->diffForHumans();
-        //     }
-        // }
+            foreach ($comment->childComments as $reply) {
+                if ($reply->body) {
+                    $reply->body = self::processMarkdownImages($reply->body);
+                }
+                $reply->created_at_human = $reply->created_at->diffForHumans();
+            }
+        }
     }
 
     public static function getFiles($organizationName, $repositoryName, $number)
