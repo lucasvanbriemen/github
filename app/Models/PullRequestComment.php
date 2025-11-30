@@ -13,7 +13,7 @@ class PullRequestComment extends BaseComment
 
     public $incrementing = false;
 
-    protected $with = ['childComments'];
+    protected $with = ['childComments', 'baseComment', 'baseComment.author'];
 
     public function baseComment()
     {

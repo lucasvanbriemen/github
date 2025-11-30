@@ -12,6 +12,9 @@
 
     return comment.author.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
   }
+
+  console.log($state.snapshot(comment));
+
 </script>
 
 <div class="item-comment" class:item-comment-resolved={comment.resolved}>
@@ -34,9 +37,9 @@
 
       <Markdown content={comment.body} />
 
-      {#if comment.child_comments_recursive}
+      {#if comment.details?.child_comments}
         <div class="item-comment-replies">
-          {#each comment.child_comments_recursive as comment}
+          {#each comment.details.child_comments as comment}
             <Self {comment} onToggle={onToggleReply} />
           {/each}
         </div>
