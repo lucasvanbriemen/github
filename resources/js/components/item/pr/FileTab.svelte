@@ -21,12 +21,13 @@
 
   onMount(async () => {
     // Collect inline review comments from both sources and de-duplicate by id
-    comments = item.pull_request_reviews
+    const raw = item.pull_request_reviews
       .map(r => r.child_comments)
       .flat();
 
-    // Remove the diff_hunks from the comments in the files tab to avoid duplication of diffs
-    comments.forEach(c => { if (c && 'diff_hunk' in c) delete c.diff_hunk; });
+    // Create a local, non-mutating copy of comments without diff_hunk to avoid
+    // altering the shared item object used by the Conversation tab.
+    comments = raw.map(c => ({ ...c, diff_hunk: undefined }));
   });
 
   $effect(() => {

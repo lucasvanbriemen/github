@@ -128,7 +128,10 @@ class ItemController extends Controller
             $review->created_at_human = $review->created_at->diffForHumans();
 
             foreach ($review->childComments as $comment) {
-                $comment->body = self::processMarkdownImages($comment->body);
+                // For PR code comments, body is an appended attribute sourced from baseComment
+                if ($comment->baseComment && $comment->baseComment->body) {
+                    $comment->baseComment->body = self::processMarkdownImages($comment->baseComment->body);
+                }
                 $comment->created_at_human = $comment->created_at->diffForHumans();
                 // Set author from baseComment if available
                 if ($comment->baseComment && $comment->baseComment->author) {
@@ -136,7 +139,9 @@ class ItemController extends Controller
                 }
 
                 foreach ($comment->childComments as $reply) {
-                    $reply->body = self::processMarkdownImages($reply->body);
+                    if ($reply->baseComment && $reply->baseComment->body) {
+                        $reply->baseComment->body = self::processMarkdownImages($reply->baseComment->body);
+                    }
                     $reply->created_at_human = $reply->created_at->diffForHumans();
                     // Set author from baseComment if available
                     if ($reply->baseComment && $reply->baseComment->author) {
@@ -148,8 +153,8 @@ class ItemController extends Controller
 
         // Process standalone PR comments (not attached to a review)
         foreach ($item->pullRequestComments as $comment) {
-            if ($comment->body) {
-                $comment->body = self::processMarkdownImages($comment->body);
+            if ($comment->baseComment && $comment->baseComment->body) {
+                $comment->baseComment->body = self::processMarkdownImages($comment->baseComment->body);
             }
             $comment->created_at_human = $comment->created_at->diffForHumans();
             // Set author from baseComment if available
@@ -158,8 +163,8 @@ class ItemController extends Controller
             }
 
             foreach ($comment->childComments as $reply) {
-                if ($reply->body) {
-                    $reply->body = self::processMarkdownImages($reply->body);
+                if ($reply->baseComment && $reply->baseComment->body) {
+                    $reply->baseComment->body = self::processMarkdownImages($reply->baseComment->body);
                 }
                 $reply->created_at_human = $reply->created_at->diffForHumans();
                 // Set author from baseComment if available
