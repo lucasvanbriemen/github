@@ -9,6 +9,7 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\Models\BaseComment;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -16,8 +17,8 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
      * Create the event listener.
      */
     public function __construct()
-    {
-        //
+{
+    //
     }
 
     /**
@@ -39,17 +40,25 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         // Ensure the pull request exists before creating the review
         PullRequest::updateFromWebhook($prData);
 
+        $baseComment = BaseComment::updateOrCreate(
+            ['comment_id' => $reviewData->id, 'type' => 'review'],
+            [
+                'issue_id' => $prData->id,
+                'user_id' => $userData->id,
+                'body' => $reviewData->body ?? '',
+                'type' => 'review',
+            ]
+        );
+
         $pullRequestReview = PullRequestReview::updateOrCreate([
             'id' => $reviewData->id,
         ], [
-            'pull_request_id' => $prData->id,
-            'user_id' => $reviewData->user->id,
-            'body' => $reviewData->body,
+            'base_comment_id' => $baseComment->id,
             'state' => $reviewData->state,
         ]);
 
         // We also need to create/update RequestedReviewer (since thats how we show reviews in the UI sidebar)
-        // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED
+        // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED OR APPROVED
         // A CHANGES_REQUESTED review blocks the PR until the reviewer APPROVEs
         // Also: If someone is in requested_reviewers, they're PENDING (their review was dismissed or they were re-requested)
 
@@ -63,11 +72,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         $isInRequestedReviewers = collect($prData->requested_reviewers ?? [])->pluck('id')->contains($userData->id);
 
         // If they're in requested_reviewers, they're pending (dismissed or re-requested)
-        if ($isInRequestedReviewers) {
-            $newState = 'pending';
-        }
-        // If dismissed, treat as pending
-        elseif ($newState === 'dismissed') {
+        if ($isInRequestedReviewers || $newState === 'dismissed') {
             $newState = 'pending';
         }
 

@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseComment;
 
-class PullRequestReview extends Model
+class PullRequestReview extends BaseComment
 {
     protected $table = 'pull_request_reviews';
 
@@ -34,9 +35,7 @@ class PullRequestReview extends Model
 
     protected $fillable = [
         'id',
-        'pull_request_id',
-        'user_id',
-        'body',
+        'comment_id',
         'state',
         'resolved',
     ];

@@ -31,8 +31,6 @@ class BaseCommentController extends Controller
 
     public static function updateReview($organizationName, $repositoryName, $issueNumber, $review_id)
     {
-        // [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
         $review = PullRequestReview::where('id', $review_id)
             ->firstOrFail();
 
