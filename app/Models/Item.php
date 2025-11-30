@@ -50,8 +50,7 @@ class Item extends Model
 
     public function comments()
     {
-        return $this->hasMany(BaseComment::class, 'issue_id', 'id')
-            ->where('type', 'issue');
+        return $this->hasMany(BaseComment::class, 'issue_id', 'id');
     }
 
     // Scope to get only issues
@@ -85,20 +84,5 @@ class Item extends Model
     public function pullRequestReviews()
     {
         return $this->hasMany(PullRequestReview::class, 'pull_request_id', 'id');
-    }
-
-    public function pullRequestComments()
-    {
-        // Return PullRequestComment instances which have the childComments relationship
-        // Join with base_comments to filter by issue_id
-        return $this->hasManyThrough(
-            PullRequestComment::class,
-            BaseComment::class,
-            'issue_id',          // Foreign key on base_comments table
-            'base_comment_id',   // Foreign key on pull_request_comments table
-            'id',                // Local key on items table
-            'comment_id'         // Local key on base_comments table
-        )->where('base_comments.type', 'code')
-         ->whereNull('pull_request_comments.in_reply_to_id'); // Only top-level comments
     }
 }

@@ -16,14 +16,14 @@ class ItemController extends Controller
 
         $state = request()->query('state', 'open');
         $assignee = request()->query('assignee', 'any');
-        
+
         $query = $repository->items($type, $state, $assignee)
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
             ]);
-            
+
         $page = request()->query('page', 1);
         $items = $query->paginate(30, ['*'], 'page', $page);
 
@@ -42,10 +42,10 @@ class ItemController extends Controller
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
             ->with(['assignees', 'openedBy', 'comments' => function($query) {
-                $query->with('author');
+                $query->with('author', 'details.childComments');
             }])
             ->firstOrFail();
-        
+
         $item->body = self::processMarkdownImages($item->body);
         $item->created_at_human = $item->created_at->diffForHumans();
         foreach ($item->comments as $comment) {
@@ -63,7 +63,7 @@ class ItemController extends Controller
 
     // For a private repo, we need to proxy images through our server instead of using the normal link
     // As you need to be authenticated to view them
-    // So we use a proxy route to fetch and serve the images 
+    // So we use a proxy route to fetch and serve the images
     private static function processMarkdownImages($content)
     {
         if (!$content) {
@@ -112,12 +112,6 @@ class ItemController extends Controller
                     }]);
                 }]);
             },
-            'pullRequestComments' => function ($query) {
-                $query->orderBy('created_at', 'asc');
-                $query->with(['baseComment.author', 'childComments' => function($q) {
-                    $q->with(['baseComment.author']);
-                }]);
-            },
         ]);
 
         // Process PR reviews markdown images
@@ -147,29 +141,6 @@ class ItemController extends Controller
                     if ($reply->baseComment && $reply->baseComment->author) {
                         $reply->setRelation('author', $reply->baseComment->author);
                     }
-                }
-            }
-        }
-
-        // Process standalone PR comments (not attached to a review)
-        foreach ($item->pullRequestComments as $comment) {
-            if ($comment->baseComment && $comment->baseComment->body) {
-                $comment->baseComment->body = self::processMarkdownImages($comment->baseComment->body);
-            }
-            $comment->created_at_human = $comment->created_at->diffForHumans();
-            // Set author from baseComment if available
-            if ($comment->baseComment && $comment->baseComment->author) {
-                $comment->setRelation('author', $comment->baseComment->author);
-            }
-
-            foreach ($comment->childComments as $reply) {
-                if ($reply->baseComment && $reply->baseComment->body) {
-                    $reply->baseComment->body = self::processMarkdownImages($reply->baseComment->body);
-                }
-                $reply->created_at_human = $reply->created_at->diffForHumans();
-                // Set author from baseComment if available
-                if ($reply->baseComment && $reply->baseComment->author) {
-                    $reply->setRelation('author', $reply->baseComment->author);
                 }
             }
         }

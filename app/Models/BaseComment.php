@@ -20,9 +20,10 @@ class BaseComment extends Model
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }
 
-    public function pullRequestComment()
+    public function details()
     {
-        return $this->hasOne(PullRequestComment::class, 'base_comment_id', 'comment_id');
+        // Link PR-specific details via the BaseComment primary key
+        return $this->hasOne(PullRequestComment::class, 'base_comment_id', 'id');
     }
 
     public function childComments()
