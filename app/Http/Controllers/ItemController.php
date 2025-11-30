@@ -48,18 +48,21 @@ class ItemController extends Controller
             ])
             ->firstOrFail();
 
-        $item->body = self::processMarkdownImages($item->body);
-        $item->created_at_human = $item->created_at->diffForHumans();
+        $item->comments->each->append('details');
 
-        foreach ($item->comments as $comment) {
-            $comment->body = self::processMarkdownImages($comment->body);
-            $comment->created_at_human = $comment->created_at->diffForHumans();
-        }
 
-        // If its a PR we also want to load that specific data
-        if ($item->isPullRequest()) {
-            self::loadPullRequestData($item);
-        }
+        // $item->body = self::processMarkdownImages($item->body);
+        // $item->created_at_human = $item->created_at->diffForHumans();
+
+        // foreach ($item->comments as $comment) {
+        //     $comment->body = self::processMarkdownImages($comment->body);
+        //     $comment->created_at_human = $comment->created_at->diffForHumans();
+        // }
+
+        // // If its a PR we also want to load that specific data
+        // if ($item->isPullRequest()) {
+        //     self::loadPullRequestData($item);
+        // }
 
         return response()->json($item);
     }
