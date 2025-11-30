@@ -6,22 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('item_comments_pr1', function (Blueprint $table) {
-            //
+        Schema::table('pull_request_reviews', function (Blueprint $table) {
+            // Add the base_comment_id column to link to base_comments
+            $table->unsignedBigInteger('base_comment_id')->nullable()->after('id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('item_comments_pr1', function (Blueprint $table) {
+        Schema::table('pull_request_reviews', function (Blueprint $table) {
             //
         });
     }
