@@ -5,16 +5,19 @@
 
   let { comment, onToggle, onToggleReply = onToggle} = $props();
 
-  // Determine the action text based on the created_at_human format
-  let actionText = comment.created_at_human?.includes('(review)')
-    ? comment.created_at_human.replace(' (review)', '')
-    : `commented ${comment.created_at_human}`;
+  function commentHeaderText() {
+    if (comment.type === 'issue' || comment.type === 'code') {
+      return comment.author.display_name + ' commented  ' + comment.created_at_human;
+    }
+
+    return comment.author.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
+  }
 </script>
 
 <div class="item-comment" class:item-comment-resolved={comment.resolved}>
   <button class="item-comment-header" onclick={() => onToggle(comment)}>
     <img src={comment.author?.avatar_url} alt={comment.author?.name} />
-    <span>{comment.author?.display_name} {actionText}</span>
+    <span>{commentHeaderText()}</span>
   </button>
 
   <div class="item-comment-body">
@@ -31,9 +34,9 @@
 
       <Markdown content={comment.body} />
 
-      {#if comment.child_comments}
+      {#if comment.child_comments_recursive}
         <div class="item-comment-replies">
-          {#each comment.child_comments as comment}
+          {#each comment.child_comments_recursive as comment}
             <Self {comment} onToggle={onToggleReply} />
           {/each}
         </div>

@@ -7,21 +7,24 @@
   import ItemOverview from './itemOverview/ItemOverview.svelte';
   import Item from './item/Item.svelte';
   import NewPullRequest from './item/pr/NewPullRequest.svelte';
-  import theme from '../theme.js';
+  import theme from '../lib/theme.js';
+  import api from '../lib/api.js';
 
   const routes = {
     '/': Dashboard,
     '/:organization/:repository': RepositoryDashboard,
-    '/:organization/:repository/issues': ItemOverview,
-    '/:organization/:repository/issues/:number': Item,
-    '/:organization/:repository/prs': ItemOverview,
-    '/:organization/:repository/new/pr/:branch?': NewPullRequest,
-    '/:organization/:repository/prs/:number': Item,
+
+    // Item Related
+    '/:organization/:repository/:type': ItemOverview,
+    '/:organization/:repository/new/:type/:branch?': NewPullRequest,
+    '/:organization/:repository/:type/:number/:tab?': Item,
   };
 
   onMount(async () => {
     theme.applyTheme();
   });
+
+  window.api = api;
 </script>
 
 <Header />

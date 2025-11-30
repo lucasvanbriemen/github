@@ -16,14 +16,14 @@ class ItemController extends Controller
 
         $state = request()->query('state', 'open');
         $assignee = request()->query('assignee', 'any');
-        
+
         $query = $repository->items($type, $state, $assignee)
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
             ]);
-            
+
         $page = request()->query('page', 1);
         $items = $query->paginate(30, ['*'], 'page', $page);
 
@@ -41,13 +41,16 @@ class ItemController extends Controller
 
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
-            ->with(['assignees', 'openedBy', 'comments' => function($query) {
-                $query->with('author');
-            }])
+            ->with([
+                'assignees',
+                'openedBy',
+                'comments'
+            ])
             ->firstOrFail();
-        
+
         $item->body = self::processMarkdownImages($item->body);
         $item->created_at_human = $item->created_at->diffForHumans();
+
         foreach ($item->comments as $comment) {
             $comment->body = self::processMarkdownImages($comment->body);
             $comment->created_at_human = $comment->created_at->diffForHumans();
@@ -63,7 +66,7 @@ class ItemController extends Controller
 
     // For a private repo, we need to proxy images through our server instead of using the normal link
     // As you need to be authenticated to view them
-    // So we use a proxy route to fetch and serve the images 
+    // So we use a proxy route to fetch and serve the images
     private static function processMarkdownImages($content)
     {
         if (!$content) {
@@ -98,50 +101,8 @@ class ItemController extends Controller
         // Load PR-specific details (branches, SHAs, etc.)
         $item->load([
             'details',
-            'requestedReviewers.user',
-            'pullRequestReviews' => function($query) {
-                // Include reviews with content OR those that have comments attached
-                // (standalone PR comments may be attached to an empty-body review)
-                $query->where(function($q) {
-                    $q->whereNotNull('body')->where('body', '<>', '');
-                })->orWhereHas('childComments');
-                $query->with('author')->orderBy('created_at', 'asc');
-                $query->with('childComments');
-            }
+            'requestedReviewers.user'
         ]);
-
-        // Process PR reviews markdown images
-        foreach ($item->pullRequestReviews as $review) {
-            if ($review->body) {
-                $review->body = self::processMarkdownImages($review->body);
-            }
-            $review->created_at_human = $review->created_at->diffForHumans();
-
-            foreach ($review->childComments as $comment) {
-                $comment->body = self::processMarkdownImages($comment->body);
-                $comment->created_at_human = $comment->created_at->diffForHumans();
-
-                foreach ($comment->childComments as $reply) {
-                    $reply->body = self::processMarkdownImages($reply->body);
-                    $reply->created_at_human = $reply->created_at->diffForHumans();
-                }
-            }
-        }
-
-        // Process standalone PR comments (not attached to a review)
-        foreach ($item->pullRequestComments as $comment) {
-            if ($comment->body) {
-                $comment->body = self::processMarkdownImages($comment->body);
-            }
-            $comment->created_at_human = $comment->created_at->diffForHumans();
-
-            foreach ($comment->childComments as $reply) {
-                if ($reply->body) {
-                    $reply->body = self::processMarkdownImages($reply->body);
-                }
-                $reply->created_at_human = $reply->created_at->diffForHumans();
-            }
-        }
     }
 
     public static function getFiles($organizationName, $repositoryName, $number)

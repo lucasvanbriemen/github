@@ -7,10 +7,10 @@ use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PullRequestController;
-use App\Http\Controllers\ItemCommentController;
+use App\Http\Controllers\BaseCommentController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
-    Route::get('/org', [OrganizationController::class, 'getOrganizations'])
+    Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
         ->name('organizations.get');
 
     Route::get('/org/{organization}/repo/{repository}/items/{type}', [ItemController::class, 'index'])
@@ -22,19 +22,19 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
         ->name('organizations.repositories.item.show');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemCommentController::class, 'updateItem'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
         ->name('organizations.repositories.item.comment');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [ItemCommentController::class, 'updateReview'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
         ->name('organizations.repositories.item.review');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [ItemCommentController::class, 'updateReviewComment'])
+    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [BaseCommentController::class, 'updateReviewComment'])
         ->name('organizations.repositories.item.review.comment');
 
     Route::get('/org/{organization}/repo/{repository}/item/{number}/files', [ItemController::class, 'getFiles'])
         ->name('organizations.repositories.item.files');
-    
-    Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+
+        Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
         ->name('organizations.repositories.branches.pr.notices');
 
     Route::get('/org/{organization}/repo/{repository}/pr/metadata', [PullRequestController::class, 'metadata'])
@@ -42,7 +42,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
     Route::post('/org/{organization}/repo/{repository}/pr/create', [PullRequestController::class, 'create'])
         ->name('organizations.repositories.pr.create');
-
 });
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])

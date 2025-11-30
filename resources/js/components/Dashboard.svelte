@@ -4,8 +4,7 @@
   let organizations = [];
 
   onMount(async () => {
-    const res = await fetch(route('organizations.get'));
-    organizations = await res.json();
+    organizations = await api.get(route('organizations.get'));
   });
 
 </script>

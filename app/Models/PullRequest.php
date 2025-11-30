@@ -113,25 +113,30 @@ class PullRequest extends Item
             $closedAt = null;
         }
 
-        // Fetch the correct merge_base_sha using compare API
+        // Fetch the correct merge_base_sha using compare API (prefer SHAs)
         $mergeBaseSha = null;
         $headSha = $prData->head->sha ?? null;
+        $baseSha = $prData->base->sha ?? null;
 
-        if ($headSha && isset($prData->base->ref) && isset($prData->head->ref)) {
-            $ownerName = $prData->base->repo->owner->login ?? null;
-            $repoName = $prData->base->repo->name ?? null;
+        $ownerName = $prData->base->repo->owner->login ?? null;
+        $repoName = $prData->base->repo->name ?? null;
 
-            if ($ownerName && $repoName) {
-                try {
+        if ($ownerName && $repoName) {
+            try {
+                if ($baseSha && $headSha) {
+                    $compareData = \App\Helpers\ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$baseSha}...{$headSha}");
+                } elseif (isset($prData->base->ref, $prData->head->ref)) {
                     $compareData = \App\Helpers\ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}");
-
-                    if ($compareData && isset($compareData->merge_base_commit->sha)) {
-                        $mergeBaseSha = $compareData->merge_base_commit->sha;
-                    }
-                } catch (\Exception $e) {
-                    // If compare fails, fall back to null
-                    $mergeBaseSha = null;
+                } else {
+                    $compareData = null;
                 }
+
+                if ($compareData && isset($compareData->merge_base_commit->sha)) {
+                    $mergeBaseSha = $compareData->merge_base_commit->sha;
+                }
+            } catch (\Exception $e) {
+                // If compare fails, fall back to null
+                $mergeBaseSha = null;
             }
         }
 

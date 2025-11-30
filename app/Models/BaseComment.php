@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class BaseComment extends Model
+{
+    protected $table = 'base_comments';
+
+    protected $fillable = ['comment_id', 'issue_id', 'user_id', 'body', 'created_at', 'updated_at', 'type', 'resolved'];
+
+    protected $with  = ['details', 'author'];
+
+    public function issue()
+    {
+        return $this->belongsTo(Issue::class, 'issue_id', 'id');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(GithubUser::class, 'user_id', 'id');
+    }
+
+    public function details()
+    {
+        if ($this->type === 'review') {
+            return $this->hasOne(PullRequestReview::class, 'base_comment_id', 'id');
+        }
+
+        return $this->hasOne(PullRequestComment::class, 'base_comment_id', 'id');
+    }
+}

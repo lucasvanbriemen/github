@@ -20,8 +20,7 @@
 
   onMount(async () => {
     // Load branches for the repository to populate the Select components
-    const res = await fetch(route(`organizations.repositories.pr.metadata`, { organization: params.organization, repository: params.repository }));
-    const data = await res.json();
+    const data = await api.get(route(`organizations.repositories.pr.metadata`, { organization: params.organization, repository: params.repository }));
 
     // Ensure options are in { value, label } shape expected by <Select>
     possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
@@ -31,24 +30,20 @@
   });
 
   async function createPR() {
-    const res = await fetch(route(`organizations.repositories.pr.create`, { organization: params.organization, repository: params.repository }), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        head_branch,
-        base_branch,
-        title,
-        body,
-        assignee,
-      }),
+    const res = await api.post(route(`organizations.repositories.pr.create`, { organization: params.organization, repository: params.repository }), {
+      head_branch,
+      base_branch,
+      title,
+      body,
+      assignee,
     });
 
-    window.location.hash = `/${params.organization}/${params.repository}/prs/${Number((await res.json()).number)}`;
+    window.location.hash = `#/${params.organization}/${params.repository}/prs/${Number(res.number)}`;
   }
 </script>
 
 <div class="new-pr">
-  <Sidebar {params} selectedDropdownSection="New PR">
+  <Sidebar {params} activeItem="New PR">
     <SidebarGroup title="Branch to merge">
       <Select name="head_branch" value={head_branch} selectableItems={possibleBranches}  bind:selectedValue={head_branch} />
     </SidebarGroup>
