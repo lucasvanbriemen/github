@@ -33,6 +33,11 @@ class PullRequestReview extends BaseComment
         return $query;
     }
 
+    public function childCommentsRecursive()
+    {
+        return $this->childComments()->with('childCommentsRecursive');
+    }
+
     protected $fillable = [
         'id',
         'comment_id',

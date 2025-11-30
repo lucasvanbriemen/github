@@ -10,7 +10,7 @@
       return comment.author.display_name + ' commented  ' + comment.created_at_human;
     }
 
-    return comment.author.display_name + ' ' + comment.state + ' the PR  ' + comment.created_at_human;
+    return comment.author.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
   }
 </script>
 
@@ -34,9 +34,9 @@
 
       <Markdown content={comment.body} />
 
-      {#if comment.child_comments}
+      {#if comment.child_comments_recursive}
         <div class="item-comment-replies">
-          {#each comment.child_comments as comment}
+          {#each comment.child_comments_recursive as comment}
             <Self {comment} onToggle={onToggleReply} />
           {/each}
         </div>

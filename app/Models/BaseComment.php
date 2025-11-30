@@ -10,6 +10,10 @@ class BaseComment extends Model
 
     protected $fillable = ['comment_id', 'issue_id', 'user_id', 'body', 'created_at', 'updated_at', 'type', 'resolved'];
 
+    protected $appends = ['details'];
+
+    protected $hidden = ['reviewDetails', 'commentDetails'];
+
     public function issue()
     {
         return $this->belongsTo(Issue::class, 'issue_id', 'id');
@@ -20,10 +24,27 @@ class BaseComment extends Model
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
     }
 
-    public function details()
+    public function reviewDetails()
     {
-        // Link PR-specific details via the BaseComment primary key
+        return $this->hasOne(PullRequestReview::class, 'base_comment_id', 'id');
+    }
+
+    public function commentDetails()
+    {
         return $this->hasOne(PullRequestComment::class, 'base_comment_id', 'id');
+    }
+
+    public function getDetailsAttribute()
+    {
+        if ($this->type === 'review') {
+            return $this->relationLoaded('reviewDetails') ? $this->reviewDetails : $this->reviewDetails()->first();
+        }
+
+        if ($this->type === 'code') {
+            return $this->relationLoaded('commentDetails') ? $this->commentDetails : $this->commentDetails()->first();
+        }
+
+        return null; // issue comments have no details
     }
 
     public function childComments()

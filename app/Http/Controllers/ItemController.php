@@ -45,7 +45,12 @@ class ItemController extends Controller
                 'assignees',
                 'openedBy',
                 'comments' => function ($query) {
-                    $query->with('author', 'details.childComments');
+                    // Eager-load both review and code details to support mixed types
+                    $query->with(
+                        'author',
+                        'reviewDetails.childCommentsRecursive',
+                        'commentDetails.childCommentsRecursive'
+                    );
                 }
             ])
             ->firstOrFail();
@@ -103,50 +108,8 @@ class ItemController extends Controller
         // Load PR-specific details (branches, SHAs, etc.)
         $item->load([
             'details',
-            'requestedReviewers.user',
-            'pullRequestReviews' => function ($query) {
-                // Include reviews with content OR those that have comments attached
-                // (standalone PR comments may be attached to an empty-body review)
-                $query->whereHas('childComments');
-                $query->with('author')->orderBy('created_at', 'asc');
-                $query->with(['childComments' => function($q) {
-                    $q->with(['baseComment.author', 'childComments' => function($subQ) {
-                        $subQ->with(['baseComment.author']);
-                    }]);
-                }]);
-            },
+            'requestedReviewers.user'
         ]);
-
-        // Process PR reviews markdown images
-        foreach ($item->pullRequestReviews as $review) {
-            if ($review->body) {
-                $review->body = self::processMarkdownImages($review->body);
-            }
-            $review->created_at_human = $review->created_at->diffForHumans();
-
-            foreach ($review->childComments as $comment) {
-                // For PR code comments, body is an appended attribute sourced from baseComment
-                if ($comment->baseComment && $comment->baseComment->body) {
-                    $comment->baseComment->body = self::processMarkdownImages($comment->baseComment->body);
-                }
-                $comment->created_at_human = $comment->created_at->diffForHumans();
-                // Set author from baseComment if available
-                if ($comment->baseComment && $comment->baseComment->author) {
-                    $comment->setRelation('author', $comment->baseComment->author);
-                }
-
-                foreach ($comment->childComments as $reply) {
-                    if ($reply->baseComment && $reply->baseComment->body) {
-                        $reply->baseComment->body = self::processMarkdownImages($reply->baseComment->body);
-                    }
-                    $reply->created_at_human = $reply->created_at->diffForHumans();
-                    // Set author from baseComment if available
-                    if ($reply->baseComment && $reply->baseComment->author) {
-                        $reply->setRelation('author', $reply->baseComment->author);
-                    }
-                }
-            }
-        }
     }
 
     public static function getFiles($organizationName, $repositoryName, $number)
