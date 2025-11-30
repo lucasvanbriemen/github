@@ -41,13 +41,18 @@ class ItemController extends Controller
 
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
-            ->with(['assignees', 'openedBy', 'comments' => function($query) {
-                $query->with('author', 'details.childComments');
-            }])
+            ->with([
+                'assignees',
+                'openedBy',
+                'comments' => function ($query) {
+                    $query->with('author', 'details.childComments');
+                }
+            ])
             ->firstOrFail();
 
         $item->body = self::processMarkdownImages($item->body);
         $item->created_at_human = $item->created_at->diffForHumans();
+
         foreach ($item->comments as $comment) {
             $comment->body = self::processMarkdownImages($comment->body);
             $comment->created_at_human = $comment->created_at->diffForHumans();
