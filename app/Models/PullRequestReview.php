@@ -15,6 +15,8 @@ class PullRequestReview extends BaseComment
 
     public $timestamps = true;
 
+    protected $with = ['childComments'];
+
     public function pullRequest()
     {
         return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
@@ -33,14 +35,9 @@ class PullRequestReview extends BaseComment
         return $query;
     }
 
-    public function childCommentsRecursive()
-    {
-        return $this->childComments()->with('childCommentsRecursive');
-    }
-
     protected $fillable = [
         'id',
-        'comment_id',
+        'base_comment_id',
         'state',
         'resolved',
     ];

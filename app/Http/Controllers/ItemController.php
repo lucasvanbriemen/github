@@ -44,14 +44,7 @@ class ItemController extends Controller
             ->with([
                 'assignees',
                 'openedBy',
-                'comments' => function ($query) {
-                    // Eager-load both review and code details to support mixed types
-                    $query->with(
-                        'author',
-                        'reviewDetails.childCommentsRecursive',
-                        'commentDetails.childCommentsRecursive'
-                    );
-                }
+                'comments'
             ])
             ->firstOrFail();
 

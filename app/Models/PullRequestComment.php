@@ -13,6 +13,8 @@ class PullRequestComment extends BaseComment
 
     public $incrementing = false;
 
+    protected $with = ['childComments'];
+
     public function baseComment()
     {
         return $this->belongsTo(BaseComment::class, 'base_comment_id', 'id')
