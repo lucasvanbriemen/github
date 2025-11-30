@@ -48,8 +48,6 @@ class ItemController extends Controller
             ])
             ->firstOrFail();
 
-        $item->comments->each->append('details');
-
         $item->body = self::processMarkdownImages($item->body);
         $item->created_at_human = $item->created_at->diffForHumans();
 
@@ -61,6 +59,7 @@ class ItemController extends Controller
         // If its a PR we also want to load that specific data
         if ($item->isPullRequest()) {
             self::loadPullRequestData($item);
+            $item = self::formatPullRequestData($item);
         }
 
         return response()->json($item);
@@ -105,6 +104,27 @@ class ItemController extends Controller
             'details',
             'requestedReviewers.user'
         ]);
+    }
+
+    private static function formatPullRequestData($item)
+    {
+        $pr = $item;
+
+        // We need to sort out the comments and fix the relationships
+        foreach ($pr->comments as $comment) {
+            if ($comment->type === 'review') {
+                $comment->details = $comment->reviewDetails;
+            }
+
+            if ($comment->type === 'code') {
+                $comment->details = $comment->commentDetails;
+            }
+
+            unset($comment->reviewDetails);
+            unset($comment->commentDetails);
+        }
+
+        return $pr;
     }
 
     public static function getFiles($organizationName, $repositoryName, $number)

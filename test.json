@@ -10,6 +10,7 @@
   "labels": "[]",
   "opened_by_id": 117530797,
   "type": "pull_request",
+  "created_at_human": "2 hours ago",
   "assignees": [],
   "opened_by": {
     "id": 117530797,
@@ -32,7 +33,7 @@
       "body": "Issue comment",
       "resolved": 0,
       "type": "issue",
-      "details": null,
+      "created_at_human": "2 hours ago",
       "author": {
         "id": 117530797,
         "login": "lukaas-007",
@@ -42,8 +43,7 @@
         "created_at": "2025-09-21T11:43:36.000000Z",
         "updated_at": "2025-09-21T11:43:36.000000Z",
         "display_name": "Lucas"
-      },
-      "comment_details": null
+      }
     },
     {
       "id": 2156,
@@ -55,6 +55,7 @@
       "body": "Code comment",
       "resolved": 0,
       "type": "code",
+      "created_at_human": "2 hours ago",
       "details": {
         "id": 2574700742,
         "created_at": "2025-11-30T20:00:41.000000Z",
@@ -70,7 +71,25 @@
         "base_comment_id": 2156,
         "body": null,
         "user_id": null,
-        "child_comments": []
+        "child_comments": [
+          {
+            "id": 2574881454,
+            "created_at": "2025-11-30T21:19:54.000000Z",
+            "updated_at": "2025-11-30T21:19:54.000000Z",
+            "in_reply_to_id": 2574700742,
+            "diff_hunk": "@@ -7,7 +7,7 @@\n use App\\Models\\PullRequestComment;\n use App\\Services\\RepositoryService;\n \n-class ItemCommentController extends Controller\n+class BaseCommentController extends Controller",
+            "line_start": null,
+            "line_end": 10,
+            "original_line": 10,
+            "path": "app/Http/Controllers/BaseCommentController.php",
+            "side": "RIGHT",
+            "pull_request_review_id": 3522390603,
+            "base_comment_id": 2159,
+            "body": null,
+            "user_id": null,
+            "child_comments": []
+          }
+        ]
       },
       "author": {
         "id": 117530797,
@@ -81,23 +100,6 @@
         "created_at": "2025-09-21T11:43:36.000000Z",
         "updated_at": "2025-09-21T11:43:36.000000Z",
         "display_name": "Lucas"
-      },
-      "comment_details": {
-        "id": 2574700742,
-        "created_at": "2025-11-30T20:00:41.000000Z",
-        "updated_at": "2025-11-30T20:00:41.000000Z",
-        "in_reply_to_id": null,
-        "diff_hunk": "@@ -7,7 +7,7 @@\n use App\\Models\\PullRequestComment;\n use App\\Services\\RepositoryService;\n \n-class ItemCommentController extends Controller\n+class BaseCommentController extends Controller",
-        "line_start": null,
-        "line_end": 10,
-        "original_line": 10,
-        "path": "app/Http/Controllers/BaseCommentController.php",
-        "side": "RIGHT",
-        "pull_request_review_id": 3522217377,
-        "base_comment_id": 2156,
-        "body": null,
-        "user_id": null,
-        "child_comments": []
       }
     },
     {
@@ -110,6 +112,7 @@
       "body": "Review comment",
       "resolved": 0,
       "type": "review",
+      "created_at_human": "1 hour ago",
       "details": {
         "id": 3522217377,
         "base_comment_id": 2158,
@@ -132,7 +135,26 @@
             "base_comment_id": 2156,
             "body": null,
             "user_id": null,
-            "child_comments": [],
+            "child_comments": [
+              {
+                "id": 2574881454,
+                "created_at": "2025-11-30T21:19:54.000000Z",
+                "updated_at": "2025-11-30T21:19:54.000000Z",
+                "in_reply_to_id": 2574700742,
+                "diff_hunk": "@@ -7,7 +7,7 @@\n use App\\Models\\PullRequestComment;\n use App\\Services\\RepositoryService;\n \n-class ItemCommentController extends Controller\n+class BaseCommentController extends Controller",
+                "line_start": null,
+                "line_end": 10,
+                "original_line": 10,
+                "path": "app/Http/Controllers/BaseCommentController.php",
+                "side": "RIGHT",
+                "pull_request_review_id": 3522390603,
+                "base_comment_id": 2159,
+                "body": null,
+                "user_id": null,
+                "child_comments": [],
+                "author": null
+              }
+            ],
             "author": null
           }
         ]
@@ -146,33 +168,105 @@
         "created_at": "2025-09-21T11:43:36.000000Z",
         "updated_at": "2025-09-21T11:43:36.000000Z",
         "display_name": "Lucas"
+      }
+    },
+    {
+      "id": 2159,
+      "created_at": "2025-11-30T21:19:54.000000Z",
+      "updated_at": "2025-11-30T21:19:54.000000Z",
+      "comment_id": 2574881454,
+      "issue_id": 3056867010,
+      "user_id": 117530797,
+      "body": "Standalone reply",
+      "resolved": 0,
+      "type": "code",
+      "created_at_human": "56 minutes ago",
+      "details": {
+        "id": 2574881454,
+        "created_at": "2025-11-30T21:19:54.000000Z",
+        "updated_at": "2025-11-30T21:19:54.000000Z",
+        "in_reply_to_id": 2574700742,
+        "diff_hunk": "@@ -7,7 +7,7 @@\n use App\\Models\\PullRequestComment;\n use App\\Services\\RepositoryService;\n \n-class ItemCommentController extends Controller\n+class BaseCommentController extends Controller",
+        "line_start": null,
+        "line_end": 10,
+        "original_line": 10,
+        "path": "app/Http/Controllers/BaseCommentController.php",
+        "side": "RIGHT",
+        "pull_request_review_id": 3522390603,
+        "base_comment_id": 2159,
+        "body": null,
+        "user_id": null,
+        "child_comments": []
       },
-      "review_details": {
-        "id": 3522217377,
-        "base_comment_id": 2158,
-        "created_at": "2025-11-30T20:00:41.000000Z",
-        "updated_at": "2025-11-30T20:35:25.000000Z",
+      "author": {
+        "id": 117530797,
+        "login": "lukaas-007",
+        "name": "lukaas-007",
+        "avatar_url": "https://avatars.githubusercontent.com/u/117530797?v=4",
+        "type": "User",
+        "created_at": "2025-09-21T11:43:36.000000Z",
+        "updated_at": "2025-09-21T11:43:36.000000Z",
+        "display_name": "Lucas"
+      }
+    },
+    {
+      "id": 2160,
+      "created_at": "2025-11-30T21:19:54.000000Z",
+      "updated_at": "2025-11-30T21:19:54.000000Z",
+      "comment_id": 3522390603,
+      "issue_id": 3056867010,
+      "user_id": 117530797,
+      "body": "",
+      "resolved": 0,
+      "type": "review",
+      "created_at_human": "56 minutes ago",
+      "details": {
+        "id": 3522390603,
+        "base_comment_id": 2160,
+        "created_at": "2025-11-30T21:19:55.000000Z",
+        "updated_at": "2025-11-30T21:19:55.000000Z",
         "state": "commented",
-        "child_comments": [
-          {
-            "id": 2574700742,
-            "created_at": "2025-11-30T20:00:41.000000Z",
-            "updated_at": "2025-11-30T20:00:41.000000Z",
-            "in_reply_to_id": null,
-            "diff_hunk": "@@ -7,7 +7,7 @@\n use App\\Models\\PullRequestComment;\n use App\\Services\\RepositoryService;\n \n-class ItemCommentController extends Controller\n+class BaseCommentController extends Controller",
-            "line_start": null,
-            "line_end": 10,
-            "original_line": 10,
-            "path": "app/Http/Controllers/BaseCommentController.php",
-            "side": "RIGHT",
-            "pull_request_review_id": 3522217377,
-            "base_comment_id": 2156,
-            "body": null,
-            "user_id": null,
-            "child_comments": [],
-            "author": null
-          }
-        ]
+        "child_comments": []
+      },
+      "author": {
+        "id": 117530797,
+        "login": "lukaas-007",
+        "name": "lukaas-007",
+        "avatar_url": "https://avatars.githubusercontent.com/u/117530797?v=4",
+        "type": "User",
+        "created_at": "2025-09-21T11:43:36.000000Z",
+        "updated_at": "2025-09-21T11:43:36.000000Z",
+        "display_name": "Lucas"
+      }
+    }
+  ],
+  "details": {
+    "id": 3056867010,
+    "created_at": null,
+    "updated_at": "2025-11-30T20:34:49.000000Z",
+    "head_branch": "master",
+    "head_sha": "1ca64d8878aaaf865f2ddcae6e8c9ccfc8e29b36",
+    "base_branch": "fix_pr_for_notice",
+    "merge_base_sha": "05ee5e3f967977de5d6514555185be91da0c8cfe",
+    "closed_at": null
+  },
+  "requested_reviewers": [
+    {
+      "id": 321,
+      "created_at": "2025-11-30T20:00:41.000000Z",
+      "updated_at": "2025-11-30T20:00:41.000000Z",
+      "pull_request_id": 3056867010,
+      "user_id": 117530797,
+      "state": "commented",
+      "user": {
+        "id": 117530797,
+        "login": "lukaas-007",
+        "name": "lukaas-007",
+        "avatar_url": "https://avatars.githubusercontent.com/u/117530797?v=4",
+        "type": "User",
+        "created_at": "2025-09-21T11:43:36.000000Z",
+        "updated_at": "2025-09-21T11:43:36.000000Z",
+        "display_name": "Lucas"
       }
     }
   ]

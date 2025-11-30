@@ -22,9 +22,10 @@ class PullRequestReview extends BaseComment
         return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
     }
 
-    public function author()
+    public function baseComment()
     {
-        return $this->belongsTo(GithubUser::class, 'user_id', 'id');
+        return $this->belongsTo(BaseComment::class, 'base_comment_id', 'id')
+            ->where('type', 'review');
     }
 
     public function childComments()

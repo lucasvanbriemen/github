@@ -10,7 +10,7 @@ class BaseComment extends Model
 
     protected $fillable = ['comment_id', 'issue_id', 'user_id', 'body', 'created_at', 'updated_at', 'type', 'resolved'];
 
-    protected $with  = ['author'];
+    protected $with  = ['author', 'reviewDetails', 'commentDetails'];
 
     public function issue()
     {
@@ -20,15 +20,6 @@ class BaseComment extends Model
     public function author()
     {
         return $this->belongsTo(GithubUser::class, 'user_id', 'id');
-    }
-
-    public function getDetailsAttribute()
-    {
-        if ($this->type === 'review') {
-            return $this->getRelationValue('reviewDetails');
-        }
-
-        return $this->getRelationValue('commentDetails');
     }
 
     public function reviewDetails()

@@ -13,13 +13,7 @@ class PullRequestComment extends BaseComment
 
     public $incrementing = false;
 
-    protected $with = ['childComments', 'baseComment', 'baseComment.author'];
-
-    public function baseComment()
-    {
-        return $this->belongsTo(BaseComment::class, 'base_comment_id', 'id')
-            ->where('type', 'code');
-    }
+    protected $with = ['childComments'];
 
     public function pullRequest()
     {
@@ -41,6 +35,12 @@ class PullRequestComment extends BaseComment
     public function childCommentsRecursive()
     {
         return $this->childComments()->with('childCommentsRecursive');
+    }
+
+    public function baseComment()
+    {
+        return $this->belongsTo(BaseComment::class, 'base_comment_id', 'id')
+            ->where('type', 'code');
     }
 
     protected $fillable = ['id', 'base_comment_id', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line', 'pull_request_review_id'];
