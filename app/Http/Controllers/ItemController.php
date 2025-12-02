@@ -42,8 +42,8 @@ class ItemController extends Controller
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
             ->with([
-                'assignees',
-                'openedBy',
+                // 'assignees',
+                // 'openedBy',
                 'comments'
             ])
             ->firstOrFail();
@@ -99,11 +99,11 @@ class ItemController extends Controller
 
     private static function loadPullRequestData($item)
     {
-        // Load PR-specific details (branches, SHAs, etc.)
-        $item->load([
-            'details',
-            'requestedReviewers.user'
-        ]);
+        // // Load PR-specific details (branches, SHAs, etc.)
+        // $item->load([
+        //     'details',
+        //     'requestedReviewers.user'
+        // ]);
     }
 
     private static function formatPullRequestData($item)
