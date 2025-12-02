@@ -99,11 +99,11 @@ class ItemController extends Controller
 
     private static function loadPullRequestData($item)
     {
-        // // Load PR-specific details (branches, SHAs, etc.)
-        // $item->load([
-        //     'details',
-        //     'requestedReviewers.user'
-        // ]);
+        // Load PR-specific details (branches, SHAs, etc.)
+        $item->load([
+            'details',
+            'requestedReviewers.user'
+        ]);
     }
 
     private static function formatPullRequestData($item)
@@ -112,19 +112,58 @@ class ItemController extends Controller
 
         // We need to sort out the comments and fix the relationships
         foreach ($pr->comments as $comment) {
-            if ($comment->type === 'review') {
-                $comment->details = $comment->reviewDetails;
-            }
-
-            if ($comment->type === 'code') {
-                $comment->details = $comment->commentDetails;
-            }
-
-            unset($comment->reviewDetails);
-            unset($comment->commentDetails);
+            self::formatCommentDetails($comment);
         }
 
         return $pr;
+    }
+
+    private static function formatCommentDetails($comment)
+    {
+        if ($comment->type === 'review') {
+            $comment->details = $comment->reviewDetails;
+        }
+
+        if ($comment->type === 'code') {
+            $comment->details = $comment->commentDetails;
+        }
+
+        self::formatChildComments($comment->details);
+
+        unset($comment->reviewDetails);
+        unset($comment->commentDetails);
+    }
+
+    private static function formatChildComments($parentComment)
+    {
+        if (!$parentComment || !$parentComment->childComments) {
+            return;
+        }
+
+        foreach ($parentComment->childComments as $childComment) {
+            // Child comments are PullRequestComment objects with baseComment loaded
+            if ($childComment->baseComment) {
+                $childComment->details = $childComment->baseComment;
+                // Process markdown images in the details
+                if ($childComment->details->body) {
+                    $childComment->details->body = self::processMarkdownImages($childComment->details->body);
+                }
+            }
+            unset($childComment->baseComment);
+
+            // Process markdown images in the child comment body
+            if ($childComment->body) {
+                $childComment->body = self::processMarkdownImages($childComment->body);
+            }
+
+            // Add human-readable created_at
+            if ($childComment->created_at) {
+                $childComment->created_at_human = $childComment->created_at->diffForHumans();
+            }
+
+            // Recursively format grandchild comments
+            self::formatChildComments($childComment);
+        }
     }
 
     public static function getFiles($organizationName, $repositoryName, $number)

@@ -13,6 +13,7 @@ class PullRequestComment extends BaseComment
 
     public $incrementing = false;
 
+    // protected $with = ['childComments', 'baseComment'];
     protected $with = ['childComments'];
 
     public function pullRequest()
@@ -29,8 +30,15 @@ class PullRequestComment extends BaseComment
 
     public function childComments()
     {
-        return $this->hasMany(PullRequestComment::class, 'in_reply_to_id', 'id');
+        return $this->hasMany(PullRequestComment::class, 'in_reply_to_id', 'id')
+            ->with(['author']);
     }
+
+    public function parentComment()
+    {
+        return $this->belongsTo(PullRequestComment::class, 'in_reply_to_id', 'id');
+    }
+
     public function baseComment()
     {
         return $this->belongsTo(BaseComment::class, 'base_comment_id', 'id')

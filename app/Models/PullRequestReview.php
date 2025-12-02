@@ -30,6 +30,11 @@ class PullRequestReview extends BaseComment
 
     public function childComments()
     {
+        // return $this->hasMany(PullRequestComment::class, 'pull_request_review_id', 'id')
+        //     ->where('in_reply_to_id', null)
+        //     ->orderBy('created_at', 'asc')
+        //     ->with(['author', 'childComments']);
+
         $query = $this->hasMany(PullRequestComment::class, 'pull_request_review_id', 'id');
         $query->with(['author', 'childComments.author'])->whereNull('in_reply_to_id')->orderBy('created_at', 'asc');
 
