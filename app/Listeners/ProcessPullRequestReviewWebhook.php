@@ -50,12 +50,13 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             ]
         );
 
-        $pullRequestReview = PullRequestReview::updateOrCreate([
-            'id' => $reviewData->id,
-        ], [
-            'base_comment_id' => $baseComment->id,
-            'state' => $reviewData->state,
-        ]);
+        $pullRequestReview = PullRequestReview::updateOrCreate(
+            ['id' => $reviewData->id],
+            [
+                'base_comment_id' => $baseComment->id,
+                'state' => $reviewData->state,
+            ]
+        );
 
         // We also need to create/update RequestedReviewer (since thats how we show reviews in the UI sidebar)
         // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED OR APPROVED
