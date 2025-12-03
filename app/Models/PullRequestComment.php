@@ -31,7 +31,7 @@ class PullRequestComment extends BaseComment
     public function childComments()
     {
         return $this->hasMany(PullRequestComment::class, 'in_reply_to_id', 'id')
-            ->with(['author']);
+            ->with(['author', 'baseComment']);
     }
 
     public function parentComment()

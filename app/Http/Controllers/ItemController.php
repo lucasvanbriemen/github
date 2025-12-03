@@ -141,22 +141,24 @@ class ItemController extends Controller
         }
 
         foreach ($parentComment->childComments as $childComment) {
-            // Child comments are PullRequestComment objects with baseComment loaded
+            // Child comments get author and body from baseComment
             if ($childComment->baseComment) {
-                $childComment->details = $childComment->baseComment;
-                // Process markdown images in the details
-                if ($childComment->details->body) {
-                    $childComment->details->body = self::processMarkdownImages($childComment->details->body);
+                unset($childComment->author);
+                unset($childComment->type);
+
+                $childComment->author = $childComment->baseComment->author;
+                $childComment->type = $childComment->baseComment->type;
+                $childComment->body = $childComment->baseComment->body ?? '';
+
+                // Process markdown images in the body
+                if ($childComment->body) {
+                    $childComment->body = self::processMarkdownImages($childComment->body);
                 }
-            }
-            unset($childComment->baseComment);
 
-            // Process markdown images in the child comment body
-            if ($childComment->body) {
-                $childComment->body = self::processMarkdownImages($childComment->body);
+                unset($childComment->baseComment);
             }
 
-            // Add human-readable created_at
+            // // Add human-readable created_at
             if ($childComment->created_at) {
                 $childComment->created_at_human = $childComment->created_at->diffForHumans();
             }
