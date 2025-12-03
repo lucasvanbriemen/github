@@ -42,8 +42,8 @@ class ItemController extends Controller
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
             ->with([
-                // 'assignees',
-                // 'openedBy',
+                'assignees',
+                'openedBy',
                 'comments'
             ])
             ->firstOrFail();
