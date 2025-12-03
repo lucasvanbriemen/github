@@ -128,19 +128,32 @@ class ItemController extends Controller
             $comment->details = $comment->commentDetails;
         }
 
-        self::formatChildComments($comment->details);
+        $comment->child_comments = $comment->details->childComments ?? [];
+
+        self::formatChildComments($comment);
 
         unset($comment->reviewDetails);
         unset($comment->commentDetails);
+        unset($comment->user_id);
+        unset($comment->issue_id);
+
+        if ($comment->details) {
+            unset($comment->details->childComments);
+            unset($comment->details->base_comment_id);
+            unset($comment->details->created_at);
+            unset($comment->details->updated_at);
+        }
     }
 
     private static function formatChildComments($parentComment)
     {
-        if (!$parentComment || !$parentComment->childComments) {
+        $childComments = $parentComment->child_comments ?? $parentComment->childComments ?? [];
+
+        if (!$childComments) {
             return;
         }
 
-        foreach ($parentComment->childComments as $childComment) {
+        foreach ($childComments as $childComment) {
             // Child comments get author and body from baseComment
             if ($childComment->baseComment) {
                 unset($childComment->author);
@@ -162,6 +175,11 @@ class ItemController extends Controller
             if ($childComment->created_at) {
                 $childComment->created_at_human = $childComment->created_at->diffForHumans();
             }
+
+            unset($childComment->details);
+            unset($childComment->reviewDetails);
+            unset($childComment->commentDetails);
+            unset($childComment->details);
 
             // Recursively format grandchild comments
             self::formatChildComments($childComment);

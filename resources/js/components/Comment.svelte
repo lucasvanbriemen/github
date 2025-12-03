@@ -6,6 +6,8 @@
   let { comment, onToggle, onToggleReply = onToggle} = $props();
 
   function commentHeaderText() {
+    console.log($state.snapshot(comment));
+
     if (comment.type === 'issue' || comment.type === 'code') {
       return comment.author.display_name + ' commented  ' + comment.created_at_human;
     }
@@ -15,7 +17,7 @@
 
   // If the body is empty and there are no child comments, we don't want to show the comment
   let showComment = $state(true);
-  if ((!comment.body || comment.body.trim() === '') && (!comment.details?.child_comments || comment.details.child_comments.length === 0)) {
+  if ((!comment.body || comment.body.trim() === '') && (!comment.child_comments || comment.child_comments.length === 0)) {
     showComment = false;
   }
 
@@ -42,9 +44,9 @@
 
         <Markdown content={comment.body} />
 
-        {#if comment.details?.child_comments}
+        {#if comment.child_comments}
           <div class="item-comment-replies">
-            {#each comment.details.child_comments as comment}
+            {#each comment.child_comments as comment}
               <Self {comment} onToggle={onToggleReply} />
             {/each}
           </div>
