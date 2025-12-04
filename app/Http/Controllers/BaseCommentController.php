@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\PullRequestReview;
+use App\Models\BaseComment;
 use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
 
@@ -17,7 +18,8 @@ class BaseCommentController extends Controller
             ->where('number', $issueNumber)
             ->firstOrFail();
 
-        $comment = $item->comments()->where('id', $comment_id)->firstOrFail();
+        $comment = BaseComment::where('id', $comment_id)
+            ->firstOrFail();
 
         $data = request()->validate([
             'resolved' => 'required|boolean',

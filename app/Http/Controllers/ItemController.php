@@ -168,6 +168,8 @@ class ItemController extends Controller
                     $childComment->body = self::processMarkdownImages($childComment->body);
                 }
 
+                $childComment->resolved = $childComment->baseComment->resolved;
+
                 unset($childComment->baseComment);
             }
 
@@ -176,6 +178,9 @@ class ItemController extends Controller
                 $childComment->created_at_human = $childComment->created_at->diffForHumans();
             }
 
+            $childComment->id = $childComment->base_comment_id;
+
+            unset($childComment->base_comment_id);
             unset($childComment->details);
             unset($childComment->reviewDetails);
             unset($childComment->commentDetails);

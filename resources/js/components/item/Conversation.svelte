@@ -44,5 +44,5 @@
 
 <!-- Issue Comments -->
 {#each item.comments as comment}
-  <Comment {comment} onToggle={toggleItemComment} />
+  <Comment {comment} {params} />
 {/each}
