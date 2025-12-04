@@ -7,10 +7,6 @@
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
 
-  let number = $derived(item.number);
-  let organization = $derived(params.organization);
-  let repository = $derived(params.repository);
-
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
