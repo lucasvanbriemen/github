@@ -13,15 +13,23 @@
     editor.style.height = editor.scrollHeight + 'px';
   }
 
+  function convertToMarkdown() {
+    if (content) {
+      return marked.parse(content);
+    }
+
+    return '';
+  }
+
   onMount(() => {
-    rendered = content ? marked.parse(content) : '';
+    rendered = convertToMarkdown();
     autoSize();
   });
 
   $effect(() => {
     void content;
     untrack(() => {
-      rendered = content ? marked.parse(content) : '';
+      rendered = convertToMarkdown();
     });
   });
 </script>
