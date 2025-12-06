@@ -30,6 +30,13 @@
       placement: 'around_selection',
       content: '_',
     },
+
+    qoute: {
+      title: "Quote",
+      key: 'qoute',
+      placement: 'line_start',
+      content: '> ',
+    },
   };
 
 
