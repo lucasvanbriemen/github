@@ -217,4 +217,19 @@ class ItemController extends Controller
         $files = $renderer->getFiles();
         return $files;
     }
+
+    public function update($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $data = request()->only(['body']);
+
+        $item->update($data);
+
+        return response()->json($item);
+    }
 }

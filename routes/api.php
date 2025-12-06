@@ -19,6 +19,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/org/{organization}/repo/{repository}/contributors', [RepositoryController::class, 'getContributors'])
         ->name('organizations.repositories.contributors.get');
 
+    Route::post('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'update'])
+        ->name('organizations.repositories.item.update');
+
     Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
         ->name('organizations.repositories.item.show');
 

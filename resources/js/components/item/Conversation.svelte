@@ -6,9 +6,17 @@
   let { item, params = {} } = $props();
   let body = $state(item.body);
 
+  let organization = params.organization;
+  let repository = params.repository;
+  let number = params.number;
+
   function save_body(e) {
     body = e.value;
     console.log('saving body', body);
+
+    api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
+      body,
+    });
   }
 
 </script>
