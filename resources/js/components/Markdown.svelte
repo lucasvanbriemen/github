@@ -134,12 +134,14 @@
 
   function handleKeyDown(e) {
     if (e.key === 'Enter' && e.ctrlKey) {
-
-      console.log('Enter pressed');
-
       e.preventDefault();
       isEditing = false;
       saveChange();
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      isEditing = false;
     }
   }
 
