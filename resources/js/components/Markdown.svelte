@@ -1,11 +1,23 @@
 <script>
+  import { onMount, untrack } from 'svelte';
   import { marked } from 'marked';
   import 'github-markdown-css/github-markdown-dark.css';
 
-  let { content = '', canEdit = false } = $props();
-  let rendered = content ? marked.parse(content) : '';
-
+  let { content = '', canEdit = true } = $props();
+  let rendered = $state('');
   let isEditing = $state(false);
+
+  onMount(async () => {
+    rendered = content ? marked.parse(content) : '';
+  });
+
+  $effect(() => {
+    void content;
+    untrack(() => {
+      rendered = content ? marked.parse(content) : '';
+    });
+  });
+
 </script>
 
 <div class="markdown-container" class:can-edit={canEdit}>
@@ -17,7 +29,10 @@
   {/if}
 
   {#if isEditing && canEdit}
-    editing
+    <textarea
+      class="markdown-editor"
+      bind:value={content}
+    ></textarea>
   {:else}
     <div class="markdown-body">
       {#if content}
