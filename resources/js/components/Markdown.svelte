@@ -46,6 +46,84 @@
     },
   };
 
+  async function uploadFiles(files) {
+    const form = new FormData();
+    for (const file of files) {
+      form.append('files[]', file, file.name);
+    }
+
+    const res = await fetch('/api/uploads', {
+      method: 'POST',
+      body: form,
+      headers: {
+        'Accept': 'application/json',
+      },
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) {
+      throw new Error(`Upload failed (${res.status})`);
+    }
+
+    const data = await res.json();
+    return data.files ?? [];
+  }
+
+  async function handlePaste(e) {
+    const items = e.clipboardData?.items || [];
+    const files = [];
+
+    for (const item of items) {
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (file && (file.type.startsWith('image/') || file.type.startsWith('video/'))) {
+          files.push(file);
+        }
+      }
+    }
+
+    if (files.length === 0) {
+      return; // allow normal paste
+    }
+
+    e.preventDefault();
+
+    try {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const before = editor.value.slice(0, start);
+      const after = editor.value.slice(end);
+
+      // Upload files and get back URLs
+      const uploaded = await uploadFiles(files);
+
+      const parts = [];
+      for (const item of uploaded) {
+        const safeName = item.name || 'uploaded-file';
+        if (item.type?.startsWith('image/')) {
+          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" />\n`);
+        } else if (item.type?.startsWith('video/')) {
+          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video>\n`);
+        }
+      }
+
+      if (parts.length === 0) return;
+
+      const insertText = parts.join('\n');
+      const updatedValue = `${before}${insertText}${after}`;
+      editor.value = updatedValue;
+      content = updatedValue;
+
+      const newCursor = before.length + insertText.length;
+      editor.selectionStart = editor.selectionEnd = newCursor;
+      editor.focus();
+
+      requestAnimationFrame(() => autoSize());
+    } catch (err) {
+      console.error('Paste handling failed:', err);
+    }
+  }
+
   function autoSize() {
     editor.style.height = editor.scrollHeight + 'px';
   }
@@ -148,6 +226,7 @@
       placeholder="Markdown content"
       bind:value={content}
       oninput={autoSize}
+      onpaste={handlePaste}
       onkeydown={handleKeyDown}
       bind:this={editor}
     ></textarea>

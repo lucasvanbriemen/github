@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\BaseCommentController;
+use App\Http\Controllers\UploadController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
@@ -45,6 +46,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
     Route::post('/org/{organization}/repo/{repository}/pr/create', [PullRequestController::class, 'create'])
         ->name('organizations.repositories.pr.create');
+
+    // Media uploads (images/videos) from markdown editor
+    Route::post('/uploads', [UploadController::class, 'store'])->name('uploads.store');
 });
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
