@@ -7,11 +7,9 @@
   let rendered = $state('');
   let isEditing = $state(false);
 
-  let editor;
+  let editor = $state(null);
 
   function autoSize() {
-    if (!editor) return;
-    editor.style.height = 'auto';
     editor.style.height = editor.scrollHeight + 'px';
   }
 
@@ -24,7 +22,6 @@
     void content;
     untrack(() => {
       rendered = content ? marked.parse(content) : '';
-      autoSize();
     });
   });
 </script>

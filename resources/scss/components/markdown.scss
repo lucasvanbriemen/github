@@ -73,7 +73,10 @@
     resize: vertical;
     transition: none;
     border-radius: 0 0 1rem 1rem;
-    
+
+    height: auto;
+    min-height: 10rem;
+
   }
 
   &.can-edit {
