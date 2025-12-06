@@ -14,7 +14,7 @@
       title: "Heading",
       key: 'heading',
       placement: 'before',
-      content: '#',
+      content: '# ',
     },
   };
 
@@ -40,14 +40,14 @@
 
     const lineStart = value.lastIndexOf('\n', start - 1) + 1;
 
-    const prefix = type === 'heading' ? '# ' : '';
+    const shortcut = shortcutMap[type];
 
     const updated =
       value.slice(0, lineStart) +
-      prefix +
+      shortcut.content +
       value.slice(lineStart);
 
-    const cursorOffset = prefix.length;
+    const cursorOffset = shortcut.content.length;
 
     editor.value = updated;
 
