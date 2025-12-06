@@ -15,6 +15,15 @@
       border-color: var(--primary-color-dark);
       padding: 0.25rem 0.5rem;
     }
+
+    .markdown-shortcuts {
+      display: flex;
+      gap: 0.2rem;
+
+      .markdown-shortcut {
+        border: 2px solid var(--primary-color-dark);
+      }
+    }
   }
 
   .markdown-body {
