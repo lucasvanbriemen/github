@@ -5,23 +5,15 @@
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
-  let initialized = $state(false);
 
-  $effect(() => {
-    void body;
-    
-    untrack(() => {
-      if (!initialized) {
-        initialized = true;
-        return;
-      }
+  function save_body(e) {
+    body = e.value;
+    console.log('saving body', body);
+  }
 
-      console.log('saving');
-    });
-  });
 </script>
 
-<Markdown bind:content={body} />
+<Markdown content={body} change={save_body} />
 
 {#each item.comments as comment}
   <Comment {comment} {params} />
