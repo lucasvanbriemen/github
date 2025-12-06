@@ -71,6 +71,7 @@
     const shortcut = shortcutMap[type];
 
     let updated = editor.value;
+    let cursorOffset = shortcut.content.length;
 
     if (shortcut.placement === 'line_start') {
       updated = value.slice(0, lineStart) + shortcut.content + value.slice(lineStart);
@@ -82,9 +83,9 @@
       const after = value.slice(end);
 
       updated = `${before} ${shortcut.content}${selectedText}${shortcut.content} ${after}`;
+      cursorOffset = shortcut.content.length + 1;
     }
 
-    const cursorOffset = shortcut.content.length;
 
     editor.value = updated;
 
