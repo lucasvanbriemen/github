@@ -42,10 +42,11 @@
 
     const shortcut = shortcutMap[type];
 
-    const updated =
-      value.slice(0, lineStart) +
-      shortcut.content +
-      value.slice(lineStart);
+    let updated = editor.value;
+
+    if (shortcut.placement === 'before') {
+      updated = value.slice(0, lineStart) + shortcut.content + value.slice(lineStart);
+    }
 
     const cursorOffset = shortcut.content.length;
 
@@ -61,7 +62,6 @@
 
   onMount(() => {
     rendered = convertToMarkdown();
-    autoSize();
   });
 
   $effect(() => {
