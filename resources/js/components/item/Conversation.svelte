@@ -7,7 +7,6 @@
 
 <Markdown content={item.body} />
 
-<!-- Issue Comments -->
 {#each item.comments as comment}
   <Comment {comment} {params} />
 {/each}
