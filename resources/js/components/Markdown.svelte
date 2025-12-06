@@ -13,8 +13,15 @@
     heading: {
       title: "Heading",
       key: 'heading',
-      placement: 'before',
+      placement: 'line_start',
       content: '# ',
+    },
+
+    bold: {
+      title: "Bold",
+      key: 'bold',
+      placement: 'around_selection',
+      content: '**',
     },
   };
 
@@ -44,8 +51,16 @@
 
     let updated = editor.value;
 
-    if (shortcut.placement === 'before') {
+    if (shortcut.placement === 'line_start') {
       updated = value.slice(0, lineStart) + shortcut.content + value.slice(lineStart);
+    }
+
+    if (shortcut.placement === 'around_selection') {
+      const before = value.slice(0, start);
+      const selected = value.slice(start, end);
+      const after = value.slice(end);
+
+      updated = before + shortcut.content + selected + shortcut.content + after;
     }
 
     const cursorOffset = shortcut.content.length;
