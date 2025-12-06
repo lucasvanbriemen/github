@@ -9,6 +9,16 @@
 
   let editor = $state(null);
 
+  const shortcutMap = {
+    heading: {
+      title: "Heading",
+      key: 'heading',
+      placement: 'before',
+      content: '#',
+    },
+  };
+
+
   function autoSize() {
     editor.style.height = editor.scrollHeight + 'px';
   }
@@ -78,7 +88,9 @@
 
       {#if isEditing}
         <div class="markdown-shortcuts">
-          <button class="markdown-shortcut" onclick={() => insertShortcut('heading')}>Heading</button>
+          {#each Object.entries(shortcutMap) as [key, shortcut]}
+            <button class="markdown-shortcut" onclick={() => insertShortcut(shortcut.key)}>{shortcut.title}</button>
+          {/each}
         </div>
       {/if}
     </header>
