@@ -86,7 +86,6 @@
       cursorOffset = shortcut.content.length + 1;
     }
 
-
     editor.value = updated;
 
     editor.selectionStart = start + cursorOffset;
