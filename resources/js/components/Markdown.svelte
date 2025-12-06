@@ -46,7 +46,6 @@
     },
   };
 
-
   function autoSize() {
     editor.style.height = editor.scrollHeight + 'px';
   }
@@ -135,7 +134,6 @@
       bind:value={content}
       oninput={autoSize}
       bind:this={editor}
-      style="overflow:hidden; resize:none;"
     ></textarea>
   {:else}
     <div class="markdown-body">
