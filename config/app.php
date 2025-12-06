@@ -135,6 +135,6 @@ return [
     |
     */
     'aliases' => Illuminate\Support\Facades\Facade::defaultAliases()->merge([
-        'GitHub' => GrahamCampbell\GitHub\Facades\GitHub::class,
+        'Github' => GrahamCampbell\GitHub\Facades\GitHub::class,
     ])->toArray(),
 ];
