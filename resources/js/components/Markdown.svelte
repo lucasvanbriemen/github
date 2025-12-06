@@ -7,17 +7,26 @@
   let rendered = $state('');
   let isEditing = $state(false);
 
-  onMount(async () => {
+  let editor;
+
+  function autoSize() {
+    if (!editor) return;
+    editor.style.height = 'auto';
+    editor.style.height = editor.scrollHeight + 'px';
+  }
+
+  onMount(() => {
     rendered = content ? marked.parse(content) : '';
+    autoSize();
   });
 
   $effect(() => {
     void content;
     untrack(() => {
       rendered = content ? marked.parse(content) : '';
+      autoSize();
     });
   });
-
 </script>
 
 <div class="markdown-container" class:can-edit={canEdit}>
@@ -31,7 +40,11 @@
   {#if isEditing && canEdit}
     <textarea
       class="markdown-editor"
+      placeholder="Markdown content"
       bind:value={content}
+      oninput={autoSize}
+      bind:this={editor}
+      style="overflow:hidden; resize:none;"
     ></textarea>
   {:else}
     <div class="markdown-body">
