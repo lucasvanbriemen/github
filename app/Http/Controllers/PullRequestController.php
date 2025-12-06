@@ -7,7 +7,7 @@ use App\Models\PullRequest;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
-use GrahamCampbell\GitHub\Facades\Github;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
 {
@@ -48,9 +48,9 @@ class PullRequestController extends Controller
             'draft' => true,
         ];
 
-        $response = Github::pullRequests()->create($organization->name, $repository->name, $prData);
+        $response = GitHub::pullRequests()->create($organization->name, $repository->name, $prData);
 
-        Github::issues()->update($organization->name, $repository->name, $response['number'], [
+        GitHub::issues()->update($organization->name, $repository->name, $response['number'], [
             'assignees' => $assignees,
         ]);
 

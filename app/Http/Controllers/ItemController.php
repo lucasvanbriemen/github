@@ -7,7 +7,7 @@ use App\Services\RepositoryService;
 use App\Models\PullRequest;
 use App\Helpers\DiffRenderer;
 use App\Helpers\ApiHelper;
-use GrahamCampbell\GitHub\Facades\Github;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class ItemController extends Controller
 {
@@ -232,7 +232,7 @@ class ItemController extends Controller
         $item->update($data);
 
         // We also need to update the item body on GitHub
-        Github::issues()->update($organization->name, $repository->name, $number, [
+        GitHub::issues()->update($organization->name, $repository->name, $number, [
             'body' => $item->body,
         ]);
 
