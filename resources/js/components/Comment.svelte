@@ -60,7 +60,7 @@
           />
         {/if}
 
-        <Markdown content={comment.body} />
+        <Markdown content={comment.body} canEdit={false} />
 
         {#if comment.child_comments}
           <div class="item-comment-replies">
