@@ -23,6 +23,13 @@
       placement: 'around_selection',
       content: '**',
     },
+
+    italic: {
+      title: "Italic",
+      key: 'italic',
+      placement: 'around_selection',
+      content: '_',
+    },
   };
 
 
@@ -57,10 +64,10 @@
 
     if (shortcut.placement === 'around_selection') {
       const before = value.slice(0, start);
-      const selected = value.slice(start, end);
+      const selectedText = value.slice(start, end);
       const after = value.slice(end);
 
-      updated = before + shortcut.content + selected + shortcut.content + after;
+      updated = `${before} ${shortcut.content}${selectedText}${shortcut.content} ${after}`;
     }
 
     const cursorOffset = shortcut.content.length;
