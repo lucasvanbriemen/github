@@ -2,7 +2,7 @@
   import { marked } from 'marked';
   import 'github-markdown-css/github-markdown-dark.css';
 
-  let { content = '', canEdit = true } = $props();
+  let { content = '', canEdit = false } = $props();
   let rendered = content ? marked.parse(content) : '';
 
   let isEditing = $state(false);
