@@ -60,8 +60,6 @@
   }
 
   function insertShortcut(type) {
-    if (!editor) return;
-
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
     const value = editor.value;
@@ -70,11 +68,11 @@
 
     const shortcut = shortcutMap[type];
 
-    let updated = editor.value;
+    let updatedValue = editor.value;
     let cursorOffset = shortcut.content.length;
 
     if (shortcut.placement === 'line_start') {
-      updated = value.slice(0, lineStart) + shortcut.content + value.slice(lineStart);
+      updatedValue = value.slice(0, lineStart) + shortcut.content + value.slice(lineStart);
     }
 
     if (shortcut.placement === 'around_selection') {
@@ -82,16 +80,14 @@
       const selectedText = value.slice(start, end);
       const after = value.slice(end);
 
-      updated = `${before} ${shortcut.content}${selectedText}${shortcut.content} ${after}`;
+      updatedValue = `${before} ${shortcut.content}${selectedText}${shortcut.content} ${after}`;
       cursorOffset = shortcut.content.length + 1;
     }
 
-    editor.value = updated;
-
+    editor.value = updatedValue;
     editor.selectionStart = start + cursorOffset;
     editor.selectionEnd = end + cursorOffset;
-
-    content = updated;
+    content = updatedValue;
 
     editor.focus();
   }
