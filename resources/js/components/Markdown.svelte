@@ -8,11 +8,11 @@
   let isEditing = $state(false);
 </script>
 
-<div class="markdown-container">
+<div class="markdown-container" class:can-edit={canEdit}>
   {#if canEdit}
     <nav class="markdown-nav">
-      <button class="edit-button" onclick={() => isEditing = true}>Edit</button>
-      <button class="preview-button" onclick={() => isEditing = false}>Preview</button>
+      <button class="edit-button button-primary-outline" onclick={() => isEditing = true}>Edit</button>
+      <button class="preview-button button-primary-outline" onclick={() => isEditing = false}>Preview</button>
     </nav>
   {/if}
 

@@ -1,46 +1,73 @@
-.markdown-body {
-  padding: 1rem;
-  background-color: var(--background-color);
-  border: 2px solid var(--border-color);
-  border-radius: 1rem;
-
-  :global(p),
-  :global(li),
-  :global(strong) {
-    color: var(--text-color-secondary);
-  }
-
-  :global(blockquote) {
-    opacity: 0.8;
-  }
-
-  :global(p ~ blockquote) {
-    margin-bottom: 0.25rem;
-  }
-
-  :global(blockquote + p) {
-    margin-bottom: 1.25rem;
-  }
-
-  :global(hr) {
-    background-color: var(--text-color-secondary);
-    height: 1px;
-    border: none;
-    opacity: 0.5;
-    width: 90%;
-  }
-
-  :global(a) {
-    color: var(--primary-color);
-  }
-
-  :global(pre) {
+.markdown-container {
+  .markdown-nav {
     background-color: var(--background-color-one);
+    padding: 0.5rem 1rem;
+    border-radius: 1rem 1rem 0 0;
+    border: 2px solid var(--border-color);
+    border-bottom: none;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+
+    .button-primary-outline {
+      border-color: var(--primary-color-dark);
+      padding: 0.25rem 0.5rem;
+    }
   }
 
-  :global(img) {
+  .markdown-body {
+    padding: 1rem;
+    background-color: var(--background-color);
+    border: 2px solid var(--border-color);
     border-radius: 1rem;
-    max-width: 50% !important;
-    height: fit-content !important;
+
+    :global(p),
+    :global(li),
+    :global(strong) {
+      color: var(--text-color-secondary);
+    }
+
+    :global(blockquote) {
+      opacity: 0.8;
+    }
+
+    :global(p ~ blockquote) {
+      margin-bottom: 0.25rem;
+    }
+
+    :global(blockquote + p) {
+      margin-bottom: 1.25rem;
+    }
+
+    :global(hr) {
+      background-color: var(--text-color-secondary);
+      height: 1px;
+      border: none;
+      opacity: 0.5;
+      width: 90%;
+    }
+
+    :global(a) {
+      color: var(--primary-color);
+    }
+
+    :global(pre) {
+      background-color: var(--background-color-one);
+    }
+
+    :global(img) {
+      border-radius: 1rem;
+      max-width: 50% !important;
+      height: fit-content !important;
+    }
+  }
+
+  &.can-edit {
+    .markdown-body {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-top: none;
+    }
   }
 }
