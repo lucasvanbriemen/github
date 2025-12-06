@@ -54,6 +54,17 @@
     change?.({ value: content });
   }
 
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && e.ctrlKey) {
+
+      console.log('Enter pressed');
+
+      e.preventDefault();
+      isEditing = false;
+      saveChange();
+    }
+  }
+
   function convertToMarkdown() {
     if (content) {
       return marked.parse(content);
@@ -137,6 +148,7 @@
       placeholder="Markdown content"
       bind:value={content}
       oninput={autoSize}
+      onkeydown={handleKeyDown}
       bind:this={editor}
     ></textarea>
   {:else}
