@@ -37,6 +37,13 @@
       placement: 'line_start',
       content: '> ',
     },
+
+    code: {
+      title: "Code",
+      key: 'code',
+      placement: 'around_selection',
+      content: '`',
+    },
   };
 
 
