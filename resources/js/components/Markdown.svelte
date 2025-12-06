@@ -10,7 +10,11 @@
 </script>
 
 <div class="markdown-body">
-  {@html rendered}
+  {#if content}
+    {@html rendered}
+  {:else}
+    <p class="empty-state">No content</p>
+  {/if}
 </div>
 
 <style>
