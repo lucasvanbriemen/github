@@ -124,7 +124,7 @@
 
       {#if isEditing}
         <div class="markdown-shortcuts">
-          {#each Object.entries(shortcutMap) as [shortcut]}
+          {#each Object.entries(shortcutMap) as [key, shortcut]}
             <button class="markdown-shortcut button-primary-outline" onclick={() => insertShortcut(shortcut.key)}>{shortcut.title}</button>
           {/each}
         </div>
