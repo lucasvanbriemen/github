@@ -21,6 +21,34 @@
     return '';
   }
 
+  function insertShortcut(type) {
+    if (!editor) return;
+
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const value = editor.value;
+
+    const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+
+    const prefix = type === 'heading' ? '# ' : '';
+
+    const updated =
+      value.slice(0, lineStart) +
+      prefix +
+      value.slice(lineStart);
+
+    const cursorOffset = prefix.length;
+
+    editor.value = updated;
+
+    editor.selectionStart = start + cursorOffset;
+    editor.selectionEnd = end + cursorOffset;
+
+    content = updated;
+
+    editor.focus();
+  }
+
   onMount(() => {
     rendered = convertToMarkdown();
     autoSize();
@@ -28,8 +56,14 @@
 
   $effect(() => {
     void content;
+    void isEditing;
+
     untrack(() => {
       rendered = convertToMarkdown();
+
+      if (isEditing) {
+        editor.focus();
+      }
     });
   });
 </script>
@@ -38,12 +72,14 @@
   {#if canEdit}
     <header>
       <nav class="markdown-nav">
-        <button class="edit-button button-primary-outline" onclick={() => isEditing = true}>Edit</button>
         <button class="preview-button button-primary-outline" onclick={() => isEditing = false}>Preview</button>
+        <button class="edit-button button-primary-outline" onclick={() => isEditing = true}>Edit</button>
       </nav>
 
       {#if isEditing}
-        <span>short cuts</span>
+        <div class="markdown-shortcuts">
+          <button class="markdown-shortcut" onclick={() => insertShortcut('heading')}>Heading</button>
+        </div>
       {/if}
     </header>
   {/if}
