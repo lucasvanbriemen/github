@@ -36,10 +36,16 @@
 
 <div class="markdown-container" class:can-edit={canEdit}>
   {#if canEdit}
-    <nav class="markdown-nav">
-      <button class="edit-button button-primary-outline" onclick={() => isEditing = true}>Edit</button>
-      <button class="preview-button button-primary-outline" onclick={() => isEditing = false}>Preview</button>
-    </nav>
+    <header>
+      <nav class="markdown-nav">
+        <button class="edit-button button-primary-outline" onclick={() => isEditing = true}>Edit</button>
+        <button class="preview-button button-primary-outline" onclick={() => isEditing = false}>Preview</button>
+      </nav>
+
+      {#if isEditing}
+        <span>short cuts</span>
+      {/if}
+    </header>
   {/if}
 
   {#if isEditing && canEdit}
