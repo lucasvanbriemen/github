@@ -40,4 +40,13 @@ class RepositoryController extends Controller
 
         return response()->json($branches);
     }
+
+    public function getTemplates()
+    {
+        $templatesPath = resource_path('repository_templates/templates.json');
+        $templatesJson = file_get_contents($templatesPath);
+        $templates = json_decode($templatesJson, true);
+
+        return response()->json($templates);
+    }
 }
