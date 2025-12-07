@@ -52,11 +52,16 @@ class ItemController extends Controller
         $item->body = self::processMarkdownImages($item->body);
         $item->created_at_human = $item->created_at->diffForHumans();
 
-        $item = self::formatComments($item);
+        foreach ($item->comments as $comment) {
+            self::formatComments($comment);
+        }
 
         // If its a PR we also want to load that specific data
         if ($item->isPullRequest()) {
-            self::loadPullRequestData($item);
+            $item->load([
+                'details',
+                'requestedReviewers.user'
+            ]);
         }
 
         return response()->json($item);
@@ -93,27 +98,7 @@ class ItemController extends Controller
 
         return $content;
     }
-
-    private static function loadPullRequestData($item)
-    {
-        // Load PR-specific details (branches, SHAs, etc.)
-        $item->load([
-            'details',
-            'requestedReviewers.user'
-        ]);
-    }
-
-    private static function formatComments($item)
-    {
-        // We need to sort out the comments and fix the relationships
-        foreach ($item->comments as $comment) {
-            self::formatCommentDetails($comment);
-        }
-
-        return $item;
-    }
-
-    private static function formatCommentDetails($comment)
+    private static function formatComments($comment)
     {
         if ($comment->type === 'review') {
             $comment->details = $comment->reviewDetails;
@@ -121,6 +106,10 @@ class ItemController extends Controller
 
         if ($comment->type === 'code') {
             $comment->details = $comment->commentDetails;
+        }
+
+        if ($comment->type === 'issue') {
+            return;
         }
 
         $comment->child_comments = $comment->details->childComments ?? [];
