@@ -15,38 +15,37 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('organizations.get');
 
     Route::prefix('/{organization}/{repository}')->group(function () {
-
-        Route::get('/{organization}/{repository}/items/{type}', [ItemController::class, 'index'])
+        Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('organizations.repositories.items.get');
 
-        Route::get('/{organization}/{repository}/contributors', [RepositoryController::class, 'getContributors'])
+        Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('organizations.repositories.contributors.get');
 
-        Route::post('/{organization}/{repository}/item/{number}', [ItemController::class, 'update'])
+        Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('organizations.repositories.item.update');
 
-        Route::get('/{organization}/{repository}/item/{number}', [ItemController::class, 'show'])
+        Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('organizations.repositories.item.show');
 
-        Route::post('/{organization}/{repository}/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
+        Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
             ->name('organizations.repositories.item.comment');
 
-        Route::post('/{organization}/{repository}/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
+        Route::post('/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
             ->name('organizations.repositories.item.review');
 
-        Route::post('/{organization}/{repository}/item/{number}/review/comment/{comment_id}', [BaseCommentController::class, 'updateReviewComment'])
+        Route::post('/item/{number}/review/comment/{comment_id}', [BaseCommentController::class, 'updateReviewComment'])
             ->name('organizations.repositories.item.review.comment');
 
-        Route::get('/{organization}/{repository}/item/{number}/files', [ItemController::class, 'getFiles'])
+        Route::get('/item/{number}/files', [ItemController::class, 'getFiles'])
             ->name('organizations.repositories.item.files');
 
-            Route::get('/{organization}/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+            Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('organizations.repositories.branches.pr.notices');
 
-        Route::get('/{organization}/{repository}/pr/metadata', [PullRequestController::class, 'metadata'])
+        Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
             ->name('organizations.repositories.pr.metadata');
 
-        Route::post('/{organization}/{repository}/pr/create', [PullRequestController::class, 'create'])
+        Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('organizations.repositories.pr.create');
     });
 
