@@ -146,11 +146,11 @@
   }
 
   function convertToMarkdown() {
-    if (content) {
-      return marked.parse(content);
+    if (!content) {
+      return '';
     }
-
-    return '';
+    
+    return marked.parse(content);
   }
 
   function insertShortcut(type) {
