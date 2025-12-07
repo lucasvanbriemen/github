@@ -32,6 +32,13 @@
     border: 2px solid var(--border-color);
     border-radius: 1rem;
 
+    .empty-state{
+      color: var(--text-color-secondary);
+      font-style: italic;
+
+      font-size: 0.85rem;
+    }
+
     :global(p),
     :global(li),
     :global(strong) {
