@@ -11,7 +11,7 @@ use App\Http\Controllers\BaseCommentController;
 use App\Http\Controllers\UploadController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
-    Route::get('/organizations', [OrganizationController::class, 'getOrganizations'])
+    Route::get('/organizations', [OrganizationController::class, 'index'])
         ->name('organizations.get');
 
     Route::prefix('/{organization}/{repository}')->group(function () {

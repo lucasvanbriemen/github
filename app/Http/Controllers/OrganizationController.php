@@ -23,7 +23,7 @@ class OrganizationController extends Controller
         return response()->json(['message' => 'Organizations updated successfully'], 200);
     }
 
-    public static function getOrganizations()
+    public static function index()
     {
         $organizations = Organization::with('repositories')->get();
         return response()->json($organizations);
