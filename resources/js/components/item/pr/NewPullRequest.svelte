@@ -5,7 +5,7 @@
   import SidebarGroup from '../../sidebar/group.svelte';
   import Select from '../../Select.svelte';
   import Input from '../../Input.svelte';
-  import MarkdownEditor from '../../MarkdownEditor.svelte';
+  import Markdown from '../../Markdown.svelte';
 
   let { params = {} } = $props();
 
@@ -16,10 +16,18 @@
   let body = $state('');
 
   let templates = $state([]);
-
+  let selectedTemplate = $state(null);
   
   let assignee = $state();
   let possibleAssignees = $state([]);
+
+  function selectTemplate(template) {
+    if (!selectedTemplate) {
+      body = template.body;
+      selectedTemplate = template;
+      title = template.name;
+    }
+  }
   
   onMount(async () => {
     // Load branches for the repository to populate the Select components
@@ -66,7 +74,7 @@
   <div class="new-pr-main">
     <div class="inputs">
       <Input name="title" label="Title" bind:value={title} />
-      <MarkdownEditor bind:value={body} placeholder="Describe your changes..." />
+      <Markdown bind:content={body}/>
 
       <div class="submit-wrapper">
         <button class="button-primary" onclick={createPR}>Create Pull Request</button>
@@ -75,7 +83,7 @@
 
     <div class="templates">
       {#each templates as template}
-        <div class="template">{template.name}</div>
+        <div class="template" onclick={() => selectTemplate(template)}>{template.name}</div>
       {/each}
     </div>
   </div>
