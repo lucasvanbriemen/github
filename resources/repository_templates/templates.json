@@ -1,26 +1,14 @@
 [
   {
-    "id": "bug_report",
-    "name": "Bug Report",
-    "description": "Report a reproducible bug",
-    "body": [
-      { "type": "markdown", "text": "Thanks for taking the time to fill this out!" },
-      { "type": "input", "label": "Title", "name": "title" },
-      { "type": "textarea", "label": "Description", "name": "description" },
-      { "type": "input", "label": "Steps to Reproduce", "name": "steps" },
-      { "type": "input", "label": "Expected Behavior", "name": "expected" },
-      { "type": "input", "label": "Actual Behavior", "name": "actual" }
-    ]
+    "id": "bug-report",
+    "type": "issue",
+    "title": "Bug Report",
+    "body": "Report a reproducible bug"
   },
   {
-    "id": "feature_request",
-    "name": "Feature Request",
-    "description": "Propose a new feature",
-    "body": [
-      { "type": "input", "label": "Summary", "name": "summary" },
-      { "type": "textarea", "label": "Motivation", "name": "motivation" },
-      { "type": "textarea", "label": "Proposed Solution", "name": "solution" },
-      { "type": "input", "label": "Alternatives Considered", "name": "alternatives" }
-    ]
+    "id": "feature-request",
+    "type": "issue",
+    "title": "Feature Request",
+    "body": "Propose a new feature"
   }
 ]

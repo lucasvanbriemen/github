@@ -15,18 +15,23 @@
   let title = $state('');
   let body = $state('');
 
+  let templates = $state([]);
+
+  
   let assignee = $state();
   let possibleAssignees = $state([]);
-
+  
   onMount(async () => {
     // Load branches for the repository to populate the Select components
     const data = await api.get(route(`organizations.repositories.pr.metadata`, { organization: params.organization, repository: params.repository }));
-
+    
     // Ensure options are in { value, label } shape expected by <Select>
     possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
     possibleAssignees = (data.assignees || []).map((a) => ({ value: a.login, label: a.display_name }));
     assignee = data.default_assignee;
     base_branch = data.master_branch;
+
+    templates = await api.get(route('repositories.templates.get'));
   });
 
   async function createPR() {
@@ -64,6 +69,10 @@
     <div class="submit-wrapper">
       <button class="button-primary" onclick={createPR}>Create Pull Request</button>
     </div>
+
+    {#each templates as template}
+      {template.title}
+    {/each}
   </div>
 </div>
   
