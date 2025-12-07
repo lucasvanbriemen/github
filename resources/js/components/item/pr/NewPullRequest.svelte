@@ -71,7 +71,6 @@
     </div>
 
     {#each templates as template}
-      {template.title}
     {/each}
   </div>
 </div>
