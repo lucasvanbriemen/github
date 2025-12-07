@@ -19,7 +19,7 @@ class RepositoryService
         return [$organization, $repository];
     }
 
-    public static function processMarkdownImages($content) 
+    public static function processMarkdownImages($content)
     {
         if (!$content) {
             return $content;

@@ -28,11 +28,6 @@ class ItemController extends Controller
         $page = request()->query('page', 1);
         $items = $query->paginate(30, ['*'], 'page', $page);
 
-        $items->getCollection()->transform(function ($item) {
-            $item->created_at_human = $item->created_at->diffForHumans();
-            return $item;
-        });
-
         return response()->json($items);
     }
 
@@ -48,9 +43,6 @@ class ItemController extends Controller
                 'comments'
             ])
             ->firstOrFail();
-
-        $item->body = RepositoryService::processMarkdownImages($item->body);
-        $item->created_at_human = $item->created_at->diffForHumans();
 
         foreach ($item->comments as $comment) {
             self::formatComments($comment);
@@ -115,20 +107,9 @@ class ItemController extends Controller
                 $childComment->author = $childComment->baseComment->author;
                 $childComment->type = $childComment->baseComment->type;
                 $childComment->body = $childComment->baseComment->body ?? '';
-
-                // Process markdown images in the body
-                if ($childComment->body) {
-                    $childComment->body = RepositoryService::processMarkdownImages($childComment->body);
-                }
-
                 $childComment->resolved = $childComment->baseComment->resolved;
 
                 unset($childComment->baseComment);
-            }
-
-            // // Add human-readable created_at
-            if ($childComment->created_at) {
-                $childComment->created_at_human = $childComment->created_at->diffForHumans();
             }
 
             $childComment->id = $childComment->base_comment_id;

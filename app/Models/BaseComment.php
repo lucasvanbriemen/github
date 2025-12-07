@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\RepositoryService;
 
 class BaseComment extends Model
 {
@@ -12,9 +13,23 @@ class BaseComment extends Model
 
     protected $with  = ['author', 'reviewDetails', 'commentDetails'];
 
+    protected $appends = [
+        'created_at_human',
+    ];
+
     public function issue()
     {
         return $this->belongsTo(Issue::class, 'issue_id', 'id');
+    }
+
+    public function getBodyAttribute($value)
+    {
+        return RepositoryService::processMarkdownImages($value);
+    }
+
+    public function getCreatedAtHumanAttribute()
+    {
+        return $this->created_at?->diffForHumans();
     }
 
     public function author()

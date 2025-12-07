@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\RepositoryService;
 
 class Item extends Model
 {
@@ -11,6 +12,10 @@ class Item extends Model
     protected $keyType = 'int';
     public $incrementing = false;
     public $timestamps = true;
+
+    protected $appends = [
+        'created_at_human',
+    ];
 
     protected $fillable = [
         'id',
@@ -27,6 +32,16 @@ class Item extends Model
     protected $casts = [
         'labels' => 'array',
     ];
+
+    public function getBodyAttribute($value)
+    {
+        return RepositoryService::processMarkdownImages($value);
+    }
+
+    public function getCreatedAtHumanAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
 
     public function repository()
     {
