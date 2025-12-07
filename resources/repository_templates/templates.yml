@@ -1,0 +1,8 @@
+[
+  {
+    "id": "general-pr-template",
+    "type": "pr",
+    "name": "General PR Template",
+    "body": "### Summary\nState the change and its purpose.\n\n### Tests\n- [ ] Relevant tests added or updated\n- [ ] Security-related coverage included\nProvide a brief test description.\n\n### PR Checks\n- [ ] Migrations applied and schema updated\n- [ ] Measurement path defined if applicable\n- [ ] Self-review complete with clarifying comments\n- [ ] Follow-up issues created and assigned\n- [ ] Documentation updated\n- [ ] Reviewers notified\n- [ ] Team FYI posted if feature flags or similar are involved\n- [ ] UAT or hotfix flow considered\n- [ ] Mobile/small-screen check done for UI work\n\n### Issue Alignment\n- [ ] PR linked to Issue\n- [ ] Submodules updated appropriately\n- [ ] UAT instructions added if manual testing required\n- [ ] Documentation label and notes added if needed\n- [ ] Translation label added if needed\n- [ ] Deployment notes added if post-deploy actions exist"
+  }
+]

@@ -32,6 +32,7 @@
     base_branch = data.master_branch;
 
     templates = await api.get(route('repositories.templates.get'));
+
   });
 
   async function createPR() {
@@ -63,15 +64,20 @@
   </Sidebar>
 
   <div class="new-pr-main">
-    <Input name="title" label="Title" bind:value={title} />
-    <MarkdownEditor bind:value={body} placeholder="Describe your changes..." />
+    <div class="inputs">
+      <Input name="title" label="Title" bind:value={title} />
+      <MarkdownEditor bind:value={body} placeholder="Describe your changes..." />
 
-    <div class="submit-wrapper">
-      <button class="button-primary" onclick={createPR}>Create Pull Request</button>
+      <div class="submit-wrapper">
+        <button class="button-primary" onclick={createPR}>Create Pull Request</button>
+      </div>
     </div>
 
-    {#each templates as template}
-    {/each}
+    <div class="templates">
+      {#each templates as template}
+        <div class="template">{template.name}</div>
+      {/each}
+    </div>
   </div>
 </div>
   
