@@ -100,9 +100,9 @@
       for (const item of uploaded) {
         const safeName = item.name || 'uploaded-file';
         if (item.type?.startsWith('image/')) {
-          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" />\n`);
+          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" /><br/>\n`);
         } else if (item.type?.startsWith('video/')) {
-          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video>\n`);
+          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video><br/>\n`);
         }
       }
 
@@ -195,9 +195,9 @@
 
     untrack(() => {
       rendered = convertToMarkdown();
-      autoSize();
 
       if (isEditing) {
+        autoSize();
         editor.focus();
       }
     });
