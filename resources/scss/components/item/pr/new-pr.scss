@@ -36,6 +36,7 @@
         padding: 0.5rem;
         border-radius: 0.5rem;
         background-color: var(--background-color-two);
+        border: 2px solid var(--background-color-one);
         color: var(--text-color-one);
         font-size: 0.8rem;
         border: none;
@@ -45,16 +46,15 @@
           background-color: var(--primary-color-dark);
         }
 
-        &.selected {
-          background-color: var(--primary-color);
-          color: var(--text-color-light);
-          font-weight: bold;
-        }
-
         &.disabled {
           cursor: not-allowed;
           background-color: var(--background-color-one);
-          color: var(--text-color-two);
+          color: var(--text-color-secondary);
+        }
+
+        &.selected {
+          border: 2px solid var(--primary-color-dark);
+          color: var(--text-color-light);
         }
       }
     }
