@@ -5,7 +5,7 @@
   import SidebarGroup from '../../sidebar/group.svelte';
   import Select from '../../Select.svelte';
   import Input from '../../Input.svelte';
-  import MarkdownEditor from '../../MarkdownEditor.svelte';
+  import Markdown from '../../Markdown.svelte';
 
   let { params = {} } = $props();
 
@@ -14,12 +14,19 @@
   let possibleBranches = $state([]);
   let title = $state('');
   let body = $state('');
+  let type = $state(params.type);
 
   let templates = $state([]);
-
+  let selectedTemplate = $state(null);
   
   let assignee = $state();
   let possibleAssignees = $state([]);
+
+  function selectTemplate(template) {
+    body = template.body;
+    selectedTemplate = template;
+    title = template.name;
+  }
   
   onMount(async () => {
     // Load branches for the repository to populate the Select components
@@ -32,6 +39,7 @@
     base_branch = data.master_branch;
 
     templates = await api.get(route('repositories.templates.get'));
+    templates = templates.filter(t => t.type === type);
   });
 
   async function createPR() {
@@ -63,15 +71,20 @@
   </Sidebar>
 
   <div class="new-pr-main">
-    <Input name="title" label="Title" bind:value={title} />
-    <MarkdownEditor bind:value={body} placeholder="Describe your changes..." />
+    <div class="inputs">
+      <Input name="title" label="Title" bind:value={title} />
+      <Markdown bind:content={body} isEditing={true} />
 
-    <div class="submit-wrapper">
-      <button class="button-primary" onclick={createPR}>Create Pull Request</button>
+      <div class="submit-wrapper">
+        <button class="button-primary" onclick={createPR}>Create Pull Request</button>
+      </div>
     </div>
 
-    {#each templates as template}
-    {/each}
+    <div class="templates">
+      {#each templates as template}
+        <button class="template" class:selected={selectedTemplate && selectedTemplate.id === template.id} class:disabled={selectedTemplate && selectedTemplate.id} onclick={() => selectTemplate(template)}>{template.name}</button>
+      {/each}
+    </div>
   </div>
 </div>
   

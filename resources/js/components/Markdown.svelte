@@ -3,9 +3,8 @@
   import { marked } from 'marked';
   import 'github-markdown-css/github-markdown-dark.css';
 
-  let { content = '', canEdit = true, change } = $props();
+  let { content = $bindable(''), canEdit = true, isEditing = false, change } = $props();
   let rendered = $state('');
-  let isEditing = $state(false);
 
   let editor = $state(null);
 
@@ -101,9 +100,9 @@
       for (const item of uploaded) {
         const safeName = item.name || 'uploaded-file';
         if (item.type?.startsWith('image/')) {
-          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" />\n`);
+          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" /><br/>\n`);
         } else if (item.type?.startsWith('video/')) {
-          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video>\n`);
+          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video><br/>\n`);
         }
       }
 
@@ -198,6 +197,7 @@
       rendered = convertToMarkdown();
 
       if (isEditing) {
+        autoSize();
         editor.focus();
       }
     });
