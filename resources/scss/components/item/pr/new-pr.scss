@@ -34,10 +34,23 @@
         background-color: var(--background-color-two);
         color: var(--text-color-one);
         font-size: 0.8rem;
-        transition: background-color 0.2s ease-in-out;
+        border: none;
+        text-align: left;
 
         &:hover {
           background-color: var(--primary-color-dark);
+        }
+
+        &.selected {
+          background-color: var(--primary-color);
+          color: var(--text-color-light);
+          font-weight: bold;
+        }
+
+        &.disabled {
+          cursor: not-allowed;
+          background-color: var(--background-color-one);
+          color: var(--text-color-two);
         }
       }
     }

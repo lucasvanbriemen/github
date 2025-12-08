@@ -83,7 +83,7 @@
 
     <div class="templates">
       {#each templates as template}
-        <div class="template" onclick={() => selectTemplate(template)}>{template.name}</div>
+        <button class="template" class:selected={selectedTemplate && selectedTemplate.id === template.id} class:disabled={selectedTemplate && selectedTemplate.id} onclick={() => selectTemplate(template)}>{template.name}</button>
       {/each}
     </div>
   </div>
