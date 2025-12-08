@@ -14,6 +14,7 @@
   let possibleBranches = $state([]);
   let title = $state('');
   let body = $state('');
+  let type = $state(params.type);
 
   let templates = $state([]);
   let selectedTemplate = $state(null);
@@ -40,7 +41,7 @@
     base_branch = data.master_branch;
 
     templates = await api.get(route('repositories.templates.get'));
-
+    templates = templates.filter(t => t.type === type);
   });
 
   async function createPR() {
