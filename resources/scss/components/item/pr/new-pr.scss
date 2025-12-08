@@ -11,10 +11,14 @@
     margin-top: 1rem; 
 
     .inputs {
-      width: 85%;
+      width: 100ch;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+
+      @media screen and (max-width: 768px) {
+        width: 85%;
+      }
     }
 
     .templates {
