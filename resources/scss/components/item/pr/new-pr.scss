@@ -16,5 +16,30 @@
       flex-direction: column;
       gap: 0.5rem;
     }
+
+    .templates {
+      background-color: var(--background-color-one);
+      width: 15%;
+      height: min-content;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-radius: 1rem;
+
+      .template {
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        background-color: var(--background-color-two);
+        color: var(--text-color-one);
+        font-size: 0.8rem;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+          background-color: var(--primary-color-dark);
+        }
+      }
+    }
   }
 }

@@ -43,7 +43,7 @@ class RepositoryController extends Controller
 
     public function getTemplates()
     {
-        $templatesPath = resource_path('repository_templates/templates.yml');
+        $templatesPath = resource_path('repository_templates/templates.json');
         $templatesJson = file_get_contents($templatesPath);
         $templates = json_decode($templatesJson, true);
 
