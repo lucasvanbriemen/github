@@ -3,9 +3,8 @@
   import { marked } from 'marked';
   import 'github-markdown-css/github-markdown-dark.css';
 
-  let { content = '', canEdit = true, change } = $props();
+  let { content = '', canEdit = true, isEditing = false, change } = $props();
   let rendered = $state('');
-  let isEditing = $state(false);
 
   let editor = $state(null);
 
@@ -196,6 +195,7 @@
 
     untrack(() => {
       rendered = convertToMarkdown();
+      autoSize();
 
       if (isEditing) {
         editor.focus();

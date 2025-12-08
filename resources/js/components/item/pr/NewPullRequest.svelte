@@ -74,7 +74,7 @@
   <div class="new-pr-main">
     <div class="inputs">
       <Input name="title" label="Title" bind:value={title} />
-      <Markdown bind:content={body}/>
+      <Markdown bind:content={body} isEditing={true} />
 
       <div class="submit-wrapper">
         <button class="button-primary" onclick={createPR}>Create Pull Request</button>
