@@ -3,7 +3,7 @@
   import { marked } from 'marked';
   import 'github-markdown-css/github-markdown-dark.css';
 
-  let { content = '', canEdit = true, isEditing = false, change } = $props();
+  let { content = $bindable(''), canEdit = true, isEditing = false, change } = $props();
   let rendered = $state('');
 
   let editor = $state(null);
