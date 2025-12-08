@@ -23,11 +23,9 @@
   let possibleAssignees = $state([]);
 
   function selectTemplate(template) {
-    if (!selectedTemplate) {
-      body = template.body;
-      selectedTemplate = template;
-      title = template.name;
-    }
+    body = template.body;
+    selectedTemplate = template;
+    title = template.name;
   }
   
   onMount(async () => {
