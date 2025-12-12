@@ -1,11 +1,11 @@
 <script>
   import { onMount } from 'svelte';
 
-  import Sidebar from '../../sidebar/Sidebar.svelte';
-  import SidebarGroup from '../../sidebar/group.svelte';
-  import Select from '../../Select.svelte';
-  import Input from '../../Input.svelte';
-  import Markdown from '../../Markdown.svelte';
+  import Sidebar from '../sidebar/Sidebar.svelte';
+  import SidebarGroup from '../sidebar/group.svelte';
+  import Select from '../Select.svelte';
+  import Input from '../Input.svelte';
+  import Markdown from '../Markdown.svelte';
 
   let { params = {} } = $props();
 
@@ -42,6 +42,14 @@
     templates = templates.filter(t => t.type === type);
   });
 
+  function createItem() {
+    if (type === 'pr') {
+      createPR();
+    } else {
+      createIssue();
+    }
+  }
+
   async function createPR() {
     const res = await api.post(route(`organizations.repositories.pr.create`, { organization: params.organization, repository: params.repository }), {
       head_branch,
@@ -53,17 +61,30 @@
 
     window.location.hash = `#/${params.organization}/${params.repository}/prs/${Number(res.number)}`;
   }
+
+  async function createIssue() {
+    const res = await api.post(route(`organizations.repositories.issues.create`, { organization: params.organization, repository: params.repository }), {
+      title,
+      body,
+      assignee,
+    });
+
+    window.location.hash = `#/${params.organization}/${params.repository}/issues/${Number(res.number)}`;
+  }
 </script>
 
 <div class="new-pr">
   <Sidebar {params} activeItem="New PR">
-    <SidebarGroup title="Branch to merge">
-      <Select name="head_branch" value={head_branch} selectableItems={possibleBranches}  bind:selectedValue={head_branch} />
-    </SidebarGroup>
 
-    <SidebarGroup title="Branch to merge into">
-      <Select name="base_branch" value={base_branch} selectableItems={possibleBranches} bind:selectedValue={base_branch} />
-    </SidebarGroup>
+    {#if type === 'pr'}
+      <SidebarGroup title="Branch to merge">
+        <Select name="head_branch" value={head_branch} selectableItems={possibleBranches}  bind:selectedValue={head_branch} />
+      </SidebarGroup>
+
+      <SidebarGroup title="Branch to merge into">
+        <Select name="base_branch" value={base_branch} selectableItems={possibleBranches} bind:selectedValue={base_branch} />
+      </SidebarGroup>
+    {/if}
 
     <SidebarGroup title="Assignee">
       <Select name="assignee" value={assignee} selectableItems={possibleAssignees} bind:selectedValue={assignee} />
@@ -76,7 +97,14 @@
       <Markdown bind:content={body} isEditing={true} />
 
       <div class="submit-wrapper">
-        <button class="button-primary" onclick={createPR}>Create Pull Request</button>
+        <button class="button-primary" onclick={createItem}>
+          Create 
+          {#if type === 'pr'}
+            Pull Request
+          {:else}
+            Issue
+          {/if}
+        </button>
       </div>
     </div>
 
@@ -89,5 +117,5 @@
 </div>
   
 <style lang="scss">
-  @import '../../../../scss/components/item/pr/new-pr.scss';
+  @import '../../../scss/components/item/pr/new-pr.scss';
 </style>

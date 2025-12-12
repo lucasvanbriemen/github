@@ -50,6 +50,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('organizations.repositories.pr.create');
+
+        Route::post('/issue/create', [ItemController::class, 'create'])
+            ->name('organizations.repositories.issues.create');
     });
 
     // Media uploads (images/videos) from markdown editor

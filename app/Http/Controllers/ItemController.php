@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
+use App\Models\Issue;
 use App\Helpers\DiffRenderer;
 use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
@@ -29,6 +30,60 @@ class ItemController extends Controller
         $items = $query->paginate(30, ['*'], 'page', $page);
 
         return response()->json($items);
+    }
+
+    public function create($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $assigneeInput = request()->input('assignee');
+        $assignees[] = $assigneeInput;
+
+        $prData = [
+            'title' => request()->input('title'),
+            'body' => request()->input('body', ''),
+            'draft' => true,
+        ];
+
+        $response = GitHub::issues()->create($organization->name, $repository->name, $prData);
+
+        GitHub::issues()->update($organization->name, $repository->name, $response['number'], [
+            'assignees' => $assignees,
+        ]);
+
+        $state = $response['state'] ?? 'open';
+
+        // Persist base fields in items table
+        $issue = Issue::updateOrCreate(
+            ['id' => $response['id']],
+            [
+                'repository_id' => $repository->id,
+                'number' => $response['number'] ?? null,
+                'title' => $response['title'] ?? '',
+                'body' => $response['body'] ?? '',
+                'state' => $state,
+                'labels' => json_encode($response['labels'] ?? []),
+                'opened_by_id' => $response['user']['id'] ?? null,
+            ]
+        );
+
+        // Sync assignees (uses issue_assignees table)
+        $assigneeGithubIds = [];
+        if (!empty($response['assignees']) && is_array($response['assignees'])) {
+            foreach ($response['assignees'] as $assignee) {
+                $assigneeGithubIds[] = $assignee['id'];
+            }
+        } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
+            // GitHub may return a single assignee
+            $assigneeGithubIds[] = $response['assignee']['id'];
+        }
+
+        $issue->assignees()->sync($assigneeGithubIds);
+
+        return response()->json([
+            'number' => $response['number'] ?? null,
+            'state' => $state,
+        ]);
     }
 
     public static function show($organizationName, $repositoryName, $issueNumber)

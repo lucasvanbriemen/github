@@ -6,7 +6,7 @@
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './itemOverview/ItemOverview.svelte';
   import Item from './item/Item.svelte';
-  import NewPullRequest from './item/pr/NewPullRequest.svelte';
+  import NewItem from './item/NewItem.svelte';
   import theme from '../lib/theme.js';
   import api from '../lib/api.js';
 
@@ -16,7 +16,7 @@
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,
-    '/:organization/:repository/new/:type/:branch?': NewPullRequest,
+    '/:organization/:repository/new/:type/:branch?': NewItem,
     '/:organization/:repository/:type/:number/:tab?': Item,
   };
 
