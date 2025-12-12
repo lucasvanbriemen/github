@@ -5,6 +5,7 @@
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
+  let issueComment = $state('');
 
   let organization = params.organization;
   let repository = params.repository;
@@ -19,6 +20,10 @@
     });
   }
 
+  function post_comment(e) {
+    console.log('posting comment', issueComment);
+  }
+
 </script>
 
 <Markdown content={body} change={save_body} />
@@ -26,3 +31,6 @@
 {#each item.comments as comment}
   <Comment {comment} {params} />
 {/each}
+
+<Markdown bind:content={issueComment} isEditing={true} />
+<button class="button-primary" onclick={post_comment}>Post Comment</button>
