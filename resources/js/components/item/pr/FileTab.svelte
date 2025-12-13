@@ -14,7 +14,6 @@
       // We get the child comments for each review comment and add them to the comments array
       comment.child_comments.forEach(childComment => {
         comments.push(childComment);
-        console.log(childComment);
       });
     });
 
