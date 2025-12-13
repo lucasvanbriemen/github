@@ -9,7 +9,7 @@
 </script>
 
 <a class="list-item" href="{itemUrl(item.number)}">
-  <Icon name="issue" size="1.5rem" className="item-{item.state}" />
+  <Icon name={item.type} size="1.5rem" className="item-{item.state}" />
 
   <div class="content">
     <h3>{item.title}</h3>
