@@ -17,7 +17,14 @@
 
 <div class="side-wrapper">
   <div class="side left-side">
-    <span class="line-number diff-line-{pair.type}">{pair.number}</span>
+    <div class="line-number diff-line-{pair.type}">
+      {#if pair.type !== 'empty' && prefix(pair.type) !== '  '}
+        <span class="add-comment-button">+</span>
+      {/if}
+
+      {pair.number}
+    </div>
+
     <div class="diff-line-content diff-line-{pair.type}">
       {#if pair.type !== 'empty'}
         <span class="prefix">{prefix(pair.type)}</span>

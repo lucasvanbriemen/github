@@ -36,29 +36,25 @@
   {#if loadingFiles}
     <div class="loading">Loading files...</div>
   {:else}
-    {#if !files || files.length === 0}
-      <div class="diff-empty">No file changes</div>
-    {:else}
-      <div class="file">
-        <button class="header" type="button">
-          <span class="file-status file-status-{selectedFile.status}">{selectedFile.status}</span>
-          <span class="file-name">{selectedFile.filename}</span>
-        </button>
+    <div class="file">
+      <button class="header" type="button">
+        <span class="file-status file-status-{selectedFile.status}">{selectedFile.status}</span>
+        <span class="file-name">{selectedFile.filename}</span>
+      </button>
 
-        <div class="file-changes">
-          {#each selectedFile.changes as hunk (hunk)}
-            {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
-              <div class="changed-line-pair">
-                <HunkSide {changedLinePair} {selectedFile} {comments} side="LEFT" />
-                <HunkSide {changedLinePair} {selectedFile} {comments} side="RIGHT" />
-              </div>
-            {/each}
-
-            <div class="hunk-separator"></div>
+      <div class="file-changes">
+        {#each selectedFile.changes as hunk (hunk)}
+          {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
+            <div class="changed-line-pair">
+              <HunkSide {changedLinePair} {selectedFile} {comments} side="LEFT" />
+              <HunkSide {changedLinePair} {selectedFile} {comments} side="RIGHT" />
+            </div>
           {/each}
-        </div>
+
+          <div class="hunk-separator"></div>
+        {/each}
       </div>
-    {/if}
+    </div>
   {/if}
 </div>
 
