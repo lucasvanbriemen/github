@@ -45,6 +45,9 @@
     },
   };
 
+  const renderer = new marked.Renderer();
+  let checkboxRenderIndex = $state(0);
+
   async function uploadFiles(files) {
     const form = new FormData();
     for (const file of files) {
@@ -123,6 +126,41 @@
     change?.({ value: content });
   }
 
+  function handleCheckboxClick(e) {
+    const target = e.target;
+
+    if (target.type !== 'checkbox') {
+      return;
+    }
+
+    // Find which checkbox was clicked by matching against all checkboxes in the DOM
+    const checkboxes = document.querySelectorAll('.markdown-body input[type="checkbox"]');
+    let clickedIndex = -1;
+
+    checkboxes.forEach((checkbox, index) => {
+      if (checkbox === target) {
+        clickedIndex = index;
+      }
+    });
+
+    const lines = content.split('\n');
+    let currentCheckbox = 0;
+
+    lines.forEach((line, index) => {
+      const hasCheckbox = line.includes('- [ ]') || line.includes('- [x]') || line.includes('- [X]');
+
+      if (hasCheckbox) {
+        if (currentCheckbox === clickedIndex) {
+          lines[index] = line.replace(/- \[[ xX]\]/, `- [${target.checked ? 'x' : ' '}]`);
+        }
+        currentCheckbox++;
+      }
+    });
+
+    content = lines.join('\n');
+    saveChange();
+  }
+
   function handleKeyDown(e) {
     if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault();
@@ -140,7 +178,8 @@
     if (!content) {
       return '';
     }
-    
+
+    checkboxRenderIndex = 0;
     return marked.parse(content);
   }
 
@@ -178,6 +217,16 @@
   }
 
   onMount(() => {
+    renderer.checkbox = function (data) {
+      const isChecked = data.checked;
+      const currentIndex = checkboxRenderIndex;
+      checkboxRenderIndex++;
+
+      return `<input type="checkbox" data-index="${currentIndex}" ${isChecked ? ' checked' : ''}> `;
+    };
+
+    marked.setOptions({renderer, gfm: true, breaks: false});
+
     rendered = convertToMarkdown();
   });
 
@@ -225,7 +274,7 @@
       bind:this={editor}
     ></textarea>
   {:else}
-    <div class="markdown-body">
+    <div class="markdown-body" onclick={handleCheckboxClick}>
       {#if content}
         {@html rendered}
       {:else}
