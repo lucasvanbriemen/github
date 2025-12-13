@@ -22,10 +22,9 @@
       line: line.number,
       side: side.toUpperCase(),
       body: line.comment,
-    }).then((newComment) => {
+    }).then(() => {
       line.comment = '';
       line.addingComment = false;
-      comments.push(newComment);
     });
   }
 

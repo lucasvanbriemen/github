@@ -92,8 +92,9 @@ class BaseCommentController extends Controller
             'side'      => request()->input('side'),
         ];
 
-        $response = ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments", 'POST', $payload);
+        ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments", 'POST', $payload);
 
-        return $response;
+        // For simplicity, we won't store the comment locally for now and we let the webhook handle it
+        return response()->json(['success' => true]);
     }
 }
