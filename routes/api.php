@@ -39,7 +39,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/item/{number}/files', [ItemController::class, 'getFiles'])
             ->name('organizations.repositories.item.files');
 
-            Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+        Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('organizations.repositories.branches.pr.notices');
 
         Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
