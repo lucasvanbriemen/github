@@ -96,6 +96,10 @@
     .code {
       white-space: pre-wrap;
       word-wrap: break-word;
+
+      :global(*) {
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+      }
     }
   }
 
@@ -132,5 +136,11 @@
       opacity: 1;
       font-weight: 700;
     }
+  }
+}
+
+:global(.code) {
+  :global(span) {
+    font-family:  monospace;
   }
 }
