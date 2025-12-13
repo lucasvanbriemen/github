@@ -18,25 +18,33 @@ class ApiHelper
         ];
     }
 
-    public static function githubApi($route)
+    public static function githubApi(string $route, string $method = 'GET', array $payload = null)
     {
         self::init();
-
-        $fullUrl = self::BASE_URL.$route;
+        $fullUrl = self::BASE_URL . $route;
 
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, self::formatHeaders());
+
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            if ($payload) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+            }
+        }
+
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($httpCode === 200) {
+        if ($httpCode >= 200 && $httpCode < 300) {
             return json_decode($responseBody);
-        } else {
-            return null;
         }
+
+        return null;
     }
+
 
     public static function githubGraphql(string $query, array $variables = [])
     {

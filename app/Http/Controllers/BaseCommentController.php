@@ -7,6 +7,7 @@ use App\Models\PullRequestReview;
 use App\Models\BaseComment;
 use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
+use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
 class BaseCommentController extends Controller
@@ -74,16 +75,46 @@ class BaseCommentController extends Controller
         return response()->json($localComment);
     }
 
-    public function createPRComment($organizationName, $repositoryName, $pullRequestNumber)
+    public function createPRComment(string $organizationName, string $repositoryName, int $pullRequestNumber)
     {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        [$organization, $repository] =
+        RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $item = Item::where('repository_id', $repository->id)
-            ->where('number', $pullRequestNumber)
-            ->firstOrFail();
+        ->where('number', $pullRequestNumber)
+        ->firstOrFail();
 
-        $latestCommit = $item->getLatestCommitSha();
+        $commitSha = $item->getLatestCommitSha();
 
-        return response()->json(['latest_commit' => $latestCommit]);
+        $data = request()->validate([
+        'body' => 'required|string',
+        'path' => 'required|string',
+        'line' => 'required|integer',
+        'side' => 'required|in:LEFT,RIGHT',
+        ]);
+
+        $payload = [
+        'body'      => $data['body'],
+        'commit_id' => $commitSha,
+        'path'      => $data['path'],
+        'line'      => $data['line'],
+        'side'      => $data['side'],
+        ];
+
+        $route = sprintf(
+            '/repos/%s/%s/pulls/%d/comments',
+            $organizationName,
+            $repositoryName,
+            $pullRequestNumber
+        );
+
+        $response = ApiHelper::githubApi($route, 'POST', $payload);
+
+        if (!$response) {
+              throw new \RuntimeException('Failed to create PR comment via GitHub API.');
+        }
+
+        return $response;
     }
+
 }
