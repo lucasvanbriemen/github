@@ -46,8 +46,8 @@
         {#each selectedFile.changes as hunk (hunk)}
           {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
             <div class="changed-line-pair">
-              <HunkSide {changedLinePair} {selectedFile} {comments} side="LEFT" />
-              <HunkSide {changedLinePair} {selectedFile} {comments} side="RIGHT" />
+              <HunkSide {changedLinePair} {selectedFile} {comments} side="LEFT" {params} />
+              <HunkSide {changedLinePair} {selectedFile} {comments} side="RIGHT" {params} />
             </div>
           {/each}
 

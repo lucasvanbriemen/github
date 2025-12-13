@@ -4,7 +4,11 @@
   import Comment from '../../Comment.svelte';
   import Markdown from '../../Markdown.svelte';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], side } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], side, params } = $props();
+
+  let organization = params.organization;
+  let repository = params.repository;
+  let number = params.number;
 
   function prefix(type) {
     if (type === 'add') return '+';
@@ -13,13 +17,22 @@
   }
 
   function post_comment(e) {
-    console.log('posting comment');
+    api.post(route(`organizations.repositories.item.review.comments.create`, { organization, repository, number }), {
+      path: selectedFile.filename,
+      line: line.number,
+      side: side.toUpperCase(),
+      body: line.comment,
+    }).then((newComment) => {
+      line.comment = '';
+      line.addingComment = false;
+      comments.push(newComment);
+    });
   }
 
   const line = changedLinePair[side.toLowerCase()];
 
   line.addingComment = false;
-
+  line.comment = '';
 </script>
 
 <div class="side-wrapper" class:addingComment={line.addingComment}>
@@ -48,7 +61,7 @@
 
   {#if line.type !== 'empty' && prefix(line.type) !== '  ' && line.addingComment}
     <div class="add-comment-wrapper">  
-      <Markdown isEditing={true} />
+      <Markdown isEditing={true} bind:content={line.comment} />
 
       <button class="button-primary" onclick={post_comment}>Post Comment</button>
     </div>

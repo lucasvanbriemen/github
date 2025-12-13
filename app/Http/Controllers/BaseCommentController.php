@@ -73,4 +73,17 @@ class BaseCommentController extends Controller
 
         return response()->json($localComment);
     }
+
+    public function createPRComment($organizationName, $repositoryName, $pullRequestNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $latestCommit = $item->getLatestCommitSha();
+
+        return response()->json(['latest_commit' => $latestCommit]);
+    }
 }
