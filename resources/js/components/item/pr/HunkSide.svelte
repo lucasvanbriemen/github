@@ -10,21 +10,24 @@
     if (type === 'del') return '-';
     return '  ';
   }
+
+  const pair = changedLinePair[side.toLowerCase()];
+
 </script>
 
 <div class="side-wrapper">
   <div class="side left-side">
-    <span class="line-number diff-line-{changedLinePair[side.toLowerCase()].type}">{changedLinePair[side.toLowerCase()].number}</span>
-    <div class="diff-line-content diff-line-{changedLinePair[side.toLowerCase()].type}">
-      {#if changedLinePair[side.toLowerCase()].type !== 'empty'}
-        <span class="prefix">{prefix(changedLinePair[side.toLowerCase()].type)}</span>
-        <HighlightedDiffLine code={changedLinePair[side.toLowerCase()].content} language={detectLanguage(selectedFile.filename)} />
+    <span class="line-number diff-line-{pair.type}">{pair.number}</span>
+    <div class="diff-line-content diff-line-{pair.type}">
+      {#if pair.type !== 'empty'}
+        <span class="prefix">{prefix(pair.type)}</span>
+        <HighlightedDiffLine code={pair.content} language={detectLanguage(selectedFile.filename)} />
       {/if}
     </div>
   </div>
 
   {#each comments as comment (comment.id)}
-    {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair[side.toLowerCase()].number && comment.side === side.toUpperCase()}
+    {#if comment.path === selectedFile.filename && comment.line_end === pair.number && comment.side === side.toUpperCase()}
       <Comment {comment} />
     {/if}
   {/each}
