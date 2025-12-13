@@ -46,7 +46,6 @@ class ApiHelper
         }
     }
 
-
     public static function githubGraphql(string $query, array $variables = [])
     {
         self::init();

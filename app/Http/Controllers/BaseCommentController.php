@@ -77,44 +77,23 @@ class BaseCommentController extends Controller
 
     public function createPRComment(string $organizationName, string $repositoryName, int $pullRequestNumber)
     {
-        [$organization, $repository] =
-        RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $item = Item::where('repository_id', $repository->id)
-        ->where('number', $pullRequestNumber)
-        ->firstOrFail();
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
 
         $commitSha = $item->getLatestCommitSha();
-
-        $data = request()->validate([
-        'body' => 'required|string',
-        'path' => 'required|string',
-        'line' => 'required|integer',
-        'side' => 'required|in:LEFT,RIGHT',
-        ]);
-
         $payload = [
-        'body'      => $data['body'],
-        'commit_id' => $commitSha,
-        'path'      => $data['path'],
-        'line'      => $data['line'],
-        'side'      => $data['side'],
+            'body'      => request()->input('body'),
+            'commit_id' => $commitSha,
+            'path'      => request()->input('path'),
+            'line'      => request()->input('line'),
+            'side'      => request()->input('side'),
         ];
 
-        $route = sprintf(
-            '/repos/%s/%s/pulls/%d/comments',
-            $organizationName,
-            $repositoryName,
-            $pullRequestNumber
-        );
-
-        $response = ApiHelper::githubApi($route, 'POST', $payload);
-
-        if (!$response) {
-              throw new \RuntimeException('Failed to create PR comment via GitHub API.');
-        }
+        $response = ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments", 'POST', $payload);
 
         return $response;
     }
-
 }
