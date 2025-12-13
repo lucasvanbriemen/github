@@ -3,8 +3,8 @@
   import HighlightedDiffLine from '../../HighlightedDiffLine.svelte';
   import Comment from '../../Comment.svelte';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [] } = $props();
-  
+  let { changedLinePair = {}, selectedFile = {}, comments = [], side } = $props();
+
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
@@ -14,17 +14,17 @@
 
 <div class="side-wrapper">
   <div class="side left-side">
-    <span class="line-number diff-line-{changedLinePair.left.type}">{changedLinePair.left.number}</span>
-    <div class="diff-line-content diff-line-{changedLinePair.left.type}">
-      {#if changedLinePair.left.type !== 'empty'}
-        <span class="prefix">{prefix(changedLinePair.left.type)}</span>
-        <HighlightedDiffLine code={changedLinePair.left.content} language={detectLanguage(selectedFile.filename)} />
+    <span class="line-number diff-line-{changedLinePair[side.toLowerCase()].type}">{changedLinePair[side.toLowerCase()].number}</span>
+    <div class="diff-line-content diff-line-{changedLinePair[side.toLowerCase()].type}">
+      {#if changedLinePair[side.toLowerCase()].type !== 'empty'}
+        <span class="prefix">{prefix(changedLinePair[side.toLowerCase()].type)}</span>
+        <HighlightedDiffLine code={changedLinePair[side.toLowerCase()].content} language={detectLanguage(selectedFile.filename)} />
       {/if}
     </div>
   </div>
 
   {#each comments as comment (comment.id)}
-    {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair.left.number && comment.side === 'LEFT'}
+    {#if comment.path === selectedFile.filename && comment.line_end === changedLinePair[side.toLowerCase()].number && comment.side === side.toUpperCase()}
       <Comment {comment} />
     {/if}
   {/each}
