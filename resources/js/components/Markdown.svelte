@@ -60,10 +60,6 @@
       credentials: 'same-origin',
     });
 
-    if (!res.ok) {
-      throw new Error(`Upload failed (${res.status})`);
-    }
-
     const data = await res.json();
     return data.files ?? [];
   }
@@ -87,40 +83,36 @@
 
     e.preventDefault();
 
-    try {
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      const before = editor.value.slice(0, start);
-      const after = editor.value.slice(end);
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const before = editor.value.slice(0, start);
+    const after = editor.value.slice(end);
 
-      // Upload files and get back URLs
-      const uploaded = await uploadFiles(files);
+    // Upload files and get back URLs
+    const uploaded = await uploadFiles(files);
 
-      const parts = [];
-      for (const item of uploaded) {
-        const safeName = item.name || 'uploaded-file';
-        if (item.type?.startsWith('image/')) {
-          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" /><br/>\n`);
-        } else if (item.type?.startsWith('video/')) {
-          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video><br/>\n`);
-        }
+    const parts = [];
+    for (const item of uploaded) {
+      const safeName = item.name || 'uploaded-file';
+      if (item.type?.startsWith('image/')) {
+        parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" /><br/>\n`);
+      } else if (item.type?.startsWith('video/')) {
+        parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video><br/>\n`);
       }
-
-      if (parts.length === 0) return;
-
-      const insertText = parts.join('\n');
-      const updatedValue = `${before}${insertText}${after}`;
-      editor.value = updatedValue;
-      content = updatedValue;
-
-      const newCursor = before.length + insertText.length;
-      editor.selectionStart = editor.selectionEnd = newCursor;
-      editor.focus();
-
-      requestAnimationFrame(() => autoSize());
-    } catch (err) {
-      console.error('Paste handling failed:', err);
     }
+
+    if (parts.length === 0) return;
+
+    const insertText = parts.join('\n');
+    const updatedValue = `${before}${insertText}${after}`;
+    editor.value = updatedValue;
+    content = updatedValue;
+
+    const newCursor = before.length + insertText.length;
+    editor.selectionStart = editor.selectionEnd = newCursor;
+    editor.focus();
+
+    requestAnimationFrame(() => autoSize());
   }
 
   function autoSize() {
