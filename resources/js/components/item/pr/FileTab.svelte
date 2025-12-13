@@ -17,9 +17,7 @@
 
   onMount(async () => {
     // Collect inline review comments from both sources and de-duplicate by id
-    const raw = item.pull_request_reviews
-      .map(r => r.child_comments)
-      .flat();
+    const raw = item.comment
 
     // Create a local, non-mutating copy of comments without diff_hunk to avoid
     // altering the shared item object used by the Conversation tab.
