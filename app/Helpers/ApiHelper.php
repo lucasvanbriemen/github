@@ -18,7 +18,7 @@ class ApiHelper
         ];
     }
 
-    public static function githubApi(string $route, string $method = 'GET', array $payload = null)
+    public static function githubApi($route, $method = 'GET', $payload = null)
     {
         self::init();
 

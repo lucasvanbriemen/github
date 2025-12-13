@@ -75,7 +75,7 @@ class BaseCommentController extends Controller
         return response()->json($localComment);
     }
 
-    public function createPRComment(string $organizationName, string $repositoryName, int $pullRequestNumber)
+    public function createPRComment($organizationName, $repositoryName, $pullRequestNumber)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
