@@ -29,3 +29,7 @@
     {/if}
   {/each}
 </div>
+
+<style>
+  @import '../../../../scss/components/item/pr/filetab/hunk-side.scss';
+</style>
