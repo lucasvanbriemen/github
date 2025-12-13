@@ -12,6 +12,10 @@
     return '  ';
   }
 
+  function post_comment(e) {
+    console.log('posting comment');
+  }
+
   const line = changedLinePair[side.toLowerCase()];
 
   line.addingComment = false;
@@ -43,7 +47,11 @@
   {/each}
 
   {#if line.type !== 'empty' && prefix(line.type) !== '  ' && line.addingComment}
-    <Markdown />
+    <div class="add-comment-wrapper">  
+      <Markdown isEditing={true} />
+
+      <button class="button-primary" onclick={post_comment}>Post Comment</button>
+    </div>
   {/if}
 </div>
 

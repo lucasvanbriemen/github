@@ -11,6 +11,17 @@
           &.addingComment {
             flex-direction: column;
           }
+
+          .add-comment-wrapper {
+            background-color: var(--background-color-one);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem 0;
+            
+            width: calc(100% - 50px);
+            margin-left: 50px;
+          }
         }
 
         :global(.side-wrapper:has(.item-comment)) {
