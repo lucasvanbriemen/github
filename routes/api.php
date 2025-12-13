@@ -36,12 +36,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('item/{number}/comment', [BaseCommentController::class, 'createItemComment'])
             ->name('organizations.repositories.item.comment.create');
 
-        Route::post('/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
-            ->name('organizations.repositories.item.review');
-
-        Route::post('/item/{number}/review/comment/{comment_id}', [BaseCommentController::class, 'updateReviewComment'])
-            ->name('organizations.repositories.item.review.comment');
-
         Route::get('/item/{number}/files', [ItemController::class, 'getFiles'])
             ->name('organizations.repositories.item.files');
 

@@ -73,36 +73,4 @@ class BaseCommentController extends Controller
 
         return response()->json($localComment);
     }
-
-    public static function updateReview($organizationName, $repositoryName, $issueNumber, $review_id)
-    {
-        $review = PullRequestReview::where('id', $review_id)
-            ->firstOrFail();
-
-        $data = request()->validate([
-            'resolved' => 'required|boolean',
-        ]);
-
-        $review->resolved = $data['resolved'];
-        $review->save();
-
-        return response()->json(['success' => true, 'review' => $review]);
-    }
-
-    public static function updateReviewComment($organizationName, $repositoryName, $issueNumber, $comment_id)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $comment = PullRequestComment::where('id', $comment_id)
-            ->firstOrFail();
-
-        $data = request()->validate([
-            'resolved' => 'required|boolean',
-        ]);
-
-        $comment->resolved = $data['resolved'];
-        $comment->save();
-
-        return response()->json(['success' => true, 'comment' => $comment]);
-    }
 }
