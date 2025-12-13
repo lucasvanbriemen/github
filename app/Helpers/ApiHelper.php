@@ -21,6 +21,7 @@ class ApiHelper
     public static function githubApi(string $route, string $method = 'GET', array $payload = null)
     {
         self::init();
+
         $fullUrl = self::BASE_URL . $route;
 
         $ch = curl_init($fullUrl);
@@ -38,11 +39,11 @@ class ApiHelper
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($httpCode >= 200 && $httpCode < 300) {
+        if ($httpCode === 200) {
             return json_decode($responseBody);
+        } else {
+            return null;
         }
-
-        return null;
     }
 
 
