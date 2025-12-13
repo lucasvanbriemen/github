@@ -22,7 +22,7 @@ class ApiHelper
     {
         self::init();
 
-        $fullUrl = self::BASE_URL . $route;
+        $fullUrl = self::BASE_URL.$route;
 
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -30,9 +30,7 @@ class ApiHelper
 
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            if ($payload) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         }
 
         $responseBody = curl_exec($ch);
