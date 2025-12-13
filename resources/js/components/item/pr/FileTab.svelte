@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import FileNavigation from './FileNavigation.svelte';
-  import HunkSide from './HunkSide.svelte';
+  import ChangedLine from './ChangedLine.svelte';
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
 
@@ -45,8 +45,8 @@
         {#each selectedFile.changes as hunk (hunk)}
           {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
             <div class="changed-line-pair">
-              <HunkSide {changedLinePair} {selectedFile} {comments} side="LEFT" {params} />
-              <HunkSide {changedLinePair} {selectedFile} {comments} side="RIGHT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} side="LEFT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} side="RIGHT" {params} />
             </div>
           {/each}
 
