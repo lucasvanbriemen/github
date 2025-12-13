@@ -18,7 +18,7 @@ class ApiHelper
         ];
     }
 
-    public static function githubApi($route)
+    public static function githubApi($route, $method = 'GET', $payload = null)
     {
         self::init();
 
@@ -27,6 +27,12 @@ class ApiHelper
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, self::formatHeaders());
+
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        }
+
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);

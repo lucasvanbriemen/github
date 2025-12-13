@@ -7,6 +7,7 @@ use App\Models\PullRequestReview;
 use App\Models\BaseComment;
 use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
+use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
 class BaseCommentController extends Controller
@@ -72,5 +73,28 @@ class BaseCommentController extends Controller
         $localComment->load(['author']);
 
         return response()->json($localComment);
+    }
+
+    public function createPRComment($organizationName, $repositoryName, $pullRequestNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $pullRequestNumber)
+            ->firstOrFail();
+
+        $commitSha = $item->getLatestCommitSha();
+        $payload = [
+            'body'      => request()->input('body'),
+            'commit_id' => $commitSha,
+            'path'      => request()->input('path'),
+            'line'      => request()->input('line'),
+            'side'      => request()->input('side'),
+        ];
+
+        ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments", 'POST', $payload);
+
+        // For simplicity, we won't store the comment locally for now and we let the webhook handle it
+        return response()->json(['success' => true]);
     }
 }

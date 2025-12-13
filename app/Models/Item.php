@@ -104,4 +104,9 @@ class Item extends Model
     {
         return $this->hasMany(PullRequestReview::class, 'pull_request_id', 'id');
     }
+
+    public function getLatestCommitSha()
+    {
+        return $this->details()->first()->head_sha;
+    }
 }
