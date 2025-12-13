@@ -33,6 +33,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
             ->name('organizations.repositories.item.comment');
 
+        Route::post('item/{number}/comment', [BaseCommentController::class, 'createItemComment'])
+            ->name('organizations.repositories.item.comment.create');
+
         Route::post('/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
             ->name('organizations.repositories.item.review');
 

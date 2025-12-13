@@ -5,6 +5,7 @@
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
+  let issueComment = $state('');
 
   let organization = params.organization;
   let repository = params.repository;
@@ -12,10 +13,20 @@
 
   function save_body(e) {
     body = e.value;
-    console.log('saving body', body);
 
     api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
       body,
+    });
+  }
+
+  function post_comment(e) {
+    api.post(route(`organizations.repositories.item.comment.create`, { organization, repository, number }), {
+      body: issueComment,
+    }).then((newComment) => {
+      untrack(() => {
+        item.comments.push(newComment);
+        issueComment = '';
+      });
     });
   }
 
@@ -26,3 +37,6 @@
 {#each item.comments as comment}
   <Comment {comment} {params} />
 {/each}
+
+<Markdown bind:content={issueComment} isEditing={true} />
+<button class="button-primary" onclick={post_comment}>Post Comment</button>

@@ -7,6 +7,7 @@ use App\Models\PullRequestReview;
 use App\Models\BaseComment;
 use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class BaseCommentController extends Controller
 {
@@ -29,6 +30,48 @@ class BaseCommentController extends Controller
         $comment->save();
 
         return response()->json(['success' => true, 'comment' => $comment]);
+    }
+
+    public function createItemComment($organizationName, $repositoryName, $issueNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $issueNumber)
+            ->firstOrFail();
+
+        $data = request()->validate([
+            'body' => 'required|string',
+        ]);
+
+        // We need to create the comment on GH first
+        $comment = GitHub::issues()
+            ->comments()
+            ->create(
+                $organization->name,
+                $repository->name,
+                $item->number,
+                [
+                'body' => $data['body'],
+                ]
+            );
+
+        $localComment = BaseComment::updateOrCreate(
+            ['comment_id' => $comment['id']],
+            [
+                'issue_id' => $item->id,
+                'user_id' => $comment['user']['id'],
+                'body' => $comment['body'],
+                'created_at' => $comment['created_at'],
+                'updated_at' => $comment['updated_at'],
+                'type' => 'issue',
+                'resolved' => false,
+            ]
+        );
+
+        $localComment->load(['author']);
+
+        return response()->json($localComment);
     }
 
     public static function updateReview($organizationName, $repositoryName, $issueNumber, $review_id)
