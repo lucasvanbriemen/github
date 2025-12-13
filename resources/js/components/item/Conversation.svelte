@@ -13,7 +13,6 @@
 
   function save_body(e) {
     body = e.value;
-    console.log('saving body', body);
 
     api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
       body,
@@ -25,7 +24,6 @@
       body: issueComment,
     }).then((newComment) => {
       untrack(() => {
-        console.log(newComment);
         item.comments.push(newComment);
         issueComment = '';
       });
