@@ -7,6 +7,10 @@
             width: 100%;
             display: flex;
           }
+
+          &.addingComment {
+            flex-direction: column;
+          }
         }
 
         :global(.side-wrapper:has(.item-comment)) {

@@ -18,7 +18,7 @@
 
 </script>
 
-<div class="side-wrapper">
+<div class="side-wrapper" class:addingComment={line.addingComment}>
   <div class="side left-side">
     <div class="line-number diff-line-{line.type}">
       {#if line.type !== 'empty' && prefix(line.type) !== '  '}
