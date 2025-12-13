@@ -15,13 +15,21 @@
     body = e.value;
     console.log('saving body', body);
 
-    api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.item.create`, { organization, repository, number }), {
       body,
     });
   }
 
   function post_comment(e) {
-    console.log('posting comment', issueComment);
+    api.post(route(`organizations.repositories.item.comment.create`, { organization, repository, number }), {
+      body: issueComment,
+    }).then((newComment) => {
+      untrack(() => {
+        console.log(newComment);
+        item.comments.push(newComment);
+        issueComment = '';
+      });
+    });
   }
 
 </script>
