@@ -15,7 +15,7 @@
     body = e.value;
     console.log('saving body', body);
 
-    api.post(route(`organizations.repositories.item.create`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
       body,
     });
   }
