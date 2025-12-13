@@ -96,10 +96,6 @@
     .code {
       white-space: pre-wrap;
       word-wrap: break-word;
-
-      :global(*) {
-        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-      }
     }
   }
 
