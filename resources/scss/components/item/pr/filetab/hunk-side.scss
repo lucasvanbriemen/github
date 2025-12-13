@@ -6,6 +6,13 @@
           .side {
             width: 100%;
             display: flex;
+
+            &:hover {
+              .add-comment-button {
+                opacity: 1;
+                pointer-events: auto;
+              }
+            }
           }
 
           &.addingComment {
@@ -54,6 +61,28 @@
     width: 1%;
     white-space: nowrap;
     text-align: right;
+    position: relative;
+
+    .add-comment-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+      background-color: var(--background-color-two);
+      color: var(--text-color);
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      aspect-ratio: 1/1;
+      width: 1.5rem;
+
+      opacity: 0;
+      pointer-events: none;
+
+      &:hover {
+        background-color: var(--primary-color);
+      }
+    }
   }
 
   .diff-line-content {

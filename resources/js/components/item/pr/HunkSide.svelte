@@ -38,7 +38,7 @@
   <div class="side left-side">
     <div class="line-number diff-line-{line.type}">
       {#if line.type !== 'empty' && prefix(line.type) !== '  '}
-        <span class="add-comment-button" onclick={() => line.addingComment = !line.addingComment}>+</span>
+        <button class="add-comment-button" onclick={() => line.addingComment = !line.addingComment}>+</button>
       {/if}
 
       {line.number}
