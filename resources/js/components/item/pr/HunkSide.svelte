@@ -34,7 +34,7 @@
   line.comment = '';
 </script>
 
-<div class="side-wrapper" class:addingComment={line.addingComment}>
+<div class="side-wrapper" class:adding-comment={line.addingComment}>
   <div class="side left-side">
     <div class="line-number diff-line-{line.type}">
       {#if line.type !== 'empty' && prefix(line.type) !== '  '}
