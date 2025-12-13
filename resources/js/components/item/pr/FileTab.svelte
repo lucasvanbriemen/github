@@ -4,6 +4,7 @@
   import { detectLanguage } from '../../../utils/syntaxHighlighter.js';
   import Comment from '../../Comment.svelte';
   import FileNavigation from './FileNavigation.svelte';
+  import Markdown from '../../Markdown.svelte';
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
 
@@ -16,12 +17,19 @@
   let comments = $state([]);
 
   onMount(async () => {
-    // Collect inline review comments from both sources and de-duplicate by id
-    const raw = item.comment
+    const raw = item.comments.filter(c => c.type === 'review');
+
+    raw.forEach(comment => {
+      // We get the child comments for each review comment and add them to the comments array
+      comment.child_comments.forEach(childComment => {
+        comments.push(childComment);
+        console.log(childComment);
+      });
+    });
 
     // Create a local, non-mutating copy of comments without diff_hunk to avoid
     // altering the shared item object used by the Conversation tab.
-    comments = raw.map(c => ({ ...c, diff_hunk: undefined }));
+    comments = comments.map(c => ({ ...c, diff_hunk: undefined }));
   });
 
   $effect(() => {
@@ -67,7 +75,6 @@
                     {/if}
                   {/each}
                 </div>
-
 
                 <div class="side-wrapper">
                   <div class="side right-side">
