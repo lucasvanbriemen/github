@@ -18,7 +18,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('repositories.templates.get');
 
     Route::prefix('/{organization}/{repository}')->group(function () {
-
         Route::get('/metadata', [RepositoryController::class, 'metadata'])
             ->name('organizations.repositories.metadata.get');
 
