@@ -10,8 +10,9 @@
 
   let organization = $derived(params.organization);
   let repository = $derived(params.repository);
-  
+
   let selectedableReviewers = $state([]);
+  let selectedReviewer = $state();
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -36,6 +37,13 @@
     api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}),
       { reviewers: [userId] }
     )
+  }
+
+  function handleReviewerSelected({ selectedValue }) {
+    if (selectedValue) {
+      reRequestReviewer(selectedValue);
+      selectedReviewer = undefined;
+    }
   }
 
 </script>
@@ -74,9 +82,14 @@
 
         <button class="add-reviewer">
           <Icon /> Add reviewer
-        </button>  
+        </button>
 
-        <Select name="reviewer" selectableItems={selectedableReviewers} />
+        <Select
+          name="reviewer"
+          selectableItems={selectedableReviewers}
+          bind:selectedValue={selectedReviewer}
+          onChange={handleReviewerSelected}
+        />
       </SidebarGroup>
     {/if}
   {/if}
