@@ -78,16 +78,16 @@
 
     {#if type === 'pr'}
       <SidebarGroup title="Branch to merge">
-        <Select name="head_branch" value={head_branch} selectableItems={possibleBranches}  bind:selectedValue={head_branch} />
+        <Select name="head_branch" value={head_branch} selectableItems={possibleBranches} searchable={true} bind:selectedValue={head_branch} />
       </SidebarGroup>
 
       <SidebarGroup title="Branch to merge into">
-        <Select name="base_branch" value={base_branch} selectableItems={possibleBranches} bind:selectedValue={base_branch} />
+        <Select name="base_branch" value={base_branch} selectableItems={possibleBranches} searchable={true} bind:selectedValue={base_branch} />
       </SidebarGroup>
     {/if}
 
     <SidebarGroup title="Assignee">
-      <Select name="assignee" value={assignee} selectableItems={possibleAssignees} bind:selectedValue={assignee} />
+      <Select name="assignee" value={assignee} selectableItems={possibleAssignees} searchable={true} bind:selectedValue={assignee} />
     </SidebarGroup>
   </Sidebar>
 

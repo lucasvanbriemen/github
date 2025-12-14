@@ -78,7 +78,7 @@
           </div>
         {/each}
 
-        <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
+        <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} searchable={true} onChange={handleReviewerSelected} />
       </SidebarGroup>
     {/if}
   {/if}
