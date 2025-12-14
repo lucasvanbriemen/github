@@ -118,7 +118,7 @@ class PullRequestController extends Controller
         ]);
     }
 
-    public function addReviewers($organizationName, $repositoryName, $number)
+    public function requestReviewers($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 

@@ -51,7 +51,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
             ->name('organizations.repositories.pr.metadata');
 
-        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'addReviewers'])
+        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
             ->name('organizations.repositories.pr.add.reviewers');
 
         Route::post('/pr/create', [PullRequestController::class, 'create'])
