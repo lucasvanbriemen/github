@@ -62,7 +62,12 @@
     <div class="option-wrapper">
       {#each visableOptions() as option (option.value)}
         <button class="option-item" class:active={selectedValue == option.value} onclick={() => selectOption(option.value)} type="button">
-          {option.label}
+          <div>
+            {#if option.image}
+              <img src={option.image} alt={option.label} class="option-image" />
+            {/if}
+            {option.label}
+          </div>
         </button>
       {/each}
       {#if visableOptions().length === 0}
