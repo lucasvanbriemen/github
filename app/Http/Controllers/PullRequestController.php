@@ -7,7 +7,6 @@ use App\Models\PullRequest;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
-use App\Models\GithubUser;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
@@ -120,20 +119,9 @@ class PullRequestController extends Controller
 
     public function requestReviewers($organizationName, $repositoryName, $number)
     {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
         $reviewers = request()->input('reviewers', []);
-
-        $githubUsers = [];
-        foreach ($reviewers as $reviewerId) {
-            $githubUser = GithubUser::find($reviewerId);
-            if ($githubUser) {
-                $githubUsers[] = $githubUser->login;
-            }
-        }
-
         $response = GitHub::pullRequests()->reviewRequests()
-            ->create($organizationName, $repositoryName, $number, $githubUsers);
+            ->create($organizationName, $repositoryName, $number, $reviewers);
 
         return response()->json($response);
     }

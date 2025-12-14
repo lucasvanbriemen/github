@@ -24,7 +24,7 @@
     selectedableReviewers = repoMetadata.assignees;
 
     selectedableReviewers.forEach(reviewer => {
-      reviewer.value = reviewer.id;
+      reviewer.value = reviewer.login;
       reviewer.label = reviewer.display_name;
     });
 
