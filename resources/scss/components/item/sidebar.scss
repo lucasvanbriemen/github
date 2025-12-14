@@ -18,6 +18,27 @@
   }
 }
 
+.reviewer {
+  :global(.icon.review) {
+    display: block;
+  }
+
+  :global(.icon.sync) {
+    display: none;
+    cursor: pointer;
+  }
+
+  &:hover {
+    :global(.icon.sync) {
+      display: block;
+    }
+
+    :global(.icon.review) {
+      display: none;
+    }
+  }
+}
+
 .labels {
   display: flex;
   flex-wrap: wrap;

@@ -116,4 +116,13 @@ class PullRequestController extends Controller
             'state' => $state,
         ]);
     }
+
+    public function requestReviewers($organizationName, $repositoryName, $number)
+    {
+        $reviewers = request()->input('reviewers', []);
+        $response = GitHub::pullRequests()->reviewRequests()
+            ->create($organizationName, $repositoryName, $number, $reviewers);
+
+        return response()->json($response);
+    }
 }

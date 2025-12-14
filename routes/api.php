@@ -18,6 +18,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('repositories.templates.get');
 
     Route::prefix('/{organization}/{repository}')->group(function () {
+        Route::get('/metadata', [RepositoryController::class, 'metadata'])
+            ->name('organizations.repositories.metadata.get');
+
         Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('organizations.repositories.items.get');
 
@@ -47,6 +50,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
             ->name('organizations.repositories.pr.metadata');
+
+        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
+            ->name('organizations.repositories.pr.add.reviewers');
 
         Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('organizations.repositories.pr.create');

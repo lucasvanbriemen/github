@@ -3,20 +3,46 @@
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Icon from '../Icon.svelte';
+  import Select from '../Select.svelte';
 
   let { item, isPR, isLoading, params = {} } = $props();
   let activeItem = $state('Issues');
-  
+
+  let organization = $derived(params.organization);
+  let repository = $derived(params.repository);
+
+  let selectedableReviewers = $state([]);
+  let selectedReviewer = $state();
+
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
     return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
   }
 
   onMount(async () => {
+    let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
+    selectedableReviewers = repoMetadata.assignees;
+
+    selectedableReviewers.forEach(reviewer => {
+      reviewer.value = reviewer.login;
+      reviewer.label = reviewer.display_name;
+    });
+
     if (isPR) {
       activeItem = 'Pull Requests';
     }
   });
+
+  function requestReviewer(userId) {
+    api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}), {
+      reviewers: [userId]
+    });
+  }
+
+  function handleReviewerSelected({selectedValue}) {
+    requestReviewer(selectedValue);
+    selectedReviewer = undefined;
+  }
 
 </script>
 
@@ -47,9 +73,12 @@
           <div class="reviewer">
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
             <span>{reviewer.user.display_name}</span>
-            <Icon name={reviewer.state} className={`icon ${reviewer.state}`} />
+            <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
+            <Icon name="sync" className="icon sync" onclick={() => requestReviewer(reviewer.user.login)} />
           </div>
         {/each}
+
+        <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
       </SidebarGroup>
     {/if}
   {/if}
