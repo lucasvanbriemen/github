@@ -132,9 +132,6 @@ class PullRequestController extends Controller
             }
         }
 
-
-        // Use the official API instead of raw HTTP to ensure
-        // proper headers, parsing, and response handling.
         $response = GitHub::pullRequests()
             ->reviewRequests()
             ->create($organization->name, $repository->name, (int) $number, array_values($githubUsers), []);
