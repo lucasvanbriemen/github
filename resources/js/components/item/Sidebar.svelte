@@ -28,6 +28,7 @@
     selectedableReviewers.forEach(reviewer => {
       reviewer.value = reviewer.login;
       reviewer.image = reviewer.avatar_url;
+      reviewer.selected = true;
       reviewer.label = reviewer.display_name;
     });
 
@@ -85,7 +86,7 @@
 
         {#if addingReviewer}
           <div class="add-reviewer">
-            <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
+            <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} multiple={true} />
           </div>
         {/if}
       </SidebarGroup>

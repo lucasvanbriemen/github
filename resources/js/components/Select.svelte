@@ -1,5 +1,7 @@
 <script>
-  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, onChange } = $props();
+  import Icon from "./Icon.svelte";
+
+  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, multiple = false, onChange } = $props();
 
   let menuOpen = $state(false);
   let searchQuery = $state('');
@@ -68,6 +70,10 @@
             {/if}
             {option.label}
           </div>
+
+          {#if multiple && option.selected}
+            <Icon name="checkmark" className="icon checkmark" />
+          {/if}
         </button>
       {/each}
       {#if visableOptions().length === 0}
