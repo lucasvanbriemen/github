@@ -6,6 +6,9 @@
 
   let { item, isPR, isLoading, params = {} } = $props();
   let activeItem = $state('Issues');
+
+  let organization = $derived(params.organization);
+  let repository = $derived(params.repository);
   
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -19,7 +22,9 @@
   });
 
   function reRequestReviewer(userId) {
-    console.log('reRequestReviewer', userId);
+    api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}),
+      { reviewers: [userId] }
+    )
   }
 
 </script>

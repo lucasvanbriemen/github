@@ -133,12 +133,13 @@ class PullRequestController extends Controller
         }
 
 
-        GitHub::api('pull_request')->requestReviewers(
-            $organizationName,
-            $repositoryName,
-            $number,
-            $githubUsers
+        $client = GitHub::getHttpClient();
+        $response = $client->post(
+            "repos/{$organizationName}/{$repositoryName}/pulls/{$number}/requested_reviewers",
+            [], // headers
+            json_encode(['reviewers' => array_values($githubUsers)]) // body
         );
+
 
         return response()->json([
             'requested_reviewers' => $response['requested_reviewers'] ?? [],
