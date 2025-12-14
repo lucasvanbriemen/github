@@ -132,9 +132,8 @@ class PullRequestController extends Controller
             }
         }
 
-        $response = GitHub::pullRequests()
-            ->reviewRequests()
-            ->create($organization->name, $repository->name, (int) $number, array_values($githubUsers), []);
+        $response = GitHub::pullRequests()->reviewRequests()
+            ->create($organizationName, $repositoryName, $number, $githubUsers);
 
         return response()->json($response);
     }
