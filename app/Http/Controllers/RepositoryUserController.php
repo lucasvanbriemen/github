@@ -33,45 +33,11 @@ class RepositoryUserController extends Controller
 
             $contributors = array_merge($contributors, $org_members);
 
-            // Always include well-known bot accounts regardless of org membership
-            // These are common GitHub bots that should be available for review requests
-            $wellKnownBots = [
-                (object)[
-                    'id' => 175728472,
-                    'login' => 'Copilot',
-                    'name' => 'Copilot',
-                    'avatar_url' => 'https://avatars.githubusercontent.com/in/946600?v=4',
-                    'type' => 'Bot'
-                ]
-            ];
-
-            foreach ($wellKnownBots as $bot) {
-                // Only add if not already in contributors list
-                $botExists = array_filter($contributors, function ($contributor) use ($bot) {
-                    return $contributor->id === $bot->id;
-                });
-                if (empty($botExists)) {
-                    $contributors[] = $bot;
-                }
-            }
-
             if (! $contributors) {
                 continue;
             }
 
             foreach ($contributors as $contributor) {
-                // Sync GitHub user to database with type information
-                GithubUser::updateOrCreate(
-                    ['id' => $contributor->id],
-                    [
-                        'login' => $contributor->login,
-                        'name' => $contributor->name ?? $contributor->login,
-                        'avatar_url' => $contributor->avatar_url,
-                        'type' => $contributor->type ?? 'User',
-                        'display_name' => $contributor->name ?? $contributor->login,
-                    ]
-                );
-
                 // Update or create repository user
                 RepositoryUser::updateOrCreate(
                     [
