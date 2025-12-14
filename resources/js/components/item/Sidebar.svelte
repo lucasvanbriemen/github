@@ -11,12 +11,22 @@
   let organization = $derived(params.organization);
   let repository = $derived(params.repository);
   
+  let selectedableReviewers = $state([]);
+
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
     return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
   }
 
   onMount(async () => {
+    let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
+    selectedableReviewers = repoMetadata.assignees;
+
+    selectedableReviewers.forEach(reviewer => {
+      reviewer.value = reviewer.id;
+      reviewer.label = reviewer.display_name;
+    });
+
     if (isPR) {
       activeItem = 'Pull Requests';
     }
@@ -66,10 +76,7 @@
           <Icon /> Add reviewer
         </button>  
 
-        <Select name="reviewer" selectableItems={[
-          { value: '1', label: 'Van' },
-          { value: '2', label: 'Jane' }
-        ]} />
+        <Select name="reviewer" selectableItems={selectedableReviewers} />
       </SidebarGroup>
     {/if}
   {/if}

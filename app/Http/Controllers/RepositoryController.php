@@ -49,4 +49,16 @@ class RepositoryController extends Controller
 
         return response()->json($templates);
     }
+
+    public function metadata($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
+            return $contributor->githubUser;
+        });
+
+        return response()->json([
+            'assignees' => $assignees,
+        ]);
+    }
 }
