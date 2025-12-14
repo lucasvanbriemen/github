@@ -23,15 +23,15 @@
   function handleClickOutside(event) {
     if (!event.target.closest('.search-select-wrapper')) {
       menuOpen = false;
-    }
-
-    if (multiple) {
-      const selectedItems = selectableItems.filter(o => o.selected);
-      let selectedValues = [];
-      selectedItems.forEach(item => selectedValues.push(item.value));
-      selectedValue = selectedValues;
-
-      onChange?.({ selectedValue });
+      
+      if (multiple) {
+        const selectedItems = selectableItems.filter(o => o.selected);
+        let selectedValues = [];
+        selectedItems.forEach(item => selectedValues.push(item.value));
+        selectedValue = selectedValues;
+        
+        onChange?.({ selectedValue });
+      }
     }
   }
 
