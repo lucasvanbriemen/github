@@ -39,6 +39,29 @@
   }
 }
 
+.add-reviewer {
+  width: 18rem;
+  position: absolute;
+  right: -20rem;
+  top: 0;
+
+  border-radius: 0.5rem;
+
+  background-color: red;
+  padding: 1rem;
+
+  :global(.option-wrapper) {
+    padding: 0.5rem 0.5rem;
+    border-radius: 0.5rem !important;
+  }
+
+  :global(.option-item) {
+    font-weight: 500 !important;
+    border-radius: 0.25rem !important;
+    padding: 0.5rem 0.5rem !important;
+  }
+}
+
 .labels {
   display: flex;
   flex-wrap: wrap;

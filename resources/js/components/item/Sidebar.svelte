@@ -83,7 +83,9 @@
         {/each}
 
         {#if addingReviewer}
-          <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
+          <div class="add-reviewer">
+            <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
+          </div>
         {/if}
       </SidebarGroup>
     {/if}
