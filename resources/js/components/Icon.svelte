@@ -19,10 +19,7 @@
 
 </script>
 
-<span
-  class={`icon ${className}`} onclick={handleClick}
-  style={`--icon-size:${size}`}
->
+<span class={`icon ${className}`} onclick={handleClick} style={`--icon-size:${size}`} >
   {#if svgRaw}
     {@html svgRaw}
   {/if}
