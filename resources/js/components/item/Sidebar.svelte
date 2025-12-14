@@ -71,8 +71,7 @@
 
     {#if isPR}
       <SidebarGroup title="Reviewers">
-        <Icon name="gear" className="icon sync" onclick={() => addingReviewer = !addingReviewer} />
-
+        <Icon name="gear" className="icon gear" onclick={() => addingReviewer = !addingReviewer} />
 
         {#each item.requested_reviewers as reviewer}
           <div class="reviewer">
