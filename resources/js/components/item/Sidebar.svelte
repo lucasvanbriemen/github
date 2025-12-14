@@ -18,6 +18,10 @@
     }
   });
 
+  function reRequestReviewer(userId) {
+    console.log('reRequestReviewer', userId);
+  }
+
 </script>
 
 <Sidebar {params} {activeItem}>
@@ -47,7 +51,8 @@
           <div class="reviewer">
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
             <span>{reviewer.user.display_name}</span>
-            <Icon name={reviewer.state} className={`icon ${reviewer.state}`} />
+            <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
+            <Icon name="sync" className="icon sync" onclick={() => reRequestReviewer(reviewer.user.id)} />
           </div>
         {/each}
       </SidebarGroup>
