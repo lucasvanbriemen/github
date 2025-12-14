@@ -28,7 +28,6 @@
     selectedableReviewers.forEach(reviewer => {
       reviewer.value = reviewer.login;
       reviewer.image = reviewer.avatar_url;
-      reviewer.selected = true;
       reviewer.label = reviewer.display_name;
     });
 
