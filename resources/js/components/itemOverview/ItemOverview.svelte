@@ -116,11 +116,11 @@
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">
-      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }}/>
+      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">
-      <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} searchable={true} />
+      <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} />
     </SidebarGroup>
   </Sidebar>
 

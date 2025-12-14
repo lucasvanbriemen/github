@@ -1,5 +1,5 @@
 <script>
-  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = false, onChange } = $props();
+  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, onChange } = $props();
 
   let menuOpen = $state(false);
   let searchQuery = $state('');
