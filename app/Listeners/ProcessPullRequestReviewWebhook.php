@@ -72,17 +72,30 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         // Check if this user is in the PR's requested_reviewers list
         $isInRequestedReviewers = collect($prData->requested_reviewers ?? [])->pluck('id')->contains($userData->id);
 
-        // If they're in requested_reviewers, they're pending (dismissed or re-requested)
-        if ($isInRequestedReviewers || $newState === 'dismissed') {
+        // Match GitHub's behavior:
+        // - If dismissed or re-requested, they go back to pending
+        // - If commenting while pending, allow the state to be commented
+        // - If they have an existing blocking state, don't let comments clear it
+        if ($newState === 'dismissed') {
+            $newState = 'pending';
+        } elseif ($isInRequestedReviewers && $newState !== 'commented') {
+            // Only force pending if not commenting (comment should update the state)
             $newState = 'pending';
         }
 
         $shouldUpdate = true;
 
         // If they previously requested changes, only update if the new state clears or updates the block
-        if ($existingReviewer && $existingReviewer->state === 'changes_requested' && !$isInRequestedReviewers) {
-            // Only these states should overwrite CHANGES_REQUESTED
-            if (!in_array($newState, ['approved', 'changes_requested', 'pending'])) {
+        if ($existingReviewer && $existingReviewer->state === 'changes_requested') {
+            // Don't let commented state overwrite changes_requested
+            if ($newState === 'commented') {
+                $shouldUpdate = false;
+            }
+        }
+
+        // Similarly, don't let commented overwrite approved
+        if ($existingReviewer && $existingReviewer->state === 'approved') {
+            if ($newState === 'commented') {
                 $shouldUpdate = false;
             }
         }
