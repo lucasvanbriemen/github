@@ -34,16 +34,14 @@
   });
 
   function reRequestReviewer(userId) {
-    api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}),
-      { reviewers: [userId] }
-    )
+    api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}), {
+      reviewers: [userId]
+    });
   }
 
-  function handleReviewerSelected({ selectedValue }) {
-    if (selectedValue) {
-      reRequestReviewer(selectedValue);
-      selectedReviewer = undefined;
-    }
+  function handleReviewerSelected({selectedValue}) {
+    reRequestReviewer(selectedValue);
+    selectedReviewer = undefined;
   }
 
 </script>
