@@ -33,14 +33,14 @@
     }
   });
 
-  function reRequestReviewer(userId) {
+  function requestReviewer(userId) {
     api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}), {
       reviewers: [userId]
     });
   }
 
   function handleReviewerSelected({selectedValue}) {
-    reRequestReviewer(selectedValue);
+    requestReviewer(selectedValue);
     selectedReviewer = undefined;
   }
 
@@ -74,7 +74,7 @@
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
             <span>{reviewer.user.display_name}</span>
             <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
-            <Icon name="sync" className="icon sync" onclick={() => reRequestReviewer(reviewer.user.id)} />
+            <Icon name="sync" className="icon sync" onclick={() => requestReviewer(reviewer.user.login)} />
           </div>
         {/each}
 

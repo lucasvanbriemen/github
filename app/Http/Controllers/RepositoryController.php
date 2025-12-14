@@ -57,8 +57,6 @@ class RepositoryController extends Controller
             return $contributor->githubUser;
         });
 
-        return response()->json([
-            'assignees' => $assignees,
-        ]);
+        return response()->json(['assignees' => $assignees]);
     }
 }
