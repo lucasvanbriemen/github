@@ -78,16 +78,7 @@
           </div>
         {/each}
 
-        <button class="add-reviewer">
-          <Icon /> Add reviewer
-        </button>
-
-        <Select
-          name="reviewer"
-          selectableItems={selectedableReviewers}
-          bind:selectedValue={selectedReviewer}
-          onChange={handleReviewerSelected}
-        />
+        <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
       </SidebarGroup>
     {/if}
   {/if}

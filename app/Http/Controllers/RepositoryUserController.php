@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Repository;
 use App\Models\RepositoryUser;
-use App\Models\GithubUser;
 
 class RepositoryUserController extends Controller
 {
