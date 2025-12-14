@@ -8,6 +8,8 @@
   let { item, isPR, isLoading, params = {} } = $props();
   let activeItem = $state('Issues');
 
+  let addingReviewer = $state(false);
+
   let organization = $derived(params.organization);
   let repository = $derived(params.repository);
 
@@ -69,6 +71,9 @@
 
     {#if isPR}
       <SidebarGroup title="Reviewers">
+        <Icon name="gear" className="icon sync" onclick={() => addingReviewer = !addingReviewer} />
+
+
         {#each item.requested_reviewers as reviewer}
           <div class="reviewer">
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
@@ -78,7 +83,9 @@
           </div>
         {/each}
 
-        <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
+        {#if addingReviewer}
+          <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} />
+        {/if}
       </SidebarGroup>
     {/if}
   {/if}
