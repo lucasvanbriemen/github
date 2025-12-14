@@ -121,7 +121,7 @@ class PullRequestController extends Controller
     {
         $reviewers = request()->input('reviewers', []);
         $response = GitHub::pullRequests()->reviewRequests()
-            ->create($organizationName, $repositoryName, $number, $reviewers);
+            ->create($organizationName, $repositoryName, $number, $reviewers[0]);
 
         return response()->json($response);
     }
