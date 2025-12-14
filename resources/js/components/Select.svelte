@@ -62,6 +62,7 @@
 
 <div class="search-select-wrapper">
   <select {name} style="display: none;" bind:value={selectedValue}>
+    <option value="" disabled selected hidden></option>
     {#each selectableItems as option}
       <option value={option.value}>{option.label}</option>
     {/each}
