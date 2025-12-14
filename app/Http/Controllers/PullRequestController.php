@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
+use App\Models\Item;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
@@ -119,10 +120,45 @@ class PullRequestController extends Controller
 
     public function requestReviewers($organizationName, $repositoryName, $number)
     {
-        $reviewers = request()->input('reviewers', []);
-        $response = GitHub::pullRequests()->reviewRequests()
-            ->create($organizationName, $repositoryName, $number, $reviewers[0]);
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        return response()->json($response);
+        $pr = Item::with('requestedReviewers.user')
+          ->where('repository_id', $repository->id)
+          ->where('number', $number)
+          ->firstOrFail();
+
+        $currentReviewers = $pr->requestedReviewers
+            ->where('state', 'pending')
+            ->pluck('user.login')
+            ->all();
+        $updatedReviewers = request()->input('reviewers', []);
+
+        $toBeAdded = [];
+        $toBeRemoved = [];
+
+        // Determine which reviewers need to be added (in input but not currently assigned)
+        foreach ($updatedReviewers as $updatedReviewer) {
+            if (!in_array($updatedReviewer, $currentReviewers)) {
+                $toBeAdded[] = $updatedReviewer; // push individual reviewer
+            }
+        }
+
+        // Determine which reviewers need to be removed (currently assigned but not in input)
+        foreach ($currentReviewers as $currentReviewer) {
+            if (!in_array($currentReviewer, $updatedReviewers)) {
+                $toBeRemoved[] = $currentReviewer;
+            }
+        }
+
+        // Optionally sync with GitHub API:
+        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded[0]);
+        GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
+
+        // Return current state and delta
+        return response()->json([
+            'currentReviewers' => $currentReviewers,
+            'added' => $toBeAdded,
+            'removed' => $toBeRemoved,
+        ]);
     }
 }
