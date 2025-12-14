@@ -3,6 +3,7 @@
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Icon from '../Icon.svelte';
+  import Select from '../Select.svelte';
 
   let { item, isPR, isLoading, params = {} } = $props();
   let activeItem = $state('Issues');
@@ -60,6 +61,15 @@
             <Icon name="sync" className="icon sync" onclick={() => reRequestReviewer(reviewer.user.id)} />
           </div>
         {/each}
+
+        <button class="add-reviewer">
+          <Icon /> Add reviewer
+        </button>  
+
+        <Select name="reviewer" selectableItems={[
+          { value: '1', label: 'Van' },
+          { value: '2', label: 'Jane' }
+        ]} />
       </SidebarGroup>
     {/if}
   {/if}
