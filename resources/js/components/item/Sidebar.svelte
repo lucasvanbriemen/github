@@ -25,17 +25,7 @@
     let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
     selectedableReviewers = repoMetadata.assignees;
 
-    selectedableReviewers.forEach(reviewer => {
-      item?.requested_reviewers?.forEach(requestedReviewer => {
-        if (requestedReviewer.user_id == reviewer.id) {
-          reviewer.selected = true;
-        }
-      });
-
-      reviewer.value = reviewer.login;
-      reviewer.image = reviewer.avatar_url;
-      reviewer.label = reviewer.display_name;
-    });
+    formatContributors();
 
     if (isPR) {
       activeItem = 'Pull Requests';
@@ -52,6 +42,28 @@
     requestReviewer(selectedValue);
     selectedReviewer = undefined;
   }
+
+  function formatContributors() {
+    selectedableReviewers.forEach(reviewer => {
+      item?.requested_reviewers?.forEach(requestedReviewer => {
+        if (requestedReviewer.user_id == reviewer.id) {
+          reviewer.selected = true;
+        }
+      });
+
+      reviewer.value = reviewer.login;
+      reviewer.image = reviewer.avatar_url;
+      reviewer.label = reviewer.display_name;
+    });
+  }
+
+  $effect(() => {
+    void isLoading;
+
+    untrack(() => {
+      formatContributors();
+    });
+  });
 
 </script>
 
