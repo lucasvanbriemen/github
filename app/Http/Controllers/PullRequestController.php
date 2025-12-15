@@ -77,20 +77,20 @@ class PullRequestController extends Controller
 
         // Persist base fields in items table
         $pr = PullRequest::updateOrCreate(
-            ['id' => $response->id],
+            ['id' => $response['id']],
             [
                 'repository_id' => $repository->id,
-                'number' => $response->number ?? null,
-                'title' => $response->title ?? '',
-                'body' => $response->body ?? '',
+                'number' => $response['number'] ?? null,
+                'title' => $response['title'] ?? '',
+                'body' => $response['body'] ?? '',
                 'state' => $state,
-                'labels' => json_encode($response->labels ?? []),
-                'opened_by_id' => $response->user->id ?? null,
+                'labels' => json_encode($response['labels'] ?? []),
+                'opened_by_id' => $response['user']['id'] ?? null,
             ]
         );
 
         PullRequestDetails::updateOrCreate(
-            ['id' => $response->id],
+            ['id' => $response['id']],
             [
                 'head_branch' => $headRef,
                 'head_sha' => $headSha,
@@ -101,19 +101,19 @@ class PullRequestController extends Controller
 
         // Sync assignees (uses issue_assignees table)
         $assigneeGithubIds = [];
-        if (!empty($response->assignees) && is_array($response->assignees)) {
-            foreach ($response->assignees as $assignee) {
-                $assigneeGithubIds[] = $assignee->id;
+        if (!empty($response['assignees']) && is_array($response['assignees'])) {
+            foreach ($response['assignees'] as $assignee) {
+                $assigneeGithubIds[] = $assignee['id'];
             }
-        } elseif (!empty($response->assignee) && is_object($response->assignee) && isset($response->assignee->id)) {
+        } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
             // GitHub may return a single assignee
-            $assigneeGithubIds[] = $response->assignee->id;
+            $assigneeGithubIds[] = $response['assignee']['id'];
         }
 
         $pr->assignees()->sync($assigneeGithubIds);
 
         return response()->json([
-            'number' => $response->number ?? null,
+            'number' => $response['number'] ?? null,
             'state' => $state,
         ]);
     }
