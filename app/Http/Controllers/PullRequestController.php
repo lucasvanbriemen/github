@@ -55,7 +55,7 @@ class PullRequestController extends Controller
             'assignees' => $assignees,
         ]);
 
-        $state = $response['state'] ?? 'open';
+        $state = $response['state'] ?? 'draft';
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
         $headSha = $response['head']['sha'] ?? null;
@@ -118,6 +118,25 @@ class PullRequestController extends Controller
         ]);
     }
 
+    public function update($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
+        $nodeId = $pr->node_id;
+        $mutation = 'mutation {
+            markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
+                pullRequest {
+                    isDraft
+                }
+            }
+        }';
+
+        ApiHelper::githubGraphql($mutation);
+
+        return request()->all();
+    }
+
     public function requestReviewers($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -150,7 +169,6 @@ class PullRequestController extends Controller
             }
         }
 
-        // Optionally sync with GitHub API:
         GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded[0]);
         GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
 
