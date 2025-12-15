@@ -31,25 +31,14 @@ class ApiHelper
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        } elseif ($method === 'PATCH') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        } elseif ($method === 'DELETE') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            if ($payload) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-            }
         }
 
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (in_array($httpCode, [200, 201, 204])) {
-            if (!empty($responseBody)) {
-                return json_decode($responseBody);
-            }
-            return true;
+        if ($httpCode === 200) {
+            return json_decode($responseBody);
         } else {
             return null;
         }
