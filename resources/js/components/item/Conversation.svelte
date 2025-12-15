@@ -34,6 +34,8 @@
     api.post(route(`organizations.repositories.pr.update`, { organization, repository, number }), {
       draft: false,
     });
+
+    item.state = 'open';
   }
 
 </script>

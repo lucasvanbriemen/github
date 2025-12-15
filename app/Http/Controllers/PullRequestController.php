@@ -121,39 +121,17 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        if (request()->has('draft')) {
-            $isDraft = request()->input('draft');
-
-            // Get the PR to find its node ID
-            $pr = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}");
-            $nodeId = $pr->node_id;
-
-            if ($isDraft) {
-                // Convert to draft
-                $mutation = 'mutation {
-                    convertPullRequestToDraft(input: {pullRequestId: "'.$nodeId.'"}) {
-                        pullRequest {
-                            isDraft
-                        }
-                    }
-                }';
-            } else {
-                // Mark ready for review
-                $mutation = 'mutation {
-                    markPullRequestReadyForReview(input: {pullRequestId: "'.$nodeId.'"}) {
-                        pullRequest {
-                            isDraft
-                        }
-                    }
-                }';
+        $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
+        $nodeId = $pr->node_id;
+        $mutation = 'mutation {
+            markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
+                pullRequest {
+                    isDraft
+                }
             }
+        }';
 
-            ApiHelper::githubGraphql($mutation);
-
-            return request()->all();
-        }
-
-        ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}", 'PATCH', request()->all());
+        ApiHelper::githubGraphql($mutation);
 
         return request()->all();
     }
