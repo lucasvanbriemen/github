@@ -57,6 +57,16 @@
     });
   }
 
+  function handleClickOutside(event) {
+    if (!event.target.closest('.group') && addingReviewer) {
+      addingReviewer = false;
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener('click', handleClickOutside);
+  });
+
   $effect(() => {
     void isLoading;
 
