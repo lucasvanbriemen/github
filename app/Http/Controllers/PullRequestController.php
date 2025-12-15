@@ -118,6 +118,17 @@ class PullRequestController extends Controller
         ]);
     }
 
+    public function update($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $response = GitHub::pullRequests()->update($organization->name, $repository->name, $number, request()->all());
+
+        return response()->json(
+            $response
+        );
+    }
+
     public function requestReviewers($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
