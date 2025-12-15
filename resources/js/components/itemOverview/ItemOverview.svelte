@@ -39,6 +39,7 @@
     assignees = await api.get(route('organizations.repositories.contributors.get', {organization, repository}))
       .then(response => response.map(assignee => ({
         value: assignee.id,
+        image: assignee.avatar_url,
         label: assignee.display_name,
       })
     ));
