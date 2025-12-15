@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
 {
@@ -48,19 +49,19 @@ class PullRequestController extends Controller
             'draft' => true,
         ];
 
-        $response = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls", 'POST', $prData);
+        $response = GitHub::pullRequests()->create($organization->name, $repository->name, $prData);
 
-        ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/issues/{$response->number}", 'PATCH', [
+        GitHub::issues()->update($organization->name, $repository->name, $response['number'], [
             'assignees' => $assignees,
         ]);
 
-        $state = $response->state ?? 'draft';
+        $state = $response['state'] ?? 'draft';
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
-        $headSha = $response->head->sha ?? null;
-        $baseSha = $response->base->sha ?? null;
-        $baseRef = $response->base->ref ?? null;
-        $headRef = $response->head->ref ?? null;
+        $headSha = $response['head']['sha'] ?? null;
+        $baseSha = $response['base']['sha'] ?? null;
+        $baseRef = $response['base']['ref'] ?? null;
+        $headRef = $response['head']['ref'] ?? null;
 
         // Prefer comparing by SHAs (stable even if branches move/delete)
         if ($headSha && $baseSha) {
@@ -168,17 +169,8 @@ class PullRequestController extends Controller
             }
         }
 
-        // Sync with GitHub API:
-        if (!empty($toBeAdded)) {
-            ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}/requested_reviewers", 'POST', [
-                'reviewers' => $toBeAdded
-            ]);
-        }
-        if (!empty($toBeRemoved)) {
-            ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}/requested_reviewers", 'DELETE', [
-                'reviewers' => $toBeRemoved
-            ]);
-        }
+        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded[0]);
+        GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
 
         // Return current state and delta
         return response()->json([
