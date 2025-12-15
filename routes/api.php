@@ -30,6 +30,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('organizations.repositories.item.update');
 
+        Route::post('/pr/{number}', [PullRequestController::class, 'update'])
+            ->name('organizations.repositories.pr.update');
+
         Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('organizations.repositories.item.show');
 

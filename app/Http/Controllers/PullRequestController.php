@@ -8,7 +8,6 @@ use App\Models\Item;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
-use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
 {
@@ -49,19 +48,19 @@ class PullRequestController extends Controller
             'draft' => true,
         ];
 
-        $response = GitHub::pullRequests()->create($organization->name, $repository->name, $prData);
+        $response = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls", 'POST', $prData);
 
-        GitHub::issues()->update($organization->name, $repository->name, $response['number'], [
+        ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/issues/{$response->number}", 'PATCH', [
             'assignees' => $assignees,
         ]);
 
-        $state = $response['state'] ?? 'open';
+        $state = $response->state ?? 'draft';
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
-        $headSha = $response['head']['sha'] ?? null;
-        $baseSha = $response['base']['sha'] ?? null;
-        $baseRef = $response['base']['ref'] ?? null;
-        $headRef = $response['head']['ref'] ?? null;
+        $headSha = $response->head->sha ?? null;
+        $baseSha = $response->base->sha ?? null;
+        $baseRef = $response->base->ref ?? null;
+        $headRef = $response->head->ref ?? null;
 
         // Prefer comparing by SHAs (stable even if branches move/delete)
         if ($headSha && $baseSha) {
@@ -77,20 +76,20 @@ class PullRequestController extends Controller
 
         // Persist base fields in items table
         $pr = PullRequest::updateOrCreate(
-            ['id' => $response['id']],
+            ['id' => $response->id],
             [
                 'repository_id' => $repository->id,
-                'number' => $response['number'] ?? null,
-                'title' => $response['title'] ?? '',
-                'body' => $response['body'] ?? '',
+                'number' => $response->number ?? null,
+                'title' => $response->title ?? '',
+                'body' => $response->body ?? '',
                 'state' => $state,
-                'labels' => json_encode($response['labels'] ?? []),
-                'opened_by_id' => $response['user']['id'] ?? null,
+                'labels' => json_encode($response->labels ?? []),
+                'opened_by_id' => $response->user->id ?? null,
             ]
         );
 
         PullRequestDetails::updateOrCreate(
-            ['id' => $response['id']],
+            ['id' => $response->id],
             [
                 'head_branch' => $headRef,
                 'head_sha' => $headSha,
@@ -101,19 +100,19 @@ class PullRequestController extends Controller
 
         // Sync assignees (uses issue_assignees table)
         $assigneeGithubIds = [];
-        if (!empty($response['assignees']) && is_array($response['assignees'])) {
-            foreach ($response['assignees'] as $assignee) {
-                $assigneeGithubIds[] = $assignee['id'];
+        if (!empty($response->assignees) && is_array($response->assignees)) {
+            foreach ($response->assignees as $assignee) {
+                $assigneeGithubIds[] = $assignee->id;
             }
-        } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
+        } elseif (!empty($response->assignee) && is_object($response->assignee) && isset($response->assignee->id)) {
             // GitHub may return a single assignee
-            $assigneeGithubIds[] = $response['assignee']['id'];
+            $assigneeGithubIds[] = $response->assignee->id;
         }
 
         $pr->assignees()->sync($assigneeGithubIds);
 
         return response()->json([
-            'number' => $response['number'] ?? null,
+            'number' => $response->number ?? null,
             'state' => $state,
         ]);
     }
@@ -122,11 +121,41 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $response = GitHub::pullRequests()->update($organization->name, $repository->name, $number, request()->all());
+        if (request()->has('draft')) {
+            $isDraft = request()->input('draft');
 
-        return response()->json(
-            $response
-        );
+            // Get the PR to find its node ID
+            $pr = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}");
+            $nodeId = $pr->node_id;
+
+            if ($isDraft) {
+                // Convert to draft
+                $mutation = 'mutation {
+                    convertPullRequestToDraft(input: {pullRequestId: "'.$nodeId.'"}) {
+                        pullRequest {
+                            isDraft
+                        }
+                    }
+                }';
+            } else {
+                // Mark ready for review
+                $mutation = 'mutation {
+                    markPullRequestReadyForReview(input: {pullRequestId: "'.$nodeId.'"}) {
+                        pullRequest {
+                            isDraft
+                        }
+                    }
+                }';
+            }
+
+            ApiHelper::githubGraphql($mutation);
+
+            return request()->all();
+        }
+
+        ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}", 'PATCH', request()->all());
+
+        return request()->all();
     }
 
     public function requestReviewers($organizationName, $repositoryName, $number)
@@ -161,9 +190,17 @@ class PullRequestController extends Controller
             }
         }
 
-        // Optionally sync with GitHub API:
-        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded[0]);
-        GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
+        // Sync with GitHub API:
+        if (!empty($toBeAdded)) {
+            ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}/requested_reviewers", 'POST', [
+                'reviewers' => $toBeAdded
+            ]);
+        }
+        if (!empty($toBeRemoved)) {
+            ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$number}/requested_reviewers", 'DELETE', [
+                'reviewers' => $toBeRemoved
+            ]);
+        }
 
         // Return current state and delta
         return response()->json([
