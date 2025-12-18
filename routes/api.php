@@ -18,6 +18,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('repositories.templates.get');
 
     Route::prefix('/{organization}/{repository}')->group(function () {
+        Route::get('/metadata', [RepositoryController::class, 'metadata'])
+            ->name('organizations.repositories.metadata.get');
+
         Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('organizations.repositories.items.get');
 
@@ -27,29 +30,38 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('organizations.repositories.item.update');
 
+        Route::post('/pr/{number}', [PullRequestController::class, 'update'])
+            ->name('organizations.repositories.pr.update');
+
         Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('organizations.repositories.item.show');
 
         Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
             ->name('organizations.repositories.item.comment');
 
-        Route::post('/item/{number}/review/{review_id}', [BaseCommentController::class, 'updateReview'])
-            ->name('organizations.repositories.item.review');
+        Route::post('item/{number}/comment', [BaseCommentController::class, 'createItemComment'])
+            ->name('organizations.repositories.item.comment.create');
 
-        Route::post('/item/{number}/review/comment/{comment_id}', [BaseCommentController::class, 'updateReviewComment'])
-            ->name('organizations.repositories.item.review.comment');
+        Route::post('/item/{number}/review/comments', [BaseCommentController::class, 'createPRComment'])
+            ->name('organizations.repositories.item.review.comments.create');
 
         Route::get('/item/{number}/files', [ItemController::class, 'getFiles'])
             ->name('organizations.repositories.item.files');
 
-            Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+        Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('organizations.repositories.branches.pr.notices');
 
         Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
             ->name('organizations.repositories.pr.metadata');
 
+        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
+            ->name('organizations.repositories.pr.add.reviewers');
+
         Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('organizations.repositories.pr.create');
+
+        Route::post('/issue/create', [ItemController::class, 'create'])
+            ->name('organizations.repositories.issues.create');
     });
 
     // Media uploads (images/videos) from markdown editor

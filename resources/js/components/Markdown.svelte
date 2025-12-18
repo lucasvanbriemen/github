@@ -45,6 +45,9 @@
     },
   };
 
+  const renderer = new marked.Renderer();
+  let checkboxRenderIndex = $state(0);
+
   async function uploadFiles(files) {
     const form = new FormData();
     for (const file of files) {
@@ -59,10 +62,6 @@
       },
       credentials: 'same-origin',
     });
-
-    if (!res.ok) {
-      throw new Error(`Upload failed (${res.status})`);
-    }
 
     const data = await res.json();
     return data.files ?? [];
@@ -87,40 +86,36 @@
 
     e.preventDefault();
 
-    try {
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      const before = editor.value.slice(0, start);
-      const after = editor.value.slice(end);
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const before = editor.value.slice(0, start);
+    const after = editor.value.slice(end);
 
-      // Upload files and get back URLs
-      const uploaded = await uploadFiles(files);
+    // Upload files and get back URLs
+    const uploaded = await uploadFiles(files);
 
-      const parts = [];
-      for (const item of uploaded) {
-        const safeName = item.name || 'uploaded-file';
-        if (item.type?.startsWith('image/')) {
-          parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" /><br/>\n`);
-        } else if (item.type?.startsWith('video/')) {
-          parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video><br/>\n`);
-        }
+    const parts = [];
+    for (const item of uploaded) {
+      const safeName = item.name || 'uploaded-file';
+      if (item.type?.startsWith('image/')) {
+        parts.push(`\n<img src="${item.url}" alt="${safeName}" style="max-width: 100%; height: auto;" /><br/>\n`);
+      } else if (item.type?.startsWith('video/')) {
+        parts.push(`\n<video controls src="${item.url}" style="max-width: 100%; height: auto;"></video><br/>\n`);
       }
-
-      if (parts.length === 0) return;
-
-      const insertText = parts.join('\n');
-      const updatedValue = `${before}${insertText}${after}`;
-      editor.value = updatedValue;
-      content = updatedValue;
-
-      const newCursor = before.length + insertText.length;
-      editor.selectionStart = editor.selectionEnd = newCursor;
-      editor.focus();
-
-      requestAnimationFrame(() => autoSize());
-    } catch (err) {
-      console.error('Paste handling failed:', err);
     }
+
+    if (parts.length === 0) return;
+
+    const insertText = parts.join('\n');
+    const updatedValue = `${before}${insertText}${after}`;
+    editor.value = updatedValue;
+    content = updatedValue;
+
+    const newCursor = before.length + insertText.length;
+    editor.selectionStart = editor.selectionEnd = newCursor;
+    editor.focus();
+
+    requestAnimationFrame(() => autoSize());
   }
 
   function autoSize() {
@@ -129,6 +124,41 @@
 
   function saveChange() {
     change?.({ value: content });
+  }
+
+  function handleCheckboxClick(e) {
+    const target = e.target;
+
+    if (target.type !== 'checkbox') {
+      return;
+    }
+
+    // Find which checkbox was clicked by matching against all checkboxes in the DOM
+    const checkboxes = document.querySelectorAll('.markdown-body input[type="checkbox"]');
+    let clickedIndex = -1;
+
+    checkboxes.forEach((checkbox, index) => {
+      if (checkbox === target) {
+        clickedIndex = index;
+      }
+    });
+
+    const lines = content.split('\n');
+    let currentCheckbox = 0;
+
+    lines.forEach((line, index) => {
+      const hasCheckbox = line.includes('- [ ]') || line.includes('- [x]') || line.includes('- [X]');
+
+      if (hasCheckbox) {
+        if (currentCheckbox === clickedIndex) {
+          lines[index] = line.replace(/- \[[ xX]\]/, `- [${target.checked ? 'x' : ' '}]`);
+        }
+        currentCheckbox++;
+      }
+    });
+
+    content = lines.join('\n');
+    saveChange();
   }
 
   function handleKeyDown(e) {
@@ -148,7 +178,8 @@
     if (!content) {
       return '';
     }
-    
+
+    checkboxRenderIndex = 0;
     return marked.parse(content);
   }
 
@@ -186,6 +217,16 @@
   }
 
   onMount(() => {
+    renderer.checkbox = function (data) {
+      const isChecked = data.checked;
+      const currentIndex = checkboxRenderIndex;
+      checkboxRenderIndex++;
+
+      return `<input type="checkbox" data-index="${currentIndex}" ${isChecked ? ' checked' : ''}> `;
+    };
+
+    marked.setOptions({renderer, gfm: true, breaks: false});
+
     rendered = convertToMarkdown();
   });
 
@@ -233,7 +274,7 @@
       bind:this={editor}
     ></textarea>
   {:else}
-    <div class="markdown-body">
+    <div class="markdown-body" onclick={handleCheckboxClick}>
       {#if content}
         {@html rendered}
       {:else}

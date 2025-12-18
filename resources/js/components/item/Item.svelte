@@ -51,7 +51,7 @@
   <Sidebar {item} {isPR} {isLoading} {params} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
-  <div class="item-main">
+  <div class="item-main {activeTab}" class:is-pr={isPR}>
     {#if isLoading}
       <ItemSkeleton />
     {:else}

@@ -134,10 +134,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 ],
                 [
                     'pull_request_id' => $prData->id,
-                    'user_id' => $reviewerData->id
+                    'user_id' => $reviewerData->id,
+                    'state' => 'pending'
                 ]
             );
-           
         }
 
         return true;

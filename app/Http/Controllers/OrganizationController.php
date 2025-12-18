@@ -11,11 +11,11 @@ class OrganizationController extends Controller
     {
         foreach (GitHub::me()->organizations() as $organization) {
             Organization::updateOrCreate(
-                ['id' => $organization->id],
+                ['id' => $organization['id']],
                 [
-                    'name' => $organization->login,
-                    'description' => $organization->description,
-                    'avatar_url' => $organization->avatar_url,
+                    'name' => $organization['login'],
+                    'description' => $organization['description'],
+                    'avatar_url' => $organization['avatar_url'],
                 ]
             );
         }

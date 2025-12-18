@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
+use App\Models\Item;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
@@ -54,7 +55,7 @@ class PullRequestController extends Controller
             'assignees' => $assignees,
         ]);
 
-        $state = $response['state'] ?? 'open';
+        $state = $response['state'] ?? 'draft';
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
         $headSha = $response['head']['sha'] ?? null;
@@ -114,6 +115,68 @@ class PullRequestController extends Controller
         return response()->json([
             'number' => $response['number'] ?? null,
             'state' => $state,
+        ]);
+    }
+
+    public function update($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
+        $nodeId = $pr->node_id;
+        $mutation = 'mutation {
+            markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
+                pullRequest {
+                    isDraft
+                }
+            }
+        }';
+
+        ApiHelper::githubGraphql($mutation);
+
+        return request()->all();
+    }
+
+    public function requestReviewers($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pr = Item::with('requestedReviewers.user')
+          ->where('repository_id', $repository->id)
+          ->where('number', $number)
+          ->firstOrFail();
+
+        $currentReviewers = $pr->requestedReviewers
+            ->where('state', 'pending')
+            ->pluck('user.login')
+            ->all();
+        $updatedReviewers = request()->input('reviewers', []);
+
+        $toBeAdded = [];
+        $toBeRemoved = [];
+
+        // Determine which reviewers need to be added (in input but not currently assigned)
+        foreach ($updatedReviewers as $updatedReviewer) {
+            if (!in_array($updatedReviewer, $currentReviewers)) {
+                $toBeAdded[] = $updatedReviewer; // push individual reviewer
+            }
+        }
+
+        // Determine which reviewers need to be removed (currently assigned but not in input)
+        foreach ($currentReviewers as $currentReviewer) {
+            if (!in_array($currentReviewer, $updatedReviewers)) {
+                $toBeRemoved[] = $currentReviewer;
+            }
+        }
+
+        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded[0]);
+        GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
+
+        // Return current state and delta
+        return response()->json([
+            'currentReviewers' => $currentReviewers,
+            'added' => $toBeAdded,
+            'removed' => $toBeRemoved,
         ]);
     }
 }

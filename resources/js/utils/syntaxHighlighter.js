@@ -13,6 +13,7 @@ const extensionToLanguage = {
   'php': 'php',
   'py': 'python',
   'rb': 'ruby',
+  'erb': 'erb',
   'go': 'go',
   'rs': 'rust',
   'java': 'java',
