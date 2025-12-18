@@ -99,7 +99,6 @@ class PullRequestController extends Controller
             ]
         );
 
-        // Sync assignees (uses issue_assignees table)
         $assigneeGithubIds = [];
         if (!empty($response['assignees']) && is_array($response['assignees'])) {
             foreach ($response['assignees'] as $assignee) {
