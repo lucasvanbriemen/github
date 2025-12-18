@@ -1,5 +1,8 @@
 <script>
-  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = false, onChange } = $props();
+    import { on } from "svelte/events";
+  import Icon from "./Icon.svelte";
+
+  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, multiple = false, onChange } = $props();
 
   let menuOpen = $state(false);
   let searchQuery = $state('');
@@ -20,10 +23,27 @@
   function handleClickOutside(event) {
     if (!event.target.closest('.search-select-wrapper')) {
       menuOpen = false;
+      
+      if (multiple) {
+        const selectedItems = selectableItems.filter(o => o.selected);
+        let selectedValues = [];
+        selectedItems.forEach(item => selectedValues.push(item.value));
+        selectedValue = selectedValues;
+        
+        onChange?.({ selectedValue });
+      }
     }
   }
 
   function selectOption(optionValue) {
+    
+    if (multiple) {
+      const option = selectableItems.find(o => o.value === optionValue);
+      option.selected = !option.selected;
+      
+      return;
+    }
+    
     selectedValue = optionValue;
     menuOpen = false;
     onChange?.({ selectedValue });
@@ -42,6 +62,7 @@
 
 <div class="search-select-wrapper">
   <select {name} style="display: none;" bind:value={selectedValue}>
+    <option value="" disabled selected hidden></option>
     {#each selectableItems as option}
       <option value={option.value}>{option.label}</option>
     {/each}
@@ -61,8 +82,17 @@
   {#if menuOpen}
     <div class="option-wrapper">
       {#each visableOptions() as option (option.value)}
-        <button class="option-item" class:active={selectedValue == option.value} onclick={() => selectOption(option.value)} type="button">
-          {option.label}
+        <button class="option-item" class:active={selectedValue == option.value || option.selected} onclick={() => selectOption(option.value)} type="button">
+          <div>
+            {#if option.image}
+              <img src={option.image} alt={option.label} class="option-image" />
+            {/if}
+            {option.label}
+          </div>
+
+          {#if multiple && option.selected}
+            <Icon name="checkmark" className="icon checkmark" />
+          {/if}
         </button>
       {/each}
       {#if visableOptions().length === 0}

@@ -1,54 +1,27 @@
 <script>
   import { onMount } from 'svelte';
+  import { params } from 'svelte-spa-router';
 
-  let organizations = [];
-  let selectedOrganization = null;
-  let selectedRepository = null;
-
-  function updateSelectionFromHash() {
-    const hash = window.location.hash || '';
-    const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-    const orgName = parts[0] || null;
-    const repoName = parts[1] || null;
-
-    selectedOrganization = organizations.find(o => o.name === orgName);
-    selectedRepository = selectedOrganization.repositories.find(r => r.name === repoName);
-  }
+  let organizations = $state([]);
+  let selectedOrganization = $state($params?.organization || null);
+  let selectedRepository = $state($params?.repository || null);
 
   onMount(async () => {
-    const res = await fetch(route('organizations.get'));
-    organizations = await res.json();
-    updateSelectionFromHash();
-    window.addEventListener('hashchange', updateSelectionFromHash);
+    organizations = await api.get(route('organizations.get'));
   });
-
-  function selectOrganization(org) {
-    selectedOrganization = org;
-    selectedRepository = null;
-  }
-
-  function selectRepository(org, repo) {
-    selectedOrganization = org;
-    selectedRepository = repo;
-    goToRepository(org, repo);
-  }
-
-  function goToRepository(org, repo) {
-    window.location.href = `#/${org.name}/${repo.name}`;
-  }
 </script>
 
 <header>
   {#each organizations as org}
-    <div class="organization" class:selected={selectedOrganization === org}>
-      <button on:click={() => selectOrganization(org)}>
+    <div class="organization" class:selected={selectedOrganization === org.name}>
+      <button onclick={() => selectedOrganization = org.name}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
-        <span class="name">{org.name}</span>
+        <span class="org">{org.name}</span>
       </button>
 
       <div class="repos">
         {#each org.repositories as repo}
-          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={selectedRepository === repo} on:click={() => selectRepository(org, repo)}>{repo.name}</a>
+          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={selectedRepository === repo.name} onclick={() => selectedRepository = repo.name}>{repo.name}</a>
         {/each}
       </div>
     </div>

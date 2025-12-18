@@ -1,24 +1,10 @@
 <script>
-  import { onMount } from 'svelte';
-  let { selectedDropdownSection, params = {}, children } = $props();
+  let { activeItem, params = {}, children } = $props();
 
-  let organization = $derived(params.organization || '');
-  let repository = $derived(params.repository || '');
+  let organization = $derived(params.organization);
+  let repository = $derived(params.repository);
 
   let dropdownOpen = $state(false);
-
-  function parseHash() {
-    const hash = (window.location.hash || '').replace(/^#\/?/, '');
-    const parts = hash.split('/').filter(Boolean);
-    // parts: [organization, repository, section?, id?]
-    organization = parts[0] || organization;
-    repository = parts[1] || repository;
-  }
-
-  onMount(() => {
-    parseHash();
-    window.addEventListener('hashchange', parseHash);
-  });
 </script>
 
 <div class="sidebar">
@@ -31,7 +17,7 @@
       <a class="item" href="#/{organization}/{repository}/prs" onclick={() => dropdownOpen = false}>Pull Requests</a>
     </div>
     <button class="dropdown" onclick={() => (dropdownOpen = !dropdownOpen)} aria-expanded={dropdownOpen}>
-      {selectedDropdownSection}
+      {activeItem}
     </button>
   </div>
 </div>

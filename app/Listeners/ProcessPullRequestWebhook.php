@@ -29,12 +29,6 @@ class ProcessPullRequestWebhook //implements ShouldQueue
     {
         $payload = $event->payload;
 
-
-        if (!isset($payload->pull_request, $payload->repository)) {
-            \Log::warning('Malformed pull_request payload', ['payload' => $payload]);
-            return false;
-        }
-
         $prData = $payload->pull_request;
         $repositoryData = $payload->repository;
 
@@ -47,6 +41,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         GithubUser::updateFromWebhook($userData);
 
         $state = $prData->state;
+        if ($prData->draft == true) {
+            $state = 'draft';
+        }
+        
         if ($state === 'closed' && isset($prData->merged_at) && $prData->merged_at !== null) {
             $state = 'merged';
         }
@@ -61,17 +59,23 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         // We need to get the diff between the merge base and the head commit, so we store the sha of both to compare instead of the base and head branch names
         $mergeBaseSha = null;
         $headSha = $prData->head->sha ?? null;
+        $baseSha = $prData->base->sha ?? null;
 
-        if ($headSha && isset($prData->base->ref)) {
-            $ownerName = $repositoryData->owner->login ?? null;
-            $repoName = $repositoryData->name ?? null;
+        $ownerName = $repositoryData->owner->login ?? null;
+        $repoName = $repositoryData->name ?? null;
 
-            if ($ownerName && $repoName) {
+        if ($ownerName && $repoName) {
+            // Prefer comparing by SHAs to avoid failures after merges or branch deletions
+            if ($baseSha && $headSha) {
+                $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$baseSha}...{$headSha}");
+            } elseif (isset($prData->base->ref, $prData->head->ref)) {
                 $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}");
+            } else {
+                $compareData = null;
+            }
 
-                if ($compareData && isset($compareData->merge_base_commit->sha)) {
-                    $mergeBaseSha = $compareData->merge_base_commit->sha;
-                }
+            if ($compareData && isset($compareData->merge_base_commit->sha)) {
+                $mergeBaseSha = $compareData->merge_base_commit->sha;
             }
         }
 
@@ -130,10 +134,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 ],
                 [
                     'pull_request_id' => $prData->id,
-                    'user_id' => $reviewerData->id
+                    'user_id' => $reviewerData->id,
+                    'state' => 'pending'
                 ]
             );
-           
         }
 
         return true;

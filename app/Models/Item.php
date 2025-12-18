@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\RepositoryService;
 
 class Item extends Model
 {
@@ -11,6 +12,10 @@ class Item extends Model
     protected $keyType = 'int';
     public $incrementing = false;
     public $timestamps = true;
+
+    protected $appends = [
+        'created_at_human',
+    ];
 
     protected $fillable = [
         'id',
@@ -27,6 +32,16 @@ class Item extends Model
     protected $casts = [
         'labels' => 'array',
     ];
+
+    public function getBodyAttribute($value)
+    {
+        return RepositoryService::processMarkdownImages($value);
+    }
+
+    public function getCreatedAtHumanAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
 
     public function repository()
     {
@@ -50,7 +65,11 @@ class Item extends Model
 
     public function comments()
     {
-        return $this->hasMany(ItemComment::class, 'issue_id', 'id');
+        return $this->hasMany(BaseComment::class, 'issue_id', 'id')
+            ->whereDoesntHave('commentDetails', function ($q) {
+                $q->whereNotNull('pull_request_review_id');
+            })
+            ->where('type', '!=', 'code');
     }
 
     // Scope to get only issues
@@ -86,8 +105,8 @@ class Item extends Model
         return $this->hasMany(PullRequestReview::class, 'pull_request_id', 'id');
     }
 
-    public function pullRequestComments()
+    public function getLatestCommitSha()
     {
-        return $this->hasMany(PullRequestComment::class, 'pull_request_id', 'id');
+        return $this->details()->first()->head_sha;
     }
 }

@@ -4,15 +4,12 @@ namespace App\Listeners;
 
 use App\Events\PullRequestReviewWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\PullRequestReview;
 use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
-use App\Mail\PullRequestReviewed;
-use App\GithubConfig;
-use Illuminate\Support\Facades\Mail;
+use App\Models\BaseComment;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -33,7 +30,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
 
         $reviewData = $payload->review;
         $prData = $payload->pull_request;
-        
+
         $repositoryData = $payload->repository;
         Repository::updateFromWebhook($repositoryData);
 
@@ -43,17 +40,26 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         // Ensure the pull request exists before creating the review
         PullRequest::updateFromWebhook($prData);
 
-        $pullRequestReview = PullRequestReview::updateOrCreate([
-            'id' => $reviewData->id,
-        ], [
-            'pull_request_id' => $prData->id,
-            'user_id' => $reviewData->user->id,
-            'body' => $reviewData->body,
-            'state' => $reviewData->state,
-        ]);
+        $baseComment = BaseComment::updateOrCreate(
+            ['comment_id' => $reviewData->id, 'type' => 'review'],
+            [
+                'issue_id' => $prData->id,
+                'user_id' => $userData->id,
+                'body' => $reviewData->body ?? '',
+                'type' => 'review',
+            ]
+        );
+
+        $pullRequestReview = PullRequestReview::updateOrCreate(
+            ['id' => $reviewData->id],
+            [
+                'base_comment_id' => $baseComment->id,
+                'state' => $reviewData->state,
+            ]
+        );
 
         // We also need to create/update RequestedReviewer (since thats how we show reviews in the UI sidebar)
-        // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED
+        // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED OR APPROVED
         // A CHANGES_REQUESTED review blocks the PR until the reviewer APPROVEs
         // Also: If someone is in requested_reviewers, they're PENDING (their review was dismissed or they were re-requested)
 
@@ -66,21 +72,30 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         // Check if this user is in the PR's requested_reviewers list
         $isInRequestedReviewers = collect($prData->requested_reviewers ?? [])->pluck('id')->contains($userData->id);
 
-        // If they're in requested_reviewers, they're pending (dismissed or re-requested)
-        if ($isInRequestedReviewers) {
+        // Match GitHub's behavior:
+        // - If dismissed or re-requested, they go back to pending
+        // - If commenting while pending, allow the state to be commented
+        // - If they have an existing blocking state, don't let comments clear it
+        if ($newState === 'dismissed') {
             $newState = 'pending';
-        }
-        // If dismissed, treat as pending
-        elseif ($newState === 'dismissed') {
+        } elseif ($isInRequestedReviewers && $newState !== 'commented') {
+            // Only force pending if not commenting (comment should update the state)
             $newState = 'pending';
         }
 
         $shouldUpdate = true;
 
         // If they previously requested changes, only update if the new state clears or updates the block
-        if ($existingReviewer && $existingReviewer->state === 'changes_requested' && !$isInRequestedReviewers) {
-            // Only these states should overwrite CHANGES_REQUESTED
-            if (!in_array($newState, ['approved', 'changes_requested', 'pending'])) {
+        if ($existingReviewer && $existingReviewer->state === 'changes_requested') {
+            // Don't let commented state overwrite changes_requested
+            if ($newState === 'commented') {
+                $shouldUpdate = false;
+            }
+        }
+
+        // Similarly, don't let commented overwrite approved
+        if ($existingReviewer && $existingReviewer->state === 'approved') {
+            if ($newState === 'commented') {
                 $shouldUpdate = false;
             }
         }
@@ -96,15 +111,6 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
                 ]
             );
         }
-
-        // im not assisned to the pr (or the author) dont send the email
-        // if ($prData->user->id !== GithubConfig::USERID && !collect($prData->requested_reviewers)->pluck('id')->contains(GithubConfig::USERID)) {
-        //     return true;
-        // }
-
-        // // After 1 minute send out the email, this is to ensure that all comments are created first
-        // Mail::to(GithubConfig::USER_EMAIL)
-        //     ->later(now()->addMinute(), new PullRequestReviewed($pullRequestReview));
 
         return true;
     }

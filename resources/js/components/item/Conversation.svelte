@@ -1,80 +1,54 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import Markdown from '../Markdown.svelte';
   import Comment from '../Comment.svelte';
 
   let { item, params = {} } = $props();
-  let organization = $derived(params.organization || '');
-  let repository = $derived(params.repository || '');
-  let number = $derived(params.number || '');
+  let body = $state(item.body);
+  let issueComment = $state('');
 
-  let isPR = $state(false);
+  let organization = params.organization;
+  let repository = params.repository;
+  let number = params.number;
 
-  onMount(async () => {
-    isPR = item.type === 'pull_request';
-  });
+  function save_body(e) {
+    body = e.value;
 
-  // Toggle functions for different comment types
-  function toggleItemComment(comment) {
-    comment.resolved = !comment.resolved;
-
-    fetch(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: comment.resolved,
-      }),
+    api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
+      body,
     });
   }
 
-  function toggleItemReview(review) {
-    review.resolved = !review.resolved;
-
-    fetch(route(`organizations.repositories.item.review`, { organization, repository, number, review_id: review.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: review.resolved,
-      }),
+  function post_comment(e) {
+    api.post(route(`organizations.repositories.item.comment.create`, { organization, repository, number }), {
+      body: issueComment,
+    }).then((newComment) => {
+      untrack(() => {
+        item.comments.push(newComment);
+        issueComment = '';
+      });
     });
   }
 
-  function toggleItemReviewComment(comment) {
-    comment.resolved = !comment.resolved;
-
-    fetch(route(`organizations.repositories.item.review.comment`, { organization, repository, number, comment_id: comment.id }), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resolved: comment.resolved,
-      }),
+  function ready_for_review() {
+    api.post(route(`organizations.repositories.pr.update`, { organization, repository, number }), {
+      draft: false,
     });
+
+    item.state = 'open';
   }
+
 </script>
 
-<Markdown content={item.body} />
+{#if item.state === 'draft'}
+  <button class="button-primary ready-for-review" onclick={ready_for_review}>Ready for Review</button>
+{/if}
 
-<!-- Regular Comments -->
+<Markdown content={body} change={save_body} />
+
 {#each item.comments as comment}
-  <Comment {comment} onToggle={toggleItemComment} />
+  <Comment {comment} {params} />
 {/each}
 
-<!-- PR Reviews and Review Comments (PR only) -->
-{#if isPR}
-  {#each item.pull_request_reviews as review}
-  {#if review.body}
-    <Comment comment={review} onToggle={toggleItemReview} onToggleReply={toggleItemReviewComment} />
-  {:else}
-    <!-- We If you have a standlone PR comment, it will have no review content, so we render that sepertly -->
-    {#each review.child_comments as comment}
-      <Comment {comment} onToggle={toggleItemReviewComment} />
-    {/each}
-    {/if}
-  {/each}
-{/if}
+<Markdown bind:content={issueComment} isEditing={true} />
+<button class="button-primary" onclick={post_comment}>Post Comment</button>

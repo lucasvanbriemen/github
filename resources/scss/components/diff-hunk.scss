@@ -10,7 +10,6 @@
   padding: 0.5rem;
   width: 100%;
   background-color: var(--background-color-one);
-  font-family: monospace;
   font-size: 0.875rem;
   border-bottom: 1px solid var(--border-color);
 }
@@ -22,7 +21,6 @@
 .diff-line {
   display: flex;
   padding: 0.1rem 0;
-  font-family: monospace;
   font-size: 0.875rem;
   line-height: 1.5;
 }

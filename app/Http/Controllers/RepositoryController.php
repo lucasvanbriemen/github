@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiHelper;
-use App\Models\Organization;
-use App\Models\Repository;
-use Highlight\Highlighter;
-use Illuminate\Http\Request;
 use App\Services\RepositoryService;
 
 class RepositoryController extends Controller
@@ -29,26 +24,39 @@ class RepositoryController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $branches = $repository->branches()->get();
-        $branchesForNotices = [];
+        $branches = $repository->branches()
+            ->showNotice()
+            ->whereHas('commits') // only branches that have at least one commit
+            ->with(['commits' => function ($q) {
+                $q->orderBy('created_at', 'desc')->limit(1);
+            }])
+            ->get()
+            ->map(function ($branch) {
+                $branch->last_commit = $branch->commits->first();
+                $branch->last_commit->created_at_human = $branch->last_commit->created_at->diffForHumans();
+                unset($branch->commits); // optional: remove loaded commits array if not needed
+                return $branch;
+            });
 
-        foreach ($branches as $branch) {
-            if ($branch->showNotice()) {
-                // Add the last commit
-                $branch->load(['commits' => function ($q) {
-                    $q->orderBy('created_at', 'desc')->limit(1);
-                }]);
+        return response()->json($branches);
+    }
 
-                if (!$branch->commits->isEmpty()) {
-                    $branch->last_commit = $branch->commits->first();
-                    $branch->last_commit->created_at_human = $branch->last_commit->created_at->diffForHumans();
-                }
-                
-                $branchesForNotices[] = $branch;
+    public function getTemplates()
+    {
+        $templatesPath = resource_path('repository_templates/templates.json');
+        $templatesJson = file_get_contents($templatesPath);
+        $templates = json_decode($templatesJson, true);
 
-            }
-        }
+        return response()->json($templates);
+    }
 
-        return response()->json($branchesForNotices);
+    public function metadata($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
+            return $contributor->githubUser;
+        });
+
+        return response()->json(['assignees' => $assignees]);
     }
 }
