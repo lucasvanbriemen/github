@@ -30,9 +30,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('organizations.repositories.item.update');
 
-        Route::post('/pr/{number}', [PullRequestController::class, 'update'])
-            ->name('organizations.repositories.pr.update');
-
         Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('organizations.repositories.item.show');
 
@@ -54,11 +51,14 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
             ->name('organizations.repositories.pr.metadata');
 
-        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
-            ->name('organizations.repositories.pr.add.reviewers');
-
         Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('organizations.repositories.pr.create');
+
+        Route::post('/pr/{number}', [PullRequestController::class, 'update'])
+            ->name('organizations.repositories.pr.update');
+
+        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
+            ->name('organizations.repositories.pr.add.reviewers');
 
         Route::post('/issue/create', [ItemController::class, 'create'])
             ->name('organizations.repositories.issues.create');

@@ -55,7 +55,7 @@ class PullRequestController extends Controller
             'assignees' => $assignees,
         ]);
 
-        $state = $response['state'] ?? 'draft';
+        $state = 'draft';
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
         $headSha = $response['head']['sha'] ?? null;
