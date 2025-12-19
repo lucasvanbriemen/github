@@ -109,7 +109,7 @@
         onclick={() => submitReview('COMMENT')}
         disabled={submitting}
       >
-        💬 Comment
+        Comment
       </button>
 
       <button
@@ -117,7 +117,7 @@
         onclick={() => submitReview('REQUEST_CHANGES')}
         disabled={submitting}
       >
-        ⚠️ Request Changes
+        Request Changes
       </button>
 
       <button
@@ -125,7 +125,7 @@
         onclick={() => submitReview('APPROVE')}
         disabled={submitting}
       >
-        ✅ Approve
+        Approve
       </button>
     </div>
   </div>
@@ -198,22 +198,6 @@
     font-family: monospace;
     font-size: 0.8rem;
   }
-
-  .remove-button {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: #d1242f;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0;
-    line-height: 1;
-
-    &:hover {
-      color: #a41e22;
-    }
-  }
-
   .comment-preview {
     font-size: 0.9rem;
   }
@@ -243,26 +227,26 @@
     }
 
     .button-comment {
-      background-color: #0969da;
+      background-color: var(--primary-color);
 
       &:hover:not(:disabled) {
-        background-color: #0860ca;
+        background-color: var(--primary-color-dark);
       }
     }
 
     .button-changes {
-      background-color: #da3633;
+      background-color: var(--error-color);
 
       &:hover:not(:disabled) {
-        background-color: #ca2927;
+        background-color: #b13930;
       }
     }
 
     .button-approve {
-      background-color: #1a7f34;
+      background-color: var(--success-color);
 
       &:hover:not(:disabled) {
-        background-color: #16692d;
+        background-color: #318340;
       }
     }
   }
