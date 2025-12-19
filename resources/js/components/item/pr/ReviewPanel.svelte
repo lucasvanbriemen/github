@@ -83,7 +83,7 @@
 
   {#if pendingReviewComments.length > 0}
     <div class="pending-comments-section">
-      <h4>Pending Review Comments ({pendingReviewComments.length})</h4>
+      <h4>Pending Review Comments</h4>
       <div class="pending-comments-list">
         {#each pendingReviewComments as comment (comment.id)}
           <div class="pending-comment-item">
