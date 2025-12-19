@@ -13,7 +13,7 @@
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
-    return ' ';
+    return '  ';
   }
 
   function post_comment(e) {
