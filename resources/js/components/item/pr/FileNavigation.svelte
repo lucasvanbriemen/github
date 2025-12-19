@@ -1,5 +1,5 @@
 <script>
-  let { files = [], selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
+  let { files = [], selectedFileIndex = $bindable(0), selectedFile = $bindable(null), reviewMenuOpen = $bindable(false) } = $props();
 </script>
 
 <div class="pr-navigation">
@@ -8,7 +8,7 @@
     <button onclick={() => selectedFileIndex++} class="tab-button" disabled={selectedFileIndex === files.length - 1} type="button">Next File</button>
   </div>
 
-  <button class="button-primary">Add review</button>
+  <button class="button-primary" onclick={() => reviewMenuOpen = !reviewMenuOpen}>Add review</button>
 </div>
 
 <style lang="scss">

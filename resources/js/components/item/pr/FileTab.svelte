@@ -8,6 +8,7 @@
 
   let comments = $state([]);
   let pendingReviewComments = $state([]);
+  let reviewMenuOpen = $state(false);
 
   onMount(async () => {
     const raw = item.comments.filter(c => c.type === 'review');
@@ -30,7 +31,13 @@
 </script>
 
 {#if !loadingFiles}
-  <FileNavigation {files} bind:selectedFileIndex bind:selectedFile />
+  <div class="pr-header">
+    <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen />
+
+    {#if reviewMenuOpen}
+      <ReviewPanel {item} {params} bind:pendingReviewComments />
+    {/if}
+  </div>
 {/if}
 
 <div class="pr-files">
@@ -56,8 +63,6 @@
         {/each}
       </div>
     </div>
-
-    <ReviewPanel {item} {params} bind:pendingReviewComments />
   {/if}
 </div>
 
