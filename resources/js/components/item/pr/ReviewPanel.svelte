@@ -13,49 +13,43 @@
     console.log(pendingReviewComments);
     return;
 
-    try {
-      // First, submit any pending review comments
-      const comments = [];
-      for (const pendingComment of pendingReviewComments) {
-        const lineInfo = {
-          path: pendingComment.path,
-          line: pendingComment.line_end,
-          side: pendingComment.side,
-          body: pendingComment.body,
-        };
-        comments.push(lineInfo);
-      }
-
-      // Submit review with all pending comments
-      await api.post(
-        route(`organizations.repositories.pr.review.submit`, {
-          organization,
-          repository,
-          number
-        }),
-        {
-          body: reviewBody,
-          state: state, // APPROVE, REQUEST_CHANGES, or COMMENT
-          comments: comments,
-        }
-      );
-
-      reviewBody = '';
-      pendingReviewComments = [];
-
-      // Reload item to get updated review data
-      const updatedItem = await api.get(
-        route(`organizations.repositories.item.show`, {
-          organization,
-          repository,
-          number
-        })
-      );
-
-      item.comments = updatedItem.comments;
-    } catch (error) {
-      console.error('Failed to submit review:', error);
+    const comments = [];
+    for (const pendingComment of pendingReviewComments) {
+      const lineInfo = {
+        path: pendingComment.path,
+        line: pendingComment.line_end,
+        side: pendingComment.side,
+        body: pendingComment.body,
+      };
+      comments.push(lineInfo);
     }
+
+    await api.post(
+      route(`organizations.repositories.pr.review.submit`, {
+        organization,
+        repository,
+        number
+      }),
+      {
+        body: reviewBody,
+        state: state, // APPROVE, REQUEST_CHANGES, or COMMENT
+        comments: comments,
+      }
+    );
+
+    reviewBody = '';
+    pendingReviewComments = [];
+
+    // Reload item to get updated review data
+    const updatedItem = await api.get(
+      route(`organizations.repositories.item.show`, {
+        organization,
+        repository,
+        number
+      })
+    );
+
+    item.comments = updatedItem.comments;
   }
 </script>
 
