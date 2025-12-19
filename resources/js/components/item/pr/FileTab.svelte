@@ -47,8 +47,8 @@
         {#each selectedFile.changes as hunk (hunk)}
           {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
             <div class="changed-line-pair">
-              <ChangedLine {changedLinePair} {selectedFile} {comments} {pendingReviewComments} side="LEFT" {params} />
-              <ChangedLine {changedLinePair} {selectedFile} {comments} {pendingReviewComments} side="RIGHT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} />
             </div>
           {/each}
 

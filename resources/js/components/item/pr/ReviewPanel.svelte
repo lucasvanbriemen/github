@@ -27,6 +27,9 @@
   async function submitReview(state) {
     if (submitting) return;
 
+    console.log(pendingReviewComments);
+    return;
+
     submitting = true;
     try {
       // First, submit any pending review comments

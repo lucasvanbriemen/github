@@ -4,7 +4,7 @@
   import Comment from '../../Comment.svelte';
   import Markdown from '../../Markdown.svelte';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = [], side, params } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params } = $props();
 
   let organization = params.organization;
   let repository = params.repository;
