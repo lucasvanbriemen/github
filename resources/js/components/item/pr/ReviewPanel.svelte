@@ -4,7 +4,6 @@
   let { item = {}, params = {}, pendingReviewComments = [] } = $props();
 
   let reviewBody = $state('');
-  let submitting = $state(false);
   let reviewState = $state(null);
 
   let organization = params.organization;
@@ -21,12 +20,9 @@
   });
 
   async function submitReview(state) {
-    if (submitting) return;
-
     console.log(pendingReviewComments);
     return;
 
-    submitting = true;
     try {
       // First, submit any pending review comments
       const comments = [];
@@ -70,8 +66,6 @@
       item.comments = updatedItem.comments;
     } catch (error) {
       console.error('Failed to submit review:', error);
-    } finally {
-      submitting = false;
     }
   }
 </script>
@@ -107,7 +101,6 @@
       <button
         class="button-primary button-comment"
         onclick={() => submitReview('COMMENT')}
-        disabled={submitting}
       >
         Comment
       </button>
@@ -115,7 +108,6 @@
       <button
         class="button-primary button-changes"
         onclick={() => submitReview('REQUEST_CHANGES')}
-        disabled={submitting}
       >
         Request Changes
       </button>
@@ -123,7 +115,6 @@
       <button
         class="button-primary button-approve"
         onclick={() => submitReview('APPROVE')}
-        disabled={submitting}
       >
         Approve
       </button>
@@ -219,17 +210,12 @@
       padding: 0.5rem 1rem;
       font-size: 0.9rem;
       white-space: nowrap;
-
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
     }
 
     .button-comment {
       background-color: var(--primary-color);
 
-      &:hover:not(:disabled) {
+      &:hover {
         background-color: var(--primary-color-dark);
       }
     }
@@ -237,7 +223,7 @@
     .button-changes {
       background-color: var(--error-color);
 
-      &:hover:not(:disabled) {
+      &:hover {
         background-color: #b13930;
       }
     }
@@ -245,7 +231,7 @@
     .button-approve {
       background-color: var(--success-color);
 
-      &:hover:not(:disabled) {
+      &:hover {
         background-color: #318340;
       }
     }
