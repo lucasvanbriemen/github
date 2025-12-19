@@ -10,6 +10,8 @@
   let repository = params.repository;
   let number = params.number;
 
+  let mergedComments = [...comments, ...pendingReviewComments];
+
   function prefix(type) {
     if (type === 'add') return '+';
     if (type === 'del') return '-';
@@ -41,7 +43,7 @@
       },
       details: {
         badge: 'pending',
-        state: 'have a pending review comment on',
+        state: 'commented',
       },
       created_at_human: '',
       is_pending: true,
@@ -75,7 +77,7 @@
     </div>
   </div>
 
-  {#each comments as comment (comment.id)}
+  {#each mergedComments as comment (comment.id)}
     {#if comment.path === selectedFile.filename && comment.line_end === line.number && comment.side === side.toUpperCase()}
       <Comment {comment} {params} />
     {/if}
@@ -84,16 +86,6 @@
   {#each pendingReviewComments as comment (comment.id)}
     {#if comment.path === selectedFile.filename && comment.line_end === line.number && comment.side === side.toUpperCase()}
       <Comment {comment} {params} />
-
-      <div class="pending-review-comment">
-        <div class="comment-header">
-          <span class="pending-badge">Pending</span>
-          <span class="author-name">{comment.author.display_name}</span>
-        </div>
-        <div class="comment-body">
-          <Markdown content={comment.body} canEdit={false} />
-        </div>
-      </div>
     {/if}
   {/each}
 
