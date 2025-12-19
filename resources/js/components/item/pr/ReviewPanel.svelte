@@ -11,25 +11,17 @@
 
   async function submitReview(state) {
     const comments = [];
+
     for (const pendingComment of pendingReviewComments) {
-      const lineInfo = {
-        path: pendingComment.path,
-        line: pendingComment.line_end,
-        side: pendingComment.side,
-        body: pendingComment.body,
-      };
+      let lineInfo = pendingComment;
+      lineInfo.line = pendingComment.line_end;
       comments.push(lineInfo);
     }
 
     await api.post(
-      route(`organizations.repositories.pr.review.submit`, {
-        organization,
-        repository,
-        number
-      }),
-      {
+      route(`organizations.repositories.pr.review.submit`, {organization, repository, number}), {
         body: reviewBody,
-        state: state, // APPROVE, REQUEST_CHANGES, or COMMENT
+        state: state,
         comments: comments,
       }
     );
