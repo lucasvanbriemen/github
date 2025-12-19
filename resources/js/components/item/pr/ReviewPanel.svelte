@@ -4,20 +4,10 @@
   let { item = {}, params = {}, pendingReviewComments = [] } = $props();
 
   let reviewBody = $state('');
-  let reviewState = $state(null);
 
   let organization = params.organization;
   let repository = params.repository;
   let number = params.number;
-
-  // Determine current user's review state
-  $effect(() => {
-    const reviews = item.comments?.filter(c => c.type === 'review') || [];
-    if (reviews.length > 0) {
-      const latestReview = reviews[reviews.length - 1];
-      reviewState = latestReview.details?.state || null;
-    }
-  });
 
   async function submitReview(state) {
     console.log(pendingReviewComments);
@@ -51,7 +41,6 @@
       );
 
       reviewBody = '';
-      reviewState = state;
       pendingReviewComments = [];
 
       // Reload item to get updated review data
@@ -71,9 +60,7 @@
 </script>
 
 <div class="review-panel">
-  {#if reviewState}
-    <strong>Finish your review</strong>
-  {/if}
+  <strong>Finish your review</strong>
 
   {#if pendingReviewComments.length > 0}
     <div class="pending-comments-section">
