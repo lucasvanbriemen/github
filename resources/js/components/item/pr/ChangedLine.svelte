@@ -96,8 +96,8 @@
       <Markdown isEditing={true} bind:content={line.comment} />
 
       <div class="comment-actions">
+        <button class="button-primary-outline button-review" onclick={add_to_review}>Start Review</button>
         <button class="button-primary button-post" onclick={post_comment}>Post Comment</button>
-        <button class="button-secondary button-review" onclick={add_to_review}>Start Review</button>
       </div>
     </div>
   {/if}
