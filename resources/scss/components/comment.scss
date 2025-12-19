@@ -20,6 +20,15 @@
   border: none;
   cursor: pointer;
   font-size: 14px;
+
+  .badge {
+    background-color: var(--background-color-two);
+    color: var(--text-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
 }
 
 .item-comment-header img {

@@ -44,7 +44,15 @@
 {#if showComment}
   <div class="item-comment" class:item-comment-resolved={comment.resolved}>
     <button class="item-comment-header" onclick={() => toggleItemComment(comment)}>
-      <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+
+      {#if comment.details?.badge}
+        <span class="badge">{comment.details?.badge}</span>
+      {/if}
+
+      {#if comment.author?.avatar_url}
+        <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+      {/if}
+
       <span>{commentHeaderText()}</span>
     </button>
 

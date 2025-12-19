@@ -39,7 +39,11 @@
         display_name: 'You',
         avatar_url: '',
       },
-      created_at_human: 'pending...',
+      details: {
+        badge: 'pending',
+        state: 'have a pending review comment on',
+      },
+      created_at_human: '',
       is_pending: true,
     };
     pendingReviewComments = [...pendingReviewComments, reviewComment];
@@ -79,6 +83,8 @@
 
   {#each pendingReviewComments as comment (comment.id)}
     {#if comment.path === selectedFile.filename && comment.line_end === line.number && comment.side === side.toUpperCase()}
+      <Comment {comment} {params} />
+
       <div class="pending-review-comment">
         <div class="comment-header">
           <span class="pending-badge">Pending</span>
