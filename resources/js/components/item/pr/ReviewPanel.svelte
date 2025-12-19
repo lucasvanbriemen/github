@@ -76,26 +76,9 @@
     <Markdown bind:content={reviewBody} isEditing={true} placeholder="Add a review comment..." />
 
     <div class="review-actions">
-      <button
-        class="button-primary button-comment"
-        onclick={() => submitReview('COMMENT')}
-      >
-        Comment
-      </button>
-
-      <button
-        class="button-primary button-changes"
-        onclick={() => submitReview('REQUEST_CHANGES')}
-      >
-        Request Changes
-      </button>
-
-      <button
-        class="button-primary button-approve"
-        onclick={() => submitReview('APPROVE')}
-      >
-        Approve
-      </button>
+      <button class="button-primary button-comment" onclick={() => submitReview('COMMENT')}>Comment</button>
+      <button class="button-primary button-changes" onclick={() => submitReview('REQUEST_CHANGES')}>Request Changes</button>
+      <button class="button-primary button-approve" onclick={() => submitReview('APPROVE')}>Approve</button>
     </div>
   </div>
 </div>
