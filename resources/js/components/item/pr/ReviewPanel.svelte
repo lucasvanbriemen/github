@@ -28,17 +28,6 @@
 
     reviewBody = '';
     pendingReviewComments = [];
-
-    // Reload item to get updated review data
-    const updatedItem = await api.get(
-      route(`organizations.repositories.item.show`, {
-        organization,
-        repository,
-        number
-      })
-    );
-
-    item.comments = updatedItem.comments;
   }
 </script>
 

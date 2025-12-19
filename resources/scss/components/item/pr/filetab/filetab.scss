@@ -83,7 +83,7 @@
           }
         }
 
-        :global(.side-wrapper:has(.item-comment, .pending-review-comment)) {
+        :global(.side-wrapper:has(.item-comment)) {
           flex-direction: column;
 
           :global(.item-comment) {
