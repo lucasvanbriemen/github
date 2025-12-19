@@ -23,6 +23,13 @@
     // Create a local, non-mutating copy of comments without diff_hunk to avoid
     // altering the shared item object used by the Conversation tab.
     comments = comments.map(c => ({ ...c, diff_hunk: undefined }));
+
+    // if we click outside the review panel, close it
+    document.addEventListener('click', e => {
+      if (!reviewMenuOpen) return;
+      if (e.target.closest('.pr-header')) return;
+      reviewMenuOpen = false;
+    });
   });
 
   $effect(() => {
