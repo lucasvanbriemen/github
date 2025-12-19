@@ -32,7 +32,7 @@
 
   function add_to_review() {
     const reviewComment = {
-      id: Math.random(), // Temporary ID for local state
+      id: Math.random(),
       path: selectedFile.filename,
       line_end: line.number,
       side: side.toUpperCase(),
@@ -45,8 +45,7 @@
         badge: 'pending',
         state: 'commented',
       },
-      created_at_human: '',
-      is_pending: true,
+      created_at_human: ''
     };
     pendingReviewComments = [...pendingReviewComments, reviewComment];
     line.comment = '';

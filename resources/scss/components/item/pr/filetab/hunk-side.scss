@@ -141,40 +141,6 @@
   }
 }
 
-.pending-review-comment {
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  background: #f0f8ff;
-  border-left: 3px solid #0969da;
-  border-radius: 4px;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.pending-badge {
-  background: #0969da;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.author-name {
-  color: #666;
-  font-weight: 500;
-}
-
-.comment-body {
-  font-size: 0.95rem;
-}
-
 .comment-actions {
   display: flex;
   gap: 0.5rem;
