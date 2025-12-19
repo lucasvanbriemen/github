@@ -20,10 +20,6 @@
     }
   });
 
-  function removePendingComment(id) {
-    pendingReviewComments = pendingReviewComments.filter(c => c.id !== id);
-  }
-
   async function submitReview(state) {
     if (submitting) return;
 
@@ -78,26 +74,11 @@
       submitting = false;
     }
   }
-
-  function getReviewStateColor(state) {
-    switch(state) {
-      case 'APPROVE':
-        return 'text-green-600';
-      case 'REQUEST_CHANGES':
-        return 'text-red-600';
-      case 'COMMENT':
-        return 'text-blue-600';
-      default:
-        return '';
-    }
-  }
 </script>
 
 <div class="review-panel">
   {#if reviewState}
-    <div class="review-state {getReviewStateColor(reviewState)}">
-      <strong>You {reviewState === 'APPROVE' ? 'APPROVE' : reviewState === 'REQUEST_CHANGES' ? 'requested changes' : 'commented on'} this PR</strong>
-    </div>
+    <strong>Finish your review</strong>
   {/if}
 
   {#if pendingReviewComments.length > 0}
@@ -109,7 +90,6 @@
             <div class="comment-meta">
               <span class="file-path">{comment.path}</span>
               <span class="line-number">Line {comment.line_end}</span>
-              <button class="remove-button" onclick={() => removePendingComment(comment.id)} title="Remove comment">✕</button>
             </div>
             <div class="comment-preview">
               <Markdown content={comment.body} canEdit={false} />
@@ -164,6 +144,10 @@
     border-radius: 6px;
     width: 50%;
     z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .review-state {
