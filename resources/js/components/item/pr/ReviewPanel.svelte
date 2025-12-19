@@ -10,9 +10,6 @@
   let number = params.number;
 
   async function submitReview(state) {
-    console.log(pendingReviewComments);
-    return;
-
     const comments = [];
     for (const pendingComment of pendingReviewComments) {
       const lineInfo = {
