@@ -153,11 +153,17 @@
 
 <style lang="scss">
   .review-panel {
+    position: absolute;
+    right: 1rem;
+    top: 1.25rem;
+
     margin: 1.5rem 0;
     padding: 1rem;
-    background: var(--bg-secondary);
+    background: var(--background-color-two);
     border: 1px solid var(--border-color);
     border-radius: 6px;
+    width: 50%;
+    z-index: 10;
   }
 
   .review-state {
