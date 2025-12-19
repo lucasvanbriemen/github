@@ -2,6 +2,7 @@
   import { onMount, untrack } from 'svelte';
   import Markdown from '../Markdown.svelte';
   import Comment from '../Comment.svelte';
+  import ReviewPanel from './pr/ReviewPanel.svelte';
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
@@ -49,6 +50,8 @@
 {#each item.comments as comment}
   <Comment {comment} {params} />
 {/each}
+
+<ReviewPanel {item} {params} />
 
 <Markdown bind:content={issueComment} isEditing={true} />
 <button class="button-primary" onclick={post_comment}>Post Comment</button>

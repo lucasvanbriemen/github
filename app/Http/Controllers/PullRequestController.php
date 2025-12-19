@@ -179,4 +179,41 @@ class PullRequestController extends Controller
             'removed' => $toBeRemoved,
         ]);
     }
+
+    public function submitReview($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+        ->where('number', $number)
+        ->firstOrFail();
+
+        $data = request()->validate([
+            'body' => 'nullable|string',
+            'state' => 'required|in:APPROVE,REQUEST_CHANGES,COMMENT',
+            'comments' => 'nullable|array',
+            'comments.*.path' => 'required|string',
+            'comments.*.line' => 'required|integer',
+            'comments.*.side' => 'required|in:LEFT,RIGHT',
+            'comments.*.body' => 'required|string',
+        ]);
+
+        $commitSha = $item->getLatestCommitSha();
+
+        $payload = [
+            'body' => $data['body'] ?? '',
+            'event' => $data['state'],
+            'commit_id' => $commitSha,
+        ];
+
+        // Add review comments if provided
+        if (!empty($data['comments'])) {
+            $payload['comments'] = $data['comments'];
+        }
+
+        GitHub::pullRequests()->reviews()->create($organizationName, $repositoryName, $number, $payload);
+
+        // Return success, webhook will sync the review data
+        return response()->json(['success' => true], 200);
+    }
 }

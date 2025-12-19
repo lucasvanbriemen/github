@@ -2,10 +2,12 @@
   import { onMount } from 'svelte';
   import FileNavigation from './FileNavigation.svelte';
   import ChangedLine from './ChangedLine.svelte';
+  import ReviewPanel from './ReviewPanel.svelte';
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
 
   let comments = $state([]);
+  let pendingReviewComments = $state([]);
 
   onMount(async () => {
     const raw = item.comments.filter(c => c.type === 'review');
@@ -45,8 +47,8 @@
         {#each selectedFile.changes as hunk (hunk)}
           {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
             <div class="changed-line-pair">
-              <ChangedLine {changedLinePair} {selectedFile} {comments} side="LEFT" {params} />
-              <ChangedLine {changedLinePair} {selectedFile} {comments} side="RIGHT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} {pendingReviewComments} side="LEFT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} {pendingReviewComments} side="RIGHT" {params} />
             </div>
           {/each}
 
@@ -54,6 +56,8 @@
         {/each}
       </div>
     </div>
+
+    <ReviewPanel {item} {params} bind:pendingReviewComments />
   {/if}
 </div>
 
