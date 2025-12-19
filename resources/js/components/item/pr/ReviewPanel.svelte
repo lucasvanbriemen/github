@@ -171,20 +171,18 @@
     margin-bottom: 1rem;
     border-radius: 4px;
     font-size: 0.95rem;
-    background: rgba(0, 0, 0, 0.05);
   }
 
   .pending-comments-section {
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #f6f8fa;
-    border: 1px solid #d1d9e0;
+    background: var(--background-color-one);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
 
     h4 {
       margin: 0 0 0.75rem 0;
       font-size: 0.95rem;
-      color: #24292f;
     }
   }
 
@@ -195,8 +193,8 @@
   }
 
   .pending-comment-item {
-    background: white;
-    border: 1px solid #d1d9e0;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 0.75rem;
   }
@@ -207,19 +205,14 @@
     gap: 0.75rem;
     margin-bottom: 0.5rem;
     font-size: 0.85rem;
-    color: #666;
   }
 
   .file-path {
-    background: #f0f0f0;
+    background: var(--background-color-two);
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
     font-family: monospace;
     font-size: 0.8rem;
-  }
-
-  .line-number {
-    color: #999;
   }
 
   .remove-button {
