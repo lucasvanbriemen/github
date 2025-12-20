@@ -39,8 +39,8 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
             ]
         );
 
-        if ($workflow->head_commit) {
-            Commit::whereIn('sha', collect($workflow->head_commit)->pluck('id'))
+        if ($workflow->head_sha) {
+            Commit::whereIn('sha', collect($workflow->head_sha)->pluck('id'))
                 ->update(['workflow_id' => $workflow->id]);
         }
 
