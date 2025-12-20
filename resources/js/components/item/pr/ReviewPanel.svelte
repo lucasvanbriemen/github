@@ -33,17 +33,17 @@
 </script>
 
 <div class="review-panel">
-    {#each pendingReviewComments as comment (comment.id)}
-      <Comment {comment} {params} />
-    {/each}
+  {#each pendingReviewComments as comment (comment.id)}
+    <Comment {comment} {params} />
+  {/each}
 
-    <Markdown bind:content={reviewBody} isEditing={true} />
+  <Markdown bind:content={reviewBody} isEditing={true} />
 
-    <div class="review-actions">
-      <button class="button-primary button-comment" onclick={() => submitReview('COMMENT')}>Comment</button>
-      <button class="button-primary button-changes" onclick={() => submitReview('REQUEST_CHANGES')}>Request Changes</button>
-      <button class="button-primary button-approve" onclick={() => submitReview('APPROVE')}>Approve</button>
-    </div>
+  <div class="review-actions">
+    <button class="button-primary button-comment" onclick={() => submitReview('COMMENT')}>Comment</button>
+    <button class="button-primary button-changes" onclick={() => submitReview('REQUEST_CHANGES')}>Request Changes</button>
+    <button class="button-primary button-approve" onclick={() => submitReview('APPROVE')}>Approve</button>
+  </div>
 </div>
 
 <style lang="scss">
