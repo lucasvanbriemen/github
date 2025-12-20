@@ -10,6 +10,11 @@ class Commit extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    public function workflow()
+    {
+        return $this->hasOne(Workflow::class, 'id', 'workflow_id');
+    }
+
     protected $fillable = [
         'sha',
         'repository_id',
