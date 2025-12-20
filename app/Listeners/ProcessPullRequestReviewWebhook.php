@@ -59,61 +59,69 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         );
 
         // We also need to create/update RequestedReviewer (since thats how we show reviews in the UI sidebar)
-        // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED OR APPROVED
-        // A CHANGES_REQUESTED review blocks the PR until the reviewer APPROVEs
-        // Also: If someone is in requested_reviewers, they're PENDING (their review was dismissed or they were re-requested)
+        // RequestedReviewer tracks the review state for display purposes and determines if a PR is blocked
         $existingReviewer = RequestedReviewer::where('pull_request_id', $prData->id)
             ->where('user_id', $userData->id)
             ->first();
 
-        $last_state_before_dismiss = null;
         $incomingState = strtolower($reviewData->state);
         $stateToStore = $incomingState;
+        $updateData = [];
 
-        // Check if this user is in the PR's requested_reviewers list
-        $isInRequestedReviewers = collect($prData->requested_reviewers ?? [])->pluck('id')->contains($userData->id);
+        /**
+         * GitHub Review State Management
+         *
+         * GitHub has two "blocking" (absolute answer) states:
+         * - 'approved': PR can be merged
+         * - 'changes_requested': PR cannot be merged until this is cleared
+         *
+         * And two non-blocking states:
+         * - 'commented': Reviewer just left a comment, doesn't block
+         * - 'dismissed': Review was explicitly dismissed by PR author, becomes pending
+         *
+         * Key principle: Once a blocking state is set, it should persist through
+         * dismissals and comments until explicitly cleared or overwritten.
+         *
+         * Example flow that we must handle:
+         * 1. Reviewer requests changes → state = 'changes_requested'
+         * 2. PR author dismisses the review → state = 'pending', last_state_before_dismiss = 'changes_requested'
+         * 3. Reviewer comments on dismissed review → state should REVERT to 'changes_requested'
+         *    (This is GitHub's behavior - blocking states can't be cleared by just commenting)
+         */
 
-        // Track data to update
-        $updateData = ['state' => $incomingState];
-
-        if ($existingReviewer) {
-            $last_state_before_dismiss = $existingReviewer->state;
-        }
-
-        // Match GitHub's behavior:
-        // - If dismissed, save previous state and set to pending
-        // - If commenting, check if there's a blocking state (original or previous)
-        // - If re-requested, they go back to pending
         if ($incomingState === 'dismissed') {
-            // Save the current state before dismissal so we can restore it later
-            $stateToStore = 'pending';
-            $updateData['state'] = 'pending';
-        } elseif ($incomingState === 'commented') {
-            // If they have a blocking state (either current or from before dismissal), maintain it
+            // When a review is dismissed:
+            // - Save what state it had before dismissal (could be 'approved' or 'changes_requested')
+            // - Set the current state to 'pending' (user is back in the requested_reviewers list)
+            // - This allows us to restore the previous blocking state if they comment later
             if ($existingReviewer) {
-                // Check if they had a blocking state before dismissal
-                if (in_array($existingReviewer->last_state_before_dismiss, PullRequestReview::ABSOLUTE_ANSWERS)) {
-                    // Restore the blocking state instead of changing to commented
-                    $incomingState = $existingReviewer->last_state_before_dismiss;
-                    $updateData['state'] = $incomingState;
-                } elseif (in_array($existingReviewer->state, PullRequestReview::ABSOLUTE_ANSWERS)) {
-                    // They have a blocking state currently, don't let comment overwrite it
-                    $updateData['state'] = $existingReviewer->state;
-                } else {
-                    // No blocking state, allow the comment
-                    $updateData['state'] = 'commented';
-                }
-            } else {
-                // No existing reviewer, just set to commented
-                $updateData['state'] = 'commented';
+                $updateData['last_state_before_dismiss'] = $existingReviewer->state;
             }
-        } elseif ($isInRequestedReviewers && $incomingState !== 'commented') {
-            // Only force pending if not commenting and in requested_reviewers
-            $incomingState = 'pending';
-            $updateData['state'] = 'pending';
+            $stateToStore = 'pending';
+        } elseif ($incomingState === 'commented' && $existingReviewer) {
+            // When reviewer comments on their review:
+            // Check if they had a blocking state before dismissal
+            if (in_array($existingReviewer->last_state_before_dismiss, PullRequestReview::ABSOLUTE_ANSWERS)) {
+                // FALLBACK: Restore the blocking state that existed before dismissal
+                // This matches GitHub's behavior exactly - you can't clear a blocking review just by commenting
+                $stateToStore = $existingReviewer->last_state_before_dismiss;
+                // Clear the saved state since we've now restored it
+                $updateData['last_state_before_dismiss'] = null;
+            } elseif (in_array($existingReviewer->state, PullRequestReview::ABSOLUTE_ANSWERS)) {
+                // PRESERVE BLOCK: They currently have a blocking state (not from dismissal)
+                // Don't let comments overwrite it - maintain the blocking state
+                $stateToStore = $existingReviewer->state;
+            } else {
+                // NO BLOCK: No blocking states exist, so allow the comment to stand
+                $updateData['last_state_before_dismiss'] = null;
+            }
+        } elseif (in_array($incomingState, PullRequestReview::ABSOLUTE_ANSWERS)) {
+            // When submitting a new blocking review (approval or changes_requested):
+            // Clear any "saved state from dismissal" since this is a fresh review
+            // The new blocking state is what matters now
+            $updateData['last_state_before_dismiss'] = null;
         }
 
-        $updateData['last_state_before_dismiss'] = $last_state_before_dismiss;
         $updateData['state'] = $stateToStore;
 
         RequestedReviewer::updateOrCreate(
