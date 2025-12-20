@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('workflows', function (Blueprint $table) {
+        Schema::table('workflows', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('name');
             $table->string('state')->default('queued');
+            $table->string('conclusion')->nullable();
         });
 
         Schema::create('workflow_jobs', function (Blueprint $table) {
