@@ -43,18 +43,18 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         $baseComment = BaseComment::updateOrCreate(
             ['comment_id' => $reviewData->id, 'type' => 'review'],
             [
-                'issue_id' => $prData->id,
-                'user_id' => $userData->id,
-                'body' => $reviewData->body ?? '',
-                'type' => 'review',
+            'issue_id' => $prData->id,
+            'user_id' => $userData->id,
+            'body' => $reviewData->body ?? '',
+            'type' => 'review',
             ]
         );
 
-        $pullRequestReview = PullRequestReview::updateOrCreate(
+        PullRequestReview::updateOrCreate(
             ['id' => $reviewData->id],
             [
-                'base_comment_id' => $baseComment->id,
-                'state' => $reviewData->state,
+            'base_comment_id' => $baseComment->id,
+            'state' => $reviewData->state,
             ]
         );
 
@@ -62,55 +62,67 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         // BUT: Don't let COMMENTED overwrite CHANGES_REQUESTED OR APPROVED
         // A CHANGES_REQUESTED review blocks the PR until the reviewer APPROVEs
         // Also: If someone is in requested_reviewers, they're PENDING (their review was dismissed or they were re-requested)
-
         $existingReviewer = RequestedReviewer::where('pull_request_id', $prData->id)
             ->where('user_id', $userData->id)
             ->first();
 
-        $newState = strtolower($reviewData->state);
+        $last_state_before_dismiss = null;
+        $incomingState = strtolower($reviewData->state);
+        $stateToStore = $incomingState;
 
         // Check if this user is in the PR's requested_reviewers list
         $isInRequestedReviewers = collect($prData->requested_reviewers ?? [])->pluck('id')->contains($userData->id);
 
+        // Track data to update
+        $updateData = ['state' => $incomingState];
+
+        if ($existingReviewer) {
+            $last_state_before_dismiss = $existingReviewer->state;
+        }
+
         // Match GitHub's behavior:
-        // - If dismissed or re-requested, they go back to pending
-        // - If commenting while pending, allow the state to be commented
-        // - If they have an existing blocking state, don't let comments clear it
-        if ($newState === 'dismissed') {
-            $newState = 'pending';
-        } elseif ($isInRequestedReviewers && $newState !== 'commented') {
-            // Only force pending if not commenting (comment should update the state)
-            $newState = 'pending';
-        }
-
-        $shouldUpdate = true;
-
-        // If they previously requested changes, only update if the new state clears or updates the block
-        if ($existingReviewer && $existingReviewer->state === 'changes_requested') {
-            // Don't let commented state overwrite changes_requested
-            if ($newState === 'commented') {
-                $shouldUpdate = false;
+        // - If dismissed, save previous state and set to pending
+        // - If commenting, check if there's a blocking state (original or previous)
+        // - If re-requested, they go back to pending
+        if ($incomingState === 'dismissed') {
+            // Save the current state before dismissal so we can restore it later
+            $stateToStore = 'pending';
+            $updateData['state'] = 'pending';
+        } elseif ($incomingState === 'commented') {
+            // If they have a blocking state (either current or from before dismissal), maintain it
+            if ($existingReviewer) {
+                // Check if they had a blocking state before dismissal
+                if (in_array($existingReviewer->last_state_before_dismiss, PullRequestReview::ABSOLUTE_ANSWERS)) {
+                    // Restore the blocking state instead of changing to commented
+                    $incomingState = $existingReviewer->last_state_before_dismiss;
+                    $updateData['state'] = $incomingState;
+                } elseif (in_array($existingReviewer->state, PullRequestReview::ABSOLUTE_ANSWERS)) {
+                    // They have a blocking state currently, don't let comment overwrite it
+                    $updateData['state'] = $existingReviewer->state;
+                } else {
+                    // No blocking state, allow the comment
+                    $updateData['state'] = 'commented';
+                }
+            } else {
+                // No existing reviewer, just set to commented
+                $updateData['state'] = 'commented';
             }
+        } elseif ($isInRequestedReviewers && $incomingState !== 'commented') {
+            // Only force pending if not commenting and in requested_reviewers
+            $incomingState = 'pending';
+            $updateData['state'] = 'pending';
         }
 
-        // Similarly, don't let commented overwrite approved
-        if ($existingReviewer && $existingReviewer->state === 'approved') {
-            if ($newState === 'commented') {
-                $shouldUpdate = false;
-            }
-        }
+        $updateData['last_state_before_dismiss'] = $last_state_before_dismiss;
+        $updateData['state'] = $stateToStore;
 
-        if ($shouldUpdate) {
-            RequestedReviewer::updateOrCreate(
-                [
-                    'pull_request_id' => $prData->id,
-                    'user_id' => $userData->id,
-                ],
-                [
-                    'state' => $newState,
-                ]
-            );
-        }
+        RequestedReviewer::updateOrCreate(
+            [
+                'pull_request_id' => $prData->id,
+                'user_id' => $userData->id,
+            ],
+            $updateData
+        );
 
         return true;
     }

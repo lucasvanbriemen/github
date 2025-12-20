@@ -7,6 +7,8 @@ use App\Models\BaseComment;
 
 class PullRequestReview extends BaseComment
 {
+    public const ABSOLUTE_ANSWERS = ['approved', 'changes_requested'];
+
     protected $table = 'pull_request_reviews';
 
     protected $keyType = 'int';
