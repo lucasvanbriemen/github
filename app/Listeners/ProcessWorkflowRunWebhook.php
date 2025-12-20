@@ -3,11 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\WorkflowRunWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Commit;
-use App\Models\GithubUser;
-use App\Models\Branch;
-use App\Models\Repository;
+use App\Models\Workflow;
 
 class ProcessWorkflowRunWebhook // implements ShouldQueue
 {
@@ -25,5 +22,26 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
     public function handle(WorkflowRunWebhookReceived $event)
     {
         $payload = $event->payload;
+
+        $workflow = $payload->workflow_run;
+
+        if ($workflow->event !== 'push' && $workflow->event !== 'pull_request') {
+            return;
+        }
+
+        $id = $workflow->id;
+        $name = $workflow->name;
+        $state = $workflow->status;
+        $conclusion = $workflow->conclusion;
+
+        $workflow = Workflow::create([
+            'id' => $id,
+            'name' => $name,
+            'state' => $state,
+            'conclusion' => $conclusion
+        ]);
+
+        Commit::whereIn('sha', collect($workflow->head_commit)->pluck('id'))
+            ->update(['workflow_id' => $workflow->id]);
     }
 }
