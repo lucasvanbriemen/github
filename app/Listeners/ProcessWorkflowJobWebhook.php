@@ -8,6 +8,7 @@ use App\Models\Commit;
 use App\Models\GithubUser;
 use App\Models\Branch;
 use App\Models\WorkflowJob;
+use App\Models\Workflow;
 use App\Models\Repository;
 
 class ProcessWorkflowJobWebhook // implements ShouldQueue
@@ -35,6 +36,22 @@ class ProcessWorkflowJobWebhook // implements ShouldQueue
         $name = $job->name;
         $steps = json_encode($job->steps);
 
+        $workflow = Workflow::find($workflow_id);
+        if (!$workflow) {
+            return;
+        }
 
+        WorkflowJob::updateOrCreate(
+            [
+                'id' => $job->id
+            ],
+            [
+                'workflow_id' => $workflow_id,
+                'name' => $name,
+                'steps' => $steps,
+                'state' => $state,
+                'conclusion' => $conclusion
+            ]
+        );
     }
 }
