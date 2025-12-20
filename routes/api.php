@@ -60,6 +60,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
             ->name('organizations.repositories.pr.add.reviewers');
 
+        Route::post('/pr/{number}/review', [PullRequestController::class, 'submitReview'])
+            ->name('organizations.repositories.pr.review.submit');
+
         Route::post('/issue/create', [ItemController::class, 'create'])
             ->name('organizations.repositories.issues.create');
     });

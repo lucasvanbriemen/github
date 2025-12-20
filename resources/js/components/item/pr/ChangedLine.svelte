@@ -4,11 +4,13 @@
   import Comment from '../../Comment.svelte';
   import Markdown from '../../Markdown.svelte';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], side, params } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params } = $props();
 
   let organization = params.organization;
   let repository = params.repository;
   let number = params.number;
+
+  let mergedComments = [...comments, ...pendingReviewComments];
 
   function prefix(type) {
     if (type === 'add') return '+';
@@ -26,6 +28,30 @@
       line.comment = '';
       line.addingComment = false;
     });
+  }
+
+  function add_to_review() {
+    if (line.comment == "") return;
+
+    const reviewComment = {
+      id: Math.random(),
+      path: selectedFile.filename,
+      line_end: line.number,
+      side: side.toUpperCase(),
+      body: line.comment,
+      author: {
+        display_name: 'You',
+        avatar_url: '',
+      },
+      details: {
+        badge: 'pending',
+        state: 'commented',
+      },
+      created_at_human: ''
+    };
+    pendingReviewComments = [...pendingReviewComments, reviewComment];
+    line.comment = '';
+    line.addingComment = false;
   }
 
   const line = changedLinePair[side.toLowerCase()];
@@ -52,17 +78,26 @@
     </div>
   </div>
 
-  {#each comments as comment (comment.id)}
+  {#each mergedComments as comment (comment.id)}
     {#if comment.path === selectedFile.filename && comment.line_end === line.number && comment.side === side.toUpperCase()}
-      <Comment {comment} />
+      <Comment {comment} {params} />
+    {/if}
+  {/each}
+
+  {#each pendingReviewComments as comment (comment.id)}
+    {#if comment.path === selectedFile.filename && comment.line_end === line.number && comment.side === side.toUpperCase()}
+      <Comment {comment} {params} />
     {/if}
   {/each}
 
   {#if line.type !== 'empty' && prefix(line.type) !== '  ' && line.addingComment}
-    <div class="add-comment-wrapper">  
+    <div class="add-comment-wrapper">
       <Markdown isEditing={true} bind:content={line.comment} />
 
-      <button class="button-primary" onclick={post_comment}>Post Comment</button>
+      <div class="comment-actions">
+        <button class="button-primary-outline button-review" onclick={add_to_review}>Start Review</button>
+        <button class="button-primary button-post" onclick={post_comment}>Post Comment</button>
+      </div>
     </div>
   {/if}
 </div>

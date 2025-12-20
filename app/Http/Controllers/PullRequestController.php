@@ -179,4 +179,27 @@ class PullRequestController extends Controller
             'removed' => $toBeRemoved,
         ]);
     }
+
+    public function submitReview($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $commitSha = $item->getLatestCommitSha();
+
+        $payload = [
+            'body' => request()->input('body', ''),
+            'event' => request()->input('state'),
+            'comments' => request()->input('comments', []),
+            'commit_id' => $commitSha,
+        ];
+
+        GitHub::pullRequests()->reviews()->create($organizationName, $repositoryName, $number, $payload);
+
+        // Return success, webhook will sync the review data
+        return response()->json(['success' => true], 200);
+    }
 }

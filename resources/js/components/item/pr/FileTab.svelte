@@ -2,10 +2,13 @@
   import { onMount } from 'svelte';
   import FileNavigation from './FileNavigation.svelte';
   import ChangedLine from './ChangedLine.svelte';
+  import ReviewPanel from './ReviewPanel.svelte';
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
 
   let comments = $state([]);
+  let pendingReviewComments = $state([]);
+  let reviewMenuOpen = $state(false);
 
   onMount(async () => {
     const raw = item.comments.filter(c => c.type === 'review');
@@ -20,6 +23,13 @@
     // Create a local, non-mutating copy of comments without diff_hunk to avoid
     // altering the shared item object used by the Conversation tab.
     comments = comments.map(c => ({ ...c, diff_hunk: undefined }));
+
+    // if we click outside the review panel, close it
+    document.addEventListener('click', e => {
+      if (!reviewMenuOpen) return;
+      if (e.target.closest('.pr-header')) return;
+      reviewMenuOpen = false;
+    });
   });
 
   $effect(() => {
@@ -28,7 +38,13 @@
 </script>
 
 {#if !loadingFiles}
-  <FileNavigation {files} bind:selectedFileIndex bind:selectedFile />
+  <div class="pr-header">
+    <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen />
+
+    {#if reviewMenuOpen}
+      <ReviewPanel {item} {params} bind:pendingReviewComments bind:reviewMenuOpen />
+    {/if}
+  </div>
 {/if}
 
 <div class="pr-files">
@@ -45,8 +61,8 @@
         {#each selectedFile.changes as hunk (hunk)}
           {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
             <div class="changed-line-pair">
-              <ChangedLine {changedLinePair} {selectedFile} {comments} side="LEFT" {params} />
-              <ChangedLine {changedLinePair} {selectedFile} {comments} side="RIGHT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} />
             </div>
           {/each}
 
