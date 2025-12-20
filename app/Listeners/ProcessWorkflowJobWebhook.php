@@ -36,11 +36,6 @@ class ProcessWorkflowJobWebhook // implements ShouldQueue
         $name = $job->name;
         $steps = json_encode($job->steps);
 
-        $workflow = Workflow::find($workflow_id);
-        if (!$workflow) {
-            return;
-        }
-
         WorkflowJob::updateOrCreate(
             [
                 'id' => $job->id

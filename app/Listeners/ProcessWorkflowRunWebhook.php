@@ -25,10 +25,7 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
 
         $workflow = $payload->workflow_run;
 
-        if ($workflow->event !== 'push' && $workflow->event !== 'pull_request') {
-            return;
-        }
-
+        
         $id = $workflow->id;
         $name = $workflow->name;
         $state = $workflow->status;
@@ -41,7 +38,11 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
             'conclusion' => $conclusion
         ]);
 
-        Commit::whereIn('sha', collect($workflow->head_commit)->pluck('id'))
+        if ($workflow->event == 'push' && $workflow->event == 'pull_request') {
+            Commit::whereIn('sha', collect($workflow->head_commit)->pluck('id'))
             ->update(['workflow_id' => $workflow->id]);
+        }
+
+        return true;
     }
 }

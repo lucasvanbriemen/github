@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkflowJob extends Model
 {
-    public $incrementing = true;
+    public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'workflow_id',
         'name',
         'steps',
