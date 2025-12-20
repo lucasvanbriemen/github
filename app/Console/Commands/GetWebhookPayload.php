@@ -17,7 +17,7 @@ class GetWebhookPayload extends Command
      *  php artisan webhooks:replay 123        # replay specific id
      *  php artisan webhooks:replay --dry-run  # show what would run
      */
-    protected $signature = 'webhooks:get-payload {id : Get payload of a specific webhook id} {output : where to put the json}';
+    protected $signature = 'webhooks:get-payload {id : Get payload of a specific webhook id} {output? : where to put the json}';
 
     /**
      * The console command description.
@@ -28,6 +28,11 @@ class GetWebhookPayload extends Command
     {
         $id = $this->argument('id');
         $output = $this->argument('output');
+
+        // If there is no ouput it bemes the id
+        if (!$output) {
+            $output = $id;
+        }
 
         $webhook = IncommingWebhook::find($id);
         if (!$webhook) {
