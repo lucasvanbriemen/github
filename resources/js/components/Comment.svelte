@@ -18,10 +18,10 @@
 
   function commentHeaderText() {
     if (comment.type === 'issue' || comment.type === 'code') {
-      return comment.author.display_name + ' commented  ' + comment.created_at_human;
+      return comment.author?.display_name + ' commented  ' + comment.created_at_human;
     }
 
-    return comment.author.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
+    return comment.author?.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
   }
 
   // If the body is empty and there are no child comments, we don't want to show the comment
@@ -44,7 +44,15 @@
 {#if showComment}
   <div class="item-comment" class:item-comment-resolved={comment.resolved}>
     <button class="item-comment-header" onclick={() => toggleItemComment(comment)}>
-      <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+
+      {#if comment.details?.badge}
+        <span class="badge">{comment.details?.badge}</span>
+      {/if}
+
+      {#if comment.author?.avatar_url}
+        <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+      {/if}
+
       <span>{commentHeaderText()}</span>
     </button>
 
