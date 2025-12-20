@@ -29,6 +29,7 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
         $name = $workflow->name;
         $state = $workflow->status;
         $conclusion = $workflow->conclusion;
+        $head_sha = $workflow->head_sha ?? null;
 
         $workflow = Workflow::updateOrCreate(
             ['id' => $id],
@@ -39,9 +40,8 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
             ]
         );
 
-        if ($workflow->head_sha) {
-            Commit::whereIn('sha', collect($workflow->head_sha)->pluck('id'))
-                ->update(['workflow_id' => $workflow->id]);
+        if ($head_sha) {
+            Commit::where('sha', $head_sha)->update(['workflow_id' => $workflow->id]);
         }
 
         return true;

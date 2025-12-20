@@ -35,6 +35,7 @@ class ProcessWorkflowJobWebhook // implements ShouldQueue
         $conclusion = $job->conclusion;
         $name = $job->name;
         $steps = json_encode($job->steps);
+        $head_sha = $job->head_sha ?? null;
 
         WorkflowJob::updateOrCreate(
             [
@@ -48,5 +49,9 @@ class ProcessWorkflowJobWebhook // implements ShouldQueue
                 'conclusion' => $conclusion
             ]
         );
+
+        if ($head_sha) {
+            Commit::where('sha', $head_sha)->update(['workflow_id' => $workflow_id]);
+        }
     }
 }

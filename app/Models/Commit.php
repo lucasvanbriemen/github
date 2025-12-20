@@ -16,5 +16,6 @@ class Commit extends Model
         'branch_id',
         'user_id',
         'message',
+        'workflow_id',
     ];
 }
