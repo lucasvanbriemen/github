@@ -113,9 +113,7 @@ class ItemController extends Controller
 
             // Load the latest commit with workflow information
             $latestSha = $item->getLatestCommitSha();
-            $latestCommit = Commit::where('sha', $latestSha)
-                ->with('workflow')
-                ->first();
+            $latestCommit = Commit::where('sha', $latestSha)->with('workflow')->first();
             $item->latest_commit = $latestCommit;
         }
 
