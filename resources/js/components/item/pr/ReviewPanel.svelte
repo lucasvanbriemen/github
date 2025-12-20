@@ -1,7 +1,7 @@
 <script>
   import Markdown from '../../Markdown.svelte';
 
-  let { item = {}, params = {}, pendingReviewComments = [] } = $props();
+  let { params = {}, pendingReviewComments = [] } = $props();
 
   let reviewBody = $state('');
 
@@ -65,117 +65,5 @@
 </div>
 
 <style lang="scss">
-  .review-panel {
-    position: absolute;
-    right: 1rem;
-    top: 1.25rem;
-
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background: var(--background-color-two);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    width: 50%;
-    z-index: 10;
-
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .review-state {
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    font-size: 0.95rem;
-  }
-
-  .pending-comments-section {
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: var(--background-color-one);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-
-    h4 {
-      margin: 0 0 0.75rem 0;
-      font-size: 0.95rem;
-    }
-  }
-
-  .pending-comments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .pending-comment-item {
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 0.75rem;
-  }
-
-  .comment-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .file-path {
-    background: var(--background-color-two);
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    font-family: monospace;
-    font-size: 0.8rem;
-  }
-  .comment-preview {
-    font-size: 0.9rem;
-  }
-
-  .review-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .review-actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-
-    button {
-      flex: 1;
-      min-width: 120px;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      white-space: nowrap;
-    }
-
-    .button-comment {
-      background-color: var(--primary-color);
-
-      &:hover {
-        background-color: var(--primary-color-dark);
-      }
-    }
-
-    .button-changes {
-      background-color: var(--error-color);
-
-      &:hover {
-        background-color: #b13930;
-      }
-    }
-
-    .button-approve {
-      background-color: var(--success-color);
-
-      &:hover {
-        background-color: #318340;
-      }
-    }
-  }
+  @import '../../../../scss/components/item/pr/filetab/submit-review';
 </style>
