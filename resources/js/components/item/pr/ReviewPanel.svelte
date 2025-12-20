@@ -32,36 +32,25 @@
 </script>
 
 <div class="review-panel">
-  <strong>Finish your review</strong>
-
-  {#if pendingReviewComments.length > 0}
-    <div class="pending-comments-section">
-      <h4>Pending Review Comments</h4>
-      <div class="pending-comments-list">
-        {#each pendingReviewComments as comment (comment.id)}
-          <div class="pending-comment-item">
-            <div class="comment-meta">
-              <span class="file-path">{comment.path}</span>
-              <span class="line-number">Line {comment.line_end}</span>
-            </div>
-            <div class="comment-preview">
-              <Markdown content={comment.body} canEdit={false} />
-            </div>
-          </div>
-        {/each}
+    {#each pendingReviewComments as comment (comment.id)}
+      <div class="pending-comment-item">
+        <div class="comment-meta">
+          <span class="file-path">{comment.path}</span>
+          <span class="line-number">Line {comment.line_end}</span>
+        </div>
+        <div class="comment-preview">
+          <Markdown content={comment.body} canEdit={false} />
+        </div>
       </div>
-    </div>
-  {/if}
+    {/each}
 
-  <div class="review-form">
-    <Markdown bind:content={reviewBody} isEditing={true} placeholder="Add a review comment..." />
+    <Markdown bind:content={reviewBody} isEditing={true} />
 
     <div class="review-actions">
       <button class="button-primary button-comment" onclick={() => submitReview('COMMENT')}>Comment</button>
       <button class="button-primary button-changes" onclick={() => submitReview('REQUEST_CHANGES')}>Request Changes</button>
       <button class="button-primary button-approve" onclick={() => submitReview('APPROVE')}>Approve</button>
     </div>
-  </div>
 </div>
 
 <style lang="scss">
