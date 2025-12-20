@@ -2,7 +2,7 @@
   import Markdown from '../../Markdown.svelte';
   import Comment from '../../Comment.svelte';
 
-  let { params = {}, pendingReviewComments = [] } = $props();
+  let { params = {}, pendingReviewComments = [], reviewMenuOpen = $bindable(false) } = $props();
 
   let reviewBody = $state('');
 
@@ -15,11 +15,18 @@
 
     pendingReviewComments.forEach(comment => {
       let lineInfo = comment;
+
       lineInfo.line = comment.line_end;
+      
+      // Unset some properties that are not needed for the API
+      delete lineInfo.id;
+      delete lineInfo.line_end;
+      delete lineInfo.author;
+      delete lineInfo.details;
+      delete lineInfo.created_at_human;
+
       comments.push(lineInfo);
     });
-
-    console.log(comments);
 
     await api.post(
       route(`organizations.repositories.pr.review.submit`, {organization, repository, number}), {
@@ -31,6 +38,7 @@
 
     reviewBody = '';
     pendingReviewComments = [];
+    reviewMenuOpen = false;
   }
 </script>
 

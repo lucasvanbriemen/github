@@ -42,7 +42,7 @@
     <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen />
 
     {#if reviewMenuOpen}
-      <ReviewPanel {item} {params} bind:pendingReviewComments />
+      <ReviewPanel {item} {params} bind:pendingReviewComments bind:reviewMenuOpen />
     {/if}
   </div>
 {/if}
