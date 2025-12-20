@@ -12,20 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('workflows', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id')->primary();
             $table->timestamps();
             $table->string('name');
             $table->string('state')->default('queued');
             $table->string('conclusion')->nullable();
         });
 
-        Schema::create('workflow_jobs', function (Blueprint $table) {
+        Schema::table('workflow_jobs', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->foreignId('workflow_id')->constrained('workflows')->onDelete('cascade');
             $table->string('name');
             $table->json('steps');
             $table->string('state')->default('queued');
+            $table->string('conclusion')->nullable();
         });
 
         Schema::table('commits', function (Blueprint $table) {
