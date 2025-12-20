@@ -31,6 +31,8 @@
   }
 
   function add_to_review() {
+    if (!line.comment == "") return;
+
     const reviewComment = {
       id: Math.random(),
       path: selectedFile.filename,

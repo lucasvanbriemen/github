@@ -19,6 +19,10 @@
       comments.push(lineInfo);
     });
 
+    console.log(comments);
+
+    return
+
     await api.post(
       route(`organizations.repositories.pr.review.submit`, {organization, repository, number}), {
         body: reviewBody,
