@@ -39,6 +39,7 @@ body {
     background-color: transparent;
     border: 2px solid var(--primary-color);
     padding: 0.5rem 1rem;
+    width: fit-content;
 
     &:hover {
       background-color: var(--primary-color);

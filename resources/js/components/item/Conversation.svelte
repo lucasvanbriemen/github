@@ -54,4 +54,4 @@
 <MergePanel {params} {item} />
 
 <Markdown bind:content={issueComment} isEditing={true} />
-<button class="button-primary" onclick={post_comment}>Post Comment</button>
+<button class="button-primary-outline" onclick={post_comment}>Post Comment</button>
