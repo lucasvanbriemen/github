@@ -16,13 +16,13 @@
   }
 </script>
 
-<div class="merge-panel">
-  {#if item.state === 'open'}
+{#if item.state === 'open'}
+  <div class="merge-panel">
     <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>
     <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
-  {/if}
-</div>
-
+  </div>
+{/if}
+  
 <style lang="scss">
   @import '../../../../scss/components/item/pr/merge-panel';
 </style>
