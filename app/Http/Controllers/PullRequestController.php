@@ -122,17 +122,32 @@ class PullRequestController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
-        $nodeId = $pr->node_id;
-        $mutation = 'mutation {
-            markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
-                pullRequest {
-                    isDraft
+        // If the posted data includes "draft" => false, we need to mark the PR as ready for review
+        $changeDraft = request()->input('draft', null);
+        if ($changeDraft !== null) {
+            $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
+            $nodeId = $pr->node_id;
+            $mutation = 'mutation {
+                markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
+                    pullRequest {
+                        isDraft
+                    }
                 }
-            }
-        }';
+            }';
 
-        ApiHelper::githubGraphql($mutation);
+            ApiHelper::githubGraphql($mutation);
+        }
+
+        $payload = [];
+        foreach (request()->all() as $key => $value) {
+            if (!in_array($key, ['state'])) {
+                continue;
+            }
+
+            $payload[$key] = $value;
+        }
+
+        GitHub::pullRequests()->update($organizationName, $repositoryName, $number, $payload);
 
         return request()->all();
     }
@@ -201,5 +216,22 @@ class PullRequestController extends Controller
 
         // Return success, webhook will sync the review data
         return response()->json(['success' => true], 200);
+    }
+
+    public function merge($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+
+        $response = GitHub::pullRequests()->merge($organizationName, $repositoryName, $number, $item->title, $item->getLatestCommitSha(), 'merge');
+
+        return response()->json([
+            'number' => $number,
+            'merged' => $response['merged'] ?? false,
+            'message' => $response['message'] ?? '',
+        ]);
     }
 }

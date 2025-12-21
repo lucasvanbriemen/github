@@ -2,6 +2,7 @@
   import { onMount, untrack } from 'svelte';
   import Markdown from '../Markdown.svelte';
   import Comment from '../Comment.svelte';
+  import MergePanel from './pr/MergePanel.svelte';
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
@@ -50,5 +51,7 @@
   <Comment {comment} {params} />
 {/each}
 
+<MergePanel {params} {item} />
+
 <Markdown bind:content={issueComment} isEditing={true} />
-<button class="button-primary" onclick={post_comment}>Post Comment</button>
+<button class="button-primary-outline" onclick={post_comment}>Post Comment</button>
