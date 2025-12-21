@@ -35,7 +35,12 @@
 <div class="merge-panel">
 
   {#if item.latest_commit.workflow}
-    workflow
+    <div class="workflow">
+      <span>{item.latest_commit.workflow.name} - {item.latest_commit.workflow.conclusion}</span>
+      {#each item.latest_commit.workflow.jobs as job}
+        <span class="job {job.status}">{job.name} - {job.conclusion}</span>
+      {/each}
+    </div>
   {/if}
 
   {#if item.state === 'open'}
