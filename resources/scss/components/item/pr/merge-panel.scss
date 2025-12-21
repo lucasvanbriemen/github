@@ -4,9 +4,67 @@
   border-radius: 2rem;
 
   display: flex;
+  flex-wrap: wrap; 
   gap: 0.5rem;
 
   &:not(:has(button)) {
     display: none;
+  }
+
+  .workflow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+
+    background-color: var(--background-color);
+    border-radius: 1rem;
+    padding: 1rem;
+
+    max-height: 5rem;
+    overflow: auto;
+    
+    border: 2px solid var(--starred-color);
+
+    .workflow-name {
+      font-size: 0.85rem;
+      font-weight: bold;
+      line-height: 0rem;
+      color: var(--text-color-secondary);
+      padding-bottom: 1rem;
+    }
+
+    .job {
+      border: 1px solid var(--starred-color);
+      color: var(--text-color-secondary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      width: 50%;
+    }
+
+    .complete-title {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .complete-metadata {
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .success {
+    border-color: var(--success-color) !important;
+  }
+    
+  .failure {
+    border-color: var(--error-color) !important;
+  }
+    
+  .neutral {
+    border-color: var(--text-color-secondary) !important;
+  }
+
+  .skipped {
+    border-color: var(--text-color-secondary) !important;
   }
 }

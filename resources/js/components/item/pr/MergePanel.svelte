@@ -27,6 +27,24 @@
 </script>
 
 <div class="merge-panel">
+  {#if item.latest_commit?.workflow}
+    {#if item.latest_commit.workflow.conclusion != 'success'}
+      <div class="workflow {item.latest_commit.workflow.conclusion}">
+        <span class="workflow-name">{item.latest_commit.workflow.name}</span>
+        {#each item.latest_commit.workflow.jobs as job}
+          <span class="job {job.conclusion}">{job.name}</span>
+        {/each}
+      </div>
+    {:else}
+      <div class="workflow success">
+        <span class="workflow-name">{item.latest_commit.workflow.name}</span>
+        <span class="complete-title">All checks have passed</span>
+        <span class="complete-metadata">All {item.latest_commit.workflow.jobs.length} jobs completed successfully</span>
+      </div>
+    {/if}
+  {/if}
+
+
   {#if item.state === 'open'}
     <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>
     <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
