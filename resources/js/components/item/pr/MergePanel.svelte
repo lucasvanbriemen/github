@@ -6,7 +6,9 @@
   let number = params.number;
 
   function close() {
-    api.post(route(`organizations.repositories.pr.close`, { organization, repository, number }));
+    api.post(route(`organizations.repositories.pr.update`, { organization, repository, number }, {
+      state: 'closed',
+    }));
     item.state = 'closed';
   }
 
