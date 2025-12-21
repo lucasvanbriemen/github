@@ -202,4 +202,35 @@ class PullRequestController extends Controller
         // Return success, webhook will sync the review data
         return response()->json(['success' => true], 200);
     }
+
+    public function close($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $response = GitHub::pullRequests()->update($organizationName, $repositoryName, $number, [
+            'state' => 'closed',
+        ]);
+
+        return response()->json([
+            'number' => $response['number'] ?? null,
+            'state' => $response['state'] ?? null,
+        ]);
+    }
+
+    public function merge($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+
+        $response = GitHub::pullRequests()->merge($organizationName, $repositoryName, $number, $item->title, $item->getLatestCommitSha(), 'merge');
+
+        return response()->json([
+            'number' => $number,
+            'merged' => $response['merged'] ?? false,
+            'message' => $response['message'] ?? '',
+        ]);
+    }
 }
