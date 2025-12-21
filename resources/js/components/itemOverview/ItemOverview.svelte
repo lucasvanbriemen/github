@@ -31,6 +31,7 @@
   let state = $state('open');
   let assignees = $state([]);
   let selectedAssignee = $state(window.USER_ID);
+  let searchQuery = $state('');
 
   const anyAssigneeOption = { value: 'any', label: 'Any' };
 
@@ -59,6 +60,7 @@
 
     let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
     url += `&assignee=${selectedAssignee}`;
+    url += `&search=${searchQuery}`;
 
     const json = await api.get(url)
     issues = json.data
@@ -126,6 +128,8 @@
   </Sidebar>
 
   <div class="repo-main">
+    <input type="text" class="search" placeholder="Search" bind:value={searchQuery} onblur={() => { filterItem() }} />
+
     {#if isLoading}
       {#each Array(3) as _}
         <ListItemSkeleton />
