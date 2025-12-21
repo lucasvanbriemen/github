@@ -44,6 +44,7 @@
   {:else}
     <div class="workflow success">
       <span class="workflow-name">{item.latest_commit.workflow.name}</span>
+      <span class="complete">All checks have passed</span>
     </div>
   {/if}
 
