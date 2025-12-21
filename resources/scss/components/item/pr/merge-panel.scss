@@ -26,23 +26,23 @@
     
     border: 2px solid var(--starred-color);
 
-    &.success {
-      border-color: var(--success-color);
-    }
-
-    &.failure {
-      border-color: var(--error-color);
-    }
-
-    &.neutral {
-      border-color: var(--text-color-secondary);
-    }
-
     .workflow-name {
       font-size: 0.85rem;
       font-weight: bold;
       line-height: 0rem;
       color: var(--text-color-secondary);
     }
+  }
+
+  .success {
+    border-color: var(--success-color);
+  }
+    
+  .failure {
+    border-color: var(--error-color);
+  }
+    
+  .neutral {
+    border-color: var(--text-color-secondary);
   }
 }
