@@ -7,6 +7,7 @@ use App\Services\RepositoryService;
 use App\Models\PullRequest;
 use App\Models\Issue;
 use App\Helpers\DiffRenderer;
+use App\Models\Commit;
 use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
@@ -109,6 +110,10 @@ class ItemController extends Controller
                 'details',
                 'requestedReviewers.user'
             ]);
+
+            // Load the latest commit with workflow information
+            $latestSha = $item->getLatestCommitSha();
+            $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
         }
 
         return response()->json($item);

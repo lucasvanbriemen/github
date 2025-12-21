@@ -8,6 +8,14 @@ class Workflow extends Model
 {
     public $incrementing = false;
 
+    protected $with = ['jobs'];
+
+
+    public function jobs()
+    {
+        return $this->hasMany(WorkflowJob::class, 'workflow_id', 'id');
+    }
+
     protected $fillable = [
         'id',
         'name',
