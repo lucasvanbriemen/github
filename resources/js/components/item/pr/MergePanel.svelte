@@ -1,6 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
-
   let { item, params } = $props();
 
   let organization = params.organization;
@@ -26,10 +24,6 @@
 
     item.state = 'open';
   }
-
-  onMount(() => {
-    console.log(item.latest_commit.workflow);
-  });
 </script>
 
 <div class="merge-panel">
