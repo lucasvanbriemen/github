@@ -30,20 +30,7 @@
       });
     });
   }
-
-  function ready_for_review() {
-    api.post(route(`organizations.repositories.pr.update`, { organization, repository, number }), {
-      draft: false,
-    });
-
-    item.state = 'open';
-  }
-
 </script>
-
-{#if item.state === 'draft'}
-  <button class="button-primary ready-for-review" onclick={ready_for_review}>Ready for Review</button>
-{/if}
 
 <Markdown content={body} change={save_body} />
 
