@@ -42,7 +42,12 @@
       width: 50%;
     }
 
-    .complete {
+    .complete-title {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .complete-metadata {
       color: var(--text-color-secondary);
     }
   }

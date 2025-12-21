@@ -44,7 +44,8 @@
   {:else}
     <div class="workflow success">
       <span class="workflow-name">{item.latest_commit.workflow.name}</span>
-      <span class="complete">All checks have passed</span>
+      <span class="complete-title">All checks have passed</span>
+      <span class="complete-metadata">All {item.latest_commit.workflow.jobs.length} jobs completed successfully</span>
     </div>
   {/if}
 
