@@ -23,6 +23,16 @@
 
     height: 5rem;
     overflow: auto;
+    
+    border: 2px solid var(--error-color);
+
+    &.success {
+      border-color: var(--success-color);
+    }
+
+    &.neutral {
+      border-color: var(--text-color-secondary);
+    }
 
     .workflow-name {
       font-size: 0.85rem;
