@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from 'svelte';
+
   let { item, params } = $props();
 
   let organization = params.organization;
@@ -24,9 +26,18 @@
 
     item.state = 'open';
   }
+
+  onMount(() => {
+    console.log(item.latest_commit.workflow);
+  });
 </script>
 
 <div class="merge-panel">
+
+  {#if item.latest_commit.workflow}
+    workflow
+  {/if}
+
   {#if item.state === 'open'}
     <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>
     <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
