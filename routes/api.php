@@ -57,6 +57,12 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/pr/{number}', [PullRequestController::class, 'update'])
             ->name('organizations.repositories.pr.update');
 
+        Route::post('/pr/{number}/merge', [PullRequestController::class, 'merge'])
+            ->name('organizations.repositories.pr.merge');
+
+        Route::post('/pr/{number}/close', [PullRequestController::class, 'close'])
+            ->name('organizations.repositories.pr.close');
+
         Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
             ->name('organizations.repositories.pr.add.reviewers');
 
