@@ -128,7 +128,7 @@
   </Sidebar>
 
   <div class="repo-main">
-    <input type="text" class="search" placeholder="Search" bind:value={searchQuery} oninput={() => { filterItem() }} />
+    <input type="text" class="search" placeholder="Search" bind:value={searchQuery} onblur={() => { filterItem() }} />
 
     {#if isLoading}
       {#each Array(3) as _}
