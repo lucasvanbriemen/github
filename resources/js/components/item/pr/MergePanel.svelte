@@ -18,7 +18,7 @@
 
 <div class="merge-panel">
   {#if item.state === 'open'}
-    <button class="button-primary" onclick={() => close()}>Close Pull Request</button>
+    <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>
     <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
   {/if}
 </div>
