@@ -38,7 +38,7 @@
     <div class="workflow {item.latest_commit.workflow.conclusion}">
       <span class="workflow-name">{item.latest_commit.workflow.name}</span>
       {#each item.latest_commit.workflow.jobs as job}
-        <span class="job {job.status}">{job.name} - {job.conclusion}</span>
+        <span class="job {job.status}">{job.name}</span>
       {/each}
     </div>
   {/if}
