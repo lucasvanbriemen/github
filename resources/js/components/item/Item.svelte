@@ -27,11 +27,6 @@
     isLoading = true;
     item = await api.get(route(`organizations.repositories.item.show`, { organization, repository, number }));
 
-    // Every 60 seconds, update the item (for testing)
-    setInterval(() => {
-      getItem();
-    }, 60000);
-
     try {
       item.labels = JSON.parse(item.labels);
     } catch (e) {
