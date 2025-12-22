@@ -15,6 +15,7 @@
 
   let selectedableReviewers = $state([]);
   let selectedReviewer = $state();
+  let linkedItems = $state([]);
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -31,7 +32,7 @@
       activeItem = 'Pull Requests';
     }
 
-    let linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
+    linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
   });
 
   function requestReviewer(userId) {
@@ -91,6 +92,11 @@
     </SidebarGroup>
 
     <SidebarGroup title="Linked Items">
+      {#each linkedItems as linkedItem}
+        <div class="linked-item">
+          <span>{linkedItem.title}</span>
+        </div>
+      {/each}
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
