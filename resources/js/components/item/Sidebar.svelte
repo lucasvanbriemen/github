@@ -94,6 +94,7 @@
     <SidebarGroup title="Linked Items">
       {#each linkedItems as linkedItem}
         <div class="linked-item">
+          <Icon name={linkedItem.type} className="icon {linkedItem.state}" />
           <span>{linkedItem.title}</span>
         </div>
       {/each}
