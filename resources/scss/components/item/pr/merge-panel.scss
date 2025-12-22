@@ -7,7 +7,7 @@
   flex-wrap: wrap; 
   gap: 0.5rem;
 
-  &:not(:has(button)) {
+  &:not(:has(*)) {
     display: none;
   }
 
