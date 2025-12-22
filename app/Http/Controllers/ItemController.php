@@ -43,104 +43,57 @@ class ItemController extends Controller
             ->where('number', $number)
             ->firstOrFail();
 
-        if ($item->type === 'issue') {
-            $query = '
-                query ($org: String!, $repo: String!, $number: Int!) {
-                repository(owner: $org, name: $repo) {
-                    issue(number: $number) {
-                    timelineItems(
-                        first: 100
-                        itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
-                    ) {
-                        nodes {
-                        __typename
-
-                        ... on ConnectedEvent {
-                            subject {
-                            __typename
-                            ... on Issue { number title url }
-                            ... on PullRequest { number title url }
-                            }
-                        }
-
-                        ... on CrossReferencedEvent {
-                            source {
-                            __typename
-                            ... on Issue { number title url }
-                            ... on PullRequest { number title url }
-                            }
-                        }
-
-                        ... on ReferencedEvent {
-                            subject {
-                            __typename
-                            ... on Issue { number title url }
-                            ... on PullRequest { number title url }
-                            }
-                        }
-                        }
-                    }
-                    }
-                }
-            }';
-
-            $variables = [
-                'org' => $organizationName,
-                'repo' => $repositoryName,
-                'number' => (int) $number,
-            ];
-
-            $response = ApiHelper::githubGraphql($query, $variables);
-
-        } else {
-            $query = '
-                query ($org: String!, $repo: String!, $number: Int!) {
-                repository(owner: $org, name: $repo) {
-                    pullRequest(number: $number) {
-                    timelineItems(
-                        first: 100
-                        itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
-                    ) {
-                        nodes {
-                        __typename
-
-                        ... on ConnectedEvent {
-                            subject {
-                            __typename
-                            ... on Issue { number title url }
-                            ... on PullRequest { number title url }
-                            }
-                        }
-
-                        ... on CrossReferencedEvent {
-                            source {
-                            __typename
-                            ... on Issue { number title url }
-                            ... on PullRequest { number title url }
-                            }
-                        }
-
-                        ... on ReferencedEvent {
-                            subject {
-                            __typename
-                            ... on Issue { number title url }
-                            ... on PullRequest { number title url }
-                            }
-                        }
-                        }
-                    }
-                    }
-                }
-            }';
-
-            $variables = [
-                'org' => $organizationName,
-                'repo' => $repositoryName,
-                'number' => (int) $number,
-            ];
-
-            $response = ApiHelper::githubGraphql($query, $variables);
+        $type = "issue";
+        if ($item->type !== 'issue') {
+            $type = "pullRequest";
         }
+        $query = '
+            query ($org: String!, $repo: String!, $number: Int!) {
+            repository(owner: $org, name: $repo) {
+                ' . $type . '(number: $number) {
+                timelineItems(
+                    first: 100
+                    itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
+                ) {
+                    nodes {
+                    __typename
+
+                    ... on ConnectedEvent {
+                        subject {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+
+                    ... on CrossReferencedEvent {
+                        source {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+
+                    ... on ReferencedEvent {
+                        subject {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+        }';
+
+        $variables = [
+            'org' => $organizationName,
+            'repo' => $repositoryName,
+            'number' => (int) $number,
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
 
         return response()->json($response);
     }
