@@ -27,6 +27,11 @@
     isLoading = true;
     item = await api.get(route(`organizations.repositories.item.show`, { organization, repository, number }));
 
+    // Every 15 seconds, update the item (for testing)
+    setInterval(() => {
+      getItem();
+    }, 15000);
+
     try {
       item.labels = JSON.parse(item.labels);
     } catch (e) {
@@ -39,6 +44,10 @@
       loadFiles();
     }
   });
+
+  async function getItem() {
+    item = await api.get(route(`organizations.repositories.item.show`, { organization, repository, number }));
+  }
 
   async function loadFiles() {
     files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
