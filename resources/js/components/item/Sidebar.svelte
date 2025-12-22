@@ -30,6 +30,8 @@
     if (isPR) {
       activeItem = 'Pull Requests';
     }
+
+    let linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
   });
 
   function requestReviewer(userId) {
@@ -86,6 +88,9 @@
           <span>{assignee.display_name}</span>
         </div>
       {/each}
+    </SidebarGroup>
+
+    <SidebarGroup title="Linked Items">
     </SidebarGroup>
 
     <SidebarGroup title="Labels">

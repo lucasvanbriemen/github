@@ -33,6 +33,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('organizations.repositories.item.show');
 
+        Route::get('/item/{number}/linked', [ItemController::class, 'getLinkedItems'])
+            ->name('organizations.repositories.item.linked.get');
+
         Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
             ->name('organizations.repositories.item.comment');
 

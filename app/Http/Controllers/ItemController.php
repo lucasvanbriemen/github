@@ -34,6 +34,91 @@ class ItemController extends Controller
         return response()->json($items);
     }
 
+    public function getLinkedItems($organizationName, $repositoryName, $number)
+    {
+        $query = '
+query ($org: String!, $repo: String!, $number: Int!) {
+  repository(owner: $org, name: $repo) {
+    issue(number: $number) {
+      timelineItems(
+        first: 100
+        itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
+      ) {
+        nodes {
+          __typename
+
+          ... on ConnectedEvent {
+            subject {
+              __typename
+              ... on Issue { number title url }
+              ... on PullRequest { number title url }
+            }
+          }
+
+          ... on CrossReferencedEvent {
+            source {
+              __typename
+              ... on Issue { number title url }
+              ... on PullRequest { number title url }
+            }
+          }
+
+          ... on ReferencedEvent {
+            subject {
+              __typename
+              ... on Issue { number title url }
+              ... on PullRequest { number title url }
+            }
+          }
+        }
+      }
+    }
+  }
+}';
+
+        $variables = [
+        'org' => $organizationName,
+        'repo' => $repositoryName,
+        'number' => (int) $number,
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
+
+        if (!$response || isset($response->errors)) {
+            return [];
+        }
+
+        if (
+            !isset($response->data->repository->issue->timelineItems->nodes)
+        ) {
+            return [];
+        }
+
+        $items = [];
+
+        foreach ($response->data->repository->issue->timelineItems->nodes as $node) {
+            if ($node->__typename === 'ConnectedEvent' && isset($node->subject)) {
+                $items[] = $node->subject;
+            }
+
+            if (
+                ($node->__typename === 'CrossReferencedEvent' ||
+                $node->__typename === 'ClosingIssueReference') &&
+                isset($node->source)
+            ) {
+                $items[] = $node->source;
+            }
+        }
+
+        return array_values(
+            array_unique(
+                array_map(fn($i) => json_encode($i), $items)
+            )
+        );
+    }
+
+
+
     public function create($organizationName, $repositoryName)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
