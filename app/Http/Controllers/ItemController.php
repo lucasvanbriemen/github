@@ -177,9 +177,9 @@ class ItemController extends Controller
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $issueNumber)
             ->with([
-            'assignees',
-            'openedBy',
-            'comments'
+                'assignees',
+                'openedBy',
+                'comments'
         ])
         ->firstOrFail();
 
@@ -253,7 +253,7 @@ class ItemController extends Controller
                 $childComment->resolved = $childComment->baseComment->resolved;
 
                 unset($childComment->baseComment);
-                }
+            }
 
             $childComment->id = $childComment->base_comment_id;
 
