@@ -93,10 +93,10 @@
 
     <SidebarGroup title="Linked Items">
       {#each linkedItems as linkedItem}
-        <button class="linked-item">
+        <a class="linked-item" href={linkedItem.url}>
           <Icon name={linkedItem.type} className="icon {linkedItem.state}" />
           <span>{linkedItem.title}</span>
-        </button>
+        </a>
       {/each}
     </SidebarGroup>
 
