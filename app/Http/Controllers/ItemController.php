@@ -37,49 +37,49 @@ class ItemController extends Controller
     public function getLinkedItems($organizationName, $repositoryName, $number)
     {
         $query = '
-query ($org: String!, $repo: String!, $number: Int!) {
-  repository(owner: $org, name: $repo) {
-    issue(number: $number) {
-      timelineItems(
-        first: 100
-        itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
-      ) {
-        nodes {
-          __typename
+            query ($org: String!, $repo: String!, $number: Int!) {
+            repository(owner: $org, name: $repo) {
+                issue(number: $number) {
+                timelineItems(
+                    first: 100
+                    itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
+                ) {
+                    nodes {
+                    __typename
 
-          ... on ConnectedEvent {
-            subject {
-              __typename
-              ... on Issue { number title url }
-              ... on PullRequest { number title url }
-            }
-          }
+                    ... on ConnectedEvent {
+                        subject {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
 
-          ... on CrossReferencedEvent {
-            source {
-              __typename
-              ... on Issue { number title url }
-              ... on PullRequest { number title url }
-            }
-          }
+                    ... on CrossReferencedEvent {
+                        source {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
 
-          ... on ReferencedEvent {
-            subject {
-              __typename
-              ... on Issue { number title url }
-              ... on PullRequest { number title url }
+                    ... on ReferencedEvent {
+                        subject {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+                    }
+                }
+                }
             }
-          }
-        }
-      }
-    }
-  }
-}';
+        }';
 
         $variables = [
-        'org' => $organizationName,
-        'repo' => $repositoryName,
-        'number' => (int) $number,
+            'org' => $organizationName,
+            'repo' => $repositoryName,
+            'number' => (int) $number,
         ];
 
         $response = ApiHelper::githubGraphql($query, $variables);
