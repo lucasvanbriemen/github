@@ -180,8 +180,8 @@ class ItemController extends Controller
                 'assignees',
                 'openedBy',
                 'comments'
-        ])
-        ->firstOrFail();
+            ])
+            ->firstOrFail();
 
         foreach ($item->comments as $comment) {
             self::formatComments($comment);
