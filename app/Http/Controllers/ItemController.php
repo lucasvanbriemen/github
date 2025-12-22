@@ -47,6 +47,7 @@ class ItemController extends Controller
         if ($item->type !== 'issue') {
             $type = "pullRequest";
         }
+
         $query = '
             query ($org: String!, $repo: String!, $number: Int!) {
             repository(owner: $org, name: $repo) {
@@ -95,7 +96,18 @@ class ItemController extends Controller
 
         $response = ApiHelper::githubGraphql($query, $variables);
 
-        return response()->json($response);
+        $ids = [];
+        foreach ($response->data->repository->{$type}->timelineItems->nodes as $node) {
+            if (isset($node->subject)) {
+                $ids[] = $node->subject->number;
+            } elseif (isset($node->source)) {
+                $ids[] = $node->source->number;
+            }
+        }
+
+        $items = Item::where('repository_id', $repository->id)->whereIn('number', $ids)->select(['id', 'title', 'state', 'number', 'type', 'created_at'])->get();
+
+        return response()->json($items);
     }
 
 
@@ -138,9 +150,9 @@ class ItemController extends Controller
     // Sync assignees (uses issue_assignees table)
     $assigneeGithubIds = [];
     if (!empty($response['assignees']) && is_array($response['assignees'])) {
-        foreach ($response['assignees'] as $assignee) {
-            $assigneeGithubIds[] = $assignee['id'];
-            }
+            foreach ($response['assignees'] as $assignee) {
+                $assigneeGithubIds[] = $assignee['id'];
+                }
         } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
         // GitHub may return a single assignee
         $assigneeGithubIds[] = $response['assignee']['id'];
@@ -168,19 +180,19 @@ class ItemController extends Controller
     ->firstOrFail();
 
     foreach ($item->comments as $comment) {
-        self::formatComments($comment);
+            self::formatComments($comment);
         }
 
     // If its a PR we also want to load that specific data
     if ($item->isPullRequest()) {
-        $item->load([
+            $item->load([
             'details',
             'requestedReviewers.user'
-        ]);
+            ]);
 
-        // Load the latest commit with workflow information
-        $latestSha = $item->getLatestCommitSha();
-        $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
+                // Load the latest commit with workflow information
+                $latestSha = $item->getLatestCommitSha();
+                $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
     }
 
     return response()->json($item);
@@ -189,15 +201,15 @@ class ItemController extends Controller
     private static function formatComments($comment)
 {
     if ($comment->type === 'review') {
-        $comment->details = $comment->reviewDetails;
+            $comment->details = $comment->reviewDetails;
         }
 
     if ($comment->type === 'code') {
-        $comment->details = $comment->commentDetails;
+            $comment->details = $comment->commentDetails;
         }
 
     if ($comment->type === 'issue') {
-        return;
+            return;
         }
 
     $comment->child_comments = $comment->details->childComments ?? [];
@@ -210,10 +222,10 @@ class ItemController extends Controller
     unset($comment->issue_id);
 
     if ($comment->details) {
-        unset($comment->details->childComments);
-        unset($comment->details->base_comment_id);
-        unset($comment->details->created_at);
-        unset($comment->details->updated_at);
+            unset($comment->details->childComments);
+            unset($comment->details->base_comment_id);
+            unset($comment->details->created_at);
+            unset($comment->details->updated_at);
         }
     }
 
@@ -222,33 +234,33 @@ class ItemController extends Controller
     $childComments = $parentComment->child_comments ?? $parentComment->childComments ?? [];
 
     if (!$childComments) {
-        return;
+            return;
         }
 
     foreach ($childComments as $childComment) {
-        // Child comments get author and body from baseComment
-        if ($childComment->baseComment) {
-            unset($childComment->author);
-            unset($childComment->type);
+            // Child comments get author and body from baseComment
+            if ($childComment->baseComment) {
+                unset($childComment->author);
+                unset($childComment->type);
 
-            $childComment->author = $childComment->baseComment->author;
-            $childComment->type = $childComment->baseComment->type;
-            $childComment->body = $childComment->baseComment->body ?? '';
-            $childComment->resolved = $childComment->baseComment->resolved;
+                $childComment->author = $childComment->baseComment->author;
+                $childComment->type = $childComment->baseComment->type;
+                $childComment->body = $childComment->baseComment->body ?? '';
+                $childComment->resolved = $childComment->baseComment->resolved;
 
-            unset($childComment->baseComment);
-            }
+                unset($childComment->baseComment);
+                }
 
-        $childComment->id = $childComment->base_comment_id;
+            $childComment->id = $childComment->base_comment_id;
 
-        unset($childComment->base_comment_id);
-        unset($childComment->details);
-        unset($childComment->reviewDetails);
-        unset($childComment->commentDetails);
-        unset($childComment->details);
+            unset($childComment->base_comment_id);
+            unset($childComment->details);
+            unset($childComment->reviewDetails);
+            unset($childComment->commentDetails);
+            unset($childComment->details);
 
-        // Recursively format grandchild comments
-        self::formatChildComments($childComment);
+            // Recursively format grandchild comments
+            self::formatChildComments($childComment);
         }
     }
 
@@ -263,8 +275,8 @@ class ItemController extends Controller
     // For merged PRs, use merge_base_sha to preserve the original diff
     // For open/closed PRs, compare branches normally
     if ($pullRequest->state === 'merged' && $pullRequest->merge_base_sha && $pullRequest->head_sha) {
-        // Compare from merge base to the head SHA at time of merge
-        $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->merge_base_sha}...{$pullRequest->head_sha}";
+            // Compare from merge base to the head SHA at time of merge
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->merge_base_sha}...{$pullRequest->head_sha}";
         } else {
         // Compare branches for open/closed PRs
         $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
