@@ -15,6 +15,7 @@
 
   let selectedableReviewers = $state([]);
   let selectedReviewer = $state();
+  let linkedItems = $state([]);
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -30,6 +31,8 @@
     if (isPR) {
       activeItem = 'Pull Requests';
     }
+
+    linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
   });
 
   function requestReviewer(userId) {
@@ -85,6 +88,14 @@
           <img src={assignee.avatar_url} alt={assignee.name} />
           <span>{assignee.display_name}</span>
         </div>
+      {/each}
+    </SidebarGroup>
+
+    <SidebarGroup title="Linked Items">
+      {#each linkedItems as linkedItem}
+        <a class="linked-item" href={linkedItem.url}>
+          <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
+        </a>
       {/each}
     </SidebarGroup>
 

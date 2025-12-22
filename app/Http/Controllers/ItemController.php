@@ -34,6 +34,88 @@ class ItemController extends Controller
         return response()->json($items);
     }
 
+    public function getLinkedItems($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $type = "issue";
+        if ($item->type !== 'issue') {
+            $type = "pullRequest";
+        }
+
+        $query = '
+            query ($org: String!, $repo: String!, $number: Int!) {
+            repository(owner: $org, name: $repo) {
+                ' . $type . '(number: $number) {
+                timelineItems(
+                    first: 100
+                    itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
+                ) {
+                    nodes {
+                    __typename
+
+                    ... on ConnectedEvent {
+                        subject {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+
+                    ... on CrossReferencedEvent {
+                        source {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+
+                    ... on ReferencedEvent {
+                        subject {
+                        __typename
+                        ... on Issue { number title url }
+                        ... on PullRequest { number title url }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+        }';
+
+        $variables = [
+            'org' => $organizationName,
+            'repo' => $repositoryName,
+            'number' => (int) $number,
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
+
+        $ids = [];
+        foreach ($response->data->repository->{$type}->timelineItems->nodes as $node) {
+            if (isset($node->subject)) {
+                $ids[] = $node->subject->number;
+            } elseif (isset($node->source)) {
+                $ids[] = $node->source->number;
+            }
+        }
+
+        $items = Item::where('repository_id', $repository->id)->whereIn('number', $ids)->select(['id', 'title', 'state', 'number', 'type', 'created_at'])->get();
+
+        foreach ($items as $item) {
+            $type = $item->isPullRequest() ? 'pulls' : 'issues';
+            $item->url = "#/{$organizationName}/{$repositoryName}/{$type}/{$item->number}";
+        }
+
+        return response()->json($items);
+    }
+
+
+
     public function create($organizationName, $repositoryName)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
