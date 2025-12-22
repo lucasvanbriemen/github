@@ -94,8 +94,7 @@
     <SidebarGroup title="Linked Items">
       {#each linkedItems as linkedItem}
         <a class="linked-item" href={linkedItem.url}>
-          <Icon name={linkedItem.type} className="icon {linkedItem.state}" />
-          <span>{linkedItem.title}</span>
+          <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
         </a>
       {/each}
     </SidebarGroup>
