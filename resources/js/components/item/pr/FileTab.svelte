@@ -55,6 +55,15 @@
       <button class="header" type="button">
         <span class="file-status file-status-{selectedFile.status}">{selectedFile.status}</span>
         <span class="file-name">{selectedFile.filename}</span>
+
+        <span class="file-stats">
+          {#if selectedFile.additions > 0}
+            <span class="additions">+{selectedFile.additions}</span>
+          {/if}
+          {#if selectedFile.deletions > 0}
+            <span class="deletions">-{selectedFile.deletions}</span>
+          {/if}
+        </span>
       </button>
 
       <div class="file-changes">

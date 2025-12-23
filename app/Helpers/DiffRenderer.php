@@ -60,7 +60,6 @@ class DiffRenderer
         }
 
         $this->files = $parsed_files;
-
     }
 
     /**
