@@ -31,7 +31,6 @@ class DiffRenderer
 
     private function parseCommits(): void
     {
-       
     }
 
     /**

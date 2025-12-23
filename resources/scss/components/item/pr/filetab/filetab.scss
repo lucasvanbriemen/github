@@ -61,6 +61,23 @@
       .file-name {
         font-size: 0.875rem;
       }
+
+      .file-stats { 
+        margin-left: auto;
+        font-size: 0.75rem;
+        font-weight: 500;
+        
+        .additions {
+          color: var(--success-color);
+          margin-right: 0.5rem;
+        }
+
+        .deletions {
+          color: var(--error-color);
+          margin-right: 0.5rem;
+        }
+
+      }
     }
 
     .file-changes {
