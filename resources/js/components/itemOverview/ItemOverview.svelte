@@ -24,23 +24,6 @@
 
   let stateOptions = $state([]);
 
-  if (isPR) {
-    stateOptions = [
-      { value: 'open', label: 'Open' },
-      { value: 'closed', label: 'Closed' },
-      { value: 'merged', label: 'Merged' },
-      { value: 'draft', label: 'Draft' },
-      { value: 'all', label: 'All' }
-    ]
-  } else {
-    stateOptions = [
-      { value: 'open', label: 'Open' },
-      { value: 'closed', label: 'Closed' },
-      { value: 'all', label: 'All' }
-    ];
-  }
-
-
   let state = $state('open');
   let assignees = $state([]);
   let selectedAssignee = $state(window.USER_ID);
@@ -122,6 +105,22 @@
       currentPage = 1;
       branchesForNotice = [];
       getItems(currentPage);
+
+      if (type === 'prs') {
+        stateOptions = [
+          { value: 'open', label: 'Open' },
+          { value: 'closed', label: 'Closed' },
+          { value: 'merged', label: 'Merged' },
+          { value: 'draft', label: 'Draft' },
+          { value: 'all', label: 'All' }
+        ]
+      } else {
+        stateOptions = [
+          { value: 'open', label: 'Open' },
+          { value: 'closed', label: 'Closed' },
+          { value: 'all', label: 'All' }
+        ];
+      }
     });
   });
 
