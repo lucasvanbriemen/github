@@ -311,5 +311,4 @@ class ItemController extends Controller
            'templates' => $templates,
         ]);
     }
-
 }
