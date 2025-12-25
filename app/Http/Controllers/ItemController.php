@@ -7,6 +7,7 @@ use App\Services\RepositoryService;
 use App\Models\Issue;
 use App\Models\Commit;
 use App\Helpers\ApiHelper;
+use App\GithubConfig;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
 class ItemController extends Controller
@@ -283,4 +284,32 @@ class ItemController extends Controller
 
         return response()->json($item);
     }
+
+    public function metadata($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $branches = $repository->branches()->get();
+        $branchNames = $branches->pluck('name');
+
+        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
+            return $contributor->githubUser;
+        });
+
+        $master_branch = $repository->master_branch;
+        $default_assignee = GithubConfig::USERNAME;
+
+        $templatesPath = resource_path('repository_templates/templates.json');
+        $templatesJson = file_get_contents($templatesPath);
+        $templates = json_decode($templatesJson, true);
+
+        return response()->json([
+           'branches' => $branchNames,
+           'assignees' => $assignees,
+           'default_assignee' => $default_assignee,
+           'master_branch' => $master_branch,
+           'templates' => $templates,
+        ]);
+    }
+
 }

@@ -30,7 +30,7 @@
   
   onMount(async () => {
     // Load branches for the repository to populate the Select components
-    const data = await api.get(route(`organizations.repositories.pr.metadata`, { organization: params.organization, repository: params.repository }));
+    const data = await api.get(route(`organizations.repositories.item.metadata`, { organization: params.organization, repository: params.repository }));
     
     // Ensure options are in { value, label } shape expected by <Select>
     possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
@@ -39,8 +39,7 @@
     assignee = data.default_assignee;
     base_branch = data.master_branch;
 
-    templates = await api.get(route('repositories.templates.get'));
-    templates = templates.filter(t => t.type === type);
+    templates = data.templates.filter(t => t.type === type);
   });
 
   function createItem() {

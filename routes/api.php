@@ -18,9 +18,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('repositories.templates.get');
 
     Route::prefix('/{organization}/{repository}')->group(function () {
-        Route::get('/metadata', [RepositoryController::class, 'metadata'])
-            ->name('organizations.repositories.metadata.get');
-
         Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('organizations.repositories.items.get');
 
@@ -29,6 +26,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('organizations.repositories.item.update');
+
+        Route::get('/item/metadata', [ItemController::class, 'metadata'])
+            ->name('organizations.repositories.item.metadata');
 
         Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('organizations.repositories.item.show');
@@ -50,9 +50,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('organizations.repositories.branches.pr.notices');
-
-        Route::get('/pr/metadata', [PullRequestController::class, 'metadata'])
-            ->name('organizations.repositories.pr.metadata');
 
         Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('organizations.repositories.pr.create');
