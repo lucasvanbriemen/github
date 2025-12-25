@@ -10,6 +10,15 @@ class Commit extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    protected $appends = [
+        'created_at_human',
+    ];
+
+    public function getCreatedAtHumanAttribute()
+    {
+        return $this->created_at->diffForHumans();
+    }
+
     public function workflow()
     {
         return $this->hasOne(Workflow::class, 'id', 'workflow_id');

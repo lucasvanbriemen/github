@@ -33,8 +33,7 @@ class RepositoryController extends Controller
             ->get()
             ->map(function ($branch) {
                 $branch->last_commit = $branch->commits->first();
-                $branch->last_commit->created_at_human = $branch->last_commit->created_at->diffForHumans();
-                unset($branch->commits); // optional: remove loaded commits array if not needed
+                unset($branch->commits);
                 return $branch;
             });
 
