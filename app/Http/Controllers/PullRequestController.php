@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
+use App\Helpers\DiffRenderer;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
@@ -150,6 +151,31 @@ class PullRequestController extends Controller
         GitHub::pullRequests()->update($organizationName, $repositoryName, $number, $payload);
 
         return request()->all();
+    }
+
+    public static function getFiles($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
+           ->where('number', $number)
+           ->firstOrFail();
+
+        // For merged PRs, use merge_base_sha to preserve the original diff
+        // For open/closed PRs, compare branches normally
+        if ($pullRequest->state === 'merged' && $pullRequest->merge_base_sha && $pullRequest->head_sha) {
+            // Compare from merge base to the head SHA at time of merge
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->merge_base_sha}...{$pullRequest->head_sha}";
+        } else {
+            // Compare branches for open/closed PRs
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
+        }
+
+        $diff = ApiHelper::githubApi($url);
+
+        $renderer = new DiffRenderer($diff);
+        $files = $renderer->getFiles();
+        return $files;
     }
 
     public function requestReviewers($organizationName, $repositoryName, $number)

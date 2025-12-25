@@ -45,8 +45,8 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}/review/comments', [BaseCommentController::class, 'createPRComment'])
             ->name('organizations.repositories.item.review.comments.create');
 
-        Route::get('/item/{number}/files', [ItemController::class, 'getFiles'])
-            ->name('organizations.repositories.item.files');
+        Route::get('/pr/{number}/files', [PullRequestController::class, 'getFiles'])
+            ->name('organizations.repositories.pr.files');
 
         Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('organizations.repositories.branches.pr.notices');

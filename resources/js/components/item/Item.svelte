@@ -41,7 +41,7 @@
   });
 
   async function loadFiles() {
-    files = await api.get(route(`organizations.repositories.item.files`, { organization, repository, number }));
+    files = await api.get(route(`organizations.repositories.pr.files`, { organization, repository, number }));
     selectedFile = files[selectedFileIndex];
     loadingFiles = false;
   }
