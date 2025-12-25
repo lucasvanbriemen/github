@@ -14,57 +14,57 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index'])
         ->name('organizations.get');
 
-    Route::prefix('/{organization}/{repository}')->group(function () {
+    Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
         Route::get('/items/{type}', [ItemController::class, 'index'])
-            ->name('organizations.repositories.items.get');
+            ->name('items.get');
 
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
-            ->name('organizations.repositories.contributors.get');
-
-        Route::post('/item/{number}', [ItemController::class, 'update'])
-            ->name('organizations.repositories.item.update');
+            ->name('contributors.get');
 
         Route::get('/item/metadata', [ItemController::class, 'metadata'])
-            ->name('organizations.repositories.item.metadata');
+            ->name('item.metadata');
+
+        Route::post('/item/{number}', [ItemController::class, 'update'])
+            ->name('item.update');
 
         Route::get('/item/{number}', [ItemController::class, 'show'])
-            ->name('organizations.repositories.item.show');
+            ->name('item.show');
 
         Route::get('/item/{number}/linked', [ItemController::class, 'getLinkedItems'])
-            ->name('organizations.repositories.item.linked.get');
+            ->name('item.linked.get');
 
         Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
-            ->name('organizations.repositories.item.comment');
+            ->name('item.comment');
 
         Route::post('item/{number}/comment', [BaseCommentController::class, 'createItemComment'])
-            ->name('organizations.repositories.item.comment.create');
+            ->name('item.comment.create');
 
         Route::post('/item/{number}/review/comments', [BaseCommentController::class, 'createPRComment'])
-            ->name('organizations.repositories.item.review.comments.create');
+            ->name('item.review.comments.create');
 
         Route::get('/pr/{number}/files', [PullRequestController::class, 'getFiles'])
-            ->name('organizations.repositories.pr.files');
+            ->name('pr.files');
 
         Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
-            ->name('organizations.repositories.branches.pr.notices');
+            ->name('branches.pr.notices');
 
         Route::post('/pr/create', [PullRequestController::class, 'create'])
-            ->name('organizations.repositories.pr.create');
+            ->name('pr.create');
 
         Route::post('/pr/{number}', [PullRequestController::class, 'update'])
-            ->name('organizations.repositories.pr.update');
+            ->name('pr.update');
 
         Route::post('/pr/{number}/merge', [PullRequestController::class, 'merge'])
-            ->name('organizations.repositories.pr.merge');
+            ->name('pr.merge');
 
         Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
-            ->name('organizations.repositories.pr.add.reviewers');
+            ->name('pr.add.reviewers');
 
         Route::post('/pr/{number}/review', [PullRequestController::class, 'submitReview'])
-            ->name('organizations.repositories.pr.review.submit');
+            ->name('pr.review.submit');
 
         Route::post('/issue/create', [ItemController::class, 'create'])
-            ->name('organizations.repositories.issues.create');
+            ->name('issues.create');
     });
 
     // Media uploads (images/videos) from markdown editor
