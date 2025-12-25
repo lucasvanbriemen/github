@@ -33,7 +33,7 @@
 
   async function getContributors() {
     // Get the assnees and map them to the {value, label} format for Select component
-    assignees = await api.get(route('organizations.repositories.contributors.get', {organization, repository}))
+    assignees = await api.get(route('organizations.repositories.contributors', {organization, repository}))
       .then(response => response.map(assignee => ({
         value: assignee.id,
         image: assignee.avatar_url,
@@ -54,7 +54,7 @@
     isLoading = true;
     currentPage = pageNr;
 
-    let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
+    let url = `${route('organizations.repositories.items', {organization, repository, type})}?page=${pageNr}&state=${state}`;
     url += `&assignee=${selectedAssignee}`;
     url += `&search=${searchQuery}`;
 

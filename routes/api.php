@@ -12,14 +12,14 @@ use App\Http\Controllers\UploadController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index'])
-        ->name('organizations.get');
+        ->name('organizations');
 
     Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
-        Route::get('/items/{type}', [ItemController::class, 'index'])
-            ->name('items.get');
-
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
-            ->name('contributors.get');
+            ->name('contributors');
+
+        Route::get('/items/{type}', [ItemController::class, 'index'])
+            ->name('items');
 
         Route::get('/item/metadata', [ItemController::class, 'metadata'])
             ->name('item.metadata');
