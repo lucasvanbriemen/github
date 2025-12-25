@@ -14,9 +14,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index'])
         ->name('organizations.get');
 
-    Route::get('/templates', [RepositoryController::class, 'getTemplates'])
-        ->name('repositories.templates.get');
-
     Route::prefix('/{organization}/{repository}')->group(function () {
         Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('organizations.repositories.items.get');

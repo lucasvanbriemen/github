@@ -39,23 +39,4 @@ class RepositoryController extends Controller
 
         return response()->json($branches);
     }
-
-    public function getTemplates()
-    {
-        $templatesPath = resource_path('repository_templates/templates.json');
-        $templatesJson = file_get_contents($templatesPath);
-        $templates = json_decode($templatesJson, true);
-
-        return response()->json($templates);
-    }
-
-    public function metadata($organizationName, $repositoryName)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
-            return $contributor->githubUser;
-        });
-
-        return response()->json(['assignees' => $assignees]);
-    }
 }
