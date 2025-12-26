@@ -1,10 +1,20 @@
 <script>
-  import Icon from "../Icon.svelte";
+  import Icon from "./Icon.svelte";
   let { item } = $props();
 
   function itemUrl(number) {
     const base = window.location.href;
     return `${base}/${number}`;
+  }
+
+  function subTitle() {
+    if (item.type === 'prs' || item.type === 'issues') {
+      return `#${item.number} opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
+    }
+
+    if (item.type === 'project') {
+      return `#${item.number} updated ${item.created_at_human}`;
+    }
   }
 </script>
 
@@ -14,9 +24,9 @@
   <div class="content">
     <h3>{item.title}</h3>
     <div class="meta">
-      opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.display_name}
+      {subTitle()}
 
-      {#if item.labels.length > 0}
+      {#if item.labels?.length > 0}
         <div class="labels">
           {#each item.labels as label}
             <span class="label" style="background-color: #{label.color}4D; color: #{label.color}; border: 1px solid #{label.color};">{label.name}</span>
@@ -27,7 +37,7 @@
   </div>
 
   <div class="assignees">
-    {#if item.assignees.length > 0}
+    {#if item.assignees?.length > 0}
       {#each item.assignees as assignee}
         <img src="{assignee.avatar_url}" alt="">
       {/each}
@@ -36,5 +46,5 @@
 </a>
 
 <style lang="scss">
-  @import '../../../scss/components/list-item.scss';
+  @import '../../scss/components/list-item.scss';
 </style>
