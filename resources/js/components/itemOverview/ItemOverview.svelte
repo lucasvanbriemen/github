@@ -3,8 +3,8 @@
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Pagination from '../Pagination.svelte';
-  import ListItem from './ListItem.svelte';
-  import ListItemSkeleton from './ListItemSkeleton.svelte';
+  import ListItem from '../ListItem.svelte';
+  import ListItemSkeleton from '../ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
 
