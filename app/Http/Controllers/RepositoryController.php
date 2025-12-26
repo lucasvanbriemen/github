@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -62,24 +63,20 @@ class RepositoryController extends Controller
         }
         GRAPHQL;
 
-        $response = Http::withToken(config('services.github.access_token'))->post('https://api.github.com/graphql', [
-            'query' => $mutation,
-            'variables' => [
-                'owner' => $organization->name,
-                'name' => $repository->name,
-            ],
+        $response = ApiHelper::githubGraphql($mutation, [
+            'owner' => $organization->name,
+            'name' => $repository->name,
         ]);
 
-        $data = $response->json();
-        $data = $data['data']['repository']['projectsV2']['nodes'] ?? [];
+        $data = $response->data->repository->projectsV2->nodes ?? [];
 
         $projects = [];
         foreach ($data as $project) {
             $projects[] = [
-                'id' => $project['id'],
-                'title' => $project['title'],
-                'number' => $project['number'],
-                'updated_at' => Carbon::parse($project['updatedAt'])->diffForHumans(),
+                'id' => $project->id,
+                'title' => $project->title,
+                'number' => $project->number,
+                'updated_at' => Carbon::parse($project->updatedAt)->diffForHumans(),
             ];
         }
 
