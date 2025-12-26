@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
 
 class RepositoryController extends Controller
 {
