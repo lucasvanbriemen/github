@@ -30,11 +30,11 @@
         <ListItem item={{
           type: 'project',
           state: 'open',
-        title: project.title,
-        number: project.number,
-        created_at_human: project.updated_at,
-      }} />
-    {/each}
+          title: project.title,
+          number: project.number,
+          created_at_human: project.updated_at,
+          }} />
+      {/each}
     {/if}
   </div>
 </div>

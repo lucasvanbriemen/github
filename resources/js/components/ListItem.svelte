@@ -6,6 +6,16 @@
     const base = window.location.href;
     return `${base}/${number}`;
   }
+
+  function subTitle() {
+    if (item.type === 'prs' || item.type === 'issues') {
+      return `#${item.number} opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
+    }
+
+    if (item.type === 'project') {
+      return `#${item.number} updated ${item.created_at_human}`;
+    }
+  }
 </script>
 
 <a class="list-item" href="{itemUrl(item.number)}">
@@ -14,7 +24,7 @@
   <div class="content">
     <h3>{item.title}</h3>
     <div class="meta">
-      opened {item.created_at_human} by <img src="{item.opened_by?.avatar_url}" alt="">{item.opened_by?.display_name}
+      {subTitle()}
 
       {#if item.labels?.length > 0}
         <div class="labels">
