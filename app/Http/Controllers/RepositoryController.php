@@ -103,17 +103,11 @@ class RepositoryController extends Controller
                                         id
                                         title
                                         number
-                                        repository {
-                                            name
-                                        }
                                     }
                                     ... on PullRequest {
                                         id
                                         title
                                         number
-                                        repository {
-                                            name
-                                        }
                                     }
                                 }
                                 fieldValues(first: 20) {
@@ -136,27 +130,24 @@ class RepositoryController extends Controller
             }
         GRAPHQL;
 
-        $variables = [
+        $project = ApiHelper::githubGraphql($query, [
             'org' => $organizationName,
-            'number' => (int) $projectNumber
-        ];
+            'number' => (int) $projectNumber,
+        ])->data->organization->projectV2;
 
-        $response = ApiHelper::githubGraphql($query, $variables);
-        $projectV2 = $response->data->organization->projectV2;
+        $items = $project->items->nodes;
 
-        $items = $projectV2->items->nodes;
-
-        $statusField = collect($projectV2->fields->nodes)
+        $statusField = collect($project->fields->nodes)
             ->first(fn ($f) => isset($f->name) && $f->name === 'Status');
 
         $columns = collect($statusField->options ?? [])
-        ->mapWithKeys(fn ($option) => [
-            $option->id => [
-                'id' => $option->id,
-                'name' => $option->name,
-                'items' => [],
-            ],
-        ]);
+            ->mapWithKeys(fn ($option) => [
+                $option->id => [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'items' => [],
+                ],
+            ]);
 
         foreach ($items as $item) {
             $statusValue = collect($item->fieldValues->nodes)
@@ -170,7 +161,6 @@ class RepositoryController extends Controller
                 'id' => $item->id,
                 'title' => $item->content->title,
                 'number' => $item->content->number,
-                'repository' => $item->content->repository->name,
             ];
 
             $columns->put($key, $column);
