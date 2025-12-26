@@ -60,11 +60,7 @@ class RepositoryController extends Controller
         }
         GRAPHQL;
 
-        $response = ApiHelper::githubGraphql($mutation, [
-            'owner' => $organizationName,
-            'name' => $repositoryName,
-        ]);
-
+        $response = ApiHelper::githubGraphql($mutation, ['owner' => $organizationName, 'name' => $repositoryName,]);
         $data = $response->data->repository->projectsV2->nodes ?? [];
 
         $projects = [];
