@@ -78,94 +78,105 @@ class RepositoryController extends Controller
 
     public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
     {
-        $token = config('services.github.access_token');
-
         $query = <<<'GRAPHQL'
-        query ($org: String!, $number: Int!, $after: String) {
-            organization(login: $org) {
-                projectV2(number: $number) {
-                    id
-                    fields(first: 50) {
-                        nodes {
-                            ... on ProjectV2SingleSelectField {
-                                id
-                                name
-                                options {
+            query ($org: String!, $number: Int!, $after: String) {
+                organization(login: $org) {
+                    projectV2(number: $number) {
+                        id
+                        fields(first: 50) {
+                            nodes {
+                                ... on ProjectV2SingleSelectField {
                                     id
                                     name
+                                    options {
+                                        id
+                                        name
+                                    }
                                 }
                             }
                         }
-                    }
-                    items(first: 100, after: $after) {
-                        nodes {
-                            id
-                            content {
-                                ... on Issue {
-                                    id
-                                    title
-                                    number
-                                    repository {
-                                        name
-                                    }
-                                }
-                                ... on PullRequest {
-                                    id
-                                    title
-                                    number
-                                    repository {
-                                        name
-                                    }
-                                }
-                            }
-                            fieldValues(first: 20) {
-                                nodes {
-                                    ... on ProjectV2ItemFieldSingleSelectValue {
-                                        field {
-                                            ... on ProjectV2SingleSelectField {
-                                                name
-                                            }
+                        items(first: 100, after: $after) {
+                            nodes {
+                                id
+                                content {
+                                    ... on Issue {
+                                        id
+                                        title
+                                        number
+                                        repository {
+                                            name
                                         }
-                                        optionId
-                                        name
+                                    }
+                                    ... on PullRequest {
+                                        id
+                                        title
+                                        number
+                                        repository {
+                                            name
+                                        }
+                                    }
+                                }
+                                fieldValues(first: 20) {
+                                    nodes {
+                                        ... on ProjectV2ItemFieldSingleSelectValue {
+                                            field {
+                                                ... on ProjectV2SingleSelectField {
+                                                    name
+                                                }
+                                            }
+                                            optionId
+                                            name
+                                        }
                                     }
                                 }
                             }
-                        }
-                        pageInfo {
-                            hasNextPage
-                            endCursor
                         }
                     }
                 }
             }
-        }
-    GRAPHQL;
+        GRAPHQL;
 
-        $allItems = [];
-        $cursor = null;
-
-        do {
-            $variables = [
+        $variables = [
             'org' => $organizationName,
-            'number' => (int) $projectNumber,
-            'after' => $cursor,
+            'number' => (int) $projectNumber
+        ];
+
+        $response = ApiHelper::githubGraphql($query, $variables);
+        $projectV2 = $response->data->organization->projectV2;
+
+        $items = $projectV2->items->nodes;
+
+        $statusField = collect($projectV2->fields->nodes)
+            ->first(fn ($f) => isset($f->name) && $f->name === 'Status');
+
+        $columns = collect($statusField->options ?? [])
+        ->mapWithKeys(fn ($option) => [
+            $option->id => [
+                'id' => $option->id,
+                'name' => $option->name,
+                'items' => [],
+            ],
+        ]);
+
+        foreach ($items as $item) {
+            $statusValue = collect($item->fieldValues->nodes)
+                ->first(fn ($fv) => isset($fv->field->name) && $fv->field->name === 'Status');
+
+            $key = $statusValue->optionId;
+
+            $column = $columns->get($key);
+
+            $column['items'][] = [
+                'id' => $item->id,
+                'title' => $item->content->title,
+                'number' => $item->content->number,
+                'repository' => $item->content->repository->name,
             ];
 
-            $response = ApiHelper::githubGraphql($query, $variables);
-            $projectV2 = $response->data->organization->projectV2;
+            $columns->put($key, $column);
+        }
 
-            if (!empty($projectV2->items->nodes)) {
-                $allItems = array_merge($allItems, $projectV2->items->nodes);
-            }
-
-            $pageInfo = $projectV2->items->pageInfo;
-            $cursor = $pageInfo->hasNextPage ? $pageInfo->endCursor : null;
-        } while ($cursor !== null);
-
-        return response()->json([
-            'project' => $projectV2,
-            'items' => $allItems,
+        return response()->json([ $columns,
         ]);
     }
 }
