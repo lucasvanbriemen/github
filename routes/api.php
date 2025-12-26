@@ -18,6 +18,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/projects', [RepositoryController::class, 'getProjects'])
             ->name('projects');
 
+        Route::get('/projects/{projectNumber}', [RepositoryController::class, 'showProject'])
+            ->name('project.show');
+
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('contributors');
 

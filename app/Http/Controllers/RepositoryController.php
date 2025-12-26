@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
+use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 
 class RepositoryController extends Controller
@@ -73,5 +74,98 @@ class RepositoryController extends Controller
         }
 
         return response()->json($projects);
+    }
+
+    public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
+    {
+        $token = config('services.github.access_token');
+
+        $query = <<<'GRAPHQL'
+        query ($org: String!, $number: Int!, $after: String) {
+            organization(login: $org) {
+                projectV2(number: $number) {
+                    id
+                    fields(first: 50) {
+                        nodes {
+                            ... on ProjectV2SingleSelectField {
+                                id
+                                name
+                                options {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                    }
+                    items(first: 100, after: $after) {
+                        nodes {
+                            id
+                            content {
+                                ... on Issue {
+                                    id
+                                    title
+                                    number
+                                    repository {
+                                        name
+                                    }
+                                }
+                                ... on PullRequest {
+                                    id
+                                    title
+                                    number
+                                    repository {
+                                        name
+                                    }
+                                }
+                            }
+                            fieldValues(first: 20) {
+                                nodes {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        field {
+                                            ... on ProjectV2SingleSelectField {
+                                                name
+                                            }
+                                        }
+                                        optionId
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                        pageInfo {
+                            hasNextPage
+                            endCursor
+                        }
+                    }
+                }
+            }
+        }
+    GRAPHQL;
+
+        $allItems = [];
+        $cursor = null;
+
+        do {
+            $variables = [
+            'org' => $organizationName,
+            'number' => (int) $projectNumber,
+            'after' => $cursor,
+            ];
+
+            $response = ApiHelper::githubGraphql($query, $variables);
+            $projectV2 = $response->data->organization->projectV2;
+
+            if (!empty($projectV2->items->nodes)) {
+                $allItems = array_merge($allItems, $projectV2->items->nodes);
+            }
+
+            $pageInfo = $projectV2->items->pageInfo;
+            $cursor = $pageInfo->hasNextPage ? $pageInfo->endCursor : null;
+        } while ($cursor !== null);
+
+        return response()->json([
+            'project' => $projectV2,
+            'items' => $allItems,
+        ]);
     }
 }
