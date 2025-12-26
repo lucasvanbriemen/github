@@ -15,6 +15,10 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('organizations');
 
     Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
+
+        Route::get('/projects', [RepositoryController::class, 'getProjects'])
+            ->name('projects');
+
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('contributors');
 

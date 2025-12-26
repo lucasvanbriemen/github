@@ -39,4 +39,11 @@ class RepositoryController extends Controller
 
         return response()->json($branches);
     }
+
+    public function getProjects($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        return response()->json([]);
+    }
 }

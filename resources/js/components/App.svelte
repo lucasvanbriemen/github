@@ -5,6 +5,7 @@
   import Dashboard from './Dashboard.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './itemOverview/ItemOverview.svelte';
+  import ProjectsOverview from './ProjectsOverview.svelte';
   import Item from './item/Item.svelte';
   import NewItem from './item/NewItem.svelte';
   import theme from '../lib/theme.js';
@@ -13,6 +14,8 @@
   const routes = {
     '/': Dashboard,
     '/:organization/:repository': RepositoryDashboard,
+
+    '/:organization/:repository/projects': ProjectsOverview,
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,
