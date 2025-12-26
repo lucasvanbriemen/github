@@ -166,7 +166,6 @@ class RepositoryController extends Controller
             $columns->put($key, $column);
         }
 
-        return response()->json([ $columns,
-        ]);
+        return response()->json([$columns]);
     }
 }
