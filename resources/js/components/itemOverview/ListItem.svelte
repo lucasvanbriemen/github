@@ -14,9 +14,9 @@
   <div class="content">
     <h3>{item.title}</h3>
     <div class="meta">
-      opened {item.created_at_human} by <img src="{item.opened_by.avatar_url}" alt="">{item.opened_by.display_name}
+      opened {item.created_at_human} by <img src="{item.opened_by?.avatar_url}" alt="">{item.opened_by?.display_name}
 
-      {#if item.labels.length > 0}
+      {#if item.labels?.length > 0}
         <div class="labels">
           {#each item.labels as label}
             <span class="label" style="background-color: #{label.color}4D; color: #{label.color}; border: 1px solid #{label.color};">{label.name}</span>
@@ -27,7 +27,7 @@
   </div>
 
   <div class="assignees">
-    {#if item.assignees.length > 0}
+    {#if item.assignees?.length > 0}
       {#each item.assignees as assignee}
         <img src="{assignee.avatar_url}" alt="">
       {/each}

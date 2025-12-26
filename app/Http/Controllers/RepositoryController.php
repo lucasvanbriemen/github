@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\RepositoryService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
 class RepositoryController extends Controller
@@ -78,7 +79,7 @@ class RepositoryController extends Controller
                 'id' => $project['id'],
                 'title' => $project['title'],
                 'number' => $project['number'],
-                'updated_at' => $project['updatedAt']->diffForHumans(),
+                'updated_at' => Carbon::parse($project['updatedAt'])->diffForHumans(),
             ];
         }
 

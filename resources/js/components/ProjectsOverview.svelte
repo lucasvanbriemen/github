@@ -19,11 +19,17 @@
   <Sidebar {params} activeItem="Projects" showDetailsFrom="repo-dashboard" />
   <div class="repo-main">
     {#each projects as project}
-      <ListItem {project} />
+      <ListItem item={{
+        type: 'project',
+        state: 'open',
+        title: project.title,
+        number: project.number,
+        created_at_human: project.updated_at,
+      }} />
     {/each}
   </div>
 </div>
   
 <style lang="scss">
-  @import '../../scss/components/repository-dashboard.scss';
+  @import '../../scss/components/project-listing.scss';
 </style>
