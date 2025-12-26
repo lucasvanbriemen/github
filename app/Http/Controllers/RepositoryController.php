@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\RepositoryService;
+use Illuminate\Support\Facades\Http;
 
 class RepositoryController extends Controller
 {
@@ -44,6 +45,43 @@ class RepositoryController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        return response()->json([]);
+        // query projects from GitHub API and return them using graphql
+        $mutation = <<<'GRAPHQL'
+        query ($owner: String!, $name: String!) {
+          repository(owner: $owner, name: $name) {
+            projectsV2(first: 100) {
+              nodes {
+                id
+                title
+                number
+                updatedAt
+              }
+            }
+          }
+        }
+        GRAPHQL;
+
+        $response = Http::withToken(config('services.github.access_token'))->post('https://api.github.com/graphql', [
+            'query' => $mutation,
+            'variables' => [
+                'owner' => $organization->name,
+                'name' => $repository->name,
+            ],
+        ]);
+
+        $data = $response->json();
+        $data = $data['data']['repository']['projectsV2']['nodes'] ?? [];
+
+        $projects = [];
+        foreach ($data as $project) {
+            $projects[] = [
+                'id' => $project['id'],
+                'title' => $project['title'],
+                'number' => $project['number'],
+                'updated_at' => $project['updatedAt']->diffForHumans(),
+            ];
+        }
+
+        return response()->json($projects);
     }
 }

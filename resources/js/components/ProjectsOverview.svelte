@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Sidebar from './sidebar/Sidebar.svelte';
+  import ListItem from './itemOverview/ListItem.svelte';
 
   let { params = {} } = $props();
 
@@ -17,6 +18,9 @@
 <div class="repo-dashboard">
   <Sidebar {params} activeItem="Projects" showDetailsFrom="repo-dashboard" />
   <div class="repo-main">
+    {#each projects as project}
+      <ListItem {project} />
+    {/each}
   </div>
 </div>
   
