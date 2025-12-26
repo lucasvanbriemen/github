@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
-use Illuminate\Support\Facades\Http;
+use App\Models\Item;
 use Carbon\Carbon;
 
 class RepositoryController extends Controller
@@ -78,6 +78,8 @@ class RepositoryController extends Controller
 
     public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
     {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
         $query = <<<'GRAPHQL'
             query ($org: String!, $number: Int!, $after: String) {
                 organization(login: $org) {
@@ -113,8 +115,8 @@ class RepositoryController extends Controller
         GRAPHQL;
 
         $project = ApiHelper::githubGraphql($query, [
-        'org' => $organizationName,
-        'number' => (int) $projectNumber,
+            'org' => $organizationName,
+            'number' => (int) $projectNumber,
         ])->data->organization->projectV2;
 
         $columns = collect(
@@ -126,15 +128,25 @@ class RepositoryController extends Controller
             ],
         ]);
 
+        $allIds = [];
+        foreach ($project->items->nodes as $item) {
+            $allIds[] = $item->content->number;
+        }
+
+        // Get all the items from db
+        $DBitems = Item::whereIn('number', $allIds)
+            ->where('repository_id', $repository->id)
+            ->with([
+                'assignees'
+            ])
+            ->get()
+            ->keyBy('number');
+
         foreach ($project->items->nodes as $item) {
             $columnName = $item->fieldValueByName->name ?? 'Unassigned';
-
             $column = $columns->get($columnName);
 
-            $column['items'][] = [
-            'number' => $item->content->number,
-            'title'  => $item->content->title,
-            ];
+            $column['items'][] = $DBitems->get($item->content->number);
 
             $columns->put($columnName, $column);
         }
