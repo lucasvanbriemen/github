@@ -45,9 +45,6 @@ class RepositoryController extends Controller
 
     public function getProjects($organizationName, $repositoryName)
     {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        // query projects from GitHub API and return them using graphql
         $mutation = <<<'GRAPHQL'
         query ($owner: String!, $name: String!) {
           repository(owner: $owner, name: $name) {
@@ -64,8 +61,8 @@ class RepositoryController extends Controller
         GRAPHQL;
 
         $response = ApiHelper::githubGraphql($mutation, [
-            'owner' => $organization->name,
-            'name' => $repository->name,
+            'owner' => $organizationName,
+            'name' => $repositoryName,
         ]);
 
         $data = $response->data->repository->projectsV2->nodes ?? [];
