@@ -7,35 +7,28 @@
   let { params = {} } = $props();
 
   let isLoading = $state(true);
-  let projects = $state([]);
+  let cols = $state([]);
 
   onMount(async () => {
-    projects = await api.get(route('organizations.repositories.projects', {
+    cols = await api.get(route('organizations.repositories.project.show', {
       organization: params.organization,
       repository: params.repository,
+      number: params.number,
     }));
     isLoading = false;
+
+    console.log(cols);
   });
 </script>
 
 <div class="repo-dashboard">
   <Sidebar {params} activeItem="Projects" showDetailsFrom="repo-dashboard" />
+  
   <div class="repo-main">
-    {#if isLoading}
-      {#each Array(3) as _}
-        <ListItemSkeleton />
-      {/each}
-    {:else}
-      {#each projects as project}
-        <ListItem item={{
-          type: 'project',
-          state: 'open',
-          title: project.title,
-          number: project.number,
-          created_at_human: project.updated_at,
-          }} />
-      {/each}
-    {/if}
+    cols: <br>
+    {#each cols as col}
+      name - {col.name} <br>
+    {/each}
   </div>
 </div>
   

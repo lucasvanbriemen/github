@@ -17,7 +17,7 @@
     '/:organization/:repository': RepositoryDashboard,
 
     '/:organization/:repository/projects': ProjectsOverview,
-    '/:organization/:repository/projects/:project_number': Project,
+    '/:organization/:repository/projects/:number': Project,
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,

@@ -82,45 +82,27 @@ class RepositoryController extends Controller
             query ($org: String!, $number: Int!, $after: String) {
                 organization(login: $org) {
                     projectV2(number: $number) {
-                        id
-                        fields(first: 50) {
-                            nodes {
-                                ... on ProjectV2SingleSelectField {
-                                    id
+                        field(name: "Status") {
+                            ... on ProjectV2SingleSelectField {
+                                name
+                                options {
                                     name
-                                    options {
-                                        id
-                                        name
-                                    }
                                 }
                             }
                         }
                         items(first: 100, after: $after) {
                             nodes {
-                                id
                                 content {
                                     ... on Issue {
-                                        id
-                                        title
                                         number
                                     }
                                     ... on PullRequest {
-                                        id
-                                        title
                                         number
                                     }
                                 }
-                                fieldValues(first: 20) {
-                                    nodes {
-                                        ... on ProjectV2ItemFieldSingleSelectValue {
-                                            field {
-                                                ... on ProjectV2SingleSelectField {
-                                                    name
-                                                }
-                                            }
-                                            optionId
-                                            name
-                                        }
+                                fieldValueByName(name: "Status") {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        name
                                     }
                                 }
                             }
@@ -131,41 +113,32 @@ class RepositoryController extends Controller
         GRAPHQL;
 
         $project = ApiHelper::githubGraphql($query, [
-            'org' => $organizationName,
-            'number' => (int) $projectNumber,
+        'org' => $organizationName,
+        'number' => (int) $projectNumber,
         ])->data->organization->projectV2;
 
-        $items = $project->items->nodes;
+        $columns = collect(
+            $project->field->options
+        )->mapWithKeys(fn ($option) => [
+            $option->name => [
+                'name' => $option->name,
+                'items' => [],
+            ],
+        ]);
 
-        $statusField = collect($project->fields->nodes)
-            ->first(fn ($f) => isset($f->name) && $f->name === 'Status');
+        foreach ($project->items->nodes as $item) {
+            $columnName = $item->fieldValueByName->name ?? 'Unassigned';
 
-        $columns = collect($statusField->options ?? [])
-            ->mapWithKeys(fn ($option) => [
-                $option->id => [
-                    'id' => $option->id,
-                    'name' => $option->name,
-                    'items' => [],
-                ],
-            ]);
-
-        foreach ($items as $item) {
-            $statusValue = collect($item->fieldValues->nodes)
-                ->first(fn ($fv) => isset($fv->field->name) && $fv->field->name === 'Status');
-
-            $key = $statusValue->optionId;
-
-            $column = $columns->get($key);
+            $column = $columns->get($columnName);
 
             $column['items'][] = [
-                'id' => $item->id,
-                'title' => $item->content->title,
-                'number' => $item->content->number,
+            'number' => $item->content->number,
+            'title'  => $item->content->title,
             ];
 
-            $columns->put($key, $column);
+            $columns->put($columnName, $column);
         }
 
-        return response()->json([$columns]);
+        return response()->json(array_values($columns->toArray()));
     }
 }
