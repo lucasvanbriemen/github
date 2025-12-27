@@ -23,7 +23,13 @@
     {#each organizations as org}
       <button class="organization" onclick={() => selectOrganization(org)}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
-        <span class="org">{org.name}</span>
+        <h2 class="title">{org.name}</h2>
+
+        {#if org.description}
+          <span class="description">{org.description}</span>
+        {:else}
+          <span class="no-description">No description provided.</span>
+        {/if}
 
         {#if $organization == org.name}
           <div class="repositories">

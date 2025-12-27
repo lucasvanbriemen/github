@@ -11,13 +11,15 @@ main {
 
     .organization {
       display: flex;
-      align-items: center;
 
       background-color: var(--background-color-one);
       border: none;
-      padding: 0.5rem;
+      padding: 1.5rem 0.5rem;
       border-radius: 0.5rem;
       cursor: pointer;
+
+      flex-direction: column;
+      text-align: left;
 
       img {
         border-radius: 50%;
