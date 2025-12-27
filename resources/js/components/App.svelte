@@ -6,6 +6,7 @@
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './itemOverview/ItemOverview.svelte';
   import ProjectsOverview from './ProjectsOverview.svelte';
+  import Project from './Project.svelte';
   import Item from './item/Item.svelte';
   import NewItem from './item/NewItem.svelte';
   import theme from '../lib/theme.js';
@@ -16,6 +17,7 @@
     '/:organization/:repository': RepositoryDashboard,
 
     '/:organization/:repository/projects': ProjectsOverview,
+    '/:organization/:repository/projects/:number': Project,
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,

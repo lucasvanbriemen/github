@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
+use App\Models\Item;
 use Carbon\Carbon;
 
 class RepositoryController extends Controller
@@ -73,5 +74,109 @@ class RepositoryController extends Controller
         }
 
         return response()->json($projects);
+    }
+
+    public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $query = <<<'GRAPHQL'
+            query ($org: String!, $number: Int!, $after: String) {
+                organization(login: $org) {
+                    projectV2(number: $number) {
+                        field(name: "Status") {
+                            ... on ProjectV2SingleSelectField {
+                                name
+                                options {
+                                    name
+                                }
+                            }
+                        }
+                        items(first: 100, after: $after) {
+                            pageInfo {
+                                hasNextPage
+                                endCursor
+                            }
+                            nodes {
+                                content {
+                                    ... on Issue {
+                                        number
+                                    }
+                                    ... on PullRequest {
+                                        number
+                                    }
+                                }
+                                fieldValueByName(name: "Status") {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        GRAPHQL;
+
+        $projectData = ApiHelper::githubGraphql($query, [
+            'org' => $organizationName,
+            'number' => (int) $projectNumber,
+        ])->data->organization->projectV2;
+
+        $columns = collect(
+            $projectData->field->options
+        )->mapWithKeys(fn ($option) => [
+            $option->name => [
+                'name' => $option->name,
+                'items' => [],
+            ],
+        ]);
+
+        $allItems = [];
+        $after = null;
+
+        do {
+            $project = ApiHelper::githubGraphql($query, [
+                'org' => $organizationName,
+                'number' => (int) $projectNumber,
+                'after' => $after,
+            ])->data->organization->projectV2;
+
+            foreach ($project->items->nodes as $item) {
+                $allItems[] = $item;
+            }
+
+            $hasNextPage = $project->items->pageInfo->hasNextPage ?? false;
+            $after = $project->items->pageInfo->endCursor ?? null;
+        } while ($hasNextPage && $after);
+
+        $allIds = [];
+        foreach ($allItems as $item) {
+            $allIds[] = $item->content->number;
+        }
+
+        $DBitems = Item::whereIn('number', $allIds)
+            ->where('repository_id', $repository->id)
+            ->with([
+                'assignees'
+            ])
+            ->get()
+            ->keyBy('number');
+
+        // Group items by column
+        foreach ($allItems as $item) {
+            $columnName = $item->fieldValueByName->name ?? 'Unassigned';
+            $column = $columns->get($columnName);
+
+            if (!isset($DBitems[$item->content->number])) {
+                continue;
+            }
+
+            $column['items'][] = $DBitems->get($item->content->number);
+
+            $columns->put($columnName, $column);
+        }
+
+        return response()->json(array_values($columns->toArray()));
     }
 }

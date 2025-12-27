@@ -8,17 +8,22 @@
   }
 
   function subTitle() {
-    if (item.type === 'prs' || item.type === 'issues') {
-      return `#${item.number} opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
+    if (item.type === 'pr' || item.type === 'issue') {
+      return `opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
     }
 
     if (item.type === 'project') {
       return `#${item.number} updated ${item.created_at_human}`;
     }
   }
+
+  function isCurrentUserAssigned() {
+    const currentUserId = window.USER_ID;
+    return item.assignees?.some(assignee => assignee.id == currentUserId);
+  }
 </script>
 
-<a class="list-item" href="{itemUrl(item.number)}">
+<a class="list-item" class:assigned={isCurrentUserAssigned()} href="{itemUrl(item.number)}">
   <Icon name={item.type} size="1.5rem" className="item-{item.state}" />
 
   <div class="content">
