@@ -118,7 +118,6 @@ class RepositoryController extends Controller
             }
         GRAPHQL;
 
-        // Fetch initial data and columns
         $projectData = ApiHelper::githubGraphql($query, [
             'org' => $organizationName,
             'number' => (int) $projectNumber,
@@ -133,7 +132,6 @@ class RepositoryController extends Controller
             ],
         ]);
 
-        // Fetch all items with pagination
         $allItems = [];
         $after = null;
 
@@ -152,13 +150,11 @@ class RepositoryController extends Controller
             $after = $project->items->pageInfo->endCursor ?? null;
         } while ($hasNextPage && $after);
 
-        // Collect all item numbers
         $allIds = [];
         foreach ($allItems as $item) {
             $allIds[] = $item->content->number;
         }
 
-        // Get all the items from db
         $DBitems = Item::whereIn('number', $allIds)
             ->where('repository_id', $repository->id)
             ->with([
@@ -172,7 +168,6 @@ class RepositoryController extends Controller
             $columnName = $item->fieldValueByName->name ?? 'Unassigned';
             $column = $columns->get($columnName);
 
-            // If there is no matching item in the database, skip it
             if (!isset($DBitems[$item->content->number])) {
                 continue;
             }
