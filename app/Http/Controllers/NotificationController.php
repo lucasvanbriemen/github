@@ -13,7 +13,7 @@ class NotificationController extends Controller
 
         foreach ($notifications as $notification) {
             if ($notification->type === 'comment_mention') {
-                $notification->load('comment');
+                $notification->load('comment.item');
             }
         }
 
