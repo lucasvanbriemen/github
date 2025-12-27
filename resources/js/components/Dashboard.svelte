@@ -61,7 +61,7 @@
         {#each notifications as notification}
           <li class="notification">
             {#if notification.type === 'comment_mention'}
-              <strong>Mentioned in comment:</strong> "{notification.comment.content}"
+              <strong>Mentioned in comment:</strong> "{notification.comment.body}"
             {:else}
               <strong>{notification.type}:</strong> {notification.message}
             {/if}
