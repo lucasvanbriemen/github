@@ -146,6 +146,11 @@ class RepositoryController extends Controller
             $columnName = $item->fieldValueByName->name ?? 'Unassigned';
             $column = $columns->get($columnName);
 
+            // If there is no matching item in the database, skip it
+            if (!isset($DBitems[$item->content->number])) {
+                continue;
+            }
+
             $column['items'][] = $DBitems->get($item->content->number);
 
             $columns->put($columnName, $column);

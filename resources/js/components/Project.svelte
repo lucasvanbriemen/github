@@ -25,16 +25,17 @@
   <Sidebar {params} activeItem="Projects" showDetailsFrom="repo-dashboard" />
   
   <div class="repo-main">
-    cols: <br>
     {#each cols as col}
-      <h1>{col.name}</h1>
-      {#each col.items as item}
-        <ListItem {item} />
-      {/each}
+      <div class="column">
+        <h1>{col.name}</h1>
+        {#each col.items as item}
+          <ListItem {item} />
+        {/each}
+      </div>
     {/each}
   </div>
 </div>
   
 <style lang="scss">
-  @import '../../scss/components/project-listing.scss';
+  @import '../../scss/components/project.scss';
 </style>
