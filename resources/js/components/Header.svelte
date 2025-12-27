@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import { organization, repository } from './stores.js';
+  import Icon from './Icon.svelte';
+  import { organization, repository } from './stores';
 
   let organizations = $state([]);
 
@@ -10,19 +11,25 @@
 </script>
 
 <header>
-  {#each organizations as org}
-    <div class="organization" class:selected={$organization === org.name}>
-      <button onclick={() => organization.set(org.name)}>
-        <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
-        <span class="org">{org.name}</span>
-      </button>
+  <a class="logo" href="#/">
+    <Icon name="logo" />
+    <span class="title">Git</span>
+  </a>
 
-      <div class="repos">
-        {#each org.repositories as repo}
-          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={$repository === repo.name} onclick={() => repository.set(repo.name)}>{repo.name}</a>
-        {/each}
+  <div class="separator"></div>
+
+  {#each organizations as org}
+    {#if org.name === $organization}
+      <div class="organization">
+        <div>
+          <img src="{org.avatar_url}" alt="{org.name} Avatar" />
+          <span class="org">{$organization}</span>
+        </div>
+
+        <div class="separator"></div>
+        <span class="repo">{$repository}</span>
       </div>
-    </div>
+    {/if}
   {/each}
 </header>
 

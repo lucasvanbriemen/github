@@ -3,11 +3,9 @@
   import { onMount } from 'svelte';
 
   let organizations = [];
-  let notifications = [];
 
   onMount(async () => {
     organizations = await api.get(route('organizations'));
-    notifications = await api.get(route('notifications'));
   });
 
   function selectRepository(org, repo) {
