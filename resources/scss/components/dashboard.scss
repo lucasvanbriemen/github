@@ -9,6 +9,10 @@ main {
     gap: 1rem;
     width: 33%;
 
+    @media screen and (max-width: 768px) {
+      width: 100%;
+    }
+
     .organization {
       display: flex;
       gap: 0.5rem;
@@ -40,6 +44,10 @@ main {
         font-size: 1.2rem;
         font-weight: bold;
         margin: 0.5rem;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .description, .no-description {
@@ -54,6 +62,7 @@ main {
 
       .repositories {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
         
         .repository {
