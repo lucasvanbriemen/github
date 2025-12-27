@@ -1,10 +1,9 @@
 <script>
   import { onMount } from 'svelte';
-  import { params } from 'svelte-spa-router';
+  import Icon from './Icon.svelte';
+  import { organization, repository } from './stores';
 
   let organizations = $state([]);
-  let selectedOrganization = $state($params?.organization || null);
-  let selectedRepository = $state($params?.repository || null);
 
   onMount(async () => {
     organizations = await api.get(route('organizations'));
@@ -12,19 +11,25 @@
 </script>
 
 <header>
-  {#each organizations as org}
-    <div class="organization" class:selected={selectedOrganization === org.name}>
-      <button onclick={() => selectedOrganization = org.name}>
-        <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
-        <span class="org">{org.name}</span>
-      </button>
+  <a class="logo" href="#/">
+    <Icon name="logo" />
+    <span class="title">Git</span>
+  </a>
 
-      <div class="repos">
-        {#each org.repositories as repo}
-          <a href={`#/${org.name}/${repo.name}`} class="repo" class:selected={selectedRepository === repo.name} onclick={() => selectedRepository = repo.name}>{repo.name}</a>
-        {/each}
+  <div class="separator"></div>
+
+  {#each organizations as org}
+    {#if org.name === $organization}
+      <div class="organization">
+        <div>
+          <img src="{org.avatar_url}" alt="{org.name} Avatar" />
+          <span class="org">{$organization}</span>
+        </div>
+
+        <div class="separator"></div>
+        <span class="repo">{$repository}</span>
       </div>
-    </div>
+    {/if}
   {/each}
 </header>
 
