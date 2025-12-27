@@ -22,7 +22,7 @@
 <main>
   <div class="organizations">
     {#each organizations as org}
-      <button class="organization" onclick={() => selectOrganization(org)}>
+      <button class="organization" onclick={() => selectOrganization(org)} class:selected={$organization == org.name}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
         <h2 class="title">{org.name}</h2>
 
