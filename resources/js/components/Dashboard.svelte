@@ -1,5 +1,6 @@
 <script>
   import { organization, repository } from './stores';
+  import Notification from './Notification.svelte';
   import { onMount } from 'svelte';
 
   let organizations = [];
@@ -11,8 +12,6 @@
 
     organizations = await api.get(route('organizations'));
     notifications = await api.get(route('notifications'));
-
-    console.log('Notifications:', notifications);
   });
 
   function selectRepository(org, repo) {
@@ -54,21 +53,9 @@
 
   <div class="notifications">
     <h2>Notifications</h2>
-    {#if notifications.length === 0}
-      <p>No new notifications.</p>
-    {:else}
-      <ul>
-        {#each notifications as notification}
-          <li class="notification">
-            {#if notification.type === 'comment_mention'}
-              <strong>Mentioned in comment:</strong> "{notification.comment.body}"
-            {:else}
-              <strong>{notification.type}:</strong> {notification.message}
-            {/if}
-          </li>
-        {/each}
-      </ul>
-    {/if}
+    {#each notifications as notification}
+      <Notification {notification} />
+    {/each}
   </div>
 </main>
 
