@@ -5,6 +5,8 @@
   let organizations = [];
 
   onMount(async () => {
+    organization.set(null);
+    repository.set(null);
     organizations = await api.get(route('organizations'));
   });
 

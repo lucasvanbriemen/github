@@ -34,7 +34,5 @@
   });
 </script>
 
-{#if $showHeader}
-  <Header />
-{/if}
+<Header />
 <Router {routes} />
