@@ -3,6 +3,7 @@
   import Sidebar from './sidebar/Sidebar.svelte';
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
+  import Group from './sidebar/group.svelte';
 
   let { params = {} } = $props();
 
@@ -24,8 +25,10 @@
 
 <div class="repo-dashboard">
   <Sidebar {params} activeItem="Projects">
-    <button class="show-all" onclick={() => showEverything = true}>Show All</button>
-    <button class="show-mine" onclick={() => showEverything = false}>Show Mine</button>
+    <Group title="Status">
+      <button class="show-all" onclick={() => showEverything = true}>Show All</button>
+      <button class="show-mine" onclick={() => showEverything = false}>Show Mine</button>
+    </Group>
   </Sidebar>
   
   <div class="repo-main">
