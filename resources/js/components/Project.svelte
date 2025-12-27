@@ -26,8 +26,16 @@
 <div class="repo-dashboard">
   <Sidebar {params} activeItem="Projects">
     <Group title="Status">
-      <button class="show-all" onclick={() => showEverything = true}>Show All</button>
-      <button class="show-mine" onclick={() => showEverything = false}>Show Mine</button>
+      <div class="switch-container">
+        <div class="switch-label">
+          <h3>Display Mode</h3>
+          <p>Show all items or only yours</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" bind:checked={showEverything} />
+          <span class="slider"></span>
+        </label>
+      </div>
     </Group>
   </Sidebar>
   
