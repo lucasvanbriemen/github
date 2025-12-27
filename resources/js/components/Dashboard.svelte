@@ -3,11 +3,16 @@
   import { onMount } from 'svelte';
 
   let organizations = [];
+  let notifications = [];
 
   onMount(async () => {
     organization.set(null);
     repository.set(null);
+
     organizations = await api.get(route('organizations'));
+    notifications = await api.get(route('notifications'));
+
+    console.log('Notifications:', notifications);
   });
 
   function selectRepository(org, repo) {
@@ -45,6 +50,25 @@
         </div>
       </div>
     {/each}
+  </div>
+
+  <div class="notifications">
+    <h2>Notifications</h2>
+    {#if notifications.length === 0}
+      <p>No new notifications.</p>
+    {:else}
+      <ul>
+        {#each notifications as notification}
+          <li class="notification">
+            {#if notification.type === 'comment_mention'}
+              <strong>Mentioned in comment:</strong> "{notification.comment.content}"
+            {:else}
+              <strong>{notification.type}:</strong> {notification.message}
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
   </div>
 </main>
 
