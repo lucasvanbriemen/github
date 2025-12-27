@@ -81,6 +81,7 @@
   .diff-line-content {
     padding: 0.125rem 0.5rem;
     vertical-align: top;
+    white-space: pre-wrap;
     word-wrap: break-word;
     color: var(--text-color);
     flex: 1;
@@ -93,6 +94,7 @@
     }
 
     .code {
+      white-space: pre-wrap;
       word-wrap: break-word;
     }
   }
