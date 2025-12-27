@@ -93,6 +93,10 @@ class RepositoryController extends Controller
                             }
                         }
                         items(first: 100, after: $after) {
+                            pageInfo {
+                                hasNextPage
+                                endCursor
+                            }
                             nodes {
                                 content {
                                     ... on Issue {
@@ -114,13 +118,14 @@ class RepositoryController extends Controller
             }
         GRAPHQL;
 
-        $project = ApiHelper::githubGraphql($query, [
+        // Fetch initial data and columns
+        $projectData = ApiHelper::githubGraphql($query, [
             'org' => $organizationName,
             'number' => (int) $projectNumber,
         ])->data->organization->projectV2;
 
         $columns = collect(
-            $project->field->options
+            $projectData->field->options
         )->mapWithKeys(fn ($option) => [
             $option->name => [
                 'name' => $option->name,
@@ -128,8 +133,28 @@ class RepositoryController extends Controller
             ],
         ]);
 
+        // Fetch all items with pagination
+        $allItems = [];
+        $after = null;
+
+        do {
+            $project = ApiHelper::githubGraphql($query, [
+                'org' => $organizationName,
+                'number' => (int) $projectNumber,
+                'after' => $after,
+            ])->data->organization->projectV2;
+
+            foreach ($project->items->nodes as $item) {
+                $allItems[] = $item;
+            }
+
+            $hasNextPage = $project->items->pageInfo->hasNextPage ?? false;
+            $after = $project->items->pageInfo->endCursor ?? null;
+        } while ($hasNextPage && $after);
+
+        // Collect all item numbers
         $allIds = [];
-        foreach ($project->items->nodes as $item) {
+        foreach ($allItems as $item) {
             $allIds[] = $item->content->number;
         }
 
@@ -142,7 +167,8 @@ class RepositoryController extends Controller
             ->get()
             ->keyBy('number');
 
-        foreach ($project->items->nodes as $item) {
+        // Group items by column
+        foreach ($allItems as $item) {
             $columnName = $item->fieldValueByName->name ?? 'Unassigned';
             $column = $columns->get($columnName);
 

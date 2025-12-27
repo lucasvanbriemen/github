@@ -16,9 +16,14 @@
       return `#${item.number} updated ${item.created_at_human}`;
     }
   }
+
+  function isCurrentUserAssigned() {
+    const currentUserId = window.USER_ID;
+    return item.assignees?.some(assignee => assignee.id == currentUserId);
+  }
 </script>
 
-<a class="list-item" href="{itemUrl(item.number)}">
+<a class="list-item" class:assigned={isCurrentUserAssigned()} href="{itemUrl(item.number)}">
   <Icon name={item.type} size="1.5rem" className="item-{item.state}" />
 
   <div class="content">
