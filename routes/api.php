@@ -9,10 +9,14 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\BaseCommentController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\NotificationController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index'])
         ->name('organizations');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications');
 
     Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
         Route::get('/projects', [RepositoryController::class, 'getProjects'])
