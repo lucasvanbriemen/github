@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import Router from 'svelte-spa-router';
+  import { derived } from 'svelte/store';
+  import Router, { location } from 'svelte-spa-router';
   import Header from './Header.svelte';
   import Dashboard from './Dashboard.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
@@ -25,12 +26,15 @@
     '/:organization/:repository/:type/:number/:tab?': Item,
   };
 
+  const showHeader = derived(location, $location => $location !== '/');
+
   onMount(async () => {
     theme.applyTheme();
+    window.api = api;
   });
-
-  window.api = api;
 </script>
 
-<Header />
+{#if $showHeader}
+  <Header />
+{/if}
 <Router {routes} />
