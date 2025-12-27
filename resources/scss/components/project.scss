@@ -57,9 +57,17 @@
         }
       }
 
+      &:not(.only-me) {
+        :global(.list-item.assigned) {
+          border: 2px solid var(--starred-color);
+        }
+      }
 
-      :global(.assigned) {
-        border: 2px solid var(--starred-color);
+      &.only-me {
+        :global(.list-item:not(.assigned)) {
+          display: none;
+          border: none;
+        }
       }
     }
   }

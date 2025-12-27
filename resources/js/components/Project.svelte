@@ -8,6 +8,7 @@
 
   let isLoading = $state(true);
   let cols = $state([]);
+  let showEverything = $state(false);
 
   onMount(async () => {
     cols = await api.get(route('organizations.repositories.project.show', {
@@ -22,11 +23,14 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} activeItem="Projects" showDetailsFrom="repo-dashboard" />
+  <Sidebar {params} activeItem="Projects">
+    <button class="show-all" onclick={() => showEverything = true}>Show All</button>
+    <button class="show-mine" onclick={() => showEverything = false}>Show Mine</button>
+  </Sidebar>
   
   <div class="repo-main">
     {#each cols as col}
-      <div class="column">
+      <div class="column" class:only-me={showEverything == false}>
         <span class="title">{col.name}</span>
         {#each col.items as item}
           <ListItem {item} />
