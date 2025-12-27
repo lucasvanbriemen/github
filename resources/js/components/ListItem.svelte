@@ -8,8 +8,8 @@
   }
 
   function subTitle() {
-    if (item.type === 'prs' || item.type === 'issues') {
-      return `#${item.number} opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
+    if (item.type === 'pr' || item.type === 'issue') {
+      return `opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
     }
 
     if (item.type === 'project') {

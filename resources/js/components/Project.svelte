@@ -27,7 +27,10 @@
   <div class="repo-main">
     cols: <br>
     {#each cols as col}
-      name - {col.name} <br>
+      <h1>{col.name}</h1>
+      {#each col.items as item}
+        <ListItem {item} />
+      {/each}
     {/each}
   </div>
 </div>
