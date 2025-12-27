@@ -14,6 +14,7 @@
 
   function selectRepository(repo) {
     repository.set(repo.name);
+    window.location.hash = `#/${org.name}/${repo.name}`;
   }
 
 </script>
@@ -34,7 +35,14 @@
         {#if $organization == org.name}
           <div class="repositories">
             {#each org.repositories as repo}
-              <a class="repository" href="#/{org.name}/{repo.name}" onclick={() => selectRepository(repo)}>{repo.name}</a>
+              <div class="repository" onclick={() => selectRepository(repo)}>
+                <h3 class="title">{repo.name}</h3>
+                {#if repo.description}
+                  <span class="description">{repo.description}</span>
+                {:else}
+                  <span class="no-description">No description provided.</span>
+                {/if}
+              </div>
             {/each}
           </div>
         {/if}
