@@ -20,5 +20,5 @@
 </div>
 
 <style>
-  @import "../../scss/components/dashboard.scss";
+  @import "../../scss/components/notification.scss";
 </style>

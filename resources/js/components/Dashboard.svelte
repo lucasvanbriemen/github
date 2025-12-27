@@ -52,7 +52,6 @@
   </div>
 
   <div class="notifications">
-    <h2>Notifications</h2>
     {#each notifications as notification}
       <Notification {notification} />
     {/each}

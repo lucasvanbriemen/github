@@ -3,81 +3,82 @@ main {
   gap: 1rem;
   padding: 1rem;
 
-  .organizations {
+  .notifications, .organizations {
+    width: 33%;
+
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    width: 33%;
-
+  
     @media screen and (max-width: 768px) {
       width: 100%;
     }
+  }
 
-    .organization {
+  .organizations .organization {
+    display: flex;
+    gap: 0.5rem;
+
+    border: 2px solid var(--background-color-two);
+    background-color: var(--background-color);
+    padding: 1.5rem 0.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+
+    flex-direction: column;
+    text-align: left;
+
+    &:hover {
+      border: 2px solid var(--primary-color);
+    }
+
+    img {
+      border-radius: 50%;
+      height: 2rem;
+      width: 2rem;
+    }
+
+    *:not(.repositories) {
+      margin-left: 0.5rem;
+    }
+
+    .title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0.5rem;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .description, .no-description {
+      font-size: 0.9rem;
+      color: var(--text-color-secondary);
+    }
+
+    .no-description {
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    .repositories {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.5rem;
-
-      border: 2px solid var(--background-color-two);
-      background-color: var(--background-color);
-      padding: 1.5rem 0.5rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-
-      flex-direction: column;
-      text-align: left;
-
-      &:hover {
-        border: 2px solid var(--primary-color);
-      }
-
-      img {
-        border-radius: 50%;
-        height: 2rem;
-        width: 2rem;
-      }
-
-      *:not(.repositories) {
-        margin-left: 0.5rem;
-      }
-
-      .title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin: 0.5rem;
-
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .description, .no-description {
-        font-size: 0.9rem;
-        color: var(--text-color-secondary);
-      }
-
-      .no-description {
-        font-style: italic;
-        opacity: 0.7;
-      }
-
-      .repositories {
+      
+      .repository {
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        min-width: 33%;
+        border: 2px solid var(--background-color-one);
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        
-        .repository {
-          padding: 0.5rem;
-          border-radius: 0.5rem;
-          min-width: 33%;
-          border: 2px solid var(--background-color-one);
-          display: flex;
-          text-align: left;
-          flex-direction: column;
-          background-color: var(--background-color-one);
+        text-align: left;
+        flex-direction: column;
+        background-color: var(--background-color-one);
 
-          &:hover {
-            border: 2px solid var(--primary-color);
-          }
+        &:hover {
+          border: 2px solid var(--primary-color);
         }
       }
     }
