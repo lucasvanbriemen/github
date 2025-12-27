@@ -28,8 +28,8 @@
     <Group title="Status">
       <div class="switch-container">
         <div class="switch-label">
-          <h3>Display Mode</h3>
-          <p>Show all items or only yours</p>
+          <h3>Show everything</h3>
+          <p>Show all the items in the on the board rather than all of them</p>
         </div>
         <label class="switch">
           <input type="checkbox" bind:checked={showEverything} />
