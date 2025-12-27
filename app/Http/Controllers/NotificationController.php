@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Organization;
-use GrahamCampbell\GitHub\Facades\GitHub;
+use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class NotificationController extends Controller
 {
-    public static function index()
+    public function index(Request $request)
     {
-        $organizations = Organization::with('repositories')->get();
-        return response()->json($organizations);
+        $notifications = Notification::where('completed', false)->get();
+
+        foreach ($notifications as $notification) {
+            if ($notification->type === 'comment_mention') {
+                $notification->load('comment');
+            }
+        }
+
+        return response()->json($notifications);
     }
 }
