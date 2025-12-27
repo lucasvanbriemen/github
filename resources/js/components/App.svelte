@@ -27,8 +27,9 @@
 
   onMount(async () => {
     theme.applyTheme();
-    window.api = api;
   });
+
+  window.api = api;
 </script>
 
 <Header />
