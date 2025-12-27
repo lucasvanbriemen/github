@@ -8,7 +8,7 @@
   }
 
   function subTitle() {
-    if (item.type === 'pr' || item.type === 'issue') {
+    if (item.type === 'pull_request' || item.type === 'issue') {
       return `opened ${item.created_at_human} by ${item.opened_by?.display_name}`;
     }
 
