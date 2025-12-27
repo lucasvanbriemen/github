@@ -27,7 +27,7 @@
   <div class="repo-main">
     {#each cols as col}
       <div class="column">
-        <h1>{col.name}</h1>
+        <span class="title">{col.name}</span>
         {#each col.items as item}
           <ListItem {item} />
         {/each}
