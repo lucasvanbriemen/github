@@ -8,19 +8,29 @@
     organizations = await api.get(route('organizations'));
   });
 
+  function selectOrganization(org) {
+    organization.set(org.name);
+  }
+
+  function selectRepository(repo) {
+    repository.set(repo.name);
+  }
+
 </script>
 
 <main>
   <div class="organizations">
     {#each organizations as org}
-      <button class="organization" onclick={() => organization.set(org.name)}>
+      <button class="organization" onclick={() => selectOrganization(org)}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
         <span class="org">{org.name}</span>
 
         {#if $organization == org.name}
-          {#each org.repositories as repo}
-            <a href={`#/${org.name}/${repo.name}`} class="repo" onclick={() => repository.set(repo.name)}>{repo.name}</a>
-          {/each}
+          <div class="repositories">
+            {#each org.repositories as repo}
+              <a class="repository" href="#/{org.name}/{repo.name}" onclick={() => selectRepository(repo)}>{repo.name}</a>
+            {/each}
+          </div>
         {/if}
       </button>
     {/each}
