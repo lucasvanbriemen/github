@@ -55,6 +55,11 @@
   opacity: 0.5;
   user-select: none;
   flex-shrink: 0;
+
+  .code {
+    white-space: pre-wrap !important;
+    word-wrap: break-word;
+  }
 }
 
 .line-content {
