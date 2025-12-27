@@ -36,7 +36,7 @@ main {
         width: 2rem;
       }
 
-      *:not(img, .repositories) {
+      *:not(.repositories) {
         margin-left: 0.5rem;
       }
 
