@@ -28,4 +28,5 @@
 </main>
 
 <style>
+  @import "../../scss/components/dashboard.scss";
 </style>
