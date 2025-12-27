@@ -20,7 +20,7 @@
   <div class="organizations">
     {#each organizations as org}
       <div class="organization">
-        <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
+        <img src="{org.avatar_url}" alt="{org.name} Avatar" />
         <h2 class="title">{org.name}</h2>
 
         {#if org.description}
