@@ -9,8 +9,6 @@ use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
-use App\Models\Notification;
-use App\GithubConfig;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
 
@@ -69,7 +67,7 @@ class ProcessIssueCommentWebhook implements ShouldQueue
 
         GithubUser::updateFromWebhook($userData);
 
-        $basecomment = BaseComment::updateOrCreate(
+        BaseComment::updateOrCreate(
             ['comment_id' => $commentData->id, 'type' => 'issue'],
             [
                 'comment_id' => $commentData->id,
