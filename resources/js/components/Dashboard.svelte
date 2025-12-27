@@ -22,7 +22,7 @@
 <main>
   <div class="organizations">
     {#each organizations as org}
-      <button class="organization" onclick={() => selectOrganization(org)} class:selected={$organization == org.name}>
+      <button class="organization" onclick={() => selectOrganization(org)}>
         <img src="{org.avatar_url}" alt="{org.name} Avatar" width="50" height="50" />
         <h2 class="title">{org.name}</h2>
 
@@ -32,20 +32,18 @@
           <span class="no-description">No description provided.</span>
         {/if}
 
-        {#if $organization == org.name}
-          <div class="repositories">
-            {#each org.repositories as repo}
-              <div class="repository" onclick={() => selectRepository(repo)}>
-                <h3 class="title">{repo.name}</h3>
-                {#if repo.description}
-                  <span class="description">{repo.description}</span>
-                {:else}
-                  <span class="no-description">No description provided.</span>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {/if}
+        <div class="repositories">
+          {#each org.repositories as repo}
+            <div class="repository" onclick={() => selectRepository(repo)}>
+              <h3 class="title">{repo.name}</h3>
+              {#if repo.description}
+                <span class="description">{repo.description}</span>
+              {:else}
+                <span class="no-description">No description provided.</span>
+              {/if}
+            </div>
+          {/each}
+        </div>
       </button>
     {/each}
   </div>

@@ -21,11 +21,9 @@ main {
 
       flex-direction: column;
       text-align: left;
-      max-height: 10rem;
 
-      &.selected {
+      &:hover {
         border: 2px solid var(--primary-color);
-        max-height: 15rem;
       }
 
       img {
