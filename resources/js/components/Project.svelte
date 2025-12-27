@@ -40,6 +40,17 @@
   </Sidebar>
   
   <div class="repo-main">
+    {#if isLoading}
+      {#each Array(3) as _, index}
+        <div class="column">
+          <span class="title">Loading...</span>
+          {#each Array(5) as __, idx}
+            <ListItemSkeleton key={idx} />
+          {/each}
+        </div>
+      {/each}
+    {/if}
+
     {#each cols as col}
       <div class="column" class:only-me={showEverything == false}>
         <span class="title">{col.name}</span>
