@@ -12,13 +12,11 @@
   let showEverything = $state(false);
 
   onMount(async () => {
-    const projectData = await api.get(route('organizations.repositories.project.show', {
+    cols = await api.get(route('organizations.repositories.project.show', {
       organization: params.organization,
       repository: params.repository,
       number: params.number,
     }));
-
-    cols = projectData.columns;
 
     isLoading = false;
   });

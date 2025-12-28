@@ -191,15 +191,11 @@ class RepositoryController extends Controller
             'number' => (int) $projectNumber,
         ])->data->organization->projectV2;
 
-        $projectId = $projectData->id;
-        $fieldId = $projectData->field->id ?? null;
-
         $columns = collect(
             $projectData->field->options
         )->mapWithKeys(fn ($option) => [
             $option->name => [
                 'name' => $option->name,
-                'id' => $option->id,
                 'items' => [],
             ],
         ]);
@@ -244,19 +240,12 @@ class RepositoryController extends Controller
                 continue;
             }
 
-            // Include the GitHub project item ID so we can update it
-            $dbItem = $DBitems->get($item->content->number);
-            $dbItem->projectItemId = $item->id;
-            $column['items'][] = $dbItem;
+            $column['items'][] = $DBitems->get($item->content->number);
 
             $columns->put($columnName, $column);
         }
 
-        return response()->json([
-            'projectId' => $projectId,
-            'fieldId' => $fieldId,
-            'columns' => array_values($columns->toArray())
-        ]);
+        return response()->json(array_values($columns->toArray()));
     }
 
     public function updateProjectItemField(string $organizationName, string $repositoryName, int $projectNumber)
