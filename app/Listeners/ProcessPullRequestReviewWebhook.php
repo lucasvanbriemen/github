@@ -136,7 +136,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         if ($pr->isCurrentlyAssignedToUser()) {
             Notification::create([
                 'type' => 'pr_review',
-                'related_id' => $pr->id,
+                'related_id' => $reviewData->id,
             ]);
         }
 
