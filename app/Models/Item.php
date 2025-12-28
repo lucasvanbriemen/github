@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Services\RepositoryService;
+use App\GithubConfig;
 
 class Item extends Model
 {
@@ -56,6 +57,11 @@ class Item extends Model
     public function assignees()
     {
         return $this->belongsToMany(GithubUser::class, 'issue_assignees', 'issue_id', 'user_id', 'id', 'id');
+    }
+
+    public function isCurrentlyAssignedToUser($githubUserId = GithubConfig::USERID)
+    {
+        return $this->assignees()->where('github_users.id', $githubUserId)->exists();
     }
 
     public function getAssigneesDataAttribute()
