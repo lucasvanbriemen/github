@@ -19,6 +19,10 @@
       return `You were requested to review #${notification.item.number}`;
     }
 
+    if (notification.type === 'pr_review') {
+      return `${notification.review.base_comment.author.display_name} ${notification.review.state} your review on #${notification.review.base_comment.item.number}`;
+    }
+
     return 'Notification';
   }
 
@@ -29,6 +33,10 @@
 
     if (notification.type === 'item_assigned' || notification.type === 'review_requested') {
       return notification.item.title;
+    }
+
+    if (notification.type === 'pr_review') {
+      return notification.review.base_comment.body;
     }
 
     return notification.type;
@@ -49,6 +57,10 @@
 
     if (notification.type === 'item_assigned' || notification.type === 'review_requested') {
       item = notification.item;
+    }
+
+    if (notification.type === 'pr_review') {
+      item = notification.review.base_comment.item;
     }
 
     if (item.type === 'issue') {
