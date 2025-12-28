@@ -162,22 +162,6 @@
   </Sidebar>
   
   <div class="repo-main">
-    <!-- Add Item Form Section -->
-    <div style="padding: 20px; border-bottom: 1px solid #e0e0e0;">
-      <!-- Project Metadata Section -->
-      {#if projectId && fieldId}
-        <div style="margin-top: 16px; padding: 12px; background: #f0f9ff; border-radius: 6px; font-size: 12px; border: 1px solid #a1d8ff;">
-          <div style="margin-bottom: 8px;">
-            <strong style="color: #0969da;">✓ Project Configured</strong>
-          </div>
-          <div style="color: #666; font-family: monospace; font-size: 11px; word-break: break-all;">
-            <div><strong>Project:</strong> {projectId?.substring(0, 15)}...</div>
-            <div><strong>Field:</strong> {fieldId?.substring(0, 15)}...</div>
-          </div>
-        </div>
-      {/if}
-    </div>
-
     {#if isLoading}
       {#each Array(3) as _, index}
         <div class="column">
@@ -192,29 +176,9 @@
     {#each cols as col}
       <div class="column" class:only-me={showEverything == false}>
         <span class="title">{col.name}</span>
-        <div style="position: relative;">
-          {#each col.items as item}
-            <div style="position: relative; margin-bottom: 8px;">
-              <ListItem {item} />
-              <!-- Column Update Buttons -->
-              {#if projectId && fieldId}
-                <div style="display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;">
-                  {#each cols as targetCol}
-                    {#if targetCol.name !== col.name}
-                      <button
-                        onclick={() => handleUpdateColumn(item, targetCol.name)}
-                        style="padding: 4px 8px; font-size: 11px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
-                        title="Move to {targetCol.name}"
-                      >
-                        → {targetCol.name}
-                      </button>
-                    {/if}
-                  {/each}
-                </div>
-              {/if}
-            </div>
-          {/each}
-        </div>
+        {#each col.items as item}
+          <ListItem {item} />
+        {/each}
       </div>
     {/each}
   </div>
