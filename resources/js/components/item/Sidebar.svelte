@@ -80,7 +80,7 @@
         {
           projectId: existingProject.id,
           itemId: existingProject.itemId,
-          fieldId: existingProject.fieldId,
+          fieldId: existingProject.status_field_id,
           statusValue: newStatusId
         }
       );
@@ -130,37 +130,10 @@
   }
 
   async function handleSelectProjectToAdd(project) {
-    try {
-      // Fetch fields for this project
-      const projectIndex = projects.findIndex(p => p.id === project.id);
-      if (projectIndex >= 0) {
-        projects[projectIndex].loading = true;
-      }
-
-      const fieldsResponse = await api.get(
-        route('organizations.repositories.project.fields', {
-          organization,
-          repository,
-          number: project.number
-        })
-      );
-
-      if (fieldsResponse.field && fieldsResponse.field.options) {
-        projects[projectIndex].fields = fieldsResponse.field;
-        projects[projectIndex].projectId = fieldsResponse.projectId;
-        selectedProjectForAdd = projectIndex;
-        selectedStatus = fieldsResponse.field.options[0]?.id; // Default to first option
-      } else {
-        alert('Could not load status options for this project');
-      }
-    } catch (err) {
-      alert('Error loading project fields: ' + err.message);
-    } finally {
-      const projectIndex = projects.findIndex(p => p.id === project.id);
-      if (projectIndex >= 0) {
-        projects[projectIndex].loading = false;
-      }
-    }
+    const projectIndex = projects.findIndex(p => p.id === project.id);
+    selectedProjectForAdd = projectIndex;
+    selectedStatus = projects[projectIndex].status_options[0].id;
+   
   }
 
   async function handleAddToProjectWithStatus() {
@@ -177,10 +150,10 @@
       const response = await api.post(
         route('organizations.repositories.item.add.to.project', {organization, repository}),
         {
-          projectId: project.projectId,
+          projectId: project.id,
           contentId: item.node_id, // GitHub's global node ID
           itemNumber: item.number,
-          fieldId: project.fields?.id,
+          fieldId: project.status_field_id,
           statusValue: selectedStatus
         }
       );

@@ -81,6 +81,7 @@ class RepositoryController extends Controller
             $fields = $project->fields->nodes;
             foreach ($fields as $field) {
                 if (isset($field->name) && $field->name === 'Status') {
+                    $project->statusFieldId = $field->id;
                     $project->statusOptions = $field->options;
                     break;
                 }
@@ -91,6 +92,7 @@ class RepositoryController extends Controller
                 'title' => $project->title,
                 'number' => $project->number,
                 'status_options' => $project->statusOptions ?? [],
+                'status_field_id' => $project->statusFieldId ?? null,
                 'updated_at' => Carbon::parse($project->updatedAt)->diffForHumans(),
             ];
         }

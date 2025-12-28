@@ -270,7 +270,7 @@ class ItemController extends Controller
 
                     if (isset($fieldsResponse->data->organization->projectV2->field)) {
                         $field = $fieldsResponse->data->organization->projectV2->field;
-                        $projectData['fieldId'] = $field->id ?? null;
+                        $projectData['status_field_id'] = $field->id ?? null;
                         $projectData['options'] = $field->options ?? [];
                     }
 
