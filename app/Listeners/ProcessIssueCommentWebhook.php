@@ -8,6 +8,8 @@ use App\Models\Issue;
 use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Models\Notification;
+use App\Models\Item;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
@@ -77,6 +79,17 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
                 'type' => 'issue',
             ]
         );
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $issueData->number)
+            ->first();
+
+        if ($item->isCurrentlyAssignedToUser()) {
+            Notification::create([
+                'type' => 'item_comment',
+                'related_id' => $item->id,
+            ]);
+        }
 
         return true;
     }
