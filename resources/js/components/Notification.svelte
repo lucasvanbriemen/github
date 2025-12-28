@@ -12,7 +12,7 @@
     }
 
     if (notification.type === 'item_assigned') {
-      return `${notification.item.title} was assigned to you`;
+      return `#${notification.item.number} was assigned to you`;
     }
 
     return 'Notification';
@@ -24,7 +24,7 @@
     }
 
     if (notification.type === 'item_assigned') {
-      return notification.item.body;
+      return notification.item.title;
     }
 
     return notification.type;
@@ -41,6 +41,10 @@
 
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       item = notification.comment.item;
+    }
+
+    if (notification.type === 'item_assigned') {
+      item = notification.item;
     }
 
     if (item.type === 'issue') {
