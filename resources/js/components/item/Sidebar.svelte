@@ -29,9 +29,6 @@
   }
 
   onMount(async () => {
-    // let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
-    // selectedableReviewers = repoMetadata.assignees;
-
     formatContributors();
 
     if (isPR) {
@@ -39,18 +36,8 @@
     }
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
+    projects = await api.get(route('organizations.repositories.projects', {organization, repository}));
 
-    // Load available projects
-    try {
-      const projectsList = await api.get(route('organizations.repositories.projects', {organization, repository}));
-      projects = projectsList.map(p => ({
-        ...p,
-        adding: false,
-        fields: null
-      }));
-    } catch (e) {
-      console.error('Failed to load projects:', e);
-    }
     loadingProjects = false;
   });
 
@@ -79,40 +66,6 @@
     });
   }
 
-  async function handleSelectProjectToAdd(project) {
-    try {
-      // Fetch fields for this project
-      const projectIndex = projects.findIndex(p => p.id === project.id);
-      if (projectIndex >= 0) {
-        projects[projectIndex].loading = true;
-      }
-
-      const fieldsResponse = await api.get(
-        route('organizations.repositories.project.fields', {
-          organization,
-          repository,
-          number: project.number
-        })
-      );
-
-      if (fieldsResponse.field && fieldsResponse.field.options) {
-        projects[projectIndex].fields = fieldsResponse.field;
-        projects[projectIndex].projectId = fieldsResponse.projectId;
-        selectedProjectForAdd = projectIndex;
-        selectedStatus = fieldsResponse.field.options[0]?.id; // Default to first option
-      } else {
-        alert('Could not load status options for this project');
-      }
-    } catch (err) {
-      alert('Error loading project fields: ' + err.message);
-    } finally {
-      const projectIndex = projects.findIndex(p => p.id === project.id);
-      if (projectIndex >= 0) {
-        projects[projectIndex].loading = false;
-      }
-    }
-  }
-
   async function handleAddToProjectWithStatus() {
     if (selectedProjectForAdd === null || !selectedStatus) {
       alert('Please select a status');
@@ -130,7 +83,7 @@
           projectId: project.projectId,
           contentId: item.node_id, // GitHub's global node ID
           itemNumber: item.number,
-          fieldId: project.fields?.id,
+          fieldId: project.status_options?.id,
           statusValue: selectedStatus
         }
       );

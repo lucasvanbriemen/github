@@ -228,23 +228,19 @@ class ItemController extends Controller
             'number' => (int) $issueNumber,
         ]);
 
-        if (isset($response->data->repository->{$type}->id)) {
-            $item->node_id = $response->data->repository->{$type}->id;
+        $item->node_id = $response->data->repository->{$type}->id;
 
-            // Add the projects this item is in
-            $projects = [];
-            if (isset($response->data->repository->{$type}->projectItems->nodes)) {
-                foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
-                    $projects[] = [
-                        'id' => $projectItem->project->id,
-                        'title' => $projectItem->project->title,
-                        'number' => $projectItem->project->number,
-                        'status' => $projectItem->fieldValueByName->name ?? null
-                    ];
-                }
-            }
-            $item->projects_v2 = $projects;
+        // Add the projects this item is in
+        $projects = [];
+        foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
+            $projects[] = [
+                'id' => $projectItem->project->id,
+                'title' => $projectItem->project->title,
+                'number' => $projectItem->project->number,
+                'status' => $projectItem->fieldValueByName->name ?? null
+            ];
         }
+        $item->projects_v2 = $projects;
 
         return response()->json($item);
     }

@@ -47,16 +47,28 @@ class RepositoryController extends Controller
     {
         $mutation = <<<'GRAPHQL'
         query ($owner: String!, $name: String!) {
-          repository(owner: $owner, name: $name) {
-            projectsV2(first: 100) {
-              nodes {
-                id
-                title
-                number
-                updatedAt
-              }
+            repository(owner: $owner, name: $name) {
+                projectsV2(first: 100) {
+                    nodes {
+                        id
+                        title
+                        number
+                        updatedAt
+                        fields(first: 50) {
+                            nodes {
+                                ... on ProjectV2SingleSelectField {
+                                    id
+                                    name
+                                    options {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          }
         }
         GRAPHQL;
 
@@ -65,10 +77,20 @@ class RepositoryController extends Controller
 
         $projects = [];
         foreach ($data as $project) {
+            // Get the status field and its options
+            $fields = $project->fields->nodes;
+            foreach ($fields as $field) {
+                if (isset($field->name) && $field->name === 'Status') {
+                    $project->statusOptions = $field->options;
+                    break;
+                }
+            }
+
             $projects[] = [
                 'id' => $project->id,
                 'title' => $project->title,
                 'number' => $project->number,
+                'status_options' => $project->statusOptions ?? [],
                 'updated_at' => Carbon::parse($project->updatedAt)->diffForHumans(),
             ];
         }
@@ -196,43 +218,6 @@ class RepositoryController extends Controller
         ]);
     }
 
-    public function addProjectItem(string $organizationName, string $repositoryName, int $projectNumber)
-    {
-        $mutation = <<<'GRAPHQL'
-        mutation ($input: ProjectsV2AddDraftItemInput!) {
-            projectsV2AddDraftItem(input: $input) {
-                item {
-                    id
-                }
-            }
-        }
-        GRAPHQL;
-
-        $projectId = request()->input('projectId');
-        $title = request()->input('title');
-
-        $response = ApiHelper::githubGraphql($mutation, [
-            'input' => [
-                'projectId' => $projectId,
-                'title' => $title,
-            ]
-        ]);
-
-        if (isset($response->data->projectsV2AddDraftItem->item)) {
-            return response()->json([
-                'success' => true,
-                'itemId' => $response->data->projectsV2AddDraftItem->item->id,
-                'message' => 'Item added successfully'
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to add item',
-            'errors' => $response->errors ?? []
-        ], 400);
-    }
-
     public function updateProjectItemField(string $organizationName, string $repositoryName, int $projectNumber)
     {
         $mutation = <<<'GRAPHQL'
@@ -249,8 +234,6 @@ class RepositoryController extends Controller
         $fieldId = request()->input('fieldId');
         $value = request()->input('value');
 
-        error_log('Update field request - projectId: ' . request()->input('projectId') . ', itemId: ' . $itemId . ', fieldId: ' . $fieldId . ', value: ' . $value);
-
         $response = ApiHelper::githubGraphql($mutation, [
             'input' => [
                 'projectId' => request()->input('projectId'),
@@ -262,74 +245,10 @@ class RepositoryController extends Controller
             ]
         ]);
 
-        error_log('Update field response: ' . json_encode($response));
-
-        if (isset($response->data->updateProjectV2ItemFieldValue->projectV2Item)) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Item field updated successfully'
-            ]);
-        }
-
-        // Return detailed error info
-        $errorMsg = 'Failed to update item field';
-        if (isset($response->errors) && !empty($response->errors)) {
-            $errorMsg = $response->errors[0]->message ?? $errorMsg;
-        }
-
         return response()->json([
-            'success' => false,
-            'message' => $errorMsg,
-            'fullErrors' => $response->errors ?? [],
-            'debugInfo' => [
-                'projectId' => request()->input('projectId'),
-                'itemId' => $itemId,
-                'fieldId' => $fieldId,
-                'value' => $value
-            ]
-        ], 400);
-    }
-
-    public function getProjectFields(string $organizationName, string $repositoryName, string $projectNumber)
-    {
-        $query = <<<'GRAPHQL'
-        query ($org: String!, $number: Int!) {
-            organization(login: $org) {
-                projectV2(number: $number) {
-                    id
-                    field(name: "Status") {
-                        ... on ProjectV2SingleSelectField {
-                            id
-                            name
-                            options {
-                                id
-                                name
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        GRAPHQL;
-
-        $response = ApiHelper::githubGraphql($query, [
-            'org' => $organizationName,
-            'number' => intval($projectNumber),
+            'success' => true,
+            'message' => 'Item field updated successfully'
         ]);
-
-        if (isset($response->data->organization->projectV2)) {
-            $projectData = $response->data->organization->projectV2;
-            return response()->json([
-                'projectId' => $projectData->id,
-                'field' => $projectData->field,
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to fetch project fields',
-            'errors' => $response->errors ?? []
-        ], 400);
     }
 
     public function addItemToProject(string $organizationName, string $repositoryName)
@@ -356,27 +275,6 @@ class RepositoryController extends Controller
             'contentId' => $contentId,
         ]);
 
-        // Debug: log the full response
-        error_log('Add item response: ' . json_encode($response));
-
-        if (!isset($response->data->addProjectV2ItemById->item)) {
-            // If there are errors, return them with full detail
-            if (isset($response->errors)) {
-                error_log('GraphQL errors: ' . json_encode($response->errors));
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to add item to project',
-                    'errors' => $response->errors ?? [],
-                    'errorDetails' => json_encode($response->errors ?? [])
-                ], 400);
-            }
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to add item to project - no data returned',
-                'response' => $response
-            ], 400);
-        }
-
         $itemId = $response->data->addProjectV2ItemById->item->id;
 
         // Now update the status field if provided
@@ -391,8 +289,6 @@ class RepositoryController extends Controller
             }
             GRAPHQL;
 
-            error_log('Updating status field - fieldId: ' . $fieldId . ', statusValue: ' . $statusValue);
-
             $updateResponse = ApiHelper::githubGraphql($updateMutation, [
                 'input' => [
                     'projectId' => $projectId,
@@ -403,25 +299,6 @@ class RepositoryController extends Controller
                     ]
                 ]
             ]);
-
-            error_log('Update status response: ' . json_encode($updateResponse));
-
-            if (!isset($updateResponse->data->updateProjectV2ItemFieldValue->projectV2Item)) {
-                // Status update failed - log the error
-                $errorMsg = 'Failed to set status field';
-                if (isset($updateResponse->errors)) {
-                    error_log('Failed to set status field: ' . json_encode($updateResponse->errors));
-                    $errorMsg = 'Item added but status update failed: ' . json_encode($updateResponse->errors[0]->message ?? 'Unknown error');
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMsg,
-                    'itemId' => $itemId,
-                    'addedButStatusFailed' => true,
-                    'errors' => $updateResponse->errors ?? []
-                ], 400);
-            }
         }
 
         return response()->json([

@@ -28,12 +28,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/projects/{number}', [RepositoryController::class, 'showProject'])
             ->name('project.show');
 
-        Route::get('/projects/{number}/fields', [RepositoryController::class, 'getProjectFields'])
-            ->name('project.fields');
-
-        Route::post('/projects/{number}/items', [RepositoryController::class, 'addProjectItem'])
-            ->name('project.item.add');
-
         Route::patch('/projects/{number}/items/{itemId}', [RepositoryController::class, 'updateProjectItemField'])
             ->name('project.item.update');
 
