@@ -62,14 +62,16 @@
   }
 </script>
 
-<button class="notification" onclick="{goToNotificationUrl}">
-  <div>
-    <h3 class="title">{getNotificationTitle()}</h3>
-    <p class="body">{getNotificationBody()}</p>
-  </div>
+{#if !notification.completed}
+  <button class="notification" onclick="{goToNotificationUrl}">
+    <div>
+      <h3 class="title">{getNotificationTitle()}</h3>
+      <p class="body">{getNotificationBody()}</p>
+    </div>
 
-  <Icon name="approved" size="1.5rem" onclick={() => completeNotification(notification.id)} />
-</button>
+    <Icon name="approved" size="1.5rem" onclick={() => completeNotification(notification.id)} />
+  </button>
+{/if}
 
 <style>
   @import "../../scss/components/notification.scss";
