@@ -272,7 +272,6 @@
                   margin-left: 8px;
                   font-weight: bold;
                 "
-                title="Remove from project"
               >
                 ×
               </button>
@@ -307,31 +306,14 @@
         {/each}
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          {#if selectedProjectForAdd === null}
             {#each projects as project, idx (project.id)}
               <!-- Only show button if not already on this project -->
               {#if !item.projects_v2.some(p => p.id === project.id)}
-                <button
-                  onclick={() => handleSelectProjectToAdd(project)}
-                  disabled={project.adding || project.loading || project.added}
-                  style="
-                    padding: 8px 12px;
-                    background: {project.added ? '#2da44f' : '#f6f8fa'};
-                    color: {project.added ? 'white' : '#24292f'};
-                    border: 1px solid {project.added ? '#2da44f' : '#d0d7de'};
-                    border-radius: 6px;
-                    cursor: {(project.adding || project.loading) ? 'wait' : 'pointer'};
-                    font-size: 13px;
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                    background-color: transparent;
-                  "
-                >
-                  <span>+ Add to {project.title}</span>
+                <button onclick={() => handleSelectProjectToAdd(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark);">
+                  + Add to {project.title}
                 </button>
               {/if}
             {/each}
-          {:else}
             <!-- Status Selector Modal -->
             <div style="padding: 12px; background: #f6f8fa; border-radius: 6px; border: 1px solid #d0d7de;">
               <div style="margin-bottom: 12px;">
@@ -361,7 +343,6 @@
               <div style="display: flex; gap: 6px;">
                 <button
                   onclick={handleAddToProjectWithStatus}
-                  disabled={projects[selectedProjectForAdd].adding}
                   style="
                     flex: 1;
                     padding: 6px 12px;
@@ -378,7 +359,6 @@
                 </button>
                 <button
                   onclick={cancelSelectingStatus}
-                  disabled={projects[selectedProjectForAdd].adding}
                   style="
                     flex: 1;
                     padding: 6px 12px;
@@ -395,7 +375,6 @@
                 </button>
               </div>
             </div>
-          {/if}
         </div>
       </SidebarGroup>
     {/if}
