@@ -6,12 +6,16 @@
     if (notification.type === 'comment_mention') {
       return `${notification.comment.author.display_name} mentioned you in #${notification.comment.item.number}`;
     }
+
+    return 'Notification';
   }
 
   function getNotificationBody() {
     if (notification.type === 'comment_mention') {
       return notification.comment.body;
     }
+
+    return notification.type;
   }
 
   function goToNotificationUrl() {

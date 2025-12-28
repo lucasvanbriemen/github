@@ -6,7 +6,7 @@ use App\Events\IssuesWebhookReceived;
 use App\Models\GithubUser;
 use App\Models\Issue;
 use App\Models\Repository;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\Notification;
 
 class ProcessIssueWebhook
 {
@@ -54,6 +54,14 @@ class ProcessIssueWebhook
             return true;
         }
 
+        // check if the issue already exists
+        $issue = Issue::where('id', $issueData->id)->first();
+        if (!$issue) {
+            $preHookAssigned = false;
+        } else {
+            $preHookAssigned = $issue->isCurrentlyAssignedToUser();
+        }
+
         $issue = Issue::updateOrCreate(
             ['id' => $issueData->id],
             [
@@ -68,6 +76,14 @@ class ProcessIssueWebhook
 
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);
+
+        $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
+        if ($currentlyAssigned && !$preHookAssigned) {
+            Notification::create([
+                'type' => 'item_assigned',
+                'related_id' => $issue->id
+            ]);
+        }
 
         return true;
     }
