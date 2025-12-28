@@ -9,9 +9,6 @@ use App\Models\PullRequestComment;
 use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
-use App\Models\Notification;
-use App\Models\Item;
-use App\GithubConfig;
 
 class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 {
@@ -72,44 +69,6 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
                 'pull_request_review_id' => $commentData->pull_request_review_id ?? null,
             ]
         );
-
-        // Create activity notification if current user is assigned to this PR (only for create/edit, not delete)
-        if ($payload->action !== 'deleted' && $pr) {
-            $item = Item::find($prData->id);
-            if ($item) {
-                $actorId = $userData->id;
-
-                // Check if current user is assigned to this PR
-                $isUserAssigned = $item->assignees()
-                    ->where('user_id', GithubConfig::USERID)
-                    ->exists();
-
-                // Skip if actor is current user
-                if ($isUserAssigned && $actorId != GithubConfig::USERID) {
-                    // Check for duplicate notification within 5 minutes
-                    $existingNotification = Notification::where('type', 'activity_on_assigned_item')
-                        ->where('related_id', $item->id)
-                        ->where('actor_id', $actorId)
-                        ->where('created_at', '>', now()->subMinutes(5))
-                        ->first();
-
-                    if (!$existingNotification) {
-                        Notification::create([
-                            'type' => 'activity_on_assigned_item',
-                            'related_id' => $item->id,
-                            'actor_id' => $actorId,
-                            'repository_id' => $item->repository_id,
-                            'metadata' => json_encode([
-                                'item_number' => $item->number,
-                                'item_type' => 'pull_request',
-                                'activity_type' => 'review_comment',
-                                'comment_id' => $commentData->id,
-                            ])
-                        ]);
-                    }
-                }
-            }
-        }
 
         // If action is deleted, we just delete the comment
         if ($payload->action === 'deleted') {
