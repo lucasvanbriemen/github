@@ -22,9 +22,9 @@
 
     if (notification.type === 'comment_mention') {
       if (notification.comment.item.type === 'issue') {
-        window.location.hash = `#/issues/${notification.comment.item.number}`;
+        window.location.hash = `#/${notification.comment.item.repository.full_name}/issues/${notification.comment.item.number}`;
       } else if (notification.comment.item.type === 'pull_request') {
-        window.location.hash = `#/prs/${notification.comment.item.number}`;
+        window.location.hash = `#/${notification.comment.item.repository.full_name}/prs/${notification.comment.item.number}`;
       }
     }
   }
