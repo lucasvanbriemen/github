@@ -40,9 +40,7 @@
 
     const projectsList = await api.get(route('organizations.repositories.projects', {organization, repository}));
     projects = projectsList.map(p => ({
-      ...p,
-      adding: false,
-      fields: null
+      ...p
     }));
     
     loadingProjects = false;
@@ -133,20 +131,12 @@
     const projectIndex = projects.findIndex(p => p.id === project.id);
     selectedProjectForAdd = projectIndex;
     selectedStatus = projects[projectIndex].status_options[0].id;
-   
   }
 
   async function handleAddToProjectWithStatus() {
-    if (selectedProjectForAdd === null || !selectedStatus) {
-      alert('Please select a status');
-      return;
-    }
-
     const project = projects[selectedProjectForAdd];
 
     try {
-      projects[selectedProjectForAdd].adding = true;
-
       const response = await api.post(
         route('organizations.repositories.item.add.to.project', {organization, repository}),
         {
@@ -159,11 +149,7 @@
       );
 
       if (response.success) {
-        // Mark as added
-        projects[selectedProjectForAdd].added = true;
-        // Remove the "added" status after 2 seconds
         setTimeout(() => {
-          projects[selectedProjectForAdd].added = false;
           selectedProjectForAdd = null;
           selectedStatus = null;
           projects = projects; // Force reactivity
@@ -185,8 +171,6 @@
       }
     } catch (err) {
       alert('Error: ' + err.message);
-    } finally {
-      projects[selectedProjectForAdd].adding = false;
     }
   }
 
@@ -330,7 +314,7 @@
                     cursor: pointer;
                   "
                 >
-                  {projects[selectedProjectForAdd].adding ? 'Adding...' : 'Add'}
+                  Add
                 </button>
                 <button
                   onclick={cancelSelectingStatus}
