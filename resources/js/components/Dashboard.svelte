@@ -1,13 +1,17 @@
 <script>
   import { organization, repository } from './stores';
+  import Notification from './Notification.svelte';
   import { onMount } from 'svelte';
 
   let organizations = [];
+  let notifications = [];
 
   onMount(async () => {
     organization.set(null);
     repository.set(null);
+
     organizations = await api.get(route('organizations'));
+    notifications = await api.get(route('notifications'));
   });
 
   function selectRepository(org, repo) {
@@ -44,6 +48,12 @@
           {/each}
         </div>
       </div>
+    {/each}
+  </div>
+
+  <div class="notifications">
+    {#each notifications as notification}
+      <Notification {notification} />
     {/each}
   </div>
 </main>

@@ -1,0 +1,50 @@
+.notification {
+  border: 2px solid var(--background-color-two);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: transparent;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    border: 2px solid var(--primary-color);
+  }
+
+  h3, p {
+    margin: 0;
+    text-align: left;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+  }
+
+  :global(.icon) {
+    padding: 0.5rem;
+
+    :global(svg) {
+      color: var(--text-color-secondary);
+      fill: var(--text-color-secondary);
+      stroke: var(--text-color-secondary);
+    }
+  }
+
+  :global(.icon:hover) {
+    :global(svg) {
+      color: var(--primary-color);
+      fill: var(--primary-color);
+      stroke: var(--primary-color);
+    }
+  }
+}
