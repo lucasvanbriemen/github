@@ -8,6 +8,7 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\Models\Notification;
 use App\Helpers\ApiHelper;
 use RuntimeException;
 use Carbon\Carbon;
@@ -79,6 +80,13 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             }
         }
 
+        $pr = PullRequest::where('id', $prData->id)->first();
+        if (!$pr) {
+            $preHookAssigned = false;
+        } else {
+            $preHookAssigned = $pr->isCurrentlyAssignedToUser();
+        }
+
         // Update base fields in items table
         $pr = PullRequest::updateOrCreate(
             ['id' => $prData->id],
@@ -120,6 +128,14 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         // Sync assignees (now uses issue_assignees table for both issues and PRs)
         if ($pr) {
             $pr->assignees()->sync($assigneeGithubIds);
+        }
+
+        $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
+        if ($currentlyAssigned && !$preHookAssigned) {
+            Notification::create([
+                'type' => 'item_assigned',
+                'related_id' => $pr->id
+            ]);
         }
 
         if ($payload->action === 'review_requested') {
