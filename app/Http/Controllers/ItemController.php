@@ -196,6 +196,56 @@ class ItemController extends Controller
             $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
         }
 
+        // Fetch the global node ID from GitHub and what projects it's in
+        $type = $item->isPullRequest() ? 'pullRequest' : 'issue';
+        $query = "
+            query (\$owner: String!, \$name: String!, \$number: Int!) {
+                repository(owner: \$owner, name: \$name) {
+                    $type(number: \$number) {
+                        id
+                        projectItems(first: 10) {
+                            nodes {
+                                project {
+                                    id
+                                    title
+                                    number
+                                }
+                                fieldValueByName(name: \"Status\") {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ";
+
+        $response = ApiHelper::githubGraphql($query, [
+            'owner' => $organizationName,
+            'name' => $repository->name,
+            'number' => (int) $issueNumber,
+        ]);
+
+        if (isset($response->data->repository->{$type}->id)) {
+            $item->node_id = $response->data->repository->{$type}->id;
+
+            // Add the projects this item is in
+            $projects = [];
+            if (isset($response->data->repository->{$type}->projectItems->nodes)) {
+                foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
+                    $projects[] = [
+                        'id' => $projectItem->project->id,
+                        'title' => $projectItem->project->title,
+                        'number' => $projectItem->project->number,
+                        'status' => $projectItem->fieldValueByName->name ?? null
+                    ];
+                }
+            }
+            $item->projects_v2 = $projects;
+        }
+
         return response()->json($item);
     }
 

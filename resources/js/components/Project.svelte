@@ -10,17 +10,139 @@
   let isLoading = $state(true);
   let cols = $state([]);
   let showEverything = $state(false);
+  let showAddForm = $state(false);
+  let newItemTitle = $state('');
+  let projectId = $state('');
+  let fieldId = $state('');
+  let isSubmitting = $state(false);
 
   onMount(async () => {
-    cols = await api.get(route('organizations.repositories.project.show', {
+    const projectData = await api.get(route('organizations.repositories.project.show', {
       organization: params.organization,
       repository: params.repository,
       number: params.number,
     }));
+
+    // Handle new response format with metadata
+    if (projectData.columns) {
+      cols = projectData.columns;
+      projectId = projectData.projectId;
+      fieldId = projectData.fieldId;
+    } else {
+      // Fallback for old format
+      cols = projectData;
+    }
+
     isLoading = false;
 
-    console.log(cols);
+    console.log('Project data:', projectData);
   });
+
+  async function handleAddItem() {
+    if (!newItemTitle.trim() || !projectId) {
+      alert('Please enter a title');
+      return;
+    }
+
+    isSubmitting = true;
+    try {
+      const response = await api.post(
+        route('organizations.repositories.project.item.add', {
+          organization: params.organization,
+          repository: params.repository,
+          number: params.number,
+        }),
+        { projectId, title: newItemTitle }
+      );
+
+      if (response.success) {
+        newItemTitle = '';
+        showAddForm = false;
+        // Refresh the project data
+        const projectData = await api.get(route('organizations.repositories.project.show', {
+          organization: params.organization,
+          repository: params.repository,
+          number: params.number,
+        }));
+
+        // Handle new response format
+        if (projectData.columns) {
+          cols = projectData.columns;
+          projectId = projectData.projectId;
+          fieldId = projectData.fieldId;
+        } else {
+          cols = projectData;
+        }
+      } else {
+        alert('Failed to add item: ' + response.message);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      isSubmitting = false;
+    }
+  }
+
+  async function handleUpdateColumn(item, targetColumnName) {
+    if (!projectId || !fieldId) {
+      alert('Project info not available');
+      return;
+    }
+
+    // Find the option ID for the target column
+    const targetColumn = cols.find(col => col.name === targetColumnName);
+    if (!targetColumn || !targetColumn.id) {
+      alert('Could not find target column option ID');
+      return;
+    }
+
+    try {
+      const response = await api.patch(
+        route('organizations.repositories.project.item.update', {
+          organization: params.organization,
+          repository: params.repository,
+          number: params.number,
+          itemId: item.projectItemId || item.id,
+        }),
+        {
+          projectId,
+          itemId: item.projectItemId || item.id,
+          fieldId,
+          value: targetColumn.id, // Use the option ID, not the name
+        }
+      );
+
+      if (response.success) {
+        // Refresh the project data
+        const projectData = await api.get(route('organizations.repositories.project.show', {
+          organization: params.organization,
+          repository: params.repository,
+          number: params.number,
+        }));
+
+        // Handle new response format
+        if (projectData.columns) {
+          cols = projectData.columns;
+          projectId = projectData.projectId;
+          fieldId = projectData.fieldId;
+        } else {
+          cols = projectData;
+        }
+      } else {
+        let errorMsg = response.message || 'Unknown error';
+        if (response.fullErrors && response.fullErrors.length > 0) {
+          errorMsg += '\n\nGitHub Error: ' + response.fullErrors[0].message;
+        }
+        if (response.debugInfo) {
+          errorMsg += '\n\nDebug Info:\n' + JSON.stringify(response.debugInfo, null, 2);
+        }
+        console.error('Update column error:', response);
+        alert('Failed to update item:\n' + errorMsg);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  }
 </script>
 
 <div class="repo-dashboard">
@@ -40,6 +162,63 @@
   </Sidebar>
   
   <div class="repo-main">
+    <!-- Add Item Form Section -->
+    <div style="padding: 20px; border-bottom: 1px solid #e0e0e0;">
+      {#if !showAddForm}
+        <button
+          onclick={() => showAddForm = true}
+          style="padding: 8px 16px; background: #0969da; color: white; border: none; border-radius: 6px; cursor: pointer;"
+        >
+          + Add Item
+        </button>
+      {:else}
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <input
+            type="text"
+            placeholder="Enter item title"
+            bind:value={newItemTitle}
+            onkeydown={(e) => e.key === 'Enter' && handleAddItem()}
+            style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; flex: 1;"
+          />
+          <input
+            type="text"
+            placeholder="Project ID (from GitHub)"
+            bind:value={projectId}
+            style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; flex: 1; min-width: 200px;"
+          />
+          <button
+            onclick={handleAddItem}
+            disabled={isSubmitting}
+            style="padding: 8px 16px; background: #0969da; color: white; border: none; border-radius: 6px; cursor: pointer;"
+          >
+            {isSubmitting ? 'Adding...' : 'Add'}
+          </button>
+          <button
+            onclick={() => { showAddForm = false; newItemTitle = ''; }}
+            style="padding: 8px 16px; background: #d1d5da; color: #333; border: none; border-radius: 6px; cursor: pointer;"
+          >
+            Cancel
+          </button>
+        </div>
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">
+          To use this form, get your project ID from GitHub Project's GraphQL API explorer or URL. Example: 'PVT_kwDOA...'
+        </p>
+      {/if}
+
+      <!-- Project Metadata Section -->
+      {#if projectId && fieldId}
+        <div style="margin-top: 16px; padding: 12px; background: #f0f9ff; border-radius: 6px; font-size: 12px; border: 1px solid #a1d8ff;">
+          <div style="margin-bottom: 8px;">
+            <strong style="color: #0969da;">✓ Project Configured</strong>
+          </div>
+          <div style="color: #666; font-family: monospace; font-size: 11px; word-break: break-all;">
+            <div><strong>Project:</strong> {projectId?.substring(0, 15)}...</div>
+            <div><strong>Field:</strong> {fieldId?.substring(0, 15)}...</div>
+          </div>
+        </div>
+      {/if}
+    </div>
+
     {#if isLoading}
       {#each Array(3) as _, index}
         <div class="column">
@@ -54,9 +233,29 @@
     {#each cols as col}
       <div class="column" class:only-me={showEverything == false}>
         <span class="title">{col.name}</span>
-        {#each col.items as item}
-          <ListItem {item} />
-        {/each}
+        <div style="position: relative;">
+          {#each col.items as item}
+            <div style="position: relative; margin-bottom: 8px;">
+              <ListItem {item} />
+              <!-- Column Update Buttons -->
+              {#if projectId && fieldId}
+                <div style="display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap;">
+                  {#each cols as targetCol}
+                    {#if targetCol.name !== col.name}
+                      <button
+                        onclick={() => handleUpdateColumn(item, targetCol.name)}
+                        style="padding: 4px 8px; font-size: 11px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
+                        title="Move to {targetCol.name}"
+                      >
+                        → {targetCol.name}
+                      </button>
+                    {/if}
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
       </div>
     {/each}
   </div>
