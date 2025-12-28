@@ -3,6 +3,10 @@ main {
   gap: 1rem;
   padding: 1rem;
 
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+
   .notifications, .organizations {
     width: 33%;
 
