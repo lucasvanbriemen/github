@@ -3,8 +3,8 @@
   import Notification from './Notification.svelte';
   import { onMount } from 'svelte';
 
-  let organizations = [];
-  let notifications = [];
+  let organizations = $state([]);
+  let notifications = $state([]);
 
   onMount(async () => {
     organization.set(null);
