@@ -21,9 +21,7 @@ class BaseCommentObserver
      */
     public function updated(BaseComment $baseComment): void
     {
-        if ($baseComment->wasChanged('body')) {
-            $this->handle($baseComment);
-        }
+        $this->handle($baseComment);
     }
 
     /**
