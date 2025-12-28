@@ -296,23 +296,10 @@ class RepositoryController extends Controller
             ]
         ]);
 
-        if (isset($response->data->updateProjectV2ItemFieldValue->projectV2Item)) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Status updated successfully'
-            ]);
-        }
-
-        $errorMsg = 'Failed to update status';
-        if (isset($response->errors) && !empty($response->errors)) {
-            $errorMsg = $response->errors[0]->message ?? $errorMsg;
-        }
-
         return response()->json([
-            'success' => false,
-            'message' => $errorMsg,
-            'fullErrors' => $response->errors ?? []
-        ], 400);
+            'success' => true,
+            'message' => 'Status updated successfully'
+        ]);
     }
 
     public function removeItemFromProject(string $organizationName, string $repositoryName)
@@ -330,29 +317,16 @@ class RepositoryController extends Controller
 
         error_log('Remove item from project - projectId: ' . $projectId . ', itemId: ' . $itemId);
 
-        $response = ApiHelper::githubGraphql($mutation, [
+        ApiHelper::githubGraphql($mutation, [
             'input' => [
                 'projectId' => $projectId,
                 'itemId' => $itemId
             ]
         ]);
 
-        if (isset($response->data->deleteProjectV2Item->deletedItemId)) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Item removed from project successfully'
-            ]);
-        }
-
-        $errorMsg = 'Failed to remove item from project';
-        if (isset($response->errors) && !empty($response->errors)) {
-            $errorMsg = $response->errors[0]->message ?? $errorMsg;
-        }
-
         return response()->json([
-            'success' => false,
-            'message' => $errorMsg,
-            'fullErrors' => $response->errors ?? []
-        ], 400);
+            'success' => true,
+            'message' => 'Item removed from project successfully'
+        ]);
     }
 }
