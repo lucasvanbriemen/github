@@ -9,8 +9,11 @@ use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\PullRequest;
+use App\Models\Notification;
+use App\Models\Item;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
+use App\GithubConfig;
 
 class ProcessIssueCommentWebhook implements ShouldQueue
 {
@@ -77,6 +80,42 @@ class ProcessIssueCommentWebhook implements ShouldQueue
                 'type' => 'issue',
             ]
         );
+
+        // Create activity notification if current user is assigned to this item
+        $item = Item::find($issueData->id);
+        if ($item) {
+            $actorId = $userData->id;
+
+            // Check if current user is assigned to this item
+            $isUserAssigned = $item->assignees()
+                ->where('user_id', GithubConfig::USERID)
+                ->exists();
+
+            // Skip if actor is current user
+            if ($isUserAssigned && $actorId != GithubConfig::USERID) {
+                // Check for duplicate notification within 5 minutes
+                $existingNotification = Notification::where('type', 'activity_on_assigned_item')
+                    ->where('related_id', $item->id)
+                    ->where('actor_id', $actorId)
+                    ->where('created_at', '>', now()->subMinutes(5))
+                    ->first();
+
+                if (!$existingNotification) {
+                    Notification::create([
+                        'type' => 'activity_on_assigned_item',
+                        'related_id' => $item->id,
+                        'actor_id' => $actorId,
+                        'repository_id' => $repository->id,
+                        'metadata' => json_encode([
+                            'item_number' => $item->number,
+                            'item_type' => $item->type ?? 'issue',
+                            'activity_type' => 'comment',
+                            'comment_id' => $commentData->id,
+                        ])
+                    ]);
+                }
+            }
+        }
 
         return true;
     }

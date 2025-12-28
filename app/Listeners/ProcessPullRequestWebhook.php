@@ -8,7 +8,9 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\Models\Notification;
 use App\Helpers\ApiHelper;
+use App\GithubConfig;
 use RuntimeException;
 use Carbon\Carbon;
 
@@ -119,7 +121,37 @@ class ProcessPullRequestWebhook //implements ShouldQueue
 
         // Sync assignees (now uses issue_assignees table for both issues and PRs)
         if ($pr) {
+            // Get old assignee IDs before syncing
+            $oldAssigneeIds = $pr->assignees()->pluck('github_users.id')->toArray();
+
+            // Sync assignees in the pivot table
             $pr->assignees()->sync($assigneeGithubIds);
+
+            // Detect newly assigned users and create notifications
+            $newAssigneeIds = array_diff($assigneeGithubIds, $oldAssigneeIds);
+            $actorId = $payload->sender->id ?? null;
+
+            foreach ($newAssigneeIds as $assigneeId) {
+                // Skip if user assigned themselves
+                if ($assigneeId == GithubConfig::USERID && $assigneeId == $actorId) {
+                    continue;
+                }
+
+                // Only create notification if current user is assigned
+                if ($assigneeId == GithubConfig::USERID) {
+                    Notification::create([
+                        'type' => 'assigned_to_item',
+                        'related_id' => $pr->id,
+                        'actor_id' => $actorId,
+                        'repository_id' => $repository->id,
+                        'metadata' => json_encode([
+                            'item_number' => $pr->number,
+                            'item_type' => 'pull_request',
+                            'item_title' => $pr->title,
+                        ])
+                    ]);
+                }
+            }
         }
 
         if ($payload->action === 'review_requested') {
