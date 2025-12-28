@@ -10,6 +10,9 @@ use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
 use App\Models\BaseComment;
+use App\Models\Notification;
+use App\Models\Item;
+use App\GithubConfig;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -131,6 +134,42 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             ],
             $updateData
         );
+
+        // Create activity notification if current user is assigned to this PR
+        $pr = Item::find($prData->id);
+        if ($pr) {
+            $actorId = $userData->id;
+
+            // Check if current user is assigned to this PR
+            $isUserAssigned = $pr->assignees()
+                ->where('user_id', GithubConfig::USERID)
+                ->exists();
+
+            // Skip if actor is current user
+            if ($isUserAssigned && $actorId != GithubConfig::USERID) {
+                // Check for duplicate notification within 5 minutes
+                $existingNotification = Notification::where('type', 'activity_on_assigned_item')
+                    ->where('related_id', $pr->id)
+                    ->where('actor_id', $actorId)
+                    ->where('created_at', '>', now()->subMinutes(5))
+                    ->first();
+
+                if (!$existingNotification) {
+                    Notification::create([
+                        'type' => 'activity_on_assigned_item',
+                        'related_id' => $pr->id,
+                        'actor_id' => $actorId,
+                        'repository_id' => $pr->repository_id,
+                        'metadata' => json_encode([
+                            'item_number' => $pr->number,
+                            'item_type' => 'pull_request',
+                            'activity_type' => 'review',
+                            'review_id' => $reviewData->id,
+                        ])
+                    ]);
+                }
+            }
+        }
 
         return true;
     }

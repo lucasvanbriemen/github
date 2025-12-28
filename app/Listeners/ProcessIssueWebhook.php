@@ -6,6 +6,8 @@ use App\Events\IssuesWebhookReceived;
 use App\Models\GithubUser;
 use App\Models\Issue;
 use App\Models\Repository;
+use App\Models\Notification;
+use App\GithubConfig;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessIssueWebhook
@@ -66,8 +68,37 @@ class ProcessIssueWebhook
                 'labels' => json_encode($issueData->labels ?? []),
             ]);
 
+        // Get old assignee IDs before syncing
+        $oldAssigneeIds = $issue->assignees()->pluck('github_users.id')->toArray();
+
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);
+
+        // Detect newly assigned users and create notifications
+        $newAssigneeIds = array_diff($assigneeGithubIds, $oldAssigneeIds);
+        $actorId = $payload->sender->id ?? null;
+
+        foreach ($newAssigneeIds as $assigneeId) {
+            // Skip if user assigned themselves
+            if ($assigneeId == GithubConfig::USERID && $assigneeId == $actorId) {
+                continue;
+            }
+
+            // Only create notification if current user is assigned
+            if ($assigneeId == GithubConfig::USERID) {
+                Notification::create([
+                    'type' => 'assigned_to_item',
+                    'related_id' => $issue->id,
+                    'actor_id' => $actorId,
+                    'repository_id' => $repository->id,
+                    'metadata' => json_encode([
+                        'item_number' => $issue->number,
+                        'item_type' => $issue->type ?? 'issue',
+                        'item_title' => $issue->title,
+                    ])
+                ]);
+            }
+        }
 
         return true;
     }
