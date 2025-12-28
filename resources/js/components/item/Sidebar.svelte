@@ -85,24 +85,12 @@
       return;
     }
 
-    try {
-      const response = await api.post(
-        route('organizations.repositories.item.remove.from.project', {organization, repository}),
-        {
-          projectId: existingProject.id,
-          itemId: existingProject.itemId
-        }
-      );
+    await api.post(route('organizations.repositories.item.remove.from.project', {organization, repository}),{
+      projectId: existingProject.id,
+      itemId: existingProject.itemId
+    });
 
-      if (response.success) {
-        // Remove the project from the list
-        item.projects_v2 = item.projects_v2.filter(p => p.id !== existingProject.id);
-      } else {
-        alert('Failed to remove from project: ' + response.message);
-      }
-    } catch (err) {
-      alert('Error: ' + err.message);
-    }
+    item.projects_v2 = item.projects_v2.filter(p => p.id !== existingProject.id);
   }
 
   async function handleSelectProjectToAdd(project) {
