@@ -11,12 +11,20 @@
       return `${notification.comment.author.display_name} commented on #${notification.comment.item.number}`;
     }
 
+    if (notification.type === 'item_assigned') {
+      return `${notification.item.title} was assigned to you`;
+    }
+
     return 'Notification';
   }
 
   function getNotificationBody() {
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       return notification.comment.body;
+    }
+
+    if (notification.type === 'item_assigned') {
+      return notification.item.body;
     }
 
     return notification.type;
@@ -28,13 +36,20 @@
       return;
     }
 
+    let item = {};
+    let type = '';
+
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
-      if (notification.comment.item.type === 'issue') {
-        window.location.hash = `#/${notification.comment.item.repository.full_name}/issues/${notification.comment.item.number}`;
-      } else if (notification.comment.item.type === 'pull_request') {
-        window.location.hash = `#/${notification.comment.item.repository.full_name}/prs/${notification.comment.item.number}`;
-      }
+      item = notification.comment.item;
     }
+
+    if (item.type === 'issue') {
+      type = 'issues';
+    } else if (item.type === 'pull_request') {
+      type = 'prs';
+    }
+    
+    window.location.hash = `#/${item.repository.full_name}/${type}/${item.number}`;
   }
 
   function completeNotification(id) {
