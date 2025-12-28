@@ -50,7 +50,7 @@ class BaseCommentObserver
 
     private function handle(BaseComment $baseComment) {
         if (stripos($baseComment->body, GithubConfig::USERNAME) === false) {
-            return;
+            // return;
         }
 
         Notification::create([
