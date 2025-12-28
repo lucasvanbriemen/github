@@ -53,12 +53,6 @@ class BaseCommentObserver
             return;
         }
 
-        // Check jf there already is an existing notification for this comment
-        $existingNotification = Notification::where('type', 'comment_mention')->where('related_id', $baseComment->id)->first();
-        if ($existingNotification) {
-            return;
-        }
-
         Notification::create([
             'type' => 'comment_mention',
             'related_id' => $baseComment->id
