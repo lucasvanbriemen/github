@@ -136,42 +136,16 @@
   async function handleAddToProjectWithStatus() {
     const project = projects[selectedProjectForAdd];
 
-    try {
-      const response = await api.post(
-        route('organizations.repositories.item.add.to.project', {organization, repository}),
-        {
-          projectId: project.id,
-          contentId: item.node_id, // GitHub's global node ID
-          itemNumber: item.number,
-          fieldId: project.status_field_id,
-          statusValue: selectedStatus
-        }
-      );
+    await api.post(route('organizations.repositories.item.add.to.project', {organization, repository}), {
+      projectId: project.id,
+      contentId: item.node_id,
+      itemNumber: item.number,
+      fieldId: project.status_field_id,
+      statusValue: selectedStatus
+    });
 
-      if (response.success) {
-        setTimeout(() => {
-          selectedProjectForAdd = null;
-          selectedStatus = null;
-          projects = projects; // Force reactivity
-        }, 2000);
-      } else {
-        // Show detailed error info
-        let errorMsg = response.message || 'Unknown error';
-        if (response.errors && response.errors.length > 0) {
-          errorMsg += '\n\nErrors:';
-          response.errors.forEach(err => {
-            errorMsg += '\n- ' + (err.message || JSON.stringify(err));
-          });
-        }
-        if (response.errorDetails) {
-          errorMsg += '\n\nDetails: ' + response.errorDetails;
-        }
-        console.error('Add to project error:', response);
-        alert('Failed to add to project:\n' + errorMsg);
-      }
-    } catch (err) {
-      alert('Error: ' + err.message);
-    }
+    selectedProjectForAdd = null;
+    selectedStatus = null;
   }
 
   function cancelSelectingStatus() {
