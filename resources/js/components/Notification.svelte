@@ -3,7 +3,7 @@
 
   function getNotificationTitle(notification) {
     if (notification.type === 'comment_mention') {
-      return 'Ilya mentioned you in #' + notification.comment.item.number;
+      return `${notification.comment.author.display_name} mentioned you in #${notification.comment.item.number}`;
     }
   }
 
