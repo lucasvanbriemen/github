@@ -209,39 +209,6 @@ class RepositoryController extends Controller
         return response()->json(array_values($columns->toArray()));
     }
 
-    public function updateProjectItemField(string $organizationName, string $repositoryName, int $projectNumber)
-    {
-        $mutation = <<<'GRAPHQL'
-        mutation ($input: UpdateProjectV2ItemFieldValueInput!) {
-            updateProjectV2ItemFieldValue(input: $input) {
-                projectV2Item {
-                    id
-                }
-            }
-        }
-        GRAPHQL;
-
-        $itemId = request()->input('itemId');
-        $fieldId = request()->input('fieldId');
-        $value = request()->input('value');
-
-        $response = ApiHelper::githubGraphql($mutation, [
-            'input' => [
-                'projectId' => request()->input('projectId'),
-                'itemId' => $itemId,
-                'fieldId' => $fieldId,
-                'value' => [
-                    'singleSelectOptionId' => $value
-                ]
-            ]
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Item field updated successfully'
-        ]);
-    }
-
     public function addItemToProject(string $organizationName, string $repositoryName)
     {
         // The correct mutation for adding items to Projects V2
