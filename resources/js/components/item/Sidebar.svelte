@@ -72,34 +72,12 @@
   }
 
   async function handleUpdateProjectStatus(existingProject, newStatusId) {
-    try {
-      const response = await api.post(
-        route('organizations.repositories.item.update.project.status', {organization, repository}),
-        {
-          projectId: existingProject.id,
-          itemId: existingProject.itemId,
-          fieldId: existingProject.status_field_id,
-          statusValue: newStatusId
-        }
-      );
-
-      if (response.success) {
-        // Update the local item to reflect the change
-        const projIndex = item.projects_v2.findIndex(p => p.id === existingProject.id);
-        if (projIndex >= 0) {
-          // Find the option name from the available options
-          const statusOption = existingProject.options?.find(opt => opt.id === newStatusId);
-          if (statusOption) {
-            item.projects_v2[projIndex].status = statusOption.name;
-            item.projects_v2 = item.projects_v2; // Force reactivity
-          }
-        }
-      } else {
-        alert('Failed to update status: ' + response.message);
-      }
-    } catch (err) {
-      alert('Error: ' + err.message);
-    }
+    await api.post(route('organizations.repositories.item.update.project.status', {organization, repository}), {
+      projectId: existingProject.id,
+      itemId: existingProject.itemId,
+      fieldId: existingProject.status_field_id,
+      statusValue: newStatusId
+    });
   }
 
   async function handleRemoveFromProject(existingProject) {
