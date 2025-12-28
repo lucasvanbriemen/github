@@ -69,7 +69,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
 
         GithubUser::updateFromWebhook($userData);
 
-        BaseComment::updateOrCreate(
+        $comment = BaseComment::updateOrCreate(
             ['comment_id' => $commentData->id, 'type' => 'issue'],
             [
                 'comment_id' => $commentData->id,
@@ -87,7 +87,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
         if ($item->isCurrentlyAssignedToUser()) {
             Notification::create([
                 'type' => 'item_comment',
-                'related_id' => $item->id,
+                'related_id' => $comment->id,
             ]);
         }
 

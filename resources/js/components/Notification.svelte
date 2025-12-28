@@ -7,11 +7,15 @@
       return `${notification.comment.author.display_name} mentioned you in #${notification.comment.item.number}`;
     }
 
+    if (notification.type === 'item_comment') {
+      return `${notification.comment.author.display_name} commented on #${notification.comment.item.number}`;
+    }
+
     return 'Notification';
   }
 
   function getNotificationBody() {
-    if (notification.type === 'comment_mention') {
+    if (notification.type === 'comment_mention' ) {
       return notification.comment.body;
     }
 
@@ -24,7 +28,7 @@
       return;
     }
 
-    if (notification.type === 'comment_mention') {
+    if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       if (notification.comment.item.type === 'issue') {
         window.location.hash = `#/${notification.comment.item.repository.full_name}/issues/${notification.comment.item.number}`;
       } else if (notification.comment.item.type === 'pull_request') {

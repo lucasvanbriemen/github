@@ -12,7 +12,7 @@ class NotificationController extends Controller
         $notifications = Notification::where('completed', false)->get();
 
         foreach ($notifications as $notification) {
-            if ($notification->type === 'comment_mention') {
+            if ($notification->type === 'comment_mention' || $notification->type === 'item_comment') {
                 $notification->load('comment.item.repository');
             }
         }
