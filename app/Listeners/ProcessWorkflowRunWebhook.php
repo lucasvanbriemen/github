@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\WorkflowRunWebhookReceived;
 use App\Models\Commit;
 use App\Models\Workflow;
+use App\Models\PullRequest;
+use App\Models\Notification;
 
 class ProcessWorkflowRunWebhook // implements ShouldQueue
 {
@@ -42,6 +44,23 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
 
         if ($head_sha) {
             Commit::where('sha', $head_sha)->update(['workflow_id' => $workflow->id]);
+        }
+
+        // Create notification if workflow failed on a PR where user is assigned
+        if ($conclusion === 'failed' && $head_sha) {
+            $prs = PullRequest::whereHas('details', function ($query) use ($head_sha) {
+                $query->where('head_sha', $head_sha);
+            })->get();
+
+            foreach ($prs as $pr) {
+                if ($pr->isCurrentlyAssignedToUser()) {
+                    Notification::create([
+                        'type' => 'workflow_failed',
+                        'related_id' => $pr->id
+                    ]);
+                    break; // Only create one notification per workflow run
+                }
+            }
         }
 
         return true;
