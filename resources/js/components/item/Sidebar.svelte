@@ -79,6 +79,62 @@
     });
   }
 
+  async function handleUpdateProjectStatus(existingProject, newStatusId) {
+    try {
+      const response = await api.post(
+        route('organizations.repositories.item.update.project.status', {organization, repository}),
+        {
+          projectId: existingProject.id,
+          itemId: existingProject.itemId,
+          fieldId: existingProject.fieldId,
+          statusValue: newStatusId
+        }
+      );
+
+      if (response.success) {
+        // Update the local item to reflect the change
+        const projIndex = item.projects_v2.findIndex(p => p.id === existingProject.id);
+        if (projIndex >= 0) {
+          // Find the option name from the available options
+          const statusOption = existingProject.options?.find(opt => opt.id === newStatusId);
+          if (statusOption) {
+            item.projects_v2[projIndex].status = statusOption.name;
+            item.projects_v2 = item.projects_v2; // Force reactivity
+          }
+        }
+      } else {
+        alert('Failed to update status: ' + response.message);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  }
+
+  async function handleRemoveFromProject(existingProject) {
+    if (!confirm(`Remove this item from "${existingProject.title}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await api.post(
+        route('organizations.repositories.item.remove.from.project', {organization, repository}),
+        {
+          projectId: existingProject.id,
+          itemId: existingProject.itemId
+        }
+      );
+
+      if (response.success) {
+        // Remove the project from the list
+        item.projects_v2 = item.projects_v2.filter(p => p.id !== existingProject.id);
+      } else {
+        alert('Failed to remove from project: ' + response.message);
+      }
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  }
+
   async function handleSelectProjectToAdd(project) {
     try {
       // Fetch fields for this project
@@ -204,19 +260,58 @@
             </div>
             {#each item.projects_v2 as existingProject (existingProject.id)}
               <div style="
-                padding: 6px 8px;
+                padding: 8px;
                 background: #dafbe1;
                 border: 1px solid #34d399;
                 border-radius: 4px;
                 font-size: 12px;
-                margin-bottom: 4px;
+                margin-bottom: 6px;
               ">
-                <a href="#{organization}/{repository}/project/{existingProject.number}" style="color: #0969da; text-decoration: none; font-weight: 500;">
-                  {existingProject.title}
-                </a>
-                {#if existingProject.status}
-                  <span style="color: #666; margin-left: 6px;">
-                    → {existingProject.status}
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                  <a href="#{organization}/{repository}/project/{existingProject.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
+                    {existingProject.title}
+                  </a>
+                  <button
+                    onclick={() => handleRemoveFromProject(existingProject)}
+                    style="
+                      background: none;
+                      border: none;
+                      color: #d1242f;
+                      cursor: pointer;
+                      font-size: 14px;
+                      padding: 0;
+                      margin-left: 8px;
+                      font-weight: bold;
+                    "
+                    title="Remove from project"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                {#if existingProject.options && existingProject.options.length > 0}
+                  <select
+                    value={existingProject.status}
+                    onchange={(e) => handleUpdateProjectStatus(existingProject, e.target.value)}
+                    style="
+                      width: 100%;
+                      padding: 4px;
+                      border: 1px solid #34d399;
+                      border-radius: 3px;
+                      font-size: 11px;
+                      background: white;
+                      cursor: pointer;
+                    "
+                  >
+                    {#each existingProject.options as option (option.id)}
+                      <option value={option.id} selected={option.name === existingProject.status}>
+                        {option.name}
+                      </option>
+                    {/each}
+                  </select>
+                {:else}
+                  <span style="color: #666;">
+                    → {existingProject.status || 'No status'}
                   </span>
                 {/if}
               </div>

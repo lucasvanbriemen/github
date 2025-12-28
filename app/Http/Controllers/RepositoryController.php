@@ -98,6 +98,47 @@ class RepositoryController extends Controller
         return response()->json($projects);
     }
 
+    public function getProjectFields(string $organizationName, string $repositoryName, int $projectNumber)
+    {
+        $query = <<<'GRAPHQL'
+        query ($org: String!, $num: Int!) {
+            organization(login: $org) {
+                projectV2(number: $num) {
+                    id
+                    field(name: "Status") {
+                        ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                                id
+                                name
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        GRAPHQL;
+
+        $response = ApiHelper::githubGraphql($query, [
+            'org' => $organizationName,
+            'num' => (int) $projectNumber,
+        ]);
+
+        if (isset($response->data->organization->projectV2)) {
+            $projectV2 = $response->data->organization->projectV2;
+            return response()->json([
+                'projectId' => $projectV2->id,
+                'field' => $projectV2->field ?? null
+            ]);
+        }
+
+        return response()->json([
+            'projectId' => null,
+            'field' => null
+        ]);
+    }
+
     public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -306,5 +347,95 @@ class RepositoryController extends Controller
             'itemId' => $itemId,
             'message' => "Added to project successfully"
         ]);
+    }
+
+    public function updateItemProjectStatus(string $organizationName, string $repositoryName)
+    {
+        $mutation = <<<'GRAPHQL'
+        mutation ($input: UpdateProjectV2ItemFieldValueInput!) {
+            updateProjectV2ItemFieldValue(input: $input) {
+                projectV2Item {
+                    id
+                }
+            }
+        }
+        GRAPHQL;
+
+        $projectId = request()->input('projectId');
+        $itemId = request()->input('itemId');
+        $fieldId = request()->input('fieldId');
+        $statusValue = request()->input('statusValue');
+
+        error_log('Update item project status - projectId: ' . $projectId . ', itemId: ' . $itemId . ', fieldId: ' . $fieldId . ', statusValue: ' . $statusValue);
+
+        $response = ApiHelper::githubGraphql($mutation, [
+            'input' => [
+                'projectId' => $projectId,
+                'itemId' => $itemId,
+                'fieldId' => $fieldId,
+                'value' => [
+                    'singleSelectOptionId' => $statusValue
+                ]
+            ]
+        ]);
+
+        if (isset($response->data->updateProjectV2ItemFieldValue->projectV2Item)) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully'
+            ]);
+        }
+
+        $errorMsg = 'Failed to update status';
+        if (isset($response->errors) && !empty($response->errors)) {
+            $errorMsg = $response->errors[0]->message ?? $errorMsg;
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $errorMsg,
+            'fullErrors' => $response->errors ?? []
+        ], 400);
+    }
+
+    public function removeItemFromProject(string $organizationName, string $repositoryName)
+    {
+        $mutation = <<<'GRAPHQL'
+        mutation ($input: DeleteProjectV2ItemInput!) {
+            deleteProjectV2Item(input: $input) {
+                deletedItemId
+            }
+        }
+        GRAPHQL;
+
+        $projectId = request()->input('projectId');
+        $itemId = request()->input('itemId');
+
+        error_log('Remove item from project - projectId: ' . $projectId . ', itemId: ' . $itemId);
+
+        $response = ApiHelper::githubGraphql($mutation, [
+            'input' => [
+                'projectId' => $projectId,
+                'itemId' => $itemId
+            ]
+        ]);
+
+        if (isset($response->data->deleteProjectV2Item->deletedItemId)) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed from project successfully'
+            ]);
+        }
+
+        $errorMsg = 'Failed to remove item from project';
+        if (isset($response->errors) && !empty($response->errors)) {
+            $errorMsg = $response->errors[0]->message ?? $errorMsg;
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $errorMsg,
+            'fullErrors' => $response->errors ?? []
+        ], 400);
     }
 }

@@ -205,6 +205,7 @@ class ItemController extends Controller
                         id
                         projectItems(first: 10) {
                             nodes {
+                                id
                                 project {
                                     id
                                     title
@@ -228,19 +229,56 @@ class ItemController extends Controller
             'number' => (int) $issueNumber,
         ]);
 
-        $item->node_id = $response->data->repository->{$type}->id;
+        if (isset($response->data->repository->{$type}->id)) {
+            $item->node_id = $response->data->repository->{$type}->id;
 
-        // Add the projects this item is in
-        $projects = [];
-        foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
-            $projects[] = [
-                'id' => $projectItem->project->id,
-                'title' => $projectItem->project->title,
-                'number' => $projectItem->project->number,
-                'status' => $projectItem->fieldValueByName->name ?? null
-            ];
+            // Add the projects this item is in and fetch their field options
+            $projects = [];
+            if (isset($response->data->repository->{$type}->projectItems->nodes)) {
+                foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
+                    $projectData = [
+                        'id' => $projectItem->project->id,
+                        'title' => $projectItem->project->title,
+                        'number' => $projectItem->project->number,
+                        'itemId' => $projectItem->id,
+                        'status' => $projectItem->fieldValueByName->name ?? null
+                    ];
+
+                    // Fetch the Status field options for this project
+                    $fieldsQuery = "
+                        query (\$org: String!, \$num: Int!) {
+                            organization(login: \$org) {
+                                projectV2(number: \$num) {
+                                    field(name: \"Status\") {
+                                        ... on ProjectV2SingleSelectField {
+                                            id
+                                            options {
+                                                id
+                                                name
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ";
+
+                    $fieldsResponse = ApiHelper::githubGraphql($fieldsQuery, [
+                        'org' => $organizationName,
+                        'num' => (int) $projectItem->project->number,
+                    ]);
+
+                    if (isset($fieldsResponse->data->organization->projectV2->field)) {
+                        $field = $fieldsResponse->data->organization->projectV2->field;
+                        $projectData['fieldId'] = $field->id ?? null;
+                        $projectData['options'] = $field->options ?? [];
+                    }
+
+                    $projects[] = $projectData;
+                }
+            }
+            $item->projects_v2 = $projects;
         }
-        $item->projects_v2 = $projects;
 
         return response()->json($item);
     }

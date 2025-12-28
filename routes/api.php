@@ -37,6 +37,12 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/add-to-project', [RepositoryController::class, 'addItemToProject'])
             ->name('item.add.to.project');
 
+        Route::post('/item/update-project-status', [RepositoryController::class, 'updateItemProjectStatus'])
+            ->name('item.update.project.status');
+
+        Route::post('/item/remove-from-project', [RepositoryController::class, 'removeItemFromProject'])
+            ->name('item.remove.from.project');
+
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('contributors');
 
