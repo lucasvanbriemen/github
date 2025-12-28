@@ -273,7 +273,7 @@
                   font-weight: bold;
                 "
               >
-                x
+                ×
               </button>
             </div>
 
@@ -306,75 +306,78 @@
         {/each}
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          {#each projects as project, idx (project.id)}
-            <!-- Only show button if not already on this project -->
-            {#if !item.projects_v2.some(p => p.id === project.id)}
-              <button onclick={() => handleSelectProjectToAdd(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark);">
-                + Add to {project.title}
-              </button>
-            {/if}
-          {/each}
-          <!-- Status Selector Modal -->
-          <div style="padding: 12px; background: #f6f8fa; border-radius: 6px; border: 1px solid #d0d7de;">
-            <div style="margin-bottom: 12px;">
-              <strong style="display: block; margin-bottom: 8px;">Select status for:</strong>
-              <span>{projects[selectedProjectForAdd].title}</span>
-            </div>
+          {#if selectedProjectForAdd === null}
+            {#each projects as project, idx (project.id)}
+              <!-- Only show button if not already on this project -->
+              {#if !item.projects_v2.some(p => p.id === project.id)}
+                <button onclick={() => handleSelectProjectToAdd(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark);">
+                  + Add to {project.title}
+                </button>
+              {/if}
+            {/each}
+          {:else}
+            <!-- Status Selector Modal -->
+            <div style="padding: 12px; background: #f6f8fa; border-radius: 6px; border: 1px solid #d0d7de;">
+              <div style="margin-bottom: 12px;">
+                <strong style="display: block; margin-bottom: 8px;">Select status for:</strong>
+                <span>{projects[selectedProjectForAdd].title}</span>
+              </div>
 
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">Status:</label>
-              <select
-                bind:value={selectedStatus}
-                style="
-                  width: 100%;
-                  padding: 6px 8px;
-                  border: 1px solid #d0d7de;
-                  border-radius: 6px;
-                  font-size: 13px;
-                  background: white;
-                "
-              >
-                {#each projects[selectedProjectForAdd].status_options as option}
-                  <option value={option.id}>{option.name}</option>
-                {/each}
-              </select>
-            </div>
+              <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">Status:</label>
+                <select
+                  bind:value={selectedStatus}
+                  style="
+                    width: 100%;
+                    padding: 6px 8px;
+                    border: 1px solid #d0d7de;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    background: white;
+                  "
+                >
+                  {#each projects[selectedProjectForAdd].status_options as option}
+                    <option value={option.id}>{option.name}</option>
+                  {/each}
+                </select>
+              </div>
 
-            <div style="display: flex; gap: 6px;">
-              <button
-                onclick={handleAddToProjectWithStatus}
-                style="
-                  flex: 1;
-                  padding: 6px 12px;
-                  background: #0969da;
-                  color: white;
-                  border: none;
-                  border-radius: 6px;
-                  font-size: 12px;
-                  font-weight: 500;
-                  cursor: pointer;
-                "
-              >
-                {projects[selectedProjectForAdd].adding ? 'Adding...' : 'Add'}
-              </button>
-              <button
-                onclick={cancelSelectingStatus}
-                style="
-                  flex: 1;
-                  padding: 6px 12px;
-                  background: #d1d5da;
-                  color: #333;
-                  border: none;
-                  border-radius: 6px;
-                  font-size: 12px;
-                  font-weight: 500;
-                  cursor: pointer;
-                "
-              >
-                Cancel
-              </button>
+              <div style="display: flex; gap: 6px;">
+                <button
+                  onclick={handleAddToProjectWithStatus}
+                  style="
+                    flex: 1;
+                    padding: 6px 12px;
+                    background: #0969da;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                  "
+                >
+                  {projects[selectedProjectForAdd].adding ? 'Adding...' : 'Add'}
+                </button>
+                <button
+                  onclick={cancelSelectingStatus}
+                  style="
+                    flex: 1;
+                    padding: 6px 12px;
+                    background: #d1d5da;
+                    color: #333;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                  "
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-          </div>
+          {/if}
         </div>
       </SidebarGroup>
     {/if}
