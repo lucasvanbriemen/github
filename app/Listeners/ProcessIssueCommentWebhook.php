@@ -12,7 +12,7 @@ use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
 
-class ProcessIssueCommentWebhook implements ShouldQueue
+class ProcessIssueCommentWebhook //implements ShouldQueue
 {
     /**
      * Create the event listener.
