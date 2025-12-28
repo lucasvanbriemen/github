@@ -19,4 +19,13 @@ class NotificationController extends Controller
 
         return response()->json($notifications);
     }
+
+    public function complete(Request $request, $id)
+    {
+        $notification = Notification::findOrFail($id);
+        $notification->completed = true;
+        $notification->save();
+
+        return response()->json(['sucess' => true]);
+    }
 }

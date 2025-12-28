@@ -2,13 +2,13 @@
   let { notification } = $props();
   import Icon from './Icon.svelte';
 
-  function getNotificationTitle(notification) {
+  function getNotificationTitle() {
     if (notification.type === 'comment_mention') {
       return `${notification.comment.author.display_name} mentioned you in #${notification.comment.item.number}`;
     }
   }
 
-  function getNotificationBody(notification) {
+  function getNotificationBody() {
     if (notification.type === 'comment_mention') {
       return notification.comment.body;
     }
@@ -31,14 +31,14 @@
 
   function completeNotification(id) {
     notification.completed = true;
-    console.log('Complete notification');
+    api.post(route('notifications.complete', { id }));
   }
 </script>
 
 <button class="notification" onclick="{goToNotificationUrl}">
   <div>
-    <h3 class="title">{getNotificationTitle(notification)}</h3>
-    <p class="body">{getNotificationBody(notification)}</p>
+    <h3 class="title">{getNotificationTitle()}</h3>
+    <p class="body">{getNotificationBody()}</p>
   </div>
 
   <Icon name="approved" size="1.5rem" onclick={() => completeNotification(notification.id)} />
