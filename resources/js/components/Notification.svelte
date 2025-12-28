@@ -15,7 +15,7 @@
   }
 
   function getNotificationBody() {
-    if (notification.type === 'comment_mention' ) {
+    if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       return notification.comment.body;
     }
 
