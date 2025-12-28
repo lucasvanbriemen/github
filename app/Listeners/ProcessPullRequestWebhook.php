@@ -8,6 +8,7 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\GithubConfig;
 use App\Models\Notification;
 use App\Helpers\ApiHelper;
 use RuntimeException;
@@ -142,6 +143,14 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             // Create/update the requested reviewer in github_users table
             $reviewerData = $payload->requested_reviewer ?? null;
             GithubUser::updateFromWebhook($reviewerData);
+
+            // create a notification if im being asked for a review
+            if ($reviewerData && $reviewerData->id === GithubConfig::USERID) {
+                Notification::create([
+                    'type' => 'review_requested',
+                    'related_id' => $prData->id
+                ]);
+            }
 
             RequestedReviewer::updateOrCreate(
                 [
