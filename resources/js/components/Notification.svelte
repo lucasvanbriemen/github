@@ -14,29 +14,35 @@
     }
   }
 
-  function getNotificationUrl(notification) {
+  function goToNotificationUrl() {
+    // If we click on the icon, we dont want to navigate to the notification
+    if (notification.completed) {
+      return;
+    }
+
     if (notification.type === 'comment_mention') {
       if (notification.comment.item.type === 'issue') {
-        return `#/issues/${notification.comment.item.number}`;
+        window.location.hash = `#/issues/${notification.comment.item.number}`;
       } else if (notification.comment.item.type === 'pull_request') {
-        return `#/prs/${notification.comment.item.number}`;
+        window.location.hash = `#/prs/${notification.comment.item.number}`;
       }
     }
   }
 
   function completeNotification(id) {
+    notification.completed = true;
     console.log('Complete notification');
   }
 </script>
 
-<a class="notification" href="{getNotificationUrl(notification)}" >
+<button class="notification" onclick="{goToNotificationUrl}">
   <div>
     <h3 class="title">{getNotificationTitle(notification)}</h3>
     <p class="body">{getNotificationBody(notification)}</p>
   </div>
 
   <Icon name="approved" size="1.5rem" onclick={() => completeNotification(notification.id)} />
-</a>
+</button>
 
 <style>
   @import "../../scss/components/notification.scss";
