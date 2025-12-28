@@ -15,6 +15,10 @@
       return `#${notification.item.number} was assigned to you`;
     }
 
+    if (notification.type === 'review_requested') {
+      return `You were requested to review #${notification.item.number}`;
+    }
+
     return 'Notification';
   }
 
@@ -23,7 +27,7 @@
       return notification.comment.body;
     }
 
-    if (notification.type === 'item_assigned') {
+    if (notification.type === 'item_assigned' || notification.type === 'review_requested') {
       return notification.item.title;
     }
 
@@ -43,7 +47,7 @@
       item = notification.comment.item;
     }
 
-    if (notification.type === 'item_assigned') {
+    if (notification.type === 'item_assigned' || notification.type === 'review_requested') {
       item = notification.item;
     }
 

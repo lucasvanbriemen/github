@@ -16,7 +16,7 @@ class NotificationController extends Controller
                 $notification->load('comment.item.repository');
             }
 
-            if ($notification->type === 'item_assigned') {
+            if ($notification->type === 'item_assigned' || $notification->type === 'review_requested') {
                 $notification->load('item.repository');
             }
         }
