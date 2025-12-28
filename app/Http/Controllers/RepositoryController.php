@@ -100,47 +100,6 @@ class RepositoryController extends Controller
         return response()->json($projects);
     }
 
-    public function getProjectFields(string $organizationName, string $repositoryName, int $projectNumber)
-    {
-        $query = <<<'GRAPHQL'
-        query ($org: String!, $num: Int!) {
-            organization(login: $org) {
-                projectV2(number: $num) {
-                    id
-                    field(name: "Status") {
-                        ... on ProjectV2SingleSelectField {
-                            id
-                            name
-                            options {
-                                id
-                                name
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        GRAPHQL;
-
-        $response = ApiHelper::githubGraphql($query, [
-            'org' => $organizationName,
-            'num' => (int) $projectNumber,
-        ]);
-
-        if (isset($response->data->organization->projectV2)) {
-            $projectV2 = $response->data->organization->projectV2;
-            return response()->json([
-                'projectId' => $projectV2->id,
-                'field' => $projectV2->field ?? null
-            ]);
-        }
-
-        return response()->json([
-            'projectId' => null,
-            'field' => null
-        ]);
-    }
-
     public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
