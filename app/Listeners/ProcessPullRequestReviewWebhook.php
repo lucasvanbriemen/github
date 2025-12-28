@@ -8,6 +8,7 @@ use App\Models\PullRequestReview;
 use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Models\Notification;
 use App\Models\RequestedReviewer;
 use App\Models\BaseComment;
 
@@ -38,7 +39,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         GithubUser::updateFromWebhook($userData);
 
         // Ensure the pull request exists before creating the review
-        PullRequest::updateFromWebhook($prData);
+        $pr = PullRequest::updateFromWebhook($prData);
 
         $baseComment = BaseComment::updateOrCreate(
             ['comment_id' => $reviewData->id, 'type' => 'review'],
@@ -131,6 +132,13 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             ],
             $updateData
         );
+
+        if ($pr->isCurrentlyAssignedToUser()) {
+            Notification::create([
+                'type' => 'pr_review',
+                'related_id' => $pr->id,
+            ]);
+        }
 
         return true;
     }
