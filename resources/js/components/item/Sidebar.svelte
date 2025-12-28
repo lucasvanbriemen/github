@@ -17,8 +17,6 @@
   let selectedReviewer = $state();
   let linkedItems = $state([]);
   let projects = $state([]);
-  let projectsWithFields = $state([]);
-  let addingToProject = $state(null);
   let loadingProjects = $state(true);
   let selectedProjectForAdd = $state(null);
   let selectedStatus = $state(null);
