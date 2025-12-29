@@ -123,18 +123,9 @@
 <Sidebar {params} {activeItem}>
   {#if !isLoading}
     <SidebarGroup title="Projects">
-        <!-- Single unified list: show either membership controls or add button per project -->
         {#each projects as project, idx (project.id)}
           {#if getItemProject(project.id)}
-            <!-- Item is in this project: show membership card -->
-            <div style="
-              padding: 8px;
-              background: #dafbe1;
-              border: 1px solid #34d399;
-              border-radius: 4px;
-              font-size: 12px;
-              margin-bottom: 6px;
-            ">
+            <div style="padding: 8px; background: #dafbe1; border: 1px solid #34d399; border-radius: 4px; font-size: 12px; margin-bottom: 6px;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
                 <a href="#{organization}/{repository}/project/{project.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
                   {project.title}
