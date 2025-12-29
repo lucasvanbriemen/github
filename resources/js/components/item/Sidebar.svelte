@@ -142,22 +142,22 @@
 <Sidebar {params} {activeItem}>
   {#if !isLoading}
     <SidebarGroup title="Projects">
-        {#each projects as project, idx (project.id)}
-          {#if getItemProject(project.id)}
-            <div class="project-item">
-              <div class="project-header">
-                <a href="#{organization}/{repository}/project/{project.number}" class="project-link">
-                  {project.title}
-                </a>
-                <button onclick={() => removeFromProject(project.id)} class="remove-project">x</button>
-              </div>
-
-              <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={project.status_options.find(opt => opt.name === getItemProject(project.id)?.status)?.id ?? ''} onChange={(e) => updateProjectStatus(project.id, e.selectedValue)} />
+      {#each projects as project, idx (project.id)}
+        {#if getItemProject(project.id)}
+          <div class="project-item">
+            <div class="project-header">
+              <a href="#{organization}/{repository}/project/{project.number}" class="project-link">
+                {project.title}
+              </a>
+              <button onclick={() => removeFromProject(project.id)} class="remove-project">x</button>
             </div>
-          {:else}
-            <button onclick={() => addToProject(project)} class="button-primary-outline">Add to {project.title}</button>
-          {/if}
-        {/each}
+
+            <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={project.status_options.find(opt => opt.name === getItemProject(project.id)?.status)?.id ?? ''} onChange={(e) => updateProjectStatus(project.id, e.selectedValue)} />
+          </div>
+        {:else}
+          <button onclick={() => addToProject(project)} class="button-primary-outline">Add to {project.title}</button>
+        {/if}
+      {/each}
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">
