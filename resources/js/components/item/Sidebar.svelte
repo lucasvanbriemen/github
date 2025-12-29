@@ -18,7 +18,6 @@
   let linkedItems = $state([]);
   let projects = $state([]);
 
-  // Helper to find this item's membership for a given project
   function getItemProject(projectId) {
     return item?.projects_v2?.find(p => p.id === projectId);
   }
@@ -140,36 +139,12 @@
                 <a href="#{organization}/{repository}/project/{project.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
                   {project.title}
                 </a>
-                <button
-                  onclick={() => removeFromProject(getItemProject(project.id))}
-                  style="
-                    background: none;
-                    border: none;
-                    color: #d1242f;
-                    cursor: pointer;
-                    font-size: 14px;
-                    padding: 0;
-                    margin-left: 8px;
-                    font-weight: bold;
-                  "
-                >
-                  ×
+                <button onclick={() => removeFromProject(getItemProject(project.id))} style="background: none; border: none; color: #d1242f cursor: pointer; font-size: 14px; padding: 0; margin-left: 8px;font-weight: bold;">
+                  x
                 </button>
               </div>
 
-              <select
-                value={getItemProject(project.id).status}
-                onchange={(e) => updateProjectStatus(getItemProject(project.id), e.target.value)}
-                style="
-                  width: 100%;
-                  padding: 4px;
-                  border: 1px solid #34d399;
-                  border-radius: 3px;
-                  font-size: 11px;
-                  background: white;
-                  cursor: pointer;
-                "
-              >
+              <select value={getItemProject(project.id).status} onchange={(e) => updateProjectStatus(getItemProject(project.id), e.target.value)} style="width: 100%; padding: 4px; border: 1px solid #34d399; border-radius: 3px; font-size: 11px; background: white; cursor: pointer;">
                 {#each project.status_options as option (option.id)}
                   <option value={option.id} selected={option.name === getItemProject(project.id).status}>
                     {option.name}
@@ -178,9 +153,8 @@
               </select>
             </div>
           {:else}
-            <!-- Not in this project yet: show add button -->
             <button onclick={() => addToProject(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark); margin-bottom: 6px;">
-              + Add to {project.title}
+              Add to {project.title}
             </button>
           {/if}
         {/each}
