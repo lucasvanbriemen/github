@@ -47,28 +47,28 @@ class RepositoryController extends Controller
     {
         $mutation = <<<'GRAPHQL'
         query ($owner: String!, $name: String!) {
-            repository(owner: $owner, name: $name) {
-                projectsV2(first: 100) {
-                    nodes {
+          repository(owner: $owner, name: $name) {
+            projectsV2(first: 100) {
+              nodes {
+                id
+                title
+                number
+                updatedAt
+                fields(first: 50) {
+                  nodes {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      name
+                      options {
                         id
-                        title
-                        number
-                        updatedAt
-                        fields(first: 50) {
-                            nodes {
-                                ... on ProjectV2SingleSelectField {
-                                    id
-                                    name
-                                    options {
-                                        id
-                                        name
-                                    }
-                                }
-                            }
-                        }
+                        name
+                      }
                     }
+                  }
                 }
+              }
             }
+          }
         }
         GRAPHQL;
 
