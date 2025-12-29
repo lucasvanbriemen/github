@@ -17,8 +17,6 @@
   let selectedReviewer = $state();
   let linkedItems = $state([]);
   let projects = $state([]);
-  let selectedProjectForAdd = $state(null);
-  let selectedStatus = $state(null);
 
   // Helper to find this item's membership for a given project
   function getItemProject(projectId) {
@@ -92,8 +90,7 @@
   async function addToProject(project) {
 
     const projectIndex = projects.findIndex(p => p.id === project.id);
-    selectedProjectForAdd = projectIndex;
-    selectedStatus = projects[projectIndex].status_options[0].id;
+    let selectedStatus = projects[projectIndex].status_options[0].id;
 
     await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
       projectId: project.id,
@@ -102,9 +99,6 @@
       fieldId: project.status_field_id,
       statusValue: selectedStatus
     });
-
-    selectedProjectForAdd = null;
-    selectedStatus = null;
   }
 
   function handleClickOutside(event) {
