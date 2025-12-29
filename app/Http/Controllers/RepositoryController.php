@@ -283,8 +283,6 @@ class RepositoryController extends Controller
         $fieldId = request()->input('fieldId');
         $statusValue = request()->input('statusValue');
 
-        error_log('Update item project status - projectId: ' . $projectId . ', itemId: ' . $itemId . ', fieldId: ' . $fieldId . ', statusValue: ' . $statusValue);
-
         $response = ApiHelper::githubGraphql($mutation, [
             'input' => [
                 'projectId' => $projectId,
@@ -314,8 +312,6 @@ class RepositoryController extends Controller
 
         $projectId = request()->input('projectId');
         $itemId = request()->input('itemId');
-
-        error_log('Remove item from project - projectId: ' . $projectId . ', itemId: ' . $itemId);
 
         ApiHelper::githubGraphql($mutation, [
             'input' => [

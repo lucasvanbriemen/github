@@ -38,10 +38,7 @@
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
 
-    const projectsList = await api.get(route('organizations.repositories.projects', {organization, repository}));
-    projects = projectsList.map(p => ({
-      ...p
-    }));
+    projects = await api.get(route('organizations.repositories.projects', {organization, repository}));
     
     loadingProjects = false;
   });
@@ -72,10 +69,12 @@
   }
 
   async function handleUpdateProjectStatus(existingProject, newStatusId) {
+    let project = projects.find(p => p.id === existingProject.id);
+
     await api.post(route('organizations.repositories.item.update.project.status', {organization, repository}), {
       projectId: existingProject.id,
       itemId: existingProject.itemId,
-      fieldId: existingProject.status_field_id,
+      fieldId: project.status_field_id,
       statusValue: newStatusId
     });
   }
@@ -174,31 +173,26 @@
               </button>
             </div>
 
-            {#if existingProject.options && existingProject.options.length > 0}
-              <select
-                value={existingProject.status}
-                onchange={(e) => handleUpdateProjectStatus(existingProject, e.target.value)}
-                style="
-                  width: 100%;
-                  padding: 4px;
-                  border: 1px solid #34d399;
-                  border-radius: 3px;
-                  font-size: 11px;
-                  background: white;
-                  cursor: pointer;
-                "
-              >
-                {#each existingProject.options as option (option.id)}
-                  <option value={option.id} selected={option.name === existingProject.status}>
-                    {option.name}
-                  </option>
-                {/each}
-              </select>
-            {:else}
-              <span style="color: #666;">
-                → {existingProject.status || 'No status'}
-              </span>
-            {/if}
+            <select
+              value={existingProject.status}
+              onchange={(e) => handleUpdateProjectStatus(existingProject, e.target.value)}
+              style="
+                width: 100%;
+                padding: 4px;
+                border: 1px solid #34d399;
+                border-radius: 3px;
+                font-size: 11px;
+                background: white;
+                cursor: pointer;
+              "
+            >
+              {#each projects.find(p => p.id === existingProject.id).status_options as option (option.id)}
+                <option value={option.id} selected={option.name === existingProject.status}>
+                  {option.name}
+                </option>
+              {/each}
+            </select>
+            
           </div>
         {/each}
 
