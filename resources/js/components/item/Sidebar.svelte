@@ -141,12 +141,12 @@
     <SidebarGroup title="Projects">
         {#each projects as project, idx (project.id)}
           {#if getItemProject(project.id)}
-            <div style="padding: 8px; background: #dafbe1; border: 1px solid #34d399; border-radius: 4px; font-size: 12px; margin-bottom: 6px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <a href="#{organization}/{repository}/project/{project.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
+            <div >
+              <div >
+                <a href="#{organization}/{repository}/project/{project.number}" >
                   {project.title}
                 </a>
-                <button onclick={() => removeFromProject(project.id)} style="background: none; border: none; color: #d1242f cursor: pointer; font-size: 14px; padding: 0; margin-left: 8px;font-weight: bold;">
+                <button onclick={() => removeFromProject(project.id)} >
                   x
                 </button>
               </div>
