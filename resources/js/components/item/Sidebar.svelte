@@ -17,7 +17,6 @@
   let selectedReviewer = $state();
   let linkedItems = $state([]);
   let projects = $state([]);
-  let loadingProjects = $state(true);
   let selectedProjectForAdd = $state(null);
   let selectedStatus = $state(null);
 
@@ -42,10 +41,7 @@
     }
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
-
     projects = await api.get(route('organizations.repositories.projects', {organization, repository}));
-    
-    loadingProjects = false;
   });
 
   function requestReviewer(userId) {
@@ -73,7 +69,7 @@
     });
   }
 
-  async function handleUpdateProjectStatus(existingProject, newStatusId) {
+  async function updateProjectStatus(existingProject, newStatusId) {
     let project = projects.find(p => p.id === existingProject.id);
 
     await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
@@ -84,7 +80,7 @@
     });
   }
 
-  async function handleRemoveFromProject(existingProject) {
+  async function removeFromProject(existingProject) {
     await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
       projectId: existingProject.id,
       itemId: existingProject.itemId
@@ -93,16 +89,11 @@
     item.projects_v2 = item.projects_v2.filter(p => p.id !== existingProject.id);
   }
 
-  async function handleSelectProjectToAdd(project) {
+  async function addToProject(project) {
+
     const projectIndex = projects.findIndex(p => p.id === project.id);
     selectedProjectForAdd = projectIndex;
     selectedStatus = projects[projectIndex].status_options[0].id;
-
-    handleAddToProjectWithStatus();
-  }
-
-  async function handleAddToProjectWithStatus() {
-    const project = projects[selectedProjectForAdd];
 
     await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
       projectId: project.id,
@@ -112,11 +103,6 @@
       statusValue: selectedStatus
     });
 
-    selectedProjectForAdd = null;
-    selectedStatus = null;
-  }
-
-  function cancelSelectingStatus() {
     selectedProjectForAdd = null;
     selectedStatus = null;
   }
@@ -143,71 +129,68 @@
 
 <Sidebar {params} {activeItem}>
   {#if !isLoading}
-    {#if !loadingProjects && projects.length > 0}
-      <SidebarGroup title="Projects">
-          <!-- Single unified list: show either membership controls or add button per project -->
-          {#each projects as project, idx (project.id)}
-            {#if getItemProject(project.id)}
-              <!-- Item is in this project: show membership card -->
-              <div style="
-                padding: 8px;
-                background: #dafbe1;
-                border: 1px solid #34d399;
-                border-radius: 4px;
-                font-size: 12px;
-                margin-bottom: 6px;
-              ">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                  <a href="#{organization}/{repository}/project/{project.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
-                    {project.title}
-                  </a>
-                  <button
-                    onclick={() => handleRemoveFromProject(getItemProject(project.id))}
-                    style="
-                      background: none;
-                      border: none;
-                      color: #d1242f;
-                      cursor: pointer;
-                      font-size: 14px;
-                      padding: 0;
-                      margin-left: 8px;
-                      font-weight: bold;
-                    "
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <select
-                  value={getItemProject(project.id).status}
-                  onchange={(e) => handleUpdateProjectStatus(getItemProject(project.id), e.target.value)}
+    <SidebarGroup title="Projects">
+        <!-- Single unified list: show either membership controls or add button per project -->
+        {#each projects as project, idx (project.id)}
+          {#if getItemProject(project.id)}
+            <!-- Item is in this project: show membership card -->
+            <div style="
+              padding: 8px;
+              background: #dafbe1;
+              border: 1px solid #34d399;
+              border-radius: 4px;
+              font-size: 12px;
+              margin-bottom: 6px;
+            ">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                <a href="#{organization}/{repository}/project/{project.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
+                  {project.title}
+                </a>
+                <button
+                  onclick={() => removeFromProject(getItemProject(project.id))}
                   style="
-                    width: 100%;
-                    padding: 4px;
-                    border: 1px solid #34d399;
-                    border-radius: 3px;
-                    font-size: 11px;
-                    background: white;
+                    background: none;
+                    border: none;
+                    color: #d1242f;
                     cursor: pointer;
+                    font-size: 14px;
+                    padding: 0;
+                    margin-left: 8px;
+                    font-weight: bold;
                   "
                 >
-                  {#each project.status_options as option (option.id)}
-                    <option value={option.id} selected={option.name === getItemProject(project.id).status}>
-                      {option.name}
-                    </option>
-                  {/each}
-                </select>
+                  ×
+                </button>
               </div>
-            {:else}
-              <!-- Not in this project yet: show add button -->
-              <button onclick={() => handleSelectProjectToAdd(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark); margin-bottom: 6px;">
-                + Add to {project.title}
-              </button>
-            {/if}
-          {/each}
-        
-      </SidebarGroup>
-    {/if}
+
+              <select
+                value={getItemProject(project.id).status}
+                onchange={(e) => updateProjectStatus(getItemProject(project.id), e.target.value)}
+                style="
+                  width: 100%;
+                  padding: 4px;
+                  border: 1px solid #34d399;
+                  border-radius: 3px;
+                  font-size: 11px;
+                  background: white;
+                  cursor: pointer;
+                "
+              >
+                {#each project.status_options as option (option.id)}
+                  <option value={option.id} selected={option.name === getItemProject(project.id).status}>
+                    {option.name}
+                  </option>
+                {/each}
+              </select>
+            </div>
+          {:else}
+            <!-- Not in this project yet: show add button -->
+            <button onclick={() => addToProject(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark); margin-bottom: 6px;">
+              + Add to {project.title}
+            </button>
+          {/if}
+        {/each}
+    </SidebarGroup>
 
     <SidebarGroup title="Assignees">
       {#each item.assignees as assignee}
