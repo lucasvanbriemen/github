@@ -17,8 +17,9 @@
       repository: params.repository,
       number: params.number,
     }));
-
     isLoading = false;
+
+    console.log(cols);
   });
 </script>
 
