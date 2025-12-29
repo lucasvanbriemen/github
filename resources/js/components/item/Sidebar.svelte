@@ -144,13 +144,8 @@
                 </button>
               </div>
 
-              <select value={getItemProject(project.id).status} onchange={(e) => updateProjectStatus(getItemProject(project.id), e.target.value)} style="width: 100%; padding: 4px; border: 1px solid #34d399; border-radius: 3px; font-size: 11px; background: white; cursor: pointer;">
-                {#each project.status_options as option (option.id)}
-                  <option value={option.id} selected={option.name === getItemProject(project.id).status}>
-                    {option.name}
-                  </option>
-                {/each}
-              </select>
+              <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={getItemProject(project.id).status} onChange={(e) => updateProjectStatus(getItemProject(project.id), e.selectedValue)} />
+             
             </div>
           {:else}
             <button onclick={() => addToProject(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark); margin-bottom: 6px;">
