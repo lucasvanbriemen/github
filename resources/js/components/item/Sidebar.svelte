@@ -19,7 +19,7 @@
   let projects = $state([]);
 
   function getItemProject(projectId) {
-    return item?.projects_v2?.find(p => p.id === projectId);
+    return item?.projects?.find(p => p.id === projectId);
   }
 
   // Generate label style with proper color formatting
@@ -68,7 +68,7 @@
 
   async function updateProjectStatus(projectId, newStatusId) {
     let project = projects.find(p => p.id === projectId);
-    let itemProject = item?.projects_v2?.find(p => p.id === projectId);
+    let itemProject = item?.projects?.find(p => p.id === projectId);
 
     if (!itemProject) return;
 
@@ -86,14 +86,14 @@
   }
 
   async function removeFromProject(projectId) {
-    let itemProject = item?.projects_v2?.find(p => p.id === projectId);
+    let itemProject = item?.projects?.find(p => p.id === projectId);
 
     await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
       projectId: projectId,
       itemId: itemProject.itemId
     });
 
-    item.projects_v2 = item.projects_v2.filter(p => p.id !== projectId);
+    item.projects = item.projects.filter(p => p.id !== projectId);
   }
 
   async function addToProject(project) {
@@ -108,7 +108,6 @@
       statusValue: selectedStatus.id
     });
 
-    // Add to UI without reload
     const newProjectItem = {
       id: project.id,
       title: project.title,
@@ -117,7 +116,7 @@
       status: selectedStatus.name
     };
 
-    item.projects_v2 = [...item.projects_v2, newProjectItem];
+    item.projects = [...item.projects, newProjectItem];
   }
 
   function handleClickOutside(event) {

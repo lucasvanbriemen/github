@@ -196,7 +196,6 @@ class ItemController extends Controller
             $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
         }
 
-        // Fetch the global node ID from GitHub and what projects it's in
         $type = $item->isPullRequest() ? 'pullRequest' : 'issue';
         $query = "
             query (\$owner: String!, \$name: String!, \$number: Int!) {
@@ -231,7 +230,6 @@ class ItemController extends Controller
 
         $item->node_id = $response->data->repository->{$type}->id;
 
-        // Add the projects this item is in and fetch their field options
         $projects = [];
         foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
             $projectData = [
@@ -244,7 +242,7 @@ class ItemController extends Controller
 
             $projects[] = $projectData;
         }
-        $item->projects_v2 = $projects;
+        $item->projects = $projects;
 
         return response()->json($item);
     }
