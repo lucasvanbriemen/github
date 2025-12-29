@@ -146,9 +146,7 @@
         {#if getItemProject(project.id)}
           <div class="project-item">
             <div class="project-header">
-              <a href="#{organization}/{repository}/project/{project.number}" class="project-link">
-                {project.title}
-              </a>
+              <a href="#{organization}/{repository}/project/{project.number}" class="project-link">{project.title}</a>
               <button onclick={() => removeFromProject(project.id)} class="remove-project">x</button>
             </div>
 
