@@ -66,38 +66,54 @@
     });
   }
 
-  async function updateProjectStatus(existingProject, newStatusId) {
-    let project = projects.find(p => p.id === existingProject.id);
+  async function updateProjectStatus(projectId, newStatusId) {
+    let project = projects.find(p => p.id === projectId);
+    let itemProject = item?.projects_v2?.find(p => p.id === projectId);
+
+    if (!itemProject) return;
 
     await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
-      projectId: existingProject.id,
-      itemId: existingProject.itemId,
+      projectId: projectId,
+      itemNumber: item.number,
       fieldId: project.status_field_id,
       statusValue: newStatusId
     });
+
+    // Update the local state
+    itemProject.status = newStatusId;
   }
 
-  async function removeFromProject(existingProject) {
+  async function removeFromProject(projectId) {
     await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
-      projectId: existingProject.id,
-      itemId: existingProject.itemId
+      projectId: projectId,
+      itemNumber: item.number
     });
 
-    item.projects_v2 = item.projects_v2.filter(p => p.id !== existingProject.id);
+    item.projects_v2 = item.projects_v2.filter(p => p.id !== projectId);
   }
 
   async function addToProject(project) {
-
     const projectIndex = projects.findIndex(p => p.id === project.id);
-    let selectedStatus = projects[projectIndex].status_options[0].id;
+    let selectedStatus = projects[projectIndex].status_options[0];
 
     await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
       projectId: project.id,
       contentId: item.node_id,
       itemNumber: item.number,
       fieldId: project.status_field_id,
-      statusValue: selectedStatus
+      statusValue: selectedStatus.id
     });
+
+    // Add to UI without reload
+    const newProjectItem = {
+      id: project.id,
+      title: project.title,
+      number: project.number,
+      itemId: '', // Will be fetched by backend when needed
+      status: selectedStatus.name
+    };
+
+    item.projects_v2 = [...item.projects_v2, newProjectItem];
   }
 
   function handleClickOutside(event) {
@@ -130,12 +146,12 @@
                 <a href="#{organization}/{repository}/project/{project.number}" style="color: #0969da; text-decoration: none; font-weight: 500; flex: 1;">
                   {project.title}
                 </a>
-                <button onclick={() => removeFromProject(getItemProject(project.id))} style="background: none; border: none; color: #d1242f cursor: pointer; font-size: 14px; padding: 0; margin-left: 8px;font-weight: bold;">
+                <button onclick={() => removeFromProject(project.id)} style="background: none; border: none; color: #d1242f cursor: pointer; font-size: 14px; padding: 0; margin-left: 8px;font-weight: bold;">
                   x
                 </button>
               </div>
 
-              <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={getItemProject(project.id).status} onChange={(e) => updateProjectStatus(getItemProject(project.id), e.selectedValue)} />
+              <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={project.status_options.find(opt => opt.name === getItemProject(project.id)?.status)?.id ?? ''} onChange={(e) => updateProjectStatus(project.id, e.selectedValue)} />
             </div>
           {:else}
             <button onclick={() => addToProject(project)} class="button-primary-outline">Add to {project.title}</button>

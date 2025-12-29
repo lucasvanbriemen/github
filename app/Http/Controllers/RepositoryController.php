@@ -259,15 +259,18 @@ class RepositoryController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'itemId' => $itemId,
-            'message' => "Added to project successfully"
-        ]);
+        return response()->json(['success' => true, 'message' => "Added to project successfully"]);
     }
 
     public function updateItemProjectStatus(string $organizationName, string $repositoryName)
     {
+        $projectId = request()->input('projectId');
+        $itemNumber = request()->input('itemNumber');
+        $fieldId = request()->input('fieldId');
+        $statusValue = request()->input('statusValue');
+
+        $itemId = $this->getProjectItemId($organizationName, $repositoryName, $projectId, $itemNumber);
+
         $mutation = <<<'GRAPHQL'
         mutation ($input: UpdateProjectV2ItemFieldValueInput!) {
             updateProjectV2ItemFieldValue(input: $input) {
@@ -278,12 +281,7 @@ class RepositoryController extends Controller
         }
         GRAPHQL;
 
-        $projectId = request()->input('projectId');
-        $itemId = request()->input('itemId');
-        $fieldId = request()->input('fieldId');
-        $statusValue = request()->input('statusValue');
-
-        $response = ApiHelper::githubGraphql($mutation, [
+        ApiHelper::githubGraphql($mutation, [
             'input' => [
                 'projectId' => $projectId,
                 'itemId' => $itemId,
@@ -294,14 +292,16 @@ class RepositoryController extends Controller
             ]
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Status updated successfully'
-        ]);
+        return response()->json(['success' => true, 'message' => 'Status updated successfully']);
     }
 
     public function removeItemFromProject(string $organizationName, string $repositoryName)
     {
+        $projectId = request()->input('projectId');
+        $itemNumber = request()->input('itemNumber');
+
+        $itemId = $this->getProjectItemId($organizationName, $repositoryName, $projectId, $itemNumber);
+
         $mutation = <<<'GRAPHQL'
         mutation ($input: DeleteProjectV2ItemInput!) {
             deleteProjectV2Item(input: $input) {
@@ -310,9 +310,6 @@ class RepositoryController extends Controller
         }
         GRAPHQL;
 
-        $projectId = request()->input('projectId');
-        $itemId = request()->input('itemId');
-
         ApiHelper::githubGraphql($mutation, [
             'input' => [
                 'projectId' => $projectId,
@@ -320,9 +317,55 @@ class RepositoryController extends Controller
             ]
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Item removed from project successfully'
+        return response()->json(['success' => true, 'message' => 'Item removed from project successfully']);
+    }
+
+    private function getProjectItemId(string $organizationName, string $repositoryName, string $projectId, int $itemNumber): string
+    {
+        $query = <<<'GRAPHQL'
+        query ($number: Int!, $owner: String!, $name: String!) {
+            repository(owner: $owner, name: $name) {
+                issue(number: $number) {
+                    projectItems(first: 10) {
+                        nodes {
+                            id
+                            project {
+                                id
+                            }
+                        }
+                    }
+                }
+                pullRequest(number: $number) {
+                    projectItems(first: 10) {
+                        nodes {
+                            id
+                            project {
+                                id
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        GRAPHQL;
+
+        $response = ApiHelper::githubGraphql($query, [
+            'number' => $itemNumber,
+            'owner' => $organizationName,
+            'name' => $repositoryName,
         ]);
+
+        // Check both issue and pullRequest
+        $issueItems = $response->data->repository->issue->projectItems->nodes ?? [];
+        $prItems = $response->data->repository->pullRequest->projectItems->nodes ?? [];
+        $projectItems = array_merge($issueItems, $prItems);
+
+        foreach ($projectItems as $item) {
+            if ($item->project->id === $projectId) {
+                return $item->id;
+            }
+        }
+
+        throw new \Exception("Item not found in project");
     }
 }
