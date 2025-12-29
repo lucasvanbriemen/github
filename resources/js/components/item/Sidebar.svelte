@@ -92,6 +92,8 @@
     const projectIndex = projects.findIndex(p => p.id === project.id);
     selectedProjectForAdd = projectIndex;
     selectedStatus = projects[projectIndex].status_options[0].id;
+
+    handleAddToProjectWithStatus();
   }
 
   async function handleAddToProjectWithStatus() {
@@ -227,41 +229,6 @@
                     <option value={option.id}>{option.name}</option>
                   {/each}
                 </select>
-              </div>
-
-              <div style="display: flex; gap: 6px;">
-                <button
-                  onclick={handleAddToProjectWithStatus}
-                  style="
-                    flex: 1;
-                    padding: 6px 12px;
-                    background: #0969da;
-                    color: white;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    font-weight: 500;
-                    cursor: pointer;
-                  "
-                >
-                  Add
-                </button>
-                <button
-                  onclick={cancelSelectingStatus}
-                  style="
-                    flex: 1;
-                    padding: 6px 12px;
-                    background: #d1d5da;
-                    color: #333;
-                    border: none;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    font-weight: 500;
-                    cursor: pointer;
-                  "
-                >
-                  Cancel
-                </button>
               </div>
             </div>
           {/if}
