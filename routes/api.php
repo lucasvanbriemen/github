@@ -29,13 +29,13 @@ Route::middleware(IsLoggedIn::class)->group(function () {
             ->name('project.show');
 
         Route::post('/item/add-to-project', [RepositoryController::class, 'addItemToProject'])
-            ->name('item.add.to.project');
+            ->name('project.item.add');
 
         Route::post('/item/update-project-status', [RepositoryController::class, 'updateItemProjectStatus'])
-            ->name('item.update.project.status');
+            ->name('project.item.update');
 
         Route::post('/item/remove-from-project', [RepositoryController::class, 'removeItemFromProject'])
-            ->name('item.remove.from.project');
+            ->name('project.item.remove');
 
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('contributors');

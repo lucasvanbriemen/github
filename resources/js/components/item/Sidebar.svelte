@@ -71,7 +71,7 @@
   async function handleUpdateProjectStatus(existingProject, newStatusId) {
     let project = projects.find(p => p.id === existingProject.id);
 
-    await api.post(route('organizations.repositories.item.update.project.status', {organization, repository}), {
+    await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
       projectId: existingProject.id,
       itemId: existingProject.itemId,
       fieldId: project.status_field_id,
@@ -80,11 +80,7 @@
   }
 
   async function handleRemoveFromProject(existingProject) {
-    if (!confirm(`Remove this item from "${existingProject.title}"?`)) {
-      return;
-    }
-
-    await api.post(route('organizations.repositories.item.remove.from.project', {organization, repository}),{
+    await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
       projectId: existingProject.id,
       itemId: existingProject.itemId
     });
@@ -101,7 +97,7 @@
   async function handleAddToProjectWithStatus() {
     const project = projects[selectedProjectForAdd];
 
-    await api.post(route('organizations.repositories.item.add.to.project', {organization, repository}), {
+    await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
       projectId: project.id,
       contentId: item.node_id,
       itemNumber: item.number,
