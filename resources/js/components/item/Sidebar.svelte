@@ -138,9 +138,7 @@
               <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={getItemProject(project.id).status} onChange={(e) => updateProjectStatus(getItemProject(project.id), e.selectedValue)} />
             </div>
           {:else}
-            <button onclick={() => addToProject(project)} style="background-color: transparent; border: 1px solid var(--primary-color-dark); margin-bottom: 6px;">
-              Add to {project.title}
-            </button>
+            <button onclick={() => addToProject(project)} class="button-primary-outline">Add to {project.title}</button>
           {/if}
         {/each}
     </SidebarGroup>
