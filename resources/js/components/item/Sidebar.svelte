@@ -72,21 +72,25 @@
 
     if (!itemProject) return;
 
+    const statusOption = project.status_options.find(opt => opt.id === newStatusId);
+
     await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
       projectId: projectId,
-      itemNumber: item.number,
+      itemId: itemProject.itemId,
       fieldId: project.status_field_id,
       statusValue: newStatusId
     });
 
-    // Update the local state
-    itemProject.status = newStatusId;
+    // Update the local state with status name
+    itemProject.status = statusOption?.name;
   }
 
   async function removeFromProject(projectId) {
+    let itemProject = item?.projects_v2?.find(p => p.id === projectId);
+
     await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
       projectId: projectId,
-      itemNumber: item.number
+      itemId: itemProject.itemId
     });
 
     item.projects_v2 = item.projects_v2.filter(p => p.id !== projectId);
@@ -96,7 +100,7 @@
     const projectIndex = projects.findIndex(p => p.id === project.id);
     let selectedStatus = projects[projectIndex].status_options[0];
 
-    await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
+    const response = await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
       projectId: project.id,
       contentId: item.node_id,
       itemNumber: item.number,
@@ -109,7 +113,7 @@
       id: project.id,
       title: project.title,
       number: project.number,
-      itemId: '', // Will be fetched by backend when needed
+      itemId: response.itemId,
       status: selectedStatus.name
     };
 
@@ -141,14 +145,12 @@
     <SidebarGroup title="Projects">
         {#each projects as project, idx (project.id)}
           {#if getItemProject(project.id)}
-            <div >
-              <div >
-                <a href="#{organization}/{repository}/project/{project.number}" >
+            <div class="project-item">
+              <div class="project-header">
+                <a href="#{organization}/{repository}/project/{project.number}" class="project-link">
                   {project.title}
                 </a>
-                <button onclick={() => removeFromProject(project.id)} >
-                  x
-                </button>
+                <button onclick={() => removeFromProject(project.id)} class="remove-project">x</button>
               </div>
 
               <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={project.status_options.find(opt => opt.name === getItemProject(project.id)?.status)?.id ?? ''} onChange={(e) => updateProjectStatus(project.id, e.selectedValue)} />
