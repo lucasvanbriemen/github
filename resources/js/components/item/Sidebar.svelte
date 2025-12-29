@@ -145,7 +145,6 @@
   {#if !isLoading}
     {#if !loadingProjects && projects.length > 0}
       <SidebarGroup title="Projects">
-        {#if selectedProjectForAdd === null}
           <!-- Single unified list: show either membership controls or add button per project -->
           {#each projects as project, idx (project.id)}
             {#if getItemProject(project.id)}
@@ -206,34 +205,7 @@
               </button>
             {/if}
           {/each}
-        {:else}
-          <!-- Status Selector Modal -->
-          <div style="padding: 12px; background: #f6f8fa; border-radius: 6px; border: 1px solid #d0d7de;">
-            <div style="margin-bottom: 12px;">
-              <strong style="display: block; margin-bottom: 8px;">Select status for:</strong>
-              <span>{projects[selectedProjectForAdd].title}</span>
-            </div>
-
-            <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 12px; color: #666; margin-bottom: 6px;">Status:</label>
-              <select
-                bind:value={selectedStatus}
-                style="
-                  width: 100%;
-                  padding: 6px 8px;
-                  border: 1px solid #d0d7de;
-                  border-radius: 6px;
-                  font-size: 13px;
-                  background: white;
-                "
-              >
-                {#each projects[selectedProjectForAdd].status_options as option}
-                  <option value={option.id}>{option.name}</option>
-                {/each}
-              </select>
-            </div>
-          </div>
-        {/if}
+        
       </SidebarGroup>
     {/if}
 
