@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte';
-  import Sidebar from './sidebar/Sidebar.svelte';
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
 
