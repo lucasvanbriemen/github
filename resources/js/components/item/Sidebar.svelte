@@ -23,8 +23,8 @@
   }
 
   onMount(async () => {
-    let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
-    selectedableReviewers = repoMetadata.assignees;
+    // let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
+    // selectedableReviewers = repoMetadata.assignees;
 
     formatContributors();
 
