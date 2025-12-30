@@ -31,6 +31,16 @@
       </div>
     {/if}
   {/each}
+
+  {#if $organization && $repository}
+    <div class="separator"></div>
+
+    <a href="#/{$organization}/{$repository}">home</a>
+    <a href="#/{$organization}/{$repository}/issues">issues</a>
+    <a href="#/{$organization}/{$repository}/prs">pull requests</a>
+    <a href="#/{$organization}/{$repository}/projects">projects</a>
+
+  {/if}
 </header>
 
 <style>
