@@ -44,7 +44,6 @@
     {/if}
   {/if}
 
-
   {#if item.state === 'open'}
     <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
     <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>

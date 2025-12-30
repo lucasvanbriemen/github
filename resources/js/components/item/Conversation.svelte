@@ -38,7 +38,9 @@
   <Comment {comment} {params} />
 {/each}
 
-<MergePanel {params} {item} />
+{#if item.type === 'pull_request'}
+  <MergePanel {params} {item} />
+{/if}
 
 <Markdown bind:content={issueComment} isEditing={true} />
 <button class="button-primary-outline" onclick={post_comment}>Post Comment</button>
