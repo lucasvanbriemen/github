@@ -16,6 +16,11 @@
   let selectedableReviewers = $state([]);
   let selectedReviewer = $state();
   let linkedItems = $state([]);
+  let projects = $state([]);
+
+  function getItemProject(projectId) {
+    return item.projects.find(p => p.id === projectId);
+  }
 
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
@@ -33,6 +38,7 @@
     }
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
+    projects = await api.get(route('organizations.repositories.projects', {organization, repository}));
   });
 
   function requestReviewer(userId) {
@@ -60,6 +66,55 @@
     });
   }
 
+  async function updateProjectStatus(projectId, newStatusId) {
+    let project = projects.find(p => p.id === projectId);
+    let itemProject = item.projects.find(p => p.id === projectId);
+
+    await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
+      projectId: projectId,
+      itemId: itemProject.itemId,
+      fieldId: project.status_field_id,
+      statusValue: newStatusId
+    });
+    
+    const statusOption = project.status_options.find(opt => opt.id === newStatusId);
+    itemProject.status = statusOption.name;
+  }
+
+  async function removeFromProject(projectId) {
+    let itemProject = item.projects.find(p => p.id === projectId);
+
+    await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
+      projectId: projectId,
+      itemId: itemProject.itemId
+    });
+
+    item.projects = item.projects.filter(p => p.id !== projectId);
+  }
+
+  async function addToProject(project) {
+    const projectIndex = projects.findIndex(p => p.id === project.id);
+    let selectedStatus = projects[projectIndex].status_options[0];
+
+    const response = await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
+      projectId: project.id,
+      contentId: item.node_id,
+      itemNumber: item.number,
+      fieldId: project.status_field_id,
+      statusValue: selectedStatus.id
+    });
+
+    const newProjectItem = {
+      id: project.id,
+      title: project.title,
+      number: project.number,
+      itemId: response.itemId,
+      status: selectedStatus.name
+    };
+
+    item.projects = [...item.projects, newProjectItem];
+  }
+
   function handleClickOutside(event) {
     if (!event.target.closest('.group') && addingReviewer) {
       addingReviewer = false;
@@ -82,6 +137,23 @@
 
 <Sidebar {params} {activeItem}>
   {#if !isLoading}
+    <SidebarGroup title="Projects">
+      {#each projects as project, idx (project.id)}
+        {#if getItemProject(project.id)}
+          <div class="project-item">
+            <div class="project-header">
+              <a href="#{organization}/{repository}/project/{project.number}" class="project-link">{project.title}</a>
+              <button onclick={() => removeFromProject(project.id)} class="remove-project">x</button>
+            </div>
+
+            <Select name="status-{idx}" selectableItems={project.status_options.map(option => ({value: option.id, label: option.name}))} selectedValue={project.status_options.find(opt => opt.name === getItemProject(project.id)?.status)?.id ?? ''} onChange={(e) => updateProjectStatus(project.id, e.selectedValue)} />
+          </div>
+        {:else}
+          <button onclick={() => addToProject(project)} class="button-primary-outline">Add to {project.title}</button>
+        {/if}
+      {/each}
+    </SidebarGroup>
+
     <SidebarGroup title="Assignees">
       {#each item.assignees as assignee}
         <div class="assignee">

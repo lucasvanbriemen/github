@@ -28,6 +28,15 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/projects/{number}', [RepositoryController::class, 'showProject'])
             ->name('project.show');
 
+        Route::post('/item/add-to-project', [RepositoryController::class, 'addItemToProject'])
+            ->name('project.item.add');
+
+        Route::post('/item/update-project-status', [RepositoryController::class, 'updateItemProjectStatus'])
+            ->name('project.item.update');
+
+        Route::post('/item/remove-from-project', [RepositoryController::class, 'removeItemFromProject'])
+            ->name('project.item.remove');
+
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('contributors');
 

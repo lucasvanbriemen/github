@@ -196,6 +196,54 @@ class ItemController extends Controller
             $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
         }
 
+        $type = $item->isPullRequest() ? 'pullRequest' : 'issue';
+        $query = "
+            query (\$owner: String!, \$name: String!, \$number: Int!) {
+                repository(owner: \$owner, name: \$name) {
+                    $type(number: \$number) {
+                        id
+                        projectItems(first: 10) {
+                            nodes {
+                                id
+                                project {
+                                    id
+                                    title
+                                    number
+                                }
+                                fieldValueByName(name: \"Status\") {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ";
+
+        $response = ApiHelper::githubGraphql($query, [
+            'owner' => $organizationName,
+            'name' => $repository->name,
+            'number' => (int) $issueNumber,
+        ]);
+
+        $item->node_id = $response->data->repository->{$type}->id;
+
+        $projects = [];
+        foreach ($response->data->repository->{$type}->projectItems->nodes as $projectItem) {
+            $projectData = [
+                'id' => $projectItem->project->id,
+                'title' => $projectItem->project->title,
+                'number' => $projectItem->project->number,
+                'itemId' => $projectItem->id,
+                'status' => $projectItem->fieldValueByName->name ?? null
+            ];
+
+            $projects[] = $projectData;
+        }
+        $item->projects = $projects;
+
         return response()->json($item);
     }
 

@@ -1,3 +1,39 @@
+.project-item {
+  padding: 0.5rem;
+  border: 1px solid var(--background-color-two);
+  border-radius: 0.5rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .project-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .project-link {
+      text-decoration: none;
+      color: var(--text-color-secondary);
+      font-size: 0.85rem;
+    }
+
+    .remove-project {
+      background-color: transparent;
+      border: 1px solid var(--error-color);
+      border-radius: 1rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--error-color);
+        color: var(--background-color);
+      }
+    }
+  }
+}
+
 .assignee,
 .reviewer {
   display: flex;

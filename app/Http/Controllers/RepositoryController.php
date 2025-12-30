@@ -54,6 +54,18 @@ class RepositoryController extends Controller
                 title
                 number
                 updatedAt
+                fields(first: 50) {
+                  nodes {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      name
+                      options {
+                        id
+                        name
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -65,10 +77,22 @@ class RepositoryController extends Controller
 
         $projects = [];
         foreach ($data as $project) {
+            // Get the status field and its options
+            $fields = $project->fields->nodes;
+            foreach ($fields as $field) {
+                if (isset($field->name) && $field->name === 'Status') {
+                    $project->statusFieldId = $field->id;
+                    $project->statusOptions = $field->options;
+                    break;
+                }
+            }
+
             $projects[] = [
                 'id' => $project->id,
                 'title' => $project->title,
                 'number' => $project->number,
+                'status_options' => $project->statusOptions ?? [],
+                'status_field_id' => $project->statusFieldId ?? null,
                 'updated_at' => Carbon::parse($project->updatedAt)->diffForHumans(),
             ];
         }
@@ -84,10 +108,13 @@ class RepositoryController extends Controller
             query ($org: String!, $number: Int!, $after: String) {
                 organization(login: $org) {
                     projectV2(number: $number) {
+                        id
                         field(name: "Status") {
                             ... on ProjectV2SingleSelectField {
+                                id
                                 name
                                 options {
+                                    id
                                     name
                                 }
                             }
@@ -98,6 +125,7 @@ class RepositoryController extends Controller
                                 endCursor
                             }
                             nodes {
+                                id
                                 content {
                                     ... on Issue {
                                         number
@@ -109,6 +137,7 @@ class RepositoryController extends Controller
                                 fieldValueByName(name: "Status") {
                                     ... on ProjectV2ItemFieldSingleSelectValue {
                                         name
+                                        optionId
                                     }
                                 }
                             }
@@ -178,5 +207,112 @@ class RepositoryController extends Controller
         }
 
         return response()->json(array_values($columns->toArray()));
+    }
+
+    public function addItemToProject(string $organizationName, string $repositoryName)
+    {
+        // The correct mutation for adding items to Projects V2
+        $addMutation = <<<'GRAPHQL'
+        mutation ($projectId: ID!, $contentId: ID!) {
+            addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+                item {
+                    id
+                }
+            }
+        }
+        GRAPHQL;
+
+        $projectId = request()->input('projectId');
+        $contentId = request()->input('contentId'); // Global node ID of issue/PR
+        $fieldId = request()->input('fieldId'); // Status field ID
+        $statusValue = request()->input('statusValue'); // The status option ID
+
+        // First, add the item to the project
+        $response = ApiHelper::githubGraphql($addMutation, [
+            'projectId' => $projectId,
+            'contentId' => $contentId,
+        ]);
+
+        $itemId = $response->data->addProjectV2ItemById->item->id;
+
+        // Now update the status field if provided
+        if ($fieldId && $statusValue) {
+            $updateMutation = <<<'GRAPHQL'
+            mutation ($input: UpdateProjectV2ItemFieldValueInput!) {
+                updateProjectV2ItemFieldValue(input: $input) {
+                    projectV2Item {
+                        id
+                    }
+                }
+            }
+            GRAPHQL;
+
+            $updateResponse = ApiHelper::githubGraphql($updateMutation, [
+                'input' => [
+                    'projectId' => $projectId,
+                    'itemId' => $itemId,
+                    'fieldId' => $fieldId,
+                    'value' => [
+                        'singleSelectOptionId' => $statusValue
+                    ]
+                ]
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => "Added to project successfully", 'itemId' => $itemId]);
+    }
+
+    public function updateItemProjectStatus(string $organizationName, string $repositoryName)
+    {
+        $projectId = request()->input('projectId');
+        $itemId = request()->input('itemId');
+        $fieldId = request()->input('fieldId');
+        $statusValue = request()->input('statusValue');
+
+        $mutation = <<<'GRAPHQL'
+        mutation ($input: UpdateProjectV2ItemFieldValueInput!) {
+            updateProjectV2ItemFieldValue(input: $input) {
+                projectV2Item {
+                    id
+                }
+            }
+        }
+        GRAPHQL;
+
+        ApiHelper::githubGraphql($mutation, [
+            'input' => [
+                'projectId' => $projectId,
+                'itemId' => $itemId,
+                'fieldId' => $fieldId,
+                'value' => [
+                    'singleSelectOptionId' => $statusValue
+                ]
+            ]
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Status updated successfully']);
+    }
+
+    public function removeItemFromProject(string $organizationName, string $repositoryName)
+    {
+        $projectId = request()->input('projectId');
+        $itemId = request()->input('itemId');
+
+        $mutation = <<<'GRAPHQL'
+        mutation ($input: DeleteProjectV2ItemInput!) {
+            deleteProjectV2Item(input: $input) {
+                deletedItemId
+            }
+        }
+        GRAPHQL;
+
+        ApiHelper::githubGraphql($mutation, [
+            'input' => [
+                'projectId' => $projectId,
+                'itemId' => $itemId
+            ]
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Item removed from project successfully']);
     }
 }
