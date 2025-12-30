@@ -54,4 +54,25 @@ header {
       color: var(--text-color-secondary);
     }
   }
+
+  a:not(.logo) {
+    text-decoration: none;
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+    font-weight: 500;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+
+    border: 2px solid var(--background-color-two);
+
+    &:hover {
+      color: var(--text-color);
+      background-color: var(--background-color-two);
+    }
+
+    &.active {
+      border: 2px solid var(--primary-color-dark);
+      color: var(--text-color);
+    }
+  }
 }
