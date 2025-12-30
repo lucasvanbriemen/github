@@ -19,7 +19,7 @@
   let projects = $state([]);
 
   function getItemProject(projectId) {
-    return item?.projects?.find(p => p.id === projectId);
+    return item.projects.find(p => p.id === projectId);
   }
 
   // Generate label style with proper color formatting
@@ -68,11 +68,7 @@
 
   async function updateProjectStatus(projectId, newStatusId) {
     let project = projects.find(p => p.id === projectId);
-    let itemProject = item?.projects?.find(p => p.id === projectId);
-
-    if (!itemProject) return;
-
-    const statusOption = project.status_options.find(opt => opt.id === newStatusId);
+    let itemProject = item.projects.find(p => p.id === projectId);
 
     await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
       projectId: projectId,
@@ -80,13 +76,13 @@
       fieldId: project.status_field_id,
       statusValue: newStatusId
     });
-
-    // Update the local state with status name
-    itemProject.status = statusOption?.name;
+    
+    const statusOption = project.status_options.find(opt => opt.id === newStatusId);
+    itemProject.status = statusOption.name;
   }
 
   async function removeFromProject(projectId) {
-    let itemProject = item?.projects?.find(p => p.id === projectId);
+    let itemProject = item.projects.find(p => p.id === projectId);
 
     await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
       projectId: projectId,
