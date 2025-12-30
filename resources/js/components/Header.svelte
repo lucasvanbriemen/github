@@ -8,8 +8,6 @@
 
   onMount(async () => {
     organizations = await api.get(route('organizations'));
-    window.addEventListener('hashchange', setActive);
-    setActive();
   });
 </script>
 
@@ -42,7 +40,6 @@
     <a href="#/{$organization}/{$repository}/issues" class:active={selectedRoute === 'issues'} onclick={() => selectedRoute = 'issues'}>Issues</a>
     <a href="#/{$organization}/{$repository}/prs" class:active={selectedRoute === 'prs'} onclick={() => selectedRoute = 'prs'}>Pull Requests</a>
     <a href="#/{$organization}/{$repository}/projects" class:active={selectedRoute === 'projects'} onclick={() => selectedRoute = 'projects'}>Projects</a>
-
   {/if}
 </header>
 
