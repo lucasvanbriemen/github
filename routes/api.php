@@ -3,6 +3,7 @@
 use App\Http\Controllers\IncomingWebhookController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
@@ -22,19 +23,19 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('notifications.complete');
 
     Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
-        Route::get('/projects', [RepositoryController::class, 'getProjects'])
+        Route::get('/projects', [ProjectController::class, 'getProjects'])
             ->name('projects');
 
-        Route::get('/projects/{number}', [RepositoryController::class, 'showProject'])
+        Route::get('/projects/{number}', [ProjectController::class, 'showProject'])
             ->name('project.show');
 
-        Route::post('/item/add-to-project', [RepositoryController::class, 'addItemToProject'])
+        Route::post('/item/add-to-project', [ProjectController::class, 'addItemToProject'])
             ->name('project.item.add');
 
-        Route::post('/item/update-project-status', [RepositoryController::class, 'updateItemProjectStatus'])
+        Route::post('/item/update-project-status', [ProjectController::class, 'updateItemProjectStatus'])
             ->name('project.item.update');
 
-        Route::post('/item/remove-from-project', [RepositoryController::class, 'removeItemFromProject'])
+        Route::post('/item/remove-from-project', [ProjectController::class, 'removeItemFromProject'])
             ->name('project.item.remove');
 
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
