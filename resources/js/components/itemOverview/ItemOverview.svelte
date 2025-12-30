@@ -126,7 +126,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params}>
+  <Sidebar>
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">

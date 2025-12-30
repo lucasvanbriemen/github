@@ -130,7 +130,7 @@
 
 </script>
 
-<Sidebar {params}>
+<Sidebar>
   {#if !isLoading}
     <SidebarGroup title="Projects">
       {#each projects as project, idx (project.id)}

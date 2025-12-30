@@ -1,5 +1,5 @@
 <script>
-  let {params = {}, children } = $props();
+  let { children } = $props();
 </script>
 
 <div class="sidebar">

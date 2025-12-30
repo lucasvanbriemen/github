@@ -23,7 +23,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params}>
+  <Sidebar>
     <Group title="Status">
       <div class="switch-container">
         <div class="switch-label">
