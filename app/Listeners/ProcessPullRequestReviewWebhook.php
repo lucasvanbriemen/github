@@ -10,6 +10,7 @@ use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\Notification;
 use App\Models\RequestedReviewer;
+use App\GithubConfig;
 use App\Models\BaseComment;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
@@ -133,7 +134,8 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             $updateData
         );
 
-        if ($pr->isCurrentlyAssignedToUser()) {
+        // Create notification if user is assigned OR is the author of the PR
+        if ($pr->isCurrentlyAssignedToUser() || $pr->opened_by_id === GithubConfig::USERID) {
             Notification::create([
                 'type' => 'pr_review',
                 'related_id' => $reviewData->id,
