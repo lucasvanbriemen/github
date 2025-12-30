@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
 use App\Models\Item;
+use App\Models\Repository;
+use App\Models\Label;
 use Carbon\Carbon;
 
 class RepositoryController extends Controller
@@ -41,5 +43,34 @@ class RepositoryController extends Controller
             });
 
         return response()->json($branches);
+    }
+
+    public static function updateLabels()
+    {
+        $repositories = Repository::all();
+
+        foreach ($repositories as $repository) {
+            // Fetch labels from GitHub API
+            $labels = ApiHelper::githubApi('/repos/'.$repository->full_name.'/labels');
+
+            if (! $labels) {
+                continue;
+            }
+
+            foreach ($labels as $label) {
+                // Update or create label
+                Label::updateOrCreate(
+                    [
+                        'repository_id' => $repository->id,
+                        'github_id' => $label->id,
+                    ],
+                    [
+                        'name' => $label->name,
+                        'color' => $label->color,
+                        'description' => $label->description,
+                    ]
+                );
+            }
+        }
     }
 }
