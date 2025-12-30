@@ -5,7 +5,6 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} activeItem="Home" showDetailsFrom="repo-dashboard" />
   <div class="repo-main">
   </div>
 </div>

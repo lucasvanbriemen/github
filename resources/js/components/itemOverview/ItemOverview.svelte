@@ -20,7 +20,6 @@
   let branchesForNotice = $state([]);
 
   const isPR= $derived(type === 'prs');
-  const activeItem = $derived(isPR ? 'Pull Requests' : 'Issues');
 
   let stateOptions = $state([]);
 
@@ -127,7 +126,7 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} {activeItem}>
+  <Sidebar {params}>
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">

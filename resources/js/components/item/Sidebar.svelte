@@ -6,7 +6,6 @@
   import Select from '../Select.svelte';
 
   let { item, isPR, isLoading, params = {} } = $props();
-  let activeItem = $state('Issues');
 
   let addingReviewer = $state(false);
 
@@ -32,10 +31,6 @@
     // selectedableReviewers = repoMetadata.assignees;
 
     formatContributors();
-
-    if (isPR) {
-      activeItem = 'Pull Requests';
-    }
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
     projects = await api.get(route('organizations.repositories.projects', {organization, repository}));
@@ -135,7 +130,7 @@
 
 </script>
 
-<Sidebar {params} {activeItem}>
+<Sidebar {params}>
   {#if !isLoading}
     <SidebarGroup title="Projects">
       {#each projects as project, idx (project.id)}
