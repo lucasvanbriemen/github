@@ -1,24 +1,23 @@
 <script>
-  let { item, params } = $props();
+  import { organization, repository } from "../../stores";
 
-  let organization = params.organization;
-  let repository = params.repository;
+  let { item, params } = $props();
   let number = params.number;
 
   function close() {
-    api.post(route(`organizations.repositories.pr.update`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
       state: 'closed',
     });
     item.state = 'closed';
   }
 
   function merge() {
-    api.post(route(`organizations.repositories.pr.merge`, { organization, repository, number }));
+    api.post(route(`organizations.repositories.pr.merge`, { $organization, $repository, number }));
     item.state = 'merged';
   }
 
   function ready_for_review() {
-    api.post(route(`organizations.repositories.pr.update`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
       draft: false,
     });
 

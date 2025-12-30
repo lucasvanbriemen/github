@@ -7,10 +7,9 @@
   import ListItemSkeleton from '../ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
+  import { organization, repository } from '../stores.js';
 
   let { params = {} } = $props();
-  let organization = $derived(params.organization || '');
-  let repository = $derived(params.repository || '');
   let type = $derived(params.type);
 
   let issues = $state([]);
@@ -32,7 +31,7 @@
 
   async function getContributors() {
     // Get the assnees and map them to the {value, label} format for Select component
-    assignees = await api.get(route('organizations.repositories.contributors', {organization, repository}))
+    assignees = await api.get(route('organizations.repositories.contributors', {$organization, $repository}))
       .then(response => response.map(assignee => ({
         value: assignee.id,
         image: assignee.avatar_url,
@@ -53,7 +52,7 @@
     isLoading = true;
     currentPage = pageNr;
 
-    let url = `${route('organizations.repositories.items', {organization, repository, type})}?page=${pageNr}&state=${state}`;
+    let url = `${route('organizations.repositories.items', {$organization, $repository, type})}?page=${pageNr}&state=${state}`;
     url += `&assignee=${selectedAssignee}`;
     url += `&search=${searchQuery}`;
 
@@ -78,11 +77,11 @@
   }
 
   async function getBranchesForNotices() {
-    branchesForNotice = await api.get(route('organizations.repositories.branches.pr.notices', {organization, repository}));
+    branchesForNotice = await api.get(route('organizations.repositories.branches.pr.notices', {$organization, $repository}));
   }
 
   function linkToNewItem(type) {
-    window.location.hash = `#/${organization}/${repository}/new/${type}`;
+    window.location.hash = `#/${$organization}/${$repository}/new/${type}`;
   }
 
   function filterItem() {
@@ -97,8 +96,8 @@
 
   $effect(() => {
     void type;
-    void organization;
-    void repository;
+    void $organization;
+    void $repository;
 
     untrack(() => {
       currentPage = 1;
