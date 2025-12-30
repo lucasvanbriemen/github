@@ -23,10 +23,10 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         ->name('notifications.complete');
 
     Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
-        Route::get('/projects', [ProjectController::class, 'getProjects'])
+        Route::get('/projects', [ProjectController::class, 'index'])
             ->name('projects');
 
-        Route::get('/projects/{number}', [ProjectController::class, 'showProject'])
+        Route::get('/projects/{number}', [ProjectController::class, 'show'])
             ->name('project.show');
 
         Route::post('/item/add-to-project', [ProjectController::class, 'addItemToProject'])

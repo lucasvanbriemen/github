@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class ProjectController extends Controller
 {
-    public function getProjects($organizationName, $repositoryName)
+    public function index($organizationName, $repositoryName)
     {
         $mutation = <<<'GRAPHQL'
         query ($owner: String!, $name: String!) {
@@ -66,7 +66,7 @@ class ProjectController extends Controller
         return response()->json($projects);
     }
 
-    public function showProject(string $organizationName, string $repositoryName, int $projectNumber)
+    public function show(string $organizationName, string $repositoryName, int $projectNumber)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
