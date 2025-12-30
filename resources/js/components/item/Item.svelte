@@ -48,7 +48,9 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {params} />
+  {#if activeTab === 'conversation'}
+    <Sidebar {item} {isPR} {isLoading} {params} />
+  {/if}
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main {activeTab}" class:is-pr={isPR}>
