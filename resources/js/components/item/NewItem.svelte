@@ -74,7 +74,7 @@
 </script>
 
 <div class="new-pr">
-  <Sidebar {params}>
+  <Sidebar>
 
     {#if type === 'pr'}
       <SidebarGroup title="Branch to merge">
