@@ -15,11 +15,10 @@
       repository: params.repository,
     }));
     isLoading = false;
-  });
+  }); 
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} activeItem="Projects" showDetailsFrom="repo-dashboard" />
   <div class="repo-main">
     {#if isLoading}
       {#each Array(3) as _}

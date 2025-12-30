@@ -17,14 +17,13 @@
       repository: params.repository,
       number: params.number,
     }));
-    isLoading = false;
 
-    console.log(cols);
+    isLoading = false;
   });
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} activeItem="Projects">
+  <Sidebar {params}>
     <Group title="Status">
       <div class="switch-container">
         <div class="switch-label">
