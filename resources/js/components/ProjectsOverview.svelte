@@ -15,7 +15,7 @@
       repository: params.repository,
     }));
     isLoading = false;
-  }); 
+  });
 </script>
 
 <div class="repo-dashboard">
