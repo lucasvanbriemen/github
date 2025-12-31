@@ -5,7 +5,10 @@
   import Icon from '../Icon.svelte';
   import Select from '../Select.svelte';
 
-  let { item, isPR, isLoading, labels, params = {} } = $props();
+  let { item, isPR, isLoading, metadata, params = {} } = $props();
+
+  let labels = $state([]);
+  let contributors = $state([]);
 
   let addingReviewer = $state(false);
   let addingLabel = $state(false);
@@ -131,9 +134,16 @@
 
   $effect(() => {
     void isLoading;
+    void metadata;
 
     untrack(() => {
       formatContributors();
+
+      labels = metadata?.labels || [];
+      labels = labels.map(label => ({value: label.name, label: label.name}));
+
+      contributors = metadata?.assignees || [];
+      contributors = contributors.map(assignee => ({value: assignee.login, label: assignee.display_name, image: assignee.avatar_url}));
     });
   });
 
@@ -207,7 +217,7 @@
 
         {#if addingReviewer}
           <div class="add-reviewer">
-            <Select name="reviewer" selectableItems={selectedableReviewers} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} multiple={true} />
+            <Select name="reviewer" selectableItems={contributors} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} multiple={true} />
           </div>
         {/if}
       </SidebarGroup>

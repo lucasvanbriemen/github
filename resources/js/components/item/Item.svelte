@@ -13,7 +13,7 @@
   let number = $derived(params.number);
   let activeTab = $derived(params.tab || 'conversation');
   let type = $derived(params.type);
-  let labels = $state([]);
+  let metadata = $state({});
 
   let files = $state([]);
   let loadingFiles = $state(true);
@@ -40,9 +40,7 @@
       loadFiles();
     }
 
-    let metadata = await api.get(route(`organizations.repositories.metadata`, { organization, repository }));
-    labels = metadata.labels;
-    labels = labels.map(label => ({value: label.name, label: label.name}));
+    metadata = await api.get(route(`organizations.repositories.metadata`, { organization, repository }));
   });
 
   async function loadFiles() {
@@ -54,7 +52,7 @@
 
 <div class="item-overview">
   {#if activeTab === 'conversation'}
-    <Sidebar {item} {isPR} {isLoading} {labels} {params} />
+    <Sidebar {item} {isPR} {isLoading} {metadata} {params} />
   {/if}
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
