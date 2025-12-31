@@ -4,14 +4,12 @@
   import SidebarGroup from '../sidebar/group.svelte';
   import Icon from '../Icon.svelte';
   import Select from '../Select.svelte';
+  import { organization, repository } from '../stores';
 
   let { item, isPR, isLoading, metadata, params = {} } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
-
-  let organization = $derived(params.organization);
-  let repository = $derived(params.repository);
 
   let selectedableReviewers = $state([]);
   let selectedReviewer = $state();
@@ -31,12 +29,12 @@
   onMount(async () => {
     formatContributors();
 
-    linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
-    projects = await api.get(route('organizations.repositories.projects', {organization, repository}));
+    linkedItems = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
 
   function requestReviewer(userId) {
-    api.post(route('organizations.repositories.pr.add.reviewers', {organization, repository, number: item.number}), {
+    api.post(route('organizations.repositories.pr.add.reviewers', { $organization, $repository, number: item.number }), {
       reviewers: [userId]
     });
   }
@@ -47,7 +45,7 @@
   }
 
   function addLabels({selectedValue}) {
-    api.post(route('organizations.repositories.item.label.add', {organization, repository, number: item.number}), {
+    api.post(route('organizations.repositories.item.label.add', { $organization, $repository, number: item.number }), {
       labels: selectedValue
     })
   }
@@ -70,7 +68,7 @@
     let project = projects.find(p => p.id === projectId);
     let itemProject = item.projects.find(p => p.id === projectId);
 
-    await api.post(route('organizations.repositories.project.item.update', {organization, repository}), {
+    await api.post(route('organizations.repositories.project.item.update', { $organization, $repository }), {
       projectId: projectId,
       itemId: itemProject.itemId,
       fieldId: project.status_field_id,
@@ -84,7 +82,7 @@
   async function removeFromProject(projectId) {
     let itemProject = item.projects.find(p => p.id === projectId);
 
-    await api.post(route('organizations.repositories.project.item.remove', {organization, repository}),{
+    await api.post(route('organizations.repositories.project.item.remove', { $organization, $repository }),{
       projectId: projectId,
       itemId: itemProject.itemId
     });
@@ -96,7 +94,7 @@
     const projectIndex = projects.findIndex(p => p.id === project.id);
     let selectedStatus = projects[projectIndex].status_options[0];
 
-    const response = await api.post(route('organizations.repositories.project.item.add', {organization, repository}), {
+    const response = await api.post(route('organizations.repositories.project.item.add', { $organization, $repository}), {
       projectId: project.id,
       contentId: item.node_id,
       itemNumber: item.number,
@@ -139,7 +137,7 @@
         {#if getItemProject(project.id)}
           <div class="project-item">
             <div class="project-header">
-              <a href="#{organization}/{repository}/project/{project.number}" class="project-link">{project.title}</a>
+              <a href="#{$organization}/{$repository}/project/{project.number}" class="project-link">{project.title}</a>
               <button onclick={() => removeFromProject(project.id)} class="remove-project">x</button>
             </div>
 
