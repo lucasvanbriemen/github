@@ -12,6 +12,8 @@ use App\GithubConfig;
 use App\Models\Notification;
 use App\Helpers\ApiHelper;
 use RuntimeException;
+use App\Models\ItemLabel;
+use App\Models\Label;
 use Carbon\Carbon;
 
 class ProcessPullRequestWebhook //implements ShouldQueue
@@ -97,10 +99,39 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 'number' => $prData->number,
                 'title' => $prData->title,
                 'body' => $prData->body ?? '',
-                'state' => $state,
-                'labels' => json_encode($prData->labels ?? []),
+                'state' => $state
             ]
         );
+
+        $current_labels = ItemLabel::where('item_id', $pr->id)->pluck('label_id')->toArray();
+        $new_labels = [];
+        if (!empty($prData->labels) && is_array($prData->labels)) {
+            foreach ($prData->labels as $labelData) {
+                // Find the label in the labels table
+                $label = Label::where('github_id', $labelData->id)
+                    ->where('repository_id', $repository->id)
+                    ->first();
+
+                if ($label) {
+                    $new_labels[] = $label->id;
+                }
+            }
+        }
+
+        $missing_labels = array_diff($new_labels, $current_labels);
+        foreach ($missing_labels as $label_id) {
+            ItemLabel::create([
+                'item_id' => $pr->id,
+                'label_id' => $label_id
+            ]);
+        }
+
+        $deleted_labels = array_diff($current_labels, $new_labels);
+        foreach ($deleted_labels as $label_id) {
+            ItemLabel::where('item_id', $pr->id)
+                ->where('label_id', $label_id)
+                ->delete();
+        }
 
         // Update PR-specific fields in pull_requests table
         \DB::table('pull_requests')->updateOrInsert(

@@ -6,6 +6,7 @@ use App\Events\IssuesWebhookReceived;
 use App\Models\GithubUser;
 use App\Models\Issue;
 use App\Models\Repository;
+use App\Models\ItemLabel;
 use App\Models\Notification;
 
 class ProcessIssueWebhook
@@ -70,12 +71,42 @@ class ProcessIssueWebhook
                 'number' => $issueData->number,
                 'title' => $issueData->title,
                 'body' => $issueData->body ?? '',
-                'state' => $issueData->state,
-                'labels' => json_encode($issueData->labels ?? []),
-            ]);
+                'state' => $issueData->state
+            ]
+        );
 
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);
+
+        $current_labels = ItemLabel::where('item_id', $issue->id)->pluck('label_id')->toArray();
+        $new_labels = [];
+        if (!empty($issueData->labels) && is_array($issueData->labels)) {
+            foreach ($issueData->labels as $labelData) {
+                // Find the label in the labels table
+                $label = \App\Models\Label::where('github_id', $labelData->id)
+                    ->where('repository_id', $repository->id)
+                    ->first();
+
+                if ($label) {
+                    $new_labels[] = $label->id;
+                }
+            }
+        }
+
+        $missing_labels = array_diff($new_labels, $current_labels);
+        foreach ($missing_labels as $label_id) {
+            ItemLabel::create([
+                'item_id' => $issue->id,
+                'label_id' => $label_id
+            ]);
+        }
+
+        $deleted_labels = array_diff($current_labels, $new_labels);
+        foreach ($deleted_labels as $label_id) {
+            ItemLabel::where('item_id', $issue->id)
+                ->where('label_id', $label_id)
+                ->delete();
+        }
 
         $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {
