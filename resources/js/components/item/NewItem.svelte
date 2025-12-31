@@ -6,6 +6,7 @@
   import Select from '../Select.svelte';
   import Input from '../Input.svelte';
   import Markdown from '../Markdown.svelte';
+  import { organization, repository } from '../stores';
 
   let { params = {} } = $props();
 
@@ -29,8 +30,7 @@
   }
   
   onMount(async () => {
-    // Load branches for the repository to populate the Select components
-    const data = await api.get(route(`organizations.repositories.item.metadata`, { organization: params.organization, repository: params.repository }));
+    const data = await api.get(route(`organizations.repositories.item.metadata`, { $organization, $repository }));
     
     // Ensure options are in { value, label } shape expected by <Select>
     possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
