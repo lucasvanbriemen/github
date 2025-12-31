@@ -333,7 +333,7 @@ class ItemController extends Controller
         return response()->json($item);
     }
 
-    public function addLabelToItem($organizationName, $repositoryName, $number)
+    public function updateLabels($organizationName, $repositoryName, $number)
     {
         $labels = request()->input('labels');
 

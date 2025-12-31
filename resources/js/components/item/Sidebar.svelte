@@ -44,20 +44,15 @@
     selectedReviewer = undefined;
   }
 
-  function addLabels({selectedValue}) {
-    // Persist server-side
-    api.post(route('organizations.repositories.item.label.add', { $organization, $repository, number: item.number }), {
+  function updateLabels({selectedValue}) {
+    api.post(route('organizations.repositories.item.label.update', { $organization, $repository, number: item.number }), {
       labels: selectedValue
     });
 
-    // Update local state to reflect current selection immediately
-    const selectedValues = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
-    const allLabels = metadata?.labels || [];
+    const allLabels = metadata.labels;
 
-    // Update displayed selectable items' selected flags
     labels = labels.map(l => ({ ...l, selected: selectedValues.includes(l.value) }));
 
-    // Update the item's labels shown in the sidebar badges
     item.labels = allLabels.filter(l => selectedValues.includes(l.name));
   }
 
@@ -192,7 +187,7 @@
         {/each}
       </div>
 
-      <Select name="label" selectableItems={labels} onChange={addLabels} multiple/>
+      <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
     </SidebarGroup>
 
     {#if isPR}
