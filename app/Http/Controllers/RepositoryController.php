@@ -7,6 +7,7 @@ use App\Services\RepositoryService;
 use App\Models\Item;
 use App\Models\Repository;
 use App\Models\Label;
+use App\GithubConfig;
 use Carbon\Carbon;
 
 class RepositoryController extends Controller
@@ -73,10 +74,25 @@ class RepositoryController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $metadata = [
-            'labels' => $repository->labels()->get(),
-        ];
+        $branchNames = $repository->branches()->pluck('name');
+        $master_branch = $repository->master_branch;
+        $default_assignee = GithubConfig::USERNAME;
+        $labels = $repository->labels()->get();
 
-        return response()->json($metadata);
+        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
+            return $contributor->githubUser;
+        });
+
+        $templatesJson = file_get_contents(resource_path('repository_templates/templates.json'));
+        $templates = json_decode($templatesJson, true);
+
+        return response()->json([
+           'branches' => $branchNames,
+           'assignees' => $assignees,
+           'default_assignee' => $default_assignee,
+           'master_branch' => $master_branch,
+           'templates' => $templates,
+           'labels' => $labels,
+        ]);
     }
 }

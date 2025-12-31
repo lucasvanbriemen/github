@@ -30,7 +30,7 @@
   }
   
   onMount(async () => {
-    const data = await api.get(route(`organizations.repositories.item.metadata`, { $organization, $repository }));
+    const data = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
     
     // Ensure options are in { value, label } shape expected by <Select>
     possibleBranches = [...new Set(data.branches || [])].map(b => ({ value: b, label: b }));    
