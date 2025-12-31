@@ -364,7 +364,6 @@ class ItemController extends Controller
     {
         $label = request()->input('label');
 
-        // Add label on GitHub
         GitHub::issues()->labels()->add(
             $organizationName,
             $repositoryName,
