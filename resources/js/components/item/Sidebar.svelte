@@ -51,9 +51,8 @@
 
     const allLabels = metadata.labels;
 
-    labels = labels.map(l => ({ ...l, selected: selectedValues.includes(l.value) }));
-
-    item.labels = allLabels.filter(l => selectedValues.includes(l.name));
+    labels = labels.map(l => ({ ...l, selected: selectedValue.includes(l.value) }));
+    item.labels = allLabels.filter(l => selectedValue.includes(l.name));
   }
 
   function formatContributors() {
