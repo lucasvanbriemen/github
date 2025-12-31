@@ -359,4 +359,25 @@ class ItemController extends Controller
            'templates' => $templates,
         ]);
     }
+
+    public function addLabelToItem($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $labelName = request()->input('labelId');
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        // Add label on GitHub
+        GitHub::issues()->labels()->add(
+            $organization->name,
+            $repository->name,
+            $number,
+            [$labelName]
+        );
+
+        return response()->json(['success' => true]);
+    }
 }
