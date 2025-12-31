@@ -68,4 +68,15 @@ class RepositoryController extends Controller
             }
         }
     }
+
+    public function metadata($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $metadata = [
+            'labels' => $repository->labels()->get(),
+        ];
+
+        return response()->json($metadata);
+    }
 }

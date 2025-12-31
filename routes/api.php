@@ -38,6 +38,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/remove-from-project', [ProjectController::class, 'removeItemFromProject'])
             ->name('project.item.remove');
 
+        Route::get('/metadata', [RepositoryController::class, 'metadata'])
+            ->name('metadata');
+
         Route::get('/contributors', [RepositoryController::class, 'getContributors'])
             ->name('contributors');
 
@@ -46,6 +49,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::get('/item/metadata', [ItemController::class, 'metadata'])
             ->name('item.metadata');
+
+        Route::post('/item/{number}/add-label', [ItemController::class, 'addLabelToItem'])
+            ->name('item.label.add');
 
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('item.update');

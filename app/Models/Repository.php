@@ -23,6 +23,12 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
+    public function labels()
+    {
+        return $this->hasMany(Label::class, 'repository_id', 'id')
+            ->orderBy('name', 'asc');
+    }
+
     public function issues($state = 'open', $assignee = 'any', $search = null)
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');

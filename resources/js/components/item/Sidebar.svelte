@@ -5,15 +5,17 @@
   import Icon from '../Icon.svelte';
   import Select from '../Select.svelte';
 
-  let { item, isPR, isLoading, params = {} } = $props();
+  let { item, isPR, isLoading, labels, params = {} } = $props();
 
   let addingReviewer = $state(false);
+  let addingLabel = $state(false);
 
   let organization = $derived(params.organization);
   let repository = $derived(params.repository);
 
   let selectedableReviewers = $state([]);
   let selectedReviewer = $state();
+
   let linkedItems = $state([]);
   let projects = $state([]);
 
@@ -27,9 +29,6 @@
   }
 
   onMount(async () => {
-    // let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
-    // selectedableReviewers = repoMetadata.assignees;
-
     formatContributors();
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
@@ -45,6 +44,12 @@
   function handleReviewerSelected({selectedValue}) {
     requestReviewer(selectedValue);
     selectedReviewer = undefined;
+  }
+
+  function handleLabelSelected({selectedValue}) {
+    api.post(route('organizations.repositories.item.label.add', {organization, repository, number: item.number}), {
+      label: selectedValue
+    })
   }
 
   function formatContributors() {
@@ -111,8 +116,12 @@
   }
 
   function handleClickOutside(event) {
-    if (!event.target.closest('.group') && addingReviewer) {
-      addingReviewer = false;
+    if (!event.target.closest('.group')) {
+      if (addingReviewer) {
+        addingReviewer = false;
+      } else if (addingLabel) {
+        addingLabel = false;
+      }
     }
   }
 
@@ -167,6 +176,7 @@
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
+      <Icon name="gear" className="icon gear" onclick={() => addingLabel = !addingLabel} size=".85rem" />
       <div class="labels">
         {#each item.labels as label}
           <span class="label" style={getLabelStyle(label)}>
@@ -174,6 +184,12 @@
           </span>
         {/each}
       </div>
+
+      {#if addingLabel}
+        <div class="add-label">
+          <Select name="label" selectableItems={labels} onChange={handleLabelSelected} />
+        </div>
+      {/if}
     </SidebarGroup>
 
     {#if isPR}
