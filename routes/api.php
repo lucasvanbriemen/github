@@ -32,9 +32,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/add-to-project', [ProjectController::class, 'addItemToProject'])
             ->name('project.item.add');
 
-        Route::post('/item/{number}/add-label', [ItemController::class, 'addLabelToItem'])
-            ->name('item.label.add');
-
         Route::post('/item/update-project-status', [ProjectController::class, 'updateItemProjectStatus'])
             ->name('project.item.update');
 
@@ -52,6 +49,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::get('/item/metadata', [ItemController::class, 'metadata'])
             ->name('item.metadata');
+
+        Route::post('/item/{number}/add-label', [ItemController::class, 'addLabelToItem'])
+            ->name('item.label.add');
 
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('item.update');

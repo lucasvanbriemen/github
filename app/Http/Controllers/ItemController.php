@@ -362,14 +362,12 @@ class ItemController extends Controller
 
     public function addLabelToItem($organizationName, $repositoryName, $number)
     {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
         $label = request()->input('label');
 
         // Add label on GitHub
         GitHub::issues()->labels()->add(
-            $organization->name,
-            $repository->name,
+            $organizationName,
+            $repositoryName,
             $number,
             [$label]
         );
