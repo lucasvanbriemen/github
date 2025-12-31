@@ -13,6 +13,7 @@
   let number = $derived(params.number);
   let activeTab = $derived(params.tab || 'conversation');
   let type = $derived(params.type);
+  let labels = $state([]);
 
   let files = $state([]);
   let loadingFiles = $state(true);
@@ -38,6 +39,11 @@
     if (isPR) {
       loadFiles();
     }
+
+    let metadata = await api.get(route(`organizations.repositories.metadata`, { organization, repository }));
+    labels = metadata.labels;
+
+    console.log(labels);
   });
 
   async function loadFiles() {
