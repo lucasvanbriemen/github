@@ -321,14 +321,16 @@ class ItemController extends Controller
             ->where('number', $number)
             ->firstOrFail();
 
-        $data = request()->only(['body']);
+        $payload = [];
+        foreach (request()->all() as $key => $value) {
+            if (!in_array($key, ['state'])) {
+                continue;
+            }
 
-        $item->update($data);
+            $payload[$key] = $value;
+        }
 
-        // We also need to update the item body on GitHub
-        GitHub::issues()->update($organization->name, $repository->name, $number, [
-            'body' => $item->body,
-        ]);
+        GitHub::issues()->update($organizationName, $repositoryName, $number, $payload);
 
         return response()->json($item);
     }

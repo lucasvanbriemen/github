@@ -3,6 +3,7 @@
   import Markdown from '../Markdown.svelte';
   import Comment from '../Comment.svelte';
   import MergePanel from './pr/MergePanel.svelte';
+  import ClosedPanel from './ClosedPanel.svelte';
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
@@ -40,6 +41,8 @@
 
 {#if item.type === 'pull_request'}
   <MergePanel {item} />
+{:else}
+  <ClosedPanel {item} />
 {/if}
 
 <Markdown bind:content={issueComment} isEditing={true} />
