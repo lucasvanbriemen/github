@@ -6,10 +6,9 @@
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
+  import { organization, repository } from '../stores';
 
   let { params = {} } = $props();
-  let organization = $derived(params.organization);
-  let repository = $derived(params.repository);
   let number = $derived(params.number);
   let activeTab = $derived(params.tab || 'conversation');
   let type = $derived(params.type);
@@ -26,7 +25,7 @@
 
   onMount(async () => {
     isLoading = true;
-    item = await api.get(route(`organizations.repositories.item.show`, { organization, repository, number }));
+    item = await api.get(route(`organizations.repositories.item.show`, { $organization, $repository, number }));
 
     try {
       item.labels = JSON.parse(item.labels);
@@ -40,11 +39,11 @@
       loadFiles();
     }
 
-    metadata = await api.get(route(`organizations.repositories.metadata`, { organization, repository }));
+    metadata = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
   });
 
   async function loadFiles() {
-    files = await api.get(route(`organizations.repositories.pr.files`, { organization, repository, number }));
+    files = await api.get(route(`organizations.repositories.pr.files`, { $organization, $repository, number }));
     selectedFile = files[selectedFileIndex];
     loadingFiles = false;
   }
@@ -74,7 +73,7 @@
           </div>
         {/if}
 
-        <Navigation bind:activeTab {organization} {repository} {type} {number} />
+        <Navigation bind:activeTab {type} {number} />
       {/if}
 
       <!-- Conversation Tab Content -->
