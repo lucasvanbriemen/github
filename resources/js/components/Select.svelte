@@ -1,5 +1,4 @@
 <script>
-    import { on } from "svelte/events";
   import Icon from "./Icon.svelte";
 
   let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, multiple = false, onChange } = $props();

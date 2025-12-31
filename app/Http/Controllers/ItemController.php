@@ -335,13 +335,13 @@ class ItemController extends Controller
 
     public function addLabelToItem($organizationName, $repositoryName, $number)
     {
-        $label = request()->input('label');
+        $label = request()->input('labels');
 
         GitHub::issues()->labels()->add(
             $organizationName,
             $repositoryName,
             $number,
-            [$label]
+            $label
         );
 
         return response()->json(['success' => true]);
