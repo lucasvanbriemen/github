@@ -179,7 +179,7 @@
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
             <span>{reviewer.user.display_name}</span>
             <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
-            <Icon name="sync" className="icon sync" onclick={() => requestReviewer(reviewer.user.login)} />
+            <Icon name="sync" className="icon sync" onclick={() => requestReviewer({selectedValue: reviewer.user.login})} />
           </div>
         {/each}
 
