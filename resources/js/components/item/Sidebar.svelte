@@ -52,10 +52,7 @@
   function handleLabelSelected({selectedValue}) {
     api.post(route('organizations.repositories.item.label.add', {organization, repository, number: item.number}), {
       labelId: selectedValue
-    }).then(() => {
-      // Refresh labels
-      item.labels.push(labels.find(label => label.value === selectedValue));
-    });
+    })
   }
 
   function formatContributors() {
