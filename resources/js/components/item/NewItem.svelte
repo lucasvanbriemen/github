@@ -33,7 +33,7 @@
     const data = await api.get(route(`organizations.repositories.item.metadata`, { $organization, $repository }));
     
     // Ensure options are in { value, label } shape expected by <Select>
-    possibleBranches = (data.branches || []).map((b) => ({ value: b, label: b }));
+    possibleBranches = [...new Set(data.branches || [])].map(b => ({ value: b, label: b }));    
     possibleAssignees = (data.assignees || []).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
 
     assignee = data.default_assignee;
