@@ -45,9 +45,20 @@
   }
 
   function addLabels({selectedValue}) {
+    // Persist server-side
     api.post(route('organizations.repositories.item.label.add', { $organization, $repository, number: item.number }), {
       labels: selectedValue
-    })
+    });
+
+    // Update local state to reflect current selection immediately
+    const selectedValues = Array.isArray(selectedValue) ? selectedValue : [selectedValue];
+    const allLabels = metadata?.labels || [];
+
+    // Update displayed selectable items' selected flags
+    labels = labels.map(l => ({ ...l, selected: selectedValues.includes(l.value) }));
+
+    // Update the item's labels shown in the sidebar badges
+    item.labels = allLabels.filter(l => selectedValues.includes(l.name));
   }
 
   function formatContributors() {
@@ -121,7 +132,13 @@
       formatContributors();
 
       labels = metadata?.labels || [];
-      labels = labels.map(label => ({value: label.name, label: label.name}));
+      // Mark labels as selected when they are present on the item
+      const itemLabelNames = (item?.labels || []).map(l => l.name);
+      labels = labels.map(label => ({
+        value: label.name,
+        label: label.name,
+        selected: itemLabelNames.includes(label.name)
+      }));
 
       contributors = metadata?.assignees || [];
       contributors = contributors.map(assignee => ({value: assignee.login, label: assignee.display_name, image: assignee.avatar_url}));
