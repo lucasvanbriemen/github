@@ -39,7 +39,7 @@
 {/each}
 
 {#if item.type === 'pull_request'}
-  <MergePanel {params} {item} />
+  <MergePanel {item} />
 {/if}
 
 <Markdown bind:content={issueComment} isEditing={true} />

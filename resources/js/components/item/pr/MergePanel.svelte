@@ -1,8 +1,8 @@
 <script>
   import { organization, repository } from "../../stores";
 
-  let { item, params } = $props();
-  let number = params.number;
+  let { item } = $props();
+  let number = item.number;
 
   function close() {
     api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
