@@ -32,7 +32,7 @@
 
   function requestReviewer({selectedValue}) {
     api.post(route('organizations.repositories.pr.add.reviewers', { $organization, $repository, number: item.number }), {
-      reviewers: [selectedValue]
+      reviewers: selectedValue
     });
   }
 

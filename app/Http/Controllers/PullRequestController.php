@@ -171,24 +171,10 @@ class PullRequestController extends Controller
             ->all();
         $updatedReviewers = request()->input('reviewers', []);
 
-        $toBeAdded = [];
-        $toBeRemoved = [];
+        $toBeAdded   = array_values(array_diff($updatedReviewers, $currentReviewers));
+        $toBeRemoved = array_values(array_diff($currentReviewers, $updatedReviewers));
 
-        // Determine which reviewers need to be added (in input but not currently assigned)
-        foreach ($updatedReviewers as $updatedReviewer) {
-            if (!in_array($updatedReviewer, $currentReviewers)) {
-                $toBeAdded[] = $updatedReviewer; // push individual reviewer
-            }
-        }
-
-        // Determine which reviewers need to be removed (currently assigned but not in input)
-        foreach ($currentReviewers as $currentReviewer) {
-            if (!in_array($currentReviewer, $updatedReviewers)) {
-                $toBeRemoved[] = $currentReviewer;
-            }
-        }
-
-        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded[0]);
+        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded);
         GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
 
         // Return current state and delta
