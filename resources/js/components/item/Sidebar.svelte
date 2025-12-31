@@ -29,9 +29,6 @@
   }
 
   onMount(async () => {
-    // let repoMetadata = await api.get(route('organizations.repositories.metadata.get', {organization, repository}));
-    // selectedableReviewers = repoMetadata.assignees;
-
     formatContributors();
 
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', {organization, repository, number: params.number}));
@@ -51,7 +48,7 @@
 
   function handleLabelSelected({selectedValue}) {
     api.post(route('organizations.repositories.item.label.add', {organization, repository, number: item.number}), {
-      labelId: selectedValue
+      label: selectedValue
     })
   }
 

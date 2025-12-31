@@ -42,13 +42,7 @@
 
     let metadata = await api.get(route(`organizations.repositories.metadata`, { organization, repository }));
     labels = metadata.labels;
-
-    labels = labels.map(label => ({
-      value: label.name,
-      label: label.name
-    }));
-
-    console.log(labels);
+    labels = labels.map(label => ({value: label.name, label: label.name}));
   });
 
   async function loadFiles() {

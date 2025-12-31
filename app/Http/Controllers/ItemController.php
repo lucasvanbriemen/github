@@ -364,18 +364,14 @@ class ItemController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $labelName = request()->input('labelId');
-
-        $item = Item::where('repository_id', $repository->id)
-            ->where('number', $number)
-            ->firstOrFail();
+        $label = request()->input('label');
 
         // Add label on GitHub
         GitHub::issues()->labels()->add(
             $organization->name,
             $repository->name,
             $number,
-            [$labelName]
+            [$label]
         );
 
         return response()->json(['success' => true]);
