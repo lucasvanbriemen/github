@@ -46,7 +46,7 @@
     selectedReviewer = undefined;
   }
 
-  function handleLabelSelected({selectedValue}) {
+  function addLabels({selectedValue}) {
     api.post(route('organizations.repositories.item.label.add', {organization, repository, number: item.number}), {
       labels: selectedValue
     })
@@ -177,7 +177,7 @@
         {/each}
       </div>
 
-      <Select name="label" selectableItems={labels} onChange={handleLabelSelected} multiple/>
+      <Select name="label" selectableItems={labels} onChange={addLabels} multiple/>
     </SidebarGroup>
 
     {#if isPR}
