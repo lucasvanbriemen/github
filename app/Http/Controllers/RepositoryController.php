@@ -50,12 +50,7 @@ class RepositoryController extends Controller
         $repositories = Repository::all();
 
         foreach ($repositories as $repository) {
-            // Fetch labels from GitHub API
-            $labels = ApiHelper::githubApi('/repos/'.$repository->full_name.'/labels');
-
-            if (! $labels) {
-                continue;
-            }
+            $labels = ApiHelper::githubApi('/repos/'  .$repository->full_name . '/labels');
 
             foreach ($labels as $label) {
                 // Update or create label
