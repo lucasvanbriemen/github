@@ -26,8 +26,8 @@
   }
 
   onMount(async () => {
-    linkedItems = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
-    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
 
   function requestReviewer({selectedValue}) {
