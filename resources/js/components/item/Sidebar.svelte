@@ -12,7 +12,6 @@
   let contributors = $state([]);
 
   let selectedableReviewers = $state([]);
-  let selectedReviewer = $state();
 
   let linkedItems = $state([]);
   let projects = $state([]);
@@ -27,21 +26,14 @@
   }
 
   onMount(async () => {
-    formatContributors();
-
     linkedItems = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
     projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
 
-  function requestReviewer(userId) {
+  function requestReviewer({selectedValue}) {
     api.post(route('organizations.repositories.pr.add.reviewers', { $organization, $repository, number: item.number }), {
-      reviewers: [userId]
+      reviewers: [selectedValue]
     });
-  }
-
-  function handleReviewerSelected({selectedValue}) {
-    requestReviewer(selectedValue);
-    selectedReviewer = undefined;
   }
 
   function updateLabels({selectedValue}) {
@@ -53,20 +45,6 @@
 
     labels = labels.map(l => ({ ...l, selected: selectedValue.includes(l.value) }));
     item.labels = allLabels.filter(l => selectedValue.includes(l.name));
-  }
-
-  function formatContributors() {
-    selectedableReviewers.forEach(reviewer => {
-      item?.requested_reviewers?.forEach(requestedReviewer => {
-        if (requestedReviewer.user_id == reviewer.id) {
-          reviewer.selected = true;
-        }
-      });
-
-      reviewer.value = reviewer.login;
-      reviewer.image = reviewer.avatar_url;
-      reviewer.label = reviewer.display_name;
-    });
   }
 
   async function updateProjectStatus(projectId, newStatusId) {
@@ -123,8 +101,6 @@
     void metadata;
 
     untrack(() => {
-      formatContributors();
-
       labels = metadata?.labels || [];
       // Mark labels as selected when they are present on the item
       const itemLabelNames = (item?.labels || []).map(l => l.name);
@@ -136,6 +112,13 @@
 
       contributors = metadata?.assignees || [];
       contributors = contributors.map(assignee => ({value: assignee.login, label: assignee.display_name, image: assignee.avatar_url}));
+      contributors.forEach(contributor => {
+        item?.requested_reviewers?.forEach(requestedReviewer => {
+          if (requestedReviewer.user.login == contributor.value) {
+            contributor.selected = true;
+          }
+        });
+      });
     });
   });
 
@@ -200,7 +183,7 @@
           </div>
         {/each}
 
-        <Select name="reviewer" selectableItems={contributors} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} multiple={true} />
+        <Select name="reviewer" selectableItems={contributors} onChange={requestReviewer} multiple={true} />
       </SidebarGroup>
     {/if}
   {/if}
