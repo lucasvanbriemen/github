@@ -75,19 +75,6 @@
   }
 }
 
-.add-reviewer {
-  width: 18rem;
-  position: absolute;
-  right: -20rem;
-  top: 0;
-
-  border-radius: 0.5rem;
-
-  background-color: var(--background-color-two);
-  border: 1px solid var(--border-color);
-  padding: 1rem;
-}
-
 .labels {
   display: flex;
   flex-wrap: wrap;

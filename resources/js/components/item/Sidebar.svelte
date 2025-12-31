@@ -10,9 +10,6 @@
   let labels = $state([]);
   let contributors = $state([]);
 
-  let addingReviewer = $state(false);
-  let addingLabel = $state(false);
-
   let organization = $derived(params.organization);
   let repository = $derived(params.repository);
 
@@ -118,20 +115,6 @@
     item.projects = [...item.projects, newProjectItem];
   }
 
-  function handleClickOutside(event) {
-    if (!event.target.closest('.group')) {
-      if (addingReviewer) {
-        addingReviewer = false;
-      } else if (addingLabel) {
-        addingLabel = false;
-      }
-    }
-  }
-
-  onMount(() => {
-    document.addEventListener('click', handleClickOutside);
-  });
-
   $effect(() => {
     void isLoading;
     void metadata;
@@ -186,7 +169,6 @@
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
-      <Icon name="gear" className="icon gear" onclick={() => addingLabel = !addingLabel} size=".85rem" />
       <div class="labels">
         {#each item.labels as label}
           <span class="label" style={getLabelStyle(label)}>
@@ -195,17 +177,11 @@
         {/each}
       </div>
 
-      {#if addingLabel}
-        <div class="add-label">
-          <Select name="label" selectableItems={labels} onChange={handleLabelSelected} />
-        </div>
-      {/if}
+      <Select name="label" selectableItems={labels} onChange={handleLabelSelected} />
     </SidebarGroup>
 
     {#if isPR}
       <SidebarGroup title="Reviewers">
-        <Icon name="gear" className="icon gear" onclick={() => addingReviewer = !addingReviewer} size=".85rem" />
-
         {#each item.requested_reviewers as reviewer}
           <div class="reviewer">
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
@@ -215,11 +191,7 @@
           </div>
         {/each}
 
-        {#if addingReviewer}
-          <div class="add-reviewer">
-            <Select name="reviewer" selectableItems={contributors} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} multiple={true} />
-          </div>
-        {/if}
+        <Select name="reviewer" selectableItems={contributors} bind:selectedValue={selectedReviewer} onChange={handleReviewerSelected} multiple={true} />
       </SidebarGroup>
     {/if}
   {/if}
