@@ -1,7 +1,7 @@
 <script>
   import Icon from "./Icon.svelte";
 
-  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, multiple = false, onChange, onSearch, onMenuOpen } = $props();
+  let { name = 'select', selectableItems = [], selectedValue = $bindable(), placeholder = 'Search...', searchable = true, multiple = false, onChange, onSearch } = $props();
 
   let menuOpen = $state(false);
   let searchQuery = $state('');
@@ -47,10 +47,6 @@
     menuOpen = false;
     onChange?.({ selectedValue });
   }
-
-  $effect(() => {
-    onMenuOpen?.(menuOpen);
-  });
 
   $effect(() => {
     if (onSearch && searchQuery && menuOpen) {

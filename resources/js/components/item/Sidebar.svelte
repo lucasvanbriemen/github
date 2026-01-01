@@ -33,8 +33,6 @@
     return parts.slice(-2).join('/');
   }
 
-  let isSearchSelectOpen = $state(false);
-
   onMount(async () => {
     updateLinkedItems();
     projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
@@ -242,7 +240,7 @@
         </a>
       {/each}
 
-      <Select name="link-item" selectableItems={mergeLinkedItemsIntoSelect()} bind:selectedValue={selectedLinkItems} multiple={true} onChange={(e) => {handleSelectionChange();}} onSearch={(query) => searchLinkableItems(query)} onMenuOpen={(isOpen) => isSearchSelectOpen = isOpen}/>
+      <Select name="link-item" selectableItems={mergeLinkedItemsIntoSelect()} bind:selectedValue={selectedLinkItems} multiple={true} onChange={(e) => {handleSelectionChange();}} onSearch={(query) => searchLinkableItems(query)}/>
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
