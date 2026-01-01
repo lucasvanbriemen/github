@@ -378,7 +378,6 @@ class ItemController extends Controller
     public function searchLinkableItems($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $number)
             ->firstOrFail();
@@ -386,7 +385,6 @@ class ItemController extends Controller
         $search = request()->query('search', '');
         $oppositeType = $item->isPullRequest() ? 'issue' : 'pull_request';
 
-        // First try to get open items of the opposite type
         $items = Item::where('repository_id', $repository->id)
             ->where('type', $oppositeType)
             ->select(['id', 'number', 'title', 'type', 'state'])
