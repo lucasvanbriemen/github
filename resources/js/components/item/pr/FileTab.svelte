@@ -46,12 +46,8 @@
 
     <div class="pr-stats-summary">
       <span class="stats-label">{files.length} {files.length === 1 ? 'file' : 'files'} changed</span>
-      {#if totalAdditions > 0}
-        <span class="stats-additions">+{totalAdditions}</span>
-      {/if}
-      {#if totalDeletions > 0}
-        <span class="stats-deletions">-{totalDeletions}</span>
-      {/if}
+      <span class="stats-additions">+{totalAdditions}</span>
+      <span class="stats-deletions">-{totalDeletions}</span>
     </div>
 
     {#if reviewMenuOpen}
