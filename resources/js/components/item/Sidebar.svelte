@@ -293,10 +293,8 @@
       <div class="link-select-group">
         <Select
           name="link-item"
-          placeholder="Search to link..."
           selectableItems={mergeLinkedItemsIntoSelect()}
           bind:selectedValue={selectedLinkItems}
-          searchable={true}
           multiple={true}
           onChange={(e) => {
             handleSelectionChange();
