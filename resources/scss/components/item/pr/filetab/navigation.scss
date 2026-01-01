@@ -2,4 +2,28 @@
   display: flex;
   justify-content: space-between;
   width: 99%;
+
+  .pr-stats-summary {
+    padding: 0 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    display: flex;
+    gap: 1rem;
+    width: fit-content;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    .stats-label {
+      color: var(--text-color-secondary);
+    }
+
+    .stats-additions {
+      color: var(--success-color);
+    }
+
+    .stats-deletions {
+      color: var(--error-color);
+    }
+  }
 }

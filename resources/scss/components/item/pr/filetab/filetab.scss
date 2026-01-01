@@ -1,28 +1,5 @@
 .pr-header {
   position: relative;
-
-  .pr-stats-summary {
-    padding: 1rem;
-    background-color: var(--background-color-two);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    font-size: 0.875rem;
-    font-weight: 500;
-
-    .stats-label {
-      color: var(--text-color-secondary);
-    }
-
-    .stats-additions {
-      color: var(--success-color);
-    }
-
-    .stats-deletions {
-      color: var(--error-color);
-    }
-  }
 }
 
 .pr-files {

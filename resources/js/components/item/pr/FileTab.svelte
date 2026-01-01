@@ -42,13 +42,7 @@
 
 {#if !loadingFiles}
   <div class="pr-header">
-    <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen />
-
-    <div class="pr-stats-summary">
-      <span class="stats-label">{files.length} {files.length === 1 ? 'file' : 'files'} changed</span>
-      <span class="stats-additions">+{totalAdditions}</span>
-      <span class="stats-deletions">-{totalDeletions}</span>
-    </div>
+    <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen {totalAdditions} {totalDeletions} />
 
     {#if reviewMenuOpen}
       <ReviewPanel {item} {params} bind:pendingReviewComments bind:reviewMenuOpen />
