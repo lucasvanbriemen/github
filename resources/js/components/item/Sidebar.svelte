@@ -285,13 +285,13 @@
     </SidebarGroup>
 
     <SidebarGroup title="Linked Items">
-      <Select name="link-item" selectableItems={mergeLinkedItemsIntoSelect()} bind:selectedValue={selectedLinkItems} multiple={true} onChange={(e) => {handleSelectionChange();}} onSearch={(query) => searchLinkableItems(query)} onMenuOpen={(isOpen) => isSearchSelectOpen = isOpen}/>
-
-      {#each linkedItems as linkedItem (linkedItem.number)}
+      {#each linkedItems as linkedItem}
         <a class="linked-item" href={linkedItem.url}>
           <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
         </a>
       {/each}
+
+      <Select name="link-item" selectableItems={mergeLinkedItemsIntoSelect()} bind:selectedValue={selectedLinkItems} multiple={true} onChange={(e) => {handleSelectionChange();}} onSearch={(query) => searchLinkableItems(query)} onMenuOpen={(isOpen) => isSearchSelectOpen = isOpen}/>
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
