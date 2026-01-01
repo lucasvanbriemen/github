@@ -7,7 +7,7 @@
   import Switch from '../Switch.svelte';
   import { organization, repository } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(true) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(true), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -135,8 +135,8 @@
     </SidebarGroup>
 
     <SidebarGroup title="Files">
-      {#each files as file}
-        <span class="file-name">{shortFileName(file.filename)}</span>
+      {#each files as file (file.filename)}
+        <button class="file-name" class:selected={selectedFile?.filename === file.filename} onclick={() => { selectedFile = file; selectedFileIndex = files.indexOf(file); }}>{shortFileName(file.filename)}</button>
       {/each}
     </SidebarGroup>
 

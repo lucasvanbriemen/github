@@ -51,7 +51,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {metadata} {params} {activeTab} {files} bind:showWhitespace />
+  <Sidebar {item} {isPR} {isLoading} {metadata} {params} {activeTab} {files} bind:showWhitespace bind:selectedFile bind:selectedFileIndex />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main {activeTab}" class:is-pr={isPR}>
@@ -82,7 +82,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {item} {files} {loadingFiles} {selectedFile} {selectedFileIndex} {params} {showWhitespace} />
+        <FileTab {item} {files} {loadingFiles} bind:selectedFile bind:selectedFileIndex {params} {showWhitespace} />
       {/if}
     {/if}
   </div>

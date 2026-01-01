@@ -4,7 +4,7 @@
   import ChangedLine from './ChangedLine.svelte';
   import ReviewPanel from './ReviewPanel.svelte';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {}, showWhitespace = true } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = true } = $props();
 
   let comments = $state([]);
   let pendingReviewComments = $state([]);
