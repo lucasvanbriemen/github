@@ -6,7 +6,7 @@
   import Select from '../Select.svelte';
   import { organization, repository } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, showWhitespace = $bindable(true) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, showWhitespace = $bindable(true) } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -125,7 +125,7 @@
 </script>
 
 <Sidebar>
-  {#if !isLoading && isPR}
+  {#if !isLoading && isPR && activeTab === 'files'}
     <SidebarGroup title="Diff Settings">
       <div class="diff-settings">
         <label class="whitespace-toggle">

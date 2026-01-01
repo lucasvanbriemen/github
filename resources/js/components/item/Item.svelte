@@ -51,7 +51,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {metadata} {params} bind:showWhitespace />
+  <Sidebar {item} {isPR} {isLoading} {metadata} {params} {activeTab} bind:showWhitespace />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main {activeTab}" class:is-pr={isPR}>
