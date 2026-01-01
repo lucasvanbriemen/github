@@ -439,13 +439,7 @@ class ItemController extends Controller
                 continue;
             }
 
-            $prData = GitHub::pullRequest()->show(
-                $organizationName,
-                $repository->name,
-                $itemToUpdate->number
-            );
-
-            $description = $prData['body'] ?? '';
+            $description = $itemToUpdate->body;
             $closesKeyword = "Closes #$itemNumberToLink";
 
             if (strpos($description, $closesKeyword) === false) {
