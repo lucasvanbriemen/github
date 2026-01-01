@@ -423,71 +423,57 @@ class ItemController extends Controller
 
         $targetNumbers = request()->input('target_numbers', []);
 
-        $successCount = 0;
-        $errors = [];
-
         foreach ($targetNumbers as $targetNumber) {
-            try {
-                $targetItem = Item::where('repository_id', $repository->id)
-                    ->where('number', $targetNumber)
-                    ->firstOrFail();
+            $targetItem = Item::where('repository_id', $repository->id)
+                ->where('number', $targetNumber)
+                ->firstOrFail();
 
-                $targetType = $targetItem->isPullRequest() ? 'PR' : 'Issue';
+            // If source is a PR and target is an issue, update PR description
+            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber
+                );
 
-                // If source is a PR and target is an issue, update PR description
-                if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
-                    $prData = GitHub::pullRequest()->show(
-                        $organizationName,
-                        $repository->name,
-                        $sourceNumber
-                    );
+                $description = $prData['body'] ?? '';
+                $closesKeyword = "Closes #$targetNumber";
 
-                    $description = $prData['body'] ?? '';
-                    $closesKeyword = "Closes #$targetNumber";
-
-                    if (strpos($description, $closesKeyword) === false) {
-                        $description .= "\n\n$closesKeyword";
-                    }
-
-                    GitHub::pullRequest()->update(
-                        $organizationName,
-                        $repository->name,
-                        $sourceNumber,
-                        ['body' => trim($description)]
-                    );
-                } else if (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
-                    $prData = GitHub::pullRequest()->show(
-                        $organizationName,
-                        $repository->name,
-                        $targetNumber
-                    );
-
-                    $description = $prData['body'] ?? '';
-                    $closesKeyword = "Closes #$sourceNumber";
-
-                    if (strpos($description, $closesKeyword) === false) {
-                        $description .= "\n\n$closesKeyword";
-                    }
-
-                    GitHub::pullRequest()->update(
-                        $organizationName,
-                        $repository->name,
-                        $targetNumber,
-                        ['body' => trim($description)]
-                    );
+                if (strpos($description, $closesKeyword) === false) {
+                    $description .= "\n\n$closesKeyword";
                 }
 
-                $successCount++;
-            } catch (\Exception $e) {
-                $errors[] = "Failed to link #$targetNumber: " . $e->getMessage();
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber,
+                    ['body' => trim($description)]
+                );
+            } else if (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber
+                );
+
+                $description = $prData['body'] ?? '';
+                $closesKeyword = "Closes #$sourceNumber";
+
+                if (strpos($description, $closesKeyword) === false) {
+                    $description .= "\n\n$closesKeyword";
+                }
+
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber,
+                    ['body' => trim($description)]
+                );
             }
+           
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => "Successfully linked $successCount item(s)",
-            'errors' => $errors
-        ]);
+        return response()->json(['success' => true]);
     }
 
     public function removeBulkLinks($organizationName, $repositoryName, $sourceNumber)
@@ -506,70 +492,58 @@ class ItemController extends Controller
             ], 400);
         }
 
-        $successCount = 0;
-        $errors = [];
         $keywords = ['Closes', 'Fixes', 'Resolves'];
 
         foreach ($targetNumbers as $targetNumber) {
-            try {
-                $targetItem = Item::where('repository_id', $repository->id)
-                    ->where('number', $targetNumber)
-                    ->firstOrFail();
+            $targetItem = Item::where('repository_id', $repository->id)
+                ->where('number', $targetNumber)
+                ->firstOrFail();
 
-                // If source is a PR, remove the "Closes" keyword from PR description
-                if ($sourceItem->isPullRequest()) {
-                    $prData = GitHub::pullRequest()->show(
-                        $organizationName,
-                        $repository->name,
-                        $sourceNumber
-                    );
+            // If source is a PR, remove the "Closes" keyword from PR description
+            if ($sourceItem->isPullRequest()) {
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber
+                );
 
-                    $description = $prData['body'] ?? '';
+                $description = $prData['body'] ?? '';
 
-                    foreach ($keywords as $keyword) {
-                        $pattern = "/\n*$keyword\s+#$targetNumber/i";
-                        $description = preg_replace($pattern, '', $description);
-                    }
-
-                    GitHub::pullRequest()->update(
-                        $organizationName,
-                        $repository->name,
-                        $sourceNumber,
-                        ['body' => trim($description)]
-                    );
-                } else if ($targetItem->isPullRequest()) {
-                    // If target is a PR, remove the "Closes" keyword from its description
-                    $prData = GitHub::pullRequest()->show(
-                        $organizationName,
-                        $repository->name,
-                        $targetNumber
-                    );
-
-                    $description = $prData['body'] ?? '';
-
-                    foreach ($keywords as $keyword) {
-                        $pattern = "/\n*$keyword\s+#$sourceNumber/i";
-                        $description = preg_replace($pattern, '', $description);
-                    }
-
-                    GitHub::pullRequest()->update(
-                        $organizationName,
-                        $repository->name,
-                        $targetNumber,
-                        ['body' => trim($description)]
-                    );
+                foreach ($keywords as $keyword) {
+                    $pattern = "/\n*$keyword\s+#$targetNumber/i";
+                    $description = preg_replace($pattern, '', $description);
                 }
 
-                $successCount++;
-            } catch (\Exception $e) {
-                $errors[] = "Failed to remove link for #$targetNumber: " . $e->getMessage();
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber,
+                    ['body' => trim($description)]
+                );
+            } else if ($targetItem->isPullRequest()) {
+                // If target is a PR, remove the "Closes" keyword from its description
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber
+                );
+
+                $description = $prData['body'] ?? '';
+
+                foreach ($keywords as $keyword) {
+                    $pattern = "/\n*$keyword\s+#$sourceNumber/i";
+                    $description = preg_replace($pattern, '', $description);
+                }
+
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber,
+                    ['body' => trim($description)]
+                );
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => "Successfully removed $successCount link(s)",
-            'errors' => $errors
-        ]);
+        return response()->json(['success' => true]);
     }
 }
