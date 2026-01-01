@@ -4,7 +4,7 @@
   import Comment from '../../Comment.svelte';
   import Markdown from '../../Markdown.svelte';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true } = $props();
 
   let organization = params.organization;
   let repository = params.repository;
@@ -54,7 +54,14 @@
     line.addingComment = false;
   }
 
-  const line = changedLinePair[side.toLowerCase()];
+  let line = changedLinePair[side.toLowerCase()];
+
+  // If hiding whitespace and this is a whitespace-only change, treat as normal line and hide segments
+  let displayLine = $derived(
+    !showWhitespace && line.whitespace_only
+      ? { ...line, type: 'normal', segments: null }
+      : line
+  );
 
   line.addingComment = false;
   line.comment = '';
@@ -62,18 +69,24 @@
 
 <div class="side-wrapper" class:adding-comment={line.addingComment}>
   <div class="side left-side">
-    <div class="line-number diff-line-{line.type}">
-      {#if line.type !== 'empty' && prefix(line.type) !== '  '}
+    <div class="line-number diff-line-{displayLine.type}">
+      {#if displayLine.type !== 'empty' && prefix(displayLine.type) !== '  '}
         <button class="add-comment-button" onclick={() => line.addingComment = !line.addingComment}>+</button>
       {/if}
 
-      {line.number}
+      {displayLine.number}
     </div>
 
-    <div class="diff-line-content diff-line-{line.type}">
-      {#if line.type !== 'empty'}
-        <span class="prefix">{prefix(line.type)}</span>
-        <HighlightedDiffLine code={line.content} language={detectLanguage(selectedFile.filename)} />
+    <div class="diff-line-content diff-line-{displayLine.type}">
+      {#if displayLine.type !== 'empty'}
+        <span class="prefix">{prefix(displayLine.type)}</span>
+        <HighlightedDiffLine
+          code={displayLine.content}
+          language={detectLanguage(selectedFile.filename)}
+          segments={displayLine.segments}
+          lineType={displayLine.type}
+          {showWhitespace}
+        />
       {/if}
     </div>
   </div>

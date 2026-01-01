@@ -231,18 +231,23 @@ class DiffRenderer
                 $rightContent = (string)($r['content'] ?? '');
                 [$leftSeg, $rightSeg] = $this->computeIntralineSegments($leftContent, $rightContent);
 
+                // Check if lines differ only in whitespace
+                $whitespaceOnly = $this->isWhitespaceOnlyChange($leftContent, $rightContent);
+
                 $rows[] = [
                     'left' => [
                         'number' => $oldNo,
                         'type' => 'del',
                         'content' => $leftContent,
                         'segments' => $leftSeg,
+                        'whitespace_only' => $whitespaceOnly,
                     ],
                     'right' => [
                         'number' => $newNo,
                         'type' => 'add',
                         'content' => $rightContent,
                         'segments' => $rightSeg,
+                        'whitespace_only' => $whitespaceOnly,
                     ],
                 ];
                 $iOld++; $iNew++; $oldNo++; $newNo++;
@@ -296,15 +301,37 @@ class DiffRenderer
     }
 
     /**
+     * Check if two lines differ only in whitespace.
+     * Returns true if the lines are identical when all whitespace is removed.
+     */
+    private function isWhitespaceOnlyChange(string $old, string $new): bool
+    {
+        $oldNoWs = preg_replace('/\s/u', '', $old);
+        $newNoWs = preg_replace('/\s/u', '', $new);
+        return $oldNoWs === $newNoWs && $old !== $new;
+    }
+
+    /**
      * Compute intra-line diff segments for a pair of texts.
-     * Returns two arrays of segments [ ['text' => string, 'type' => 'equal'|'change'], ...]
-     * The middle differing portion is marked as 'change'.
+     * Uses smart rules:
+     * - Added side: Only highlight if removing the changes from new code gives old code
+     * - Removed side: Only highlight if the line is 90%+ similar to new code
      */
     private function computeIntralineSegments(string $old, string $new): array
     {
         if ($old === $new) {
             $seg = [['text' => $old, 'type' => 'equal']];
             return [$seg, $seg];
+        }
+
+        // If only whitespace changed, return no highlights
+        $oldTrimmed = trim($old);
+        $newTrimmed = trim($new);
+        if ($oldTrimmed === $newTrimmed) {
+            return [
+                [['text' => $old, 'type' => 'equal']],
+                [['text' => $new, 'type' => 'equal']]
+            ];
         }
 
         $oldLen = strlen($old);
@@ -331,21 +358,111 @@ class DiffRenderer
         $preNew = substr($new, 0, $prefix);
         $sufNew = $suffix > 0 ? substr($new, $newLen - $suffix) : '';
 
+        // Check if we should show highlights on the new (added) side
+        // Only if removing the changed part from new gives us old
+        $shouldHighlightNew = false;
+        if ($newMid !== '') {
+            $reconstructed = $preNew . $sufNew;
+            if ($reconstructed === $old) {
+                $shouldHighlightNew = true;
+            }
+        }
+
+        // Check if we should show highlights on the old (removed) side
+        // Only if the line is 90%+ similar after removing changes
+        $shouldHighlightOld = false;
+        if ($oldMid !== '') {
+            $reconstructed = $pre . $suf;
+            $similarity = $this->calculateSimilarity($reconstructed, $new);
+            if ($similarity >= 0.9) {
+                $shouldHighlightOld = true;
+            }
+        }
+
         $leftSeg = [];
         $rightSeg = [];
 
         if ($pre !== '') { $leftSeg[] = ['text' => $pre, 'type' => 'equal']; }
-        if ($oldMid !== '') { $leftSeg[] = ['text' => $oldMid, 'type' => 'change']; }
+        if ($oldMid !== '' && $shouldHighlightOld) { $leftSeg[] = ['text' => $oldMid, 'type' => 'change']; }
+        elseif ($oldMid !== '') { $leftSeg[] = ['text' => $oldMid, 'type' => 'equal']; }
         if ($suf !== '') { $leftSeg[] = ['text' => $suf, 'type' => 'equal']; }
 
         if ($preNew !== '') { $rightSeg[] = ['text' => $preNew, 'type' => 'equal']; }
-        if ($newMid !== '') { $rightSeg[] = ['text' => $newMid, 'type' => 'change']; }
+        if ($newMid !== '' && $shouldHighlightNew) { $rightSeg[] = ['text' => $newMid, 'type' => 'change']; }
+        elseif ($newMid !== '') { $rightSeg[] = ['text' => $newMid, 'type' => 'equal']; }
         if ($sufNew !== '') { $rightSeg[] = ['text' => $sufNew, 'type' => 'equal']; }
 
         // If either middle is empty, segments array may end up only equals — that's fine
         if (!$leftSeg) { $leftSeg[] = ['text' => $old, 'type' => 'equal']; }
         if (!$rightSeg) { $rightSeg[] = ['text' => $new, 'type' => 'equal']; }
 
+        // If highlighted portion is 90%+ of the line, don't highlight
+        $leftHighlightLen = $this->getSegmentsLength($leftSeg, 'change');
+        $rightHighlightLen = $this->getSegmentsLength($rightSeg, 'change');
+
+        if ($leftHighlightLen / max(1, $oldLen) >= 0.9) {
+            $leftSeg = [['text' => $old, 'type' => 'equal']];
+        }
+
+        if ($rightHighlightLen / max(1, $newLen) >= 0.9) {
+            $rightSeg = [['text' => $new, 'type' => 'equal']];
+        }
+
         return [$leftSeg, $rightSeg];
+    }
+
+    /**
+     * Get total length of segments with a specific type.
+     */
+    private function getSegmentsLength(array $segments, string $type): int
+    {
+        $length = 0;
+        foreach ($segments as $seg) {
+            if (($seg['type'] ?? '') === $type) {
+                $length += strlen($seg['text'] ?? '');
+            }
+        }
+        return $length;
+    }
+
+    /**
+     * Calculate similarity between two strings using longest common subsequence.
+     * Returns a value between 0 and 1.
+     */
+    private function calculateSimilarity(string $str1, string $str2): float
+    {
+        $len1 = strlen($str1);
+        $len2 = strlen($str2);
+        $maxLen = max($len1, $len2);
+
+        if ($maxLen === 0) {
+            return 1.0;
+        }
+
+        $lcs = $this->getLongestCommonSubsequenceLength($str1, $str2);
+        return $lcs / $maxLen;
+    }
+
+    /**
+     * Calculate length of longest common subsequence.
+     */
+    private function getLongestCommonSubsequenceLength(string $str1, string $str2): int
+    {
+        $len1 = strlen($str1);
+        $len2 = strlen($str2);
+
+        $dp = array_fill(0, $len1 + 1, array_fill(0, $len2 + 1, 0));
+
+        for ($i = 1; $i <= $len1; $i++) {
+            for ($j = 1; $j <= $len2; $j++) {
+                if ($str1[$i - 1] === $str2[$j - 1]) {
+                    $dp[$i][$j] = $dp[$i - 1][$j - 1] + 1;
+                } else {
+                    $dp[$i][$j] = max($dp[$i - 1][$j], $dp[$i][$j - 1]);
+                }
+            }
+        }
+
+        return $dp[$len1][$len2];
     }
 }

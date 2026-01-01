@@ -4,11 +4,14 @@
   import ChangedLine from './ChangedLine.svelte';
   import ReviewPanel from './ReviewPanel.svelte';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {} } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = 0, selectedFile = null, params = {}, showWhitespace = true } = $props();
 
   let comments = $state([]);
   let pendingReviewComments = $state([]);
   let reviewMenuOpen = $state(false);
+
+  let totalAdditions = $derived(files.reduce((sum, file) => sum + file.additions, 0));
+  let totalDeletions = $derived(files.reduce((sum, file) => sum + file.deletions, 0));
 
   onMount(async () => {
     const raw = item.comments.filter(c => c.type === 'review');
@@ -39,7 +42,7 @@
 
 {#if !loadingFiles}
   <div class="pr-header">
-    <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen />
+    <FileNavigation {files} bind:selectedFileIndex bind:selectedFile bind:reviewMenuOpen {totalAdditions} {totalDeletions} />
 
     {#if reviewMenuOpen}
       <ReviewPanel {item} {params} bind:pendingReviewComments bind:reviewMenuOpen />
@@ -70,8 +73,8 @@
         {#each selectedFile.changes as hunk (hunk)}
           {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
             <div class="changed-line-pair">
-              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} />
-              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
+              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
             </div>
           {/each}
 
