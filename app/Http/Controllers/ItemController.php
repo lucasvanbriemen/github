@@ -427,10 +427,9 @@ class ItemController extends Controller
         }
 
         $result = $items->map(function ($item) {
-            $stateLabel = $item->state !== 'open' ? " [{$item->state}]" : '';
             return [
                 'value' => $item->number,
-                'label' => "#{$item->number} - {$item->title}{$stateLabel}"
+                'label' => $item->title
             ];
         });
 
