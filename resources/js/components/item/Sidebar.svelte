@@ -162,13 +162,10 @@
   }
 
   function handleSelectionChange() {
-    const currentSelection = selectedLinkItems || [];
-    const previousSelection = previousSelectedLinkItems || [];
+    const currentSelection = selectedLinkItems;
+    const previousSelection = previousSelectedLinkItems;
 
-    // Find what was added
     const addedItems = currentSelection.filter(item => !previousSelection.includes(item));
-
-    // Find what was removed
     const removedItems = previousSelection.filter(item => !currentSelection.includes(item));
 
     const promises = [];
