@@ -428,49 +428,36 @@ class ItemController extends Controller
                 ->where('number', $targetNumber)
                 ->firstOrFail();
 
-            // If source is a PR and target is an issue, update PR description
             if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
-                $prData = GitHub::pullRequest()->show(
-                    $organizationName,
-                    $repository->name,
-                    $sourceNumber
-                );
-
-                $description = $prData['body'] ?? '';
-                $closesKeyword = "Closes #$targetNumber";
-
-                if (strpos($description, $closesKeyword) === false) {
-                    $description .= "\n\n$closesKeyword";
-                }
-
-                GitHub::pullRequest()->update(
-                    $organizationName,
-                    $repository->name,
-                    $sourceNumber,
-                    ['body' => trim($description)]
-                );
-            } else if (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
-                $prData = GitHub::pullRequest()->show(
-                    $organizationName,
-                    $repository->name,
-                    $targetNumber
-                );
-
-                $description = $prData['body'] ?? '';
-                $closesKeyword = "Closes #$sourceNumber";
-
-                if (strpos($description, $closesKeyword) === false) {
-                    $description .= "\n\n$closesKeyword";
-                }
-
-                GitHub::pullRequest()->update(
-                    $organizationName,
-                    $repository->name,
-                    $targetNumber,
-                    ['body' => trim($description)]
-                );
+                $itemToUpdate = $sourceItem;
+                $itemNumberToLink = $targetNumber;
+            } elseif (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                $itemToUpdate = $targetItem;
+                $itemNumberToLink = $sourceNumber;
+            } else {
+                // Both are issues, skip linking
+                continue;
             }
-           
+
+            $prData = GitHub::pullRequest()->show(
+                $organizationName,
+                $repository->name,
+                $itemToUpdate->number
+            );
+
+            $description = $prData['body'] ?? '';
+            $closesKeyword = "Closes #$itemNumberToLink";
+
+            if (strpos($description, $closesKeyword) === false) {
+                $description .= "\n\n$closesKeyword";
+            }
+
+            GitHub::pullRequest()->update(
+                $organizationName,
+                $repository->name,
+                $itemToUpdate->number,
+                ['body' => trim($description)]
+            );
         }
 
         return response()->json(['success' => true]);
