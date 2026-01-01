@@ -4,6 +4,7 @@
   import SidebarGroup from '../sidebar/group.svelte';
   import Icon from '../Icon.svelte';
   import Select from '../Select.svelte';
+  import Switch from '../Switch.svelte';
   import { organization, repository } from '../stores';
 
   let { item, isPR, isLoading, metadata, params = {}, activeTab, showWhitespace = $bindable(true) } = $props();
@@ -125,10 +126,7 @@
 <Sidebar>
   {#if !isLoading && isPR && activeTab === 'files'}
     <SidebarGroup title="Diff Settings">
-      <label class="whitespace-toggle">
-        <input type="checkbox" checked={!showWhitespace} onchange={() => showWhitespace = !showWhitespace} />
-        <span>Hide whitespace changes</span>
-      </label>
+      <Switch title="Hide Whitespace Changes" description="Toggle to hide whitespace changes in the diff view." bind:input={showWhitespace}/>
     </SidebarGroup>
   {/if}
 
