@@ -50,6 +50,7 @@ class ItemController extends Controller
             query ($org: String!, $repo: String!, $number: Int!) {
             repository(owner: $org, name: $repo) {
                 ' . $type . '(number: $number) {
+                body
                 timelineItems(
                     first: 100
                     itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
@@ -95,19 +96,45 @@ class ItemController extends Controller
         $response = ApiHelper::githubGraphql($query, $variables);
 
         $ids = [];
-        foreach ($response->data->repository->{$type}->timelineItems->nodes as $node) {
-            if (isset($node->subject)) {
-                $ids[] = $node->subject->number;
-            } elseif (isset($node->source)) {
-                $ids[] = $node->source->number;
+
+        // First try to get from timeline events
+        if (!isset($response->errors) && isset($response->data->repository->{$type}->timelineItems->nodes)) {
+            foreach ($response->data->repository->{$type}->timelineItems->nodes as $node) {
+                if (isset($node->subject)) {
+                    $ids[] = $node->subject->number;
+                } elseif (isset($node->source)) {
+                    $ids[] = $node->source->number;
+                }
             }
+        }
+
+        // Also parse the description for "Closes", "Fixes", "Resolves" keywords
+        if (isset($response->data->repository->{$type}->body)) {
+            $body = $response->data->repository->{$type}->body;
+            $keywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
+
+            foreach ($keywords as $keyword) {
+                // Match patterns like "Closes #85" or "closes: #85" or "closes #85,"
+                if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $body, $matches)) {
+                    foreach ($matches[1] as $issueNumber) {
+                        $ids[] = (int)$issueNumber;
+                    }
+                }
+            }
+        }
+
+        // Remove duplicates
+        $ids = array_unique($ids);
+
+        if (empty($ids)) {
+            return response()->json([], 200);
         }
 
         $items = Item::where('repository_id', $repository->id)->whereIn('number', $ids)->select(['id', 'title', 'state', 'number', 'type', 'created_at'])->get();
 
         foreach ($items as $item) {
-            $type = $item->isPullRequest() ? 'pulls' : 'issues';
-            $item->url = "#/{$organizationName}/{$repositoryName}/{$type}/{$item->number}";
+            $itemType = $item->isPullRequest() ? 'pulls' : 'issues';
+            $item->url = "#/{$organizationName}/{$repositoryName}/{$itemType}/{$item->number}";
         }
 
         return response()->json($items);
@@ -349,6 +376,21 @@ class ItemController extends Controller
         return response()->json(['success' => true]);
     }
 
+    private function calculateSimilarity($str1, $str2)
+    {
+        // Convert to lowercase for case-insensitive comparison
+        $str1 = strtolower($str1);
+        $str2 = strtolower($str2);
+
+        // Use Levenshtein distance for fuzzy matching
+        $distance = levenshtein($str1, $str2);
+        $maxLen = max(strlen($str1), strlen($str2));
+
+        // Calculate similarity as percentage (0-100)
+        if ($maxLen === 0) return 100;
+        return round((1 - ($distance / $maxLen)) * 100);
+    }
+
     public function searchLinkableItems($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -357,30 +399,54 @@ class ItemController extends Controller
             ->where('number', $number)
             ->firstOrFail();
 
-        // Search for open items of the opposite type
         $search = request()->query('search', '');
         $oppositeType = $item->isPullRequest() ? 'issue' : 'pull_request';
 
-        $query = Item::where('repository_id', $repository->id)
+        // Get already linked items
+        $linkedItemsResponse = $this->getLinkedItems($organizationName, $repositoryName, $number);
+        $linkedItemsData = json_decode($linkedItemsResponse->getContent(), true);
+        $linkedItemNumbers = array_map(function($item) {
+            return $item['number'];
+        }, $linkedItemsData);
+
+        // First try to get open items of the opposite type
+        $items = Item::where('repository_id', $repository->id)
             ->where('type', $oppositeType)
-            ->where('state', 'open');
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('number', 'like', "%$search%")
-                  ->orWhere('title', 'like', "%$search%");
-            });
-        }
-
-        $items = $query->select(['id', 'number', 'title', 'type', 'state'])
+            ->where('state', 'open')
+            ->whereNotIn('number', $linkedItemNumbers)
+            ->select(['id', 'number', 'title', 'type', 'state'])
             ->orderByDesc('number')
-            ->limit(20)
+            ->limit(100)
             ->get();
 
+        // If no results and search is provided, search in other states
+        if ($items->isEmpty() && $search) {
+            $items = Item::where('repository_id', $repository->id)
+                ->where('type', $oppositeType)
+                ->where('state', '!=', 'open')
+                ->whereNotIn('number', $linkedItemNumbers)
+                ->select(['id', 'number', 'title', 'type', 'state'])
+                ->orderByDesc('number')
+                ->limit(100)
+                ->get();
+        }
+
+        // Apply fuzzy matching if search is provided
+        if ($search) {
+            $items = $items->filter(function ($item) use ($search) {
+                $numberSimilarity = $this->calculateSimilarity((string)$item->number, $search);
+                $titleSimilarity = $this->calculateSimilarity($item->title, $search);
+
+                // Return items with >= 70% similarity
+                return $numberSimilarity >= 70 || $titleSimilarity >= 70;
+            })->values();
+        }
+
         $result = $items->map(function ($item) {
+            $stateLabel = $item->state !== 'open' ? " [{$item->state}]" : '';
             return [
                 'value' => $item->number,
-                'label' => "#{$item->number} - {$item->title}"
+                'label' => "#{$item->number} - {$item->title}{$stateLabel}"
             ];
         });
 
@@ -494,6 +560,90 @@ class ItemController extends Controller
         }
     }
 
+    public function createBulkLinks($organizationName, $repositoryName, $sourceNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $sourceItem = Item::where('repository_id', $repository->id)
+            ->where('number', $sourceNumber)
+            ->firstOrFail();
+
+        $targetNumbers = request()->input('target_numbers', []);
+        if (!is_array($targetNumbers)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'target_numbers must be an array'
+            ], 400);
+        }
+
+        $sourceType = $sourceItem->isPullRequest() ? 'PR' : 'Issue';
+        $successCount = 0;
+        $errors = [];
+
+        foreach ($targetNumbers as $targetNumber) {
+            try {
+                $targetItem = Item::where('repository_id', $repository->id)
+                    ->where('number', $targetNumber)
+                    ->firstOrFail();
+
+                $targetType = $targetItem->isPullRequest() ? 'PR' : 'Issue';
+
+                // If source is a PR and target is an issue, update PR description
+                if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+                    $prData = GitHub::pullRequest()->show(
+                        $organizationName,
+                        $repository->name,
+                        $sourceNumber
+                    );
+
+                    $description = $prData['body'] ?? '';
+                    $closesKeyword = "Closes #$targetNumber";
+
+                    if (strpos($description, $closesKeyword) === false) {
+                        $description .= "\n\n$closesKeyword";
+                    }
+
+                    GitHub::pullRequest()->update(
+                        $organizationName,
+                        $repository->name,
+                        $sourceNumber,
+                        ['body' => trim($description)]
+                    );
+                } else if (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                    $prData = GitHub::pullRequest()->show(
+                        $organizationName,
+                        $repository->name,
+                        $targetNumber
+                    );
+
+                    $description = $prData['body'] ?? '';
+                    $closesKeyword = "Closes #$sourceNumber";
+
+                    if (strpos($description, $closesKeyword) === false) {
+                        $description .= "\n\n$closesKeyword";
+                    }
+
+                    GitHub::pullRequest()->update(
+                        $organizationName,
+                        $repository->name,
+                        $targetNumber,
+                        ['body' => trim($description)]
+                    );
+                }
+
+                $successCount++;
+            } catch (\Exception $e) {
+                $errors[] = "Failed to link #$targetNumber: " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully linked $successCount item(s)",
+            'errors' => $errors
+        ]);
+    }
+
     public function removeLink($organizationName, $repositoryName, $sourceNumber)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -577,5 +727,88 @@ class ItemController extends Controller
                 'message' => 'Failed to remove link: ' . $e->getMessage()
             ], 400);
         }
+    }
+
+    public function removeBulkLinks($organizationName, $repositoryName, $sourceNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $sourceItem = Item::where('repository_id', $repository->id)
+            ->where('number', $sourceNumber)
+            ->firstOrFail();
+
+        $targetNumbers = request()->input('target_numbers', []);
+        if (!is_array($targetNumbers)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'target_numbers must be an array'
+            ], 400);
+        }
+
+        $successCount = 0;
+        $errors = [];
+        $keywords = ['Closes', 'Fixes', 'Resolves'];
+
+        foreach ($targetNumbers as $targetNumber) {
+            try {
+                $targetItem = Item::where('repository_id', $repository->id)
+                    ->where('number', $targetNumber)
+                    ->firstOrFail();
+
+                // If source is a PR, remove the "Closes" keyword from PR description
+                if ($sourceItem->isPullRequest()) {
+                    $prData = GitHub::pullRequest()->show(
+                        $organizationName,
+                        $repository->name,
+                        $sourceNumber
+                    );
+
+                    $description = $prData['body'] ?? '';
+
+                    foreach ($keywords as $keyword) {
+                        $pattern = "/\n*$keyword\s+#$targetNumber/i";
+                        $description = preg_replace($pattern, '', $description);
+                    }
+
+                    GitHub::pullRequest()->update(
+                        $organizationName,
+                        $repository->name,
+                        $sourceNumber,
+                        ['body' => trim($description)]
+                    );
+                } else if ($targetItem->isPullRequest()) {
+                    // If target is a PR, remove the "Closes" keyword from its description
+                    $prData = GitHub::pullRequest()->show(
+                        $organizationName,
+                        $repository->name,
+                        $targetNumber
+                    );
+
+                    $description = $prData['body'] ?? '';
+
+                    foreach ($keywords as $keyword) {
+                        $pattern = "/\n*$keyword\s+#$sourceNumber/i";
+                        $description = preg_replace($pattern, '', $description);
+                    }
+
+                    GitHub::pullRequest()->update(
+                        $organizationName,
+                        $repository->name,
+                        $targetNumber,
+                        ['body' => trim($description)]
+                    );
+                }
+
+                $successCount++;
+            } catch (\Exception $e) {
+                $errors[] = "Failed to remove link for #$targetNumber: " . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully removed $successCount link(s)",
+            'errors' => $errors
+        ]);
     }
 }

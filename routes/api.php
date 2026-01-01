@@ -65,8 +65,14 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}/link', [ItemController::class, 'createLink'])
             ->name('item.link.create');
 
+        Route::post('/item/{number}/link/bulk', [ItemController::class, 'createBulkLinks'])
+            ->name('item.link.bulk.create');
+
         Route::post('/item/{number}/link/remove', [ItemController::class, 'removeLink'])
             ->name('item.link.remove');
+
+        Route::post('/item/{number}/link/bulk/remove', [ItemController::class, 'removeBulkLinks'])
+            ->name('item.link.bulk.remove');
 
         Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
             ->name('item.comment');

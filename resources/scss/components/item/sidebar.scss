@@ -105,15 +105,8 @@
 .linked-item-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.5rem;
   padding: 0.25rem 0;
-
-  &:hover {
-    .remove-link-btn {
-      opacity: 1;
-    }
-  }
 }
 
 .linked-item {
@@ -162,21 +155,13 @@
   }
 }
 
-.remove-link-btn {
-  background-color: transparent;
-  border: 1px solid var(--error-color);
-  border-radius: 1rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
-  color: var(--error-color);
 
-  &:hover {
-    background-color: var(--error-color);
-    color: var(--background-color);
-  }
+.no-linked-items {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+  padding: 1rem 0;
+  text-align: center;
+  font-style: italic;
 }
 
 .file-selector {

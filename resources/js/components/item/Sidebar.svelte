@@ -15,9 +15,10 @@
   let linkedItems = $state([]);
   let projects = $state([]);
   let linkableItems = $state([]);
-  let selectedLinkItem = $state('');
+  let selectedLinkItems = $state([]);
   let isLinking = $state(false);
   let linkSearchQuery = $state('');
+  let previousSelectedLinkItems = $state([]);
 
   function getItemProject(projectId) {
     return item.projects.find(p => p.id === projectId);
@@ -33,9 +34,37 @@
     return parts.slice(-2).join('/');
   }
 
+  let isSearchSelectOpen = $state(false);
+
   onMount(async () => {
-    linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
-    projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    // Load linked items
+    const linkedItemsResult = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    linkedItems = linkedItemsResult;
+
+    // Load projects
+    const projectsResult = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    projects = projectsResult;
+  });
+
+  // Refresh linked items whenever item changes
+  $effect(() => {
+    if (item && item.number) {
+      api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number })).then((result) => {
+        linkedItems = result;
+      });
+    }
+  });
+
+  $effect(() => {
+    if (isSearchSelectOpen && linkableItems.length === 0) {
+      searchLinkableItems('');
+    }
+  });
+
+  // Update previousSelectedLinkItems when linkedItems change
+  $effect(() => {
+    previousSelectedLinkItems = linkedItems.map(item => item.number);
+    selectedLinkItems = linkedItems.map(item => item.number);
   });
 
   function requestReviewer({selectedValue}) {
@@ -104,54 +133,89 @@
     item.projects = [...item.projects, newProjectItem];
   }
 
-  async function searchLinkableItems(query) {
-    linkSearchQuery = query;
-    try {
-      linkableItems = await api.get(
-        route('organizations.repositories.item.linkable.search', { $organization, $repository, number: item.number }),
-        { search: query }
-      );
-    } catch (err) {
-      console.error('Failed to search linkable items:', err);
-    }
+  function mergeLinkedItemsIntoSelect() {
+    // Merge linkedItems into linkableItems, marking linked ones as selected
+    const mergedItems = linkableItems.map(item => ({
+      ...item,
+      selected: linkedItems.some(linked => linked.number === item.value)
+    }));
+
+    // Add linked items that aren't in linkableItems (for already-linked items)
+    linkedItems.forEach(linked => {
+      if (!mergedItems.some(item => item.value === linked.number)) {
+        mergedItems.unshift({
+          value: linked.number,
+          label: linked.title,
+          selected: true
+        });
+      }
+    });
+
+    return mergedItems;
   }
 
-  async function linkItem() {
-    if (!selectedLinkItem || isLinking) return;
+  function searchLinkableItems(query) {
+    linkSearchQuery = query;
+    const url = route('organizations.repositories.item.linkable.search', { $organization, $repository, number: item.number });
+    const searchUrl = query ? `${url}?search=${encodeURIComponent(query)}` : url;
+    api.get(searchUrl).then((result) => {
+      linkableItems = result;
+    }).catch((err) => {
+      console.error('Error searching linkable items:', err);
+    });
+  }
+
+  function handleSelectionChange() {
+    if (isLinking) return;
+
+    const currentSelection = selectedLinkItems || [];
+    const previousSelection = previousSelectedLinkItems || [];
+
+    // Find what was added
+    const addedItems = currentSelection.filter(item => !previousSelection.includes(item));
+
+    // Find what was removed
+    const removedItems = previousSelection.filter(item => !currentSelection.includes(item));
 
     isLinking = true;
-    try {
-      const targetNumber = parseInt(selectedLinkItem);
-      const response = await api.post(
-        route('organizations.repositories.item.link.create', { $organization, $repository, number: item.number }),
-        { target_number: targetNumber, link_type: 'blocks' }
-      );
 
-      if (response.success) {
-        // Refresh linked items
-        linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
-        selectedLinkItem = '';
-        linkSearchQuery = '';
-        linkableItems = [];
-      }
-    } finally {
+    const promises = [];
+
+    // Add new links
+    if (addedItems.length > 0) {
+      promises.push(
+        api.post(
+          route('organizations.repositories.item.link.bulk.create', { $organization, $repository, number: item.number }),
+          { target_numbers: addedItems }
+        )
+      );
+    }
+
+    // Remove unlinked items
+    if (removedItems.length > 0) {
+      promises.push(
+        api.post(
+          route('organizations.repositories.item.link.bulk.remove', { $organization, $repository, number: item.number }),
+          { target_numbers: removedItems }
+        )
+      );
+    }
+
+    Promise.all(promises).then(() => {
+      // Refresh linked items
+      api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number })).then((result) => {
+        linkedItems = result;
+      });
+
+      // Refresh search results
+      searchLinkableItems(linkSearchQuery);
+
+      // Update previous selection
+      previousSelectedLinkItems = currentSelection;
       isLinking = false;
-    }
-  }
-
-  async function removeLink(linkedItem) {
-    try {
-      const response = await api.post(
-        route('organizations.repositories.item.link.remove', { $organization, $repository, number: item.number }),
-        { target_number: linkedItem.number }
-      );
-
-      if (response.success) {
-        linkedItems = linkedItems.filter(li => li.number !== linkedItem.number);
-      }
-    } catch (err) {
-      console.error('Failed to remove link:', err);
-    }
+    }).catch(() => {
+      isLinking = false;
+    });
   }
 
   $effect(() => {
@@ -230,14 +294,15 @@
         <Select
           name="link-item"
           placeholder="Search to link..."
-          selectableItems={linkableItems}
-          bind:selectedValue={selectedLinkItem}
+          selectableItems={mergeLinkedItemsIntoSelect()}
+          bind:selectedValue={selectedLinkItems}
           searchable={true}
+          multiple={true}
           onChange={(e) => {
-            if (!e.selectedValue) return;
-            linkItem();
+            handleSelectionChange();
           }}
-          oninput={(e) => searchLinkableItems(e.target.value)}
+          onSearch={(query) => searchLinkableItems(query)}
+          onMenuOpen={(isOpen) => isSearchSelectOpen = isOpen}
         />
       </div>
 
@@ -246,15 +311,12 @@
           <a class="linked-item" href={linkedItem.url}>
             <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
           </a>
-          <button
-            onclick={() => removeLink(linkedItem)}
-            class="remove-link-btn"
-            title="Remove link"
-          >
-            ×
-          </button>
         </div>
       {/each}
+
+      {#if linkedItems.length === 0}
+        <div class="no-linked-items">No linked items</div>
+      {/if}
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
