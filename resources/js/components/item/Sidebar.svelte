@@ -36,16 +36,18 @@
   let isSearchSelectOpen = $state(false);
 
   onMount(async () => {
-    linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    updateLinkedItems();
     projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
+
+  function updateLinkedItems() {
+    linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+  }
 
   // Refresh linked items whenever item changes
   $effect(() => {
     if (item && item.number) {
-      api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number })).then((result) => {
-        linkedItems = result;
-      });
+      updateLinkedItems();
     }
   });
 
@@ -185,10 +187,7 @@
 
     // once the create/remove requests are done, refresh the linked items 
     Promise.all(promises).then(() => {
-      api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number })).then((result) => {
-        linkedItems = result;
-      });
-
+      updateLinkedItems();
       searchLinkableItems(linkSearchQuery);
 
       previousSelectedLinkItems = currentSelection;
