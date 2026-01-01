@@ -62,9 +62,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/item/{number}/linkable', [ItemController::class, 'searchLinkableItems'])
             ->name('item.linkable.search');
 
-        Route::post('/item/{number}/link', [ItemController::class, 'createLink'])
-            ->name('item.link.create');
-
         Route::post('/item/{number}/link/bulk', [ItemController::class, 'createBulkLinks'])
             ->name('item.link.bulk.create');
 
