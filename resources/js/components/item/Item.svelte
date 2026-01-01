@@ -22,6 +22,7 @@
   let item = $state({});
   let isPR = type == 'prs';
   let isLoading = $state(true);
+  let showWhitespace = $state(true);
 
   onMount(async () => {
     isLoading = true;
@@ -50,9 +51,7 @@
 </script>
 
 <div class="item-overview">
-  {#if activeTab === 'conversation'}
-    <Sidebar {item} {isPR} {isLoading} {metadata} {params} />
-  {/if}
+  <Sidebar {item} {isPR} {isLoading} {metadata} {params} bind:showWhitespace />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main {activeTab}" class:is-pr={isPR}>
@@ -83,7 +82,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {item} {files} {loadingFiles} {selectedFile} {selectedFileIndex} {params} />
+        <FileTab {item} {files} {loadingFiles} {selectedFile} {selectedFileIndex} {params} {showWhitespace} />
       {/if}
     {/if}
   </div>

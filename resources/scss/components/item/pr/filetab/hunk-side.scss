@@ -1,10 +1,16 @@
 .side-wrapper {
   display: flex;
   flex: 1;
+  // Isolate selection to this side only
+  -webkit-user-select: text;
+  user-select: text;
 
   .side {
     width: 100%;
     display: flex;
+    // Prevent selection from extending to adjacent sides
+    position: relative;
+    z-index: 1;
 
     &:hover {
       .add-comment-button {

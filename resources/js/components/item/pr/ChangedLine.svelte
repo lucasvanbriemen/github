@@ -1,16 +1,60 @@
 <script>
+  import { onMount } from 'svelte';
   import { detectLanguage } from '../../../utils/syntaxHighlighter.js';
   import HighlightedDiffLine from '../../HighlightedDiffLine.svelte';
   import Comment from '../../Comment.svelte';
   import Markdown from '../../Markdown.svelte';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true } = $props();
 
   let organization = params.organization;
   let repository = params.repository;
   let number = params.number;
+  let sideWrapperElement;
 
   let mergedComments = [...comments, ...pendingReviewComments];
+
+  // Prevent selection from spanning across sides
+  onMount(() => {
+    const handleMouseUp = () => {
+      const selection = window.getSelection();
+      if (!selection || !selection.rangeCount || selection.toString().length === 0) return;
+
+      const range = selection.getRangeAt(0);
+      const startContainer = range.startContainer;
+      const endContainer = range.endContainer;
+
+      // Check if selection involves this side
+      const startInWrapper = sideWrapperElement.contains(startContainer) || startContainer === sideWrapperElement;
+      const endInWrapper = sideWrapperElement.contains(endContainer) || endContainer === sideWrapperElement;
+
+      // Only handle if selection starts in this side
+      if (!startInWrapper) return;
+
+      // If selection spans beyond this side, limit it to this side
+      if (!endInWrapper) {
+        const codeContent = sideWrapperElement.querySelector('.diff-line-content');
+        if (codeContent && codeContent.contains(endContainer)) {
+          // End is in code content, selection is fine
+          return;
+        }
+        // Selection went outside our side, collapse to end of our content
+        const lastChild = sideWrapperElement.querySelector('.diff-line-content');
+        if (lastChild) {
+          range.setEnd(lastChild, lastChild.childNodes.length);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
+    };
+
+    if (sideWrapperElement) {
+      sideWrapperElement.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        sideWrapperElement.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  });
 
   function prefix(type) {
     if (type === 'add') return '+';
@@ -54,26 +98,39 @@
     line.addingComment = false;
   }
 
-  const line = changedLinePair[side.toLowerCase()];
+  let line = changedLinePair[side.toLowerCase()];
+
+  // If hiding whitespace and this is a whitespace-only change, treat as normal line and hide segments
+  let displayLine = $derived(
+    !showWhitespace && line.whitespace_only
+      ? { ...line, type: 'normal', segments: null }
+      : line
+  );
 
   line.addingComment = false;
   line.comment = '';
 </script>
 
-<div class="side-wrapper" class:adding-comment={line.addingComment}>
+<div class="side-wrapper" class:adding-comment={line.addingComment} bind:this={sideWrapperElement}>
   <div class="side left-side">
-    <div class="line-number diff-line-{line.type}">
-      {#if line.type !== 'empty' && prefix(line.type) !== '  '}
+    <div class="line-number diff-line-{displayLine.type}">
+      {#if displayLine.type !== 'empty' && prefix(displayLine.type) !== '  '}
         <button class="add-comment-button" onclick={() => line.addingComment = !line.addingComment}>+</button>
       {/if}
 
-      {line.number}
+      {displayLine.number}
     </div>
 
-    <div class="diff-line-content diff-line-{line.type}">
-      {#if line.type !== 'empty'}
-        <span class="prefix">{prefix(line.type)}</span>
-        <HighlightedDiffLine code={line.content} language={detectLanguage(selectedFile.filename)} />
+    <div class="diff-line-content diff-line-{displayLine.type}">
+      {#if displayLine.type !== 'empty'}
+        <span class="prefix">{prefix(displayLine.type)}</span>
+        <HighlightedDiffLine
+          code={displayLine.content}
+          language={detectLanguage(selectedFile.filename)}
+          segments={displayLine.segments}
+          lineType={displayLine.type}
+          {showWhitespace}
+        />
       {/if}
     </div>
   </div>

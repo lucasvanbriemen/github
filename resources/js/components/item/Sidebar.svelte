@@ -6,7 +6,11 @@
   import Select from '../Select.svelte';
   import { organization, repository } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {} } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, showWhitespace = $bindable(true) } = $props();
+
+  function toggleHideWhitespace() {
+    showWhitespace = !showWhitespace;
+  }
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -125,6 +129,17 @@
 </script>
 
 <Sidebar>
+  {#if !isLoading && isPR}
+    <SidebarGroup title="Diff Settings">
+      <div class="diff-settings">
+        <label class="whitespace-toggle">
+          <input type="checkbox" checked={!showWhitespace} onchange={toggleHideWhitespace} />
+          <span>Hide whitespace changes</span>
+        </label>
+      </div>
+    </SidebarGroup>
+  {/if}
+
   {#if !isLoading}
     <SidebarGroup title="Projects">
       {#each projects as project, idx (project.id)}
