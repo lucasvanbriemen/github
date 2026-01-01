@@ -8,10 +8,6 @@
 
   let { item, isPR, isLoading, metadata, params = {}, showWhitespace = $bindable(true) } = $props();
 
-  function toggleHideWhitespace() {
-    showWhitespace = !showWhitespace;
-  }
-
   let labels = $state([]);
   let contributors = $state([]);
 
@@ -133,7 +129,7 @@
     <SidebarGroup title="Diff Settings">
       <div class="diff-settings">
         <label class="whitespace-toggle">
-          <input type="checkbox" checked={!showWhitespace} onchange={toggleHideWhitespace} />
+          <input type="checkbox" checked={!showWhitespace} onchange={() => showWhitespace = !showWhitespace} />
           <span>Hide whitespace changes</span>
         </label>
       </div>
