@@ -96,40 +96,26 @@ class ItemController extends Controller
         $response = ApiHelper::githubGraphql($query, $variables);
 
         $ids = [];
+        foreach ($response->data->repository->{$type}->timelineItems->nodes as $node) {
+            if (isset($node->subject)) {
+                $ids[] = $node->subject->number;
+            } elseif (isset($node->source)) {
+                $ids[] = $node->source->number;
+            }
+        }
 
-        // First try to get from timeline events
-        if (!isset($response->errors) && isset($response->data->repository->{$type}->timelineItems->nodes)) {
-            foreach ($response->data->repository->{$type}->timelineItems->nodes as $node) {
-                if (isset($node->subject)) {
-                    $ids[] = $node->subject->number;
-                } elseif (isset($node->source)) {
-                    $ids[] = $node->source->number;
+        $body = $response->data->repository->{$type}->body;
+        $keywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
+        foreach ($keywords as $keyword) {
+            // Match patterns like "Closes #85" or "closes: #85" or "closes #85,"
+            if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $body, $matches)) {
+                foreach ($matches[1] as $issueNumber) {
+                    $ids[] = (int)$issueNumber;
                 }
             }
         }
 
-        // Also parse the description for "Closes", "Fixes", "Resolves" keywords
-        if (isset($response->data->repository->{$type}->body)) {
-            $body = $response->data->repository->{$type}->body;
-            $keywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
-
-            foreach ($keywords as $keyword) {
-                // Match patterns like "Closes #85" or "closes: #85" or "closes #85,"
-                if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $body, $matches)) {
-                    foreach ($matches[1] as $issueNumber) {
-                        $ids[] = (int)$issueNumber;
-                    }
-                }
-            }
-        }
-
-        // Remove duplicates
         $ids = array_unique($ids);
-
-        if (empty($ids)) {
-            return response()->json([], 200);
-        }
-
         $items = Item::where('repository_id', $repository->id)->whereIn('number', $ids)->select(['id', 'title', 'state', 'number', 'type', 'created_at'])->get();
 
         foreach ($items as $item) {
