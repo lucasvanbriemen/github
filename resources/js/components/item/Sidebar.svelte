@@ -313,10 +313,6 @@
           </a>
         </div>
       {/each}
-
-      {#if linkedItems.length === 0}
-        <div class="no-linked-items">No linked items</div>
-      {/if}
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
