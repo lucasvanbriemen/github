@@ -135,9 +135,11 @@
     </SidebarGroup>
 
     <SidebarGroup title="Files">
-      {#each files as file (file.filename)}
-        <button class="file-name" class:selected={selectedFile?.filename === file.filename} onclick={() => { selectedFile = file; selectedFileIndex = files.indexOf(file); }}>{shortFileName(file.filename)}</button>
-      {/each}
+      <div class="file-selector">
+        {#each files as file (file.filename)}
+          <button class="file-name" class:selected={selectedFile?.filename === file.filename} onclick={() => { selectedFile = file; selectedFileIndex = files.indexOf(file); }}>{shortFileName(file.filename)}</button>
+        {/each}
+      </div>
     </SidebarGroup>
 
   {/if}
