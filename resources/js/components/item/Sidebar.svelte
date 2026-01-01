@@ -290,26 +290,12 @@
     </SidebarGroup>
 
     <SidebarGroup title="Linked Items">
-      <div class="link-select-group">
-        <Select
-          name="link-item"
-          selectableItems={mergeLinkedItemsIntoSelect()}
-          bind:selectedValue={selectedLinkItems}
-          multiple={true}
-          onChange={(e) => {
-            handleSelectionChange();
-          }}
-          onSearch={(query) => searchLinkableItems(query)}
-          onMenuOpen={(isOpen) => isSearchSelectOpen = isOpen}
-        />
-      </div>
+      <Select name="link-item" selectableItems={mergeLinkedItemsIntoSelect()} bind:selectedValue={selectedLinkItems} multiple={true} onChange={(e) => {handleSelectionChange();}} onSearch={(query) => searchLinkableItems(query)} onMenuOpen={(isOpen) => isSearchSelectOpen = isOpen}/>
 
       {#each linkedItems as linkedItem (linkedItem.number)}
-        <div class="linked-item-row">
-          <a class="linked-item" href={linkedItem.url}>
-            <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
-          </a>
-        </div>
+        <a class="linked-item" href={linkedItem.url}>
+          <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
+        </a>
       {/each}
     </SidebarGroup>
 
