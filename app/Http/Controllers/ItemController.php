@@ -422,14 +422,7 @@ class ItemController extends Controller
             ->firstOrFail();
 
         $targetNumbers = request()->input('target_numbers', []);
-        if (!is_array($targetNumbers)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'target_numbers must be an array'
-            ], 400);
-        }
 
-        $sourceType = $sourceItem->isPullRequest() ? 'PR' : 'Issue';
         $successCount = 0;
         $errors = [];
 
