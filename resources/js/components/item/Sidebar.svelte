@@ -14,6 +14,10 @@
 
   let linkedItems = $state([]);
   let projects = $state([]);
+  let linkableItems = $state([]);
+  let selectedLinkItem = $state('');
+  let isLinking = $state(false);
+  let linkSearchQuery = $state('');
 
   function getItemProject(projectId) {
     return item.projects.find(p => p.id === projectId);
@@ -100,6 +104,56 @@
     item.projects = [...item.projects, newProjectItem];
   }
 
+  async function searchLinkableItems(query) {
+    linkSearchQuery = query;
+    try {
+      linkableItems = await api.get(
+        route('organizations.repositories.item.linkable.search', { $organization, $repository, number: item.number }),
+        { search: query }
+      );
+    } catch (err) {
+      console.error('Failed to search linkable items:', err);
+    }
+  }
+
+  async function linkItem() {
+    if (!selectedLinkItem || isLinking) return;
+
+    isLinking = true;
+    try {
+      const targetNumber = parseInt(selectedLinkItem);
+      const response = await api.post(
+        route('organizations.repositories.item.link.create', { $organization, $repository, number: item.number }),
+        { target_number: targetNumber, link_type: 'blocks' }
+      );
+
+      if (response.success) {
+        // Refresh linked items
+        linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+        selectedLinkItem = '';
+        linkSearchQuery = '';
+        linkableItems = [];
+      }
+    } finally {
+      isLinking = false;
+    }
+  }
+
+  async function removeLink(linkedItem) {
+    try {
+      const response = await api.post(
+        route('organizations.repositories.item.link.remove', { $organization, $repository, number: item.number }),
+        { target_number: linkedItem.number }
+      );
+
+      if (response.success) {
+        linkedItems = linkedItems.filter(li => li.number !== linkedItem.number);
+      }
+    } catch (err) {
+      console.error('Failed to remove link:', err);
+    }
+  }
+
   $effect(() => {
     void isLoading;
     void metadata;
@@ -172,10 +226,34 @@
     </SidebarGroup>
 
     <SidebarGroup title="Linked Items">
-      {#each linkedItems as linkedItem}
-        <a class="linked-item" href={linkedItem.url}>
-          <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
-        </a>
+      <div class="link-select-group">
+        <Select
+          name="link-item"
+          placeholder="Search to link..."
+          selectableItems={linkableItems}
+          bind:selectedValue={selectedLinkItem}
+          searchable={true}
+          onChange={(e) => {
+            if (!e.selectedValue) return;
+            linkItem();
+          }}
+          oninput={(e) => searchLinkableItems(e.target.value)}
+        />
+      </div>
+
+      {#each linkedItems as linkedItem (linkedItem.number)}
+        <div class="linked-item-row">
+          <a class="linked-item" href={linkedItem.url}>
+            <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
+          </a>
+          <button
+            onclick={() => removeLink(linkedItem)}
+            class="remove-link-btn"
+            title="Remove link"
+          >
+            ×
+          </button>
+        </div>
       {/each}
     </SidebarGroup>
 

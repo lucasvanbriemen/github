@@ -27,22 +27,35 @@ class ApiHelper
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, self::formatHeaders());
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 
-        if ($method === 'POST') {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        if ($method !== 'GET' && $method !== 'HEAD') {
+            if ($payload) {
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+            }
         }
 
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($httpCode === 200) {
+        // Store response and http code for debugging
+        self::$lastResponse = $responseBody;
+        self::$lastHttpCode = $httpCode;
+
+        // Accept 200, 201, 204 as successful responses
+        if (in_array($httpCode, [200, 201, 204])) {
+            if ($httpCode === 204) {
+                return (object) ['success' => true];
+            }
             return json_decode($responseBody);
         } else {
             return null;
         }
     }
+
+    public static $lastResponse = null;
+    public static $lastHttpCode = null;
 
     public static function githubGraphql(string $query, array $variables = [])
     {

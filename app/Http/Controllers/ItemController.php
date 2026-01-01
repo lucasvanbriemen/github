@@ -348,4 +348,234 @@ class ItemController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function searchLinkableItems($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        // Search for open items of the opposite type
+        $search = request()->query('search', '');
+        $oppositeType = $item->isPullRequest() ? 'issue' : 'pull_request';
+
+        $query = Item::where('repository_id', $repository->id)
+            ->where('type', $oppositeType)
+            ->where('state', 'open');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('number', 'like', "%$search%")
+                  ->orWhere('title', 'like', "%$search%");
+            });
+        }
+
+        $items = $query->select(['id', 'number', 'title', 'type', 'state'])
+            ->orderByDesc('number')
+            ->limit(20)
+            ->get();
+
+        $result = $items->map(function ($item) {
+            return [
+                'value' => $item->number,
+                'label' => "#{$item->number} - {$item->title}"
+            ];
+        });
+
+        return response()->json($result);
+    }
+
+    public function createLink($organizationName, $repositoryName, $sourceNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $sourceItem = Item::where('repository_id', $repository->id)
+            ->where('number', $sourceNumber)
+            ->firstOrFail();
+
+        $targetNumber = request()->input('target_number');
+        $linkType = request()->input('link_type', 'blocks'); // 'blocks', 'blocked_by'
+
+        $targetItem = Item::where('repository_id', $repository->id)
+            ->where('number', $targetNumber)
+            ->firstOrFail();
+
+        // Determine which item is the source and which is the target for the GraphQL mutation
+        // For 'blocks' relationship: sourceItem blocks targetItem
+        if ($linkType === 'blocks') {
+            $blockingItemNumber = $sourceNumber;
+            $blockedItemNumber = $targetNumber;
+        } else {
+            $blockingItemNumber = $targetNumber;
+            $blockedItemNumber = $sourceNumber;
+        }
+
+        $sourceType = $sourceItem->isPullRequest() ? 'PR' : 'Issue';
+        $targetType = $targetItem->isPullRequest() ? 'PR' : 'Issue';
+
+        try {
+            // If source is a PR and target is an issue, update PR description to add "Closes #X"
+            // This will show in the Development section on GitHub
+            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+                // Get current PR data
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber
+                );
+
+                // Add "Closes #targetNumber" to the description if not already there
+                $description = $prData['body'] ?? '';
+                $closesKeyword = "Closes #$targetNumber";
+
+                if (strpos($description, $closesKeyword) === false) {
+                    $description .= "\n\n$closesKeyword";
+                }
+
+                // Update the PR with the new description
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber,
+                    ['body' => trim($description)]
+                );
+            } else if (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                // If source is an issue and target is a PR, add "Closes #sourceNumber" to PR description
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber
+                );
+
+                $description = $prData['body'] ?? '';
+                $closesKeyword = "Closes #$sourceNumber";
+
+                if (strpos($description, $closesKeyword) === false) {
+                    $description .= "\n\n$closesKeyword";
+                }
+
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber,
+                    ['body' => trim($description)]
+                );
+            } else {
+                // For issue-to-issue links, use REST API dependency endpoint
+                $route = "/repos/$organizationName/{$repository->name}/issues/$targetNumber/dependencies/blocked_by";
+
+                $response = ApiHelper::githubApi($route, 'POST', [
+                    'issue_id' => (int)$sourceItem->id
+                ]);
+
+                if ($response === null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to create link via GitHub API',
+                        'debug' => [
+                            'http_code' => ApiHelper::$lastHttpCode,
+                            'response' => ApiHelper::$lastResponse
+                        ]
+                    ], 400);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully linked $sourceType #$sourceNumber to $targetType #$targetNumber. This will now appear in the Development section."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create link: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function removeLink($organizationName, $repositoryName, $sourceNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $sourceItem = Item::where('repository_id', $repository->id)
+            ->where('number', $sourceNumber)
+            ->firstOrFail();
+
+        $targetNumber = request()->input('target_number');
+
+        $targetItem = Item::where('repository_id', $repository->id)
+            ->where('number', $targetNumber)
+            ->firstOrFail();
+
+        try {
+            // If source is a PR, remove the "Closes" keyword from PR description
+            if ($sourceItem->isPullRequest()) {
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber
+                );
+
+                $description = $prData['body'] ?? '';
+                $keywords = ['Closes', 'Fixes', 'Resolves'];
+
+                foreach ($keywords as $keyword) {
+                    $pattern = "/\n*$keyword\s+#$targetNumber/i";
+                    $description = preg_replace($pattern, '', $description);
+                }
+
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $sourceNumber,
+                    ['body' => trim($description)]
+                );
+            } else if ($targetItem->isPullRequest()) {
+                // If target is a PR, remove the "Closes" keyword from its description
+                $prData = GitHub::pullRequest()->show(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber
+                );
+
+                $description = $prData['body'] ?? '';
+                $keywords = ['Closes', 'Fixes', 'Resolves'];
+
+                foreach ($keywords as $keyword) {
+                    $pattern = "/\n*$keyword\s+#$sourceNumber/i";
+                    $description = preg_replace($pattern, '', $description);
+                }
+
+                GitHub::pullRequest()->update(
+                    $organizationName,
+                    $repository->name,
+                    $targetNumber,
+                    ['body' => trim($description)]
+                );
+            } else {
+                // For issue-to-issue links, use REST API to remove dependency
+                $route = "/repos/$organizationName/{$repository->name}/issues/$targetNumber/dependencies/blocked_by/{$sourceItem->id}";
+
+                $response = ApiHelper::githubApi($route, 'DELETE');
+
+                if ($response === null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to remove link via GitHub API'
+                    ], 400);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully removed link between #$sourceNumber and #$targetNumber"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove link: ' . $e->getMessage()
+            ], 400);
+        }
+    }
 }

@@ -59,6 +59,15 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/item/{number}/linked', [ItemController::class, 'getLinkedItems'])
             ->name('item.linked.get');
 
+        Route::get('/item/{number}/linkable', [ItemController::class, 'searchLinkableItems'])
+            ->name('item.linkable.search');
+
+        Route::post('/item/{number}/link', [ItemController::class, 'createLink'])
+            ->name('item.link.create');
+
+        Route::post('/item/{number}/link/remove', [ItemController::class, 'removeLink'])
+            ->name('item.link.remove');
+
         Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
             ->name('item.comment');
 
