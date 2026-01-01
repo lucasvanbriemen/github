@@ -88,27 +88,6 @@
   }
 }
 
-.link-select-group {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-
-  :global(.search-select-wrapper) {
-    width: 100%;
-  }
-
-  :global(.search-input) {
-    width: 100% !important;
-  }
-}
-
-.linked-item-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
-}
-
 .linked-item {
   display: flex;
   align-items: center;
@@ -116,6 +95,7 @@
   flex: 1;
   text-decoration: none;
   gap: 0.5rem;
+  padding: 0.25rem 0;
 
   margin-left: 0.5rem;
   white-space: nowrap;
