@@ -39,10 +39,6 @@ class ApiHelper
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        // Store response and http code for debugging
-        self::$lastResponse = $responseBody;
-        self::$lastHttpCode = $httpCode;
-
         // Accept 200, 201, 204 as successful responses
         if (in_array($httpCode, [200, 201, 204])) {
             if ($httpCode === 204) {
@@ -53,9 +49,6 @@ class ApiHelper
             return null;
         }
     }
-
-    public static $lastResponse = null;
-    public static $lastHttpCode = null;
 
     public static function githubGraphql(string $query, array $variables = [])
     {
