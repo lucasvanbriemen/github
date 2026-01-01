@@ -362,7 +362,6 @@ class ItemController extends Controller
 
     private function calculateSimilarity($str1, $str2)
     {
-        // Convert to lowercase for case-insensitive comparison
         $str1 = strtolower($str1);
         $str2 = strtolower($str2);
 
