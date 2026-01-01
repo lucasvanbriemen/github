@@ -7,7 +7,7 @@
   import Switch from '../Switch.svelte';
   import { organization, repository } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, showWhitespace = $bindable(true) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(true) } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -22,6 +22,11 @@
   // Generate label style with proper color formatting
   function getLabelStyle(label) {
     return `background-color: #${label.color}4D; color: #${label.color}; border: 1px solid #${label.color};`;
+  }
+
+  function shortFileName(fileName) {
+    const parts = fileName.split('/');
+    return parts.slice(-2).join('/');
   }
 
   onMount(async () => {
@@ -128,9 +133,16 @@
     <SidebarGroup title="Diff Settings">
       <Switch title="Hide Whitespace Changes" description="Toggle to hide whitespace changes in the diff view." bind:input={showWhitespace}/>
     </SidebarGroup>
+
+    <SidebarGroup title="Files">
+      {#each files as file}
+        <span class="file-name">{shortFileName(file.filename)}</span>
+      {/each}
+    </SidebarGroup>
+
   {/if}
 
-  {#if !isLoading}
+  {#if !isLoading && activeTab === 'conversation'}
     <SidebarGroup title="Projects">
       {#each projects as project, idx (project.id)}
         {#if getItemProject(project.id)}
