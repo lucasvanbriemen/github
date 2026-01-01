@@ -37,13 +37,8 @@
   let isSearchSelectOpen = $state(false);
 
   onMount(async () => {
-    // Load linked items
-    const linkedItemsResult = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
-    linkedItems = linkedItemsResult;
-
-    // Load projects
-    const projectsResult = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
-    projects = projectsResult;
+    linkedItems = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
 
   // Refresh linked items whenever item changes
