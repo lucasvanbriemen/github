@@ -485,12 +485,6 @@ class ItemController extends Controller
             ->firstOrFail();
 
         $targetNumbers = request()->input('target_numbers', []);
-        if (!is_array($targetNumbers)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'target_numbers must be an array'
-            ], 400);
-        }
 
         $keywords = ['Closes', 'Fixes', 'Resolves'];
 
