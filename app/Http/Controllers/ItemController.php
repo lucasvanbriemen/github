@@ -117,8 +117,8 @@ class ItemController extends Controller
         $items = Item::where('repository_id', $repository->id)->whereIn('number', $ids)->select(['id', 'title', 'state', 'number', 'type', 'created_at'])->get();
 
         foreach ($items as $item) {
-            $itemType = $item->isPullRequest() ? 'pulls' : 'issues';
-            $item->url = "#/{$organizationName}/{$repositoryName}/{$itemType}/{$item->number}";
+            $type = $item->isPullRequest() ? 'pulls' : 'issues';
+            $item->url = "#/{$organizationName}/{$repositoryName}/{$type}/{$item->number}";
         }
 
         return response()->json($items);
