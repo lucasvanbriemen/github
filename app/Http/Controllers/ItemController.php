@@ -103,6 +103,17 @@ class ItemController extends Controller
             }
         }
 
+        $keywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
+        foreach ($keywords as $keyword) {
+            // Match patterns like "Closes #85" or "closes: #85" or "closes #85,"
+            if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $item->body, $matches)) {
+                foreach ($matches[1] as $issueNumber) {
+                    $ids[] = (int)$issueNumber;
+                }
+            }
+        }
+
+        $ids = array_unique($ids);
         $items = Item::where('repository_id', $repository->id)->whereIn('number', $ids)->select(['id', 'title', 'state', 'number', 'type', 'created_at'])->get();
 
         foreach ($items as $item) {
@@ -345,6 +356,149 @@ class ItemController extends Controller
             $number,
             $labels
         );
+
+        return response()->json(['success' => true]);
+    }
+
+    private function calculateSimilarity($str1, $str2)
+    {
+        $str1 = strtolower($str1);
+        $str2 = strtolower($str2);
+
+        // Use Levenshtein distance for fuzzy matching
+        $distance = levenshtein($str1, $str2);
+        $maxLen = max(strlen($str1), strlen($str2));
+
+        // Calculate similarity as percentage (0-100)
+        if ($maxLen === 0) return 100;
+        return round((1 - ($distance / $maxLen)) * 100);
+    }
+
+    public function searchLinkableItems($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $search = request()->query('search', '');
+        $oppositeType = $item->isPullRequest() ? 'issue' : 'pull_request';
+
+        $items = Item::where('repository_id', $repository->id)
+            ->where('type', $oppositeType)
+            ->select(['id', 'number', 'title', 'type', 'state'])
+            ->orderByDesc('state')
+            ->orderByDesc('number')
+            ->limit(100)
+            ->get();
+
+        // Apply fuzzy matching if search is provided
+        if ($search) {
+            $items = $items->filter(function ($item) use ($search) {
+                $numberSimilarity = $this->calculateSimilarity((string)$item->number, $search);
+                $titleSimilarity = $this->calculateSimilarity($item->title, $search);
+
+                // Return items with >= 70% similarity
+                return $numberSimilarity >= 70 || $titleSimilarity >= 70;
+            })->values();
+        }
+
+        $result = $items->map(function ($item) {
+            return [
+                'value' => $item->number,
+                'label' => $item->title
+            ];
+        });
+
+        return response()->json($result);
+    }
+
+    public function createBulkLinks($organizationName, $repositoryName, $sourceNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $sourceItem = Item::where('repository_id', $repository->id)
+            ->where('number', $sourceNumber)
+            ->firstOrFail();
+
+        $targetNumbers = request()->input('target_numbers', []);
+
+        foreach ($targetNumbers as $targetNumber) {
+            $targetItem = Item::where('repository_id', $repository->id)
+                ->where('number', $targetNumber)
+                ->firstOrFail();
+
+            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+                $itemToUpdate = $sourceItem;
+                $itemNumberToLink = $targetNumber;
+            } elseif (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                $itemToUpdate = $targetItem;
+                $itemNumberToLink = $sourceNumber;
+            } else {
+                // Both are issues, skip linking
+                continue;
+            }
+
+            $description = $itemToUpdate->body;
+            $closesKeyword = "Closes #$itemNumberToLink";
+
+            if (strpos($description, $closesKeyword) === false) {
+                $description .= "\n\n$closesKeyword";
+            }
+
+            GitHub::pullRequest()->update(
+                $organizationName,
+                $repository->name,
+                $itemToUpdate->number,
+                ['body' => trim($description)]
+            );
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function removeBulkLinks($organizationName, $repositoryName, $sourceNumber)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $sourceItem = Item::where('repository_id', $repository->id)
+            ->where('number', $sourceNumber)
+            ->firstOrFail();
+
+        $targetNumbers = request()->input('target_numbers', []);
+
+        $keywords = ['Closes', 'Fixes', 'Resolves'];
+
+        foreach ($targetNumbers as $targetNumber) {
+            $targetItem = Item::where('repository_id', $repository->id)
+                ->where('number', $targetNumber)
+                ->firstOrFail();
+
+            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+                $itemToUpdate = $sourceItem;
+                $itemNumberToUnlink = $targetNumber;
+            } elseif (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                $itemToUpdate = $targetItem;
+                $itemNumberToUnlink = $sourceNumber;
+            } else {
+                // Both are issues or both are PRs, skip unlinking
+                continue;
+            }
+
+            $description = $itemToUpdate->body;
+
+            foreach ($keywords as $keyword) {
+                $pattern = "/\n*$keyword\s+#$itemNumberToUnlink/i";
+                $description = preg_replace($pattern, '', $description);
+            }
+
+            GitHub::pullRequest()->update(
+                $organizationName,
+                $repository->name,
+                $itemToUpdate->number,
+                ['body' => trim($description)]
+            );
+        }
 
         return response()->json(['success' => true]);
     }

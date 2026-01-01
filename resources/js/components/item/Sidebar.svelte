@@ -14,6 +14,8 @@
 
   let linkedItems = $state([]);
   let projects = $state([]);
+  let linkableItems = $state([]);
+  let linkSearchQuery = $state('');
 
   function getItemProject(projectId) {
     return item.projects.find(p => p.id === projectId);
@@ -30,8 +32,25 @@
   }
 
   onMount(async () => {
-    linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    updateLinkedItems();
     projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
+  });
+
+  async function updateLinkedItems() {
+    linkedItems = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+  }
+
+  // Update linkableItems selected state based on linkedItems (mutate to avoid infinite loop)
+  $effect(() => {
+    linkableItems.forEach(item => {
+      item.selected = linkedItems.some(linked => linked.number === item.value);
+    });
+  });
+
+  $effect(() => {
+    if (item) {
+      searchLinkableItems('');
+    }
   });
 
   function requestReviewer({selectedValue}) {
@@ -100,6 +119,50 @@
     item.projects = [...item.projects, newProjectItem];
   }
 
+
+  function searchLinkableItems(query) {
+    linkSearchQuery = query;
+    const url = route('organizations.repositories.item.linkable.search', { $organization, $repository, number: params.number });
+    const searchUrl = query ? `${url}?search=${encodeURIComponent(query)}` : url;
+
+    api.get(searchUrl).then((result) => {
+      linkableItems = result;
+    })
+  }
+
+  async function handleSelectionChange() {
+    // Collect all selected items from linkableItems
+    const currentSelection = linkableItems.filter(item => item.selected).map(item => item.value);
+    // Get current linked items
+    const previousSelection = linkedItems.map(item => item.number);
+
+    const addedItems = currentSelection.filter(item => !previousSelection.includes(item));
+    const removedItems = previousSelection.filter(item => !currentSelection.includes(item));
+
+    const promises = [];
+
+    if (addedItems.length > 0) {
+      promises.push(
+        api.post(route('organizations.repositories.item.link.bulk.create', { $organization, $repository, number: item.number }), { target_numbers: addedItems })
+      );
+    }
+
+    if (removedItems.length > 0) {
+      promises.push(
+        api.post(route('organizations.repositories.item.link.bulk.remove', { $organization, $repository, number: item.number }), { target_numbers: removedItems })
+      );
+    }
+
+    // Wait for all API calls to complete
+    if (promises.length > 0) {
+      await Promise.all(promises);
+    }
+
+    // Refresh linked items and search results
+    await updateLinkedItems();
+    searchLinkableItems(linkSearchQuery);
+  }
+
   $effect(() => {
     void isLoading;
     void metadata;
@@ -135,9 +198,11 @@
     </SidebarGroup>
 
     <SidebarGroup title="Files">
-      {#each files as file (file.filename)}
-        <button class="file-name" class:selected={selectedFile?.filename === file.filename} onclick={() => { selectedFile = file; selectedFileIndex = files.indexOf(file); }}>{shortFileName(file.filename)}</button>
-      {/each}
+      <div class="file-selector">
+        {#each files as file (file.filename)}
+          <button class="file-name" class:selected={selectedFile?.filename === file.filename} onclick={() => { selectedFile = file; selectedFileIndex = files.indexOf(file); }}>{shortFileName(file.filename)}</button>
+        {/each}
+      </div>
     </SidebarGroup>
 
   {/if}
@@ -175,6 +240,8 @@
           <Icon name={linkedItem.type} className="icon {linkedItem.state}" /> {linkedItem.title}
         </a>
       {/each}
+
+      <Select name="link-item" selectableItems={linkableItems} multiple={true} onChange={handleSelectionChange} onSearch={(query) => searchLinkableItems(query)}/>
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
