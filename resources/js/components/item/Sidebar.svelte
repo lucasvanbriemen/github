@@ -127,12 +127,10 @@
 <Sidebar>
   {#if !isLoading && isPR && activeTab === 'files'}
     <SidebarGroup title="Diff Settings">
-      <div class="diff-settings">
-        <label class="whitespace-toggle">
-          <input type="checkbox" checked={!showWhitespace} onchange={() => showWhitespace = !showWhitespace} />
-          <span>Hide whitespace changes</span>
-        </label>
-      </div>
+      <label class="whitespace-toggle">
+        <input type="checkbox" checked={!showWhitespace} onchange={() => showWhitespace = !showWhitespace} />
+        <span>Hide whitespace changes</span>
+      </label>
     </SidebarGroup>
   {/if}
 

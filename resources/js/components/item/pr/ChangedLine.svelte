@@ -9,7 +9,6 @@
   let organization = params.organization;
   let repository = params.repository;
   let number = params.number;
-  let sideWrapperElement;
 
   let mergedComments = [...comments, ...pendingReviewComments];
 
@@ -68,7 +67,7 @@
   line.comment = '';
 </script>
 
-<div class="side-wrapper" class:adding-comment={line.addingComment} bind:this={sideWrapperElement}>
+<div class="side-wrapper" class:adding-comment={line.addingComment}>
   <div class="side left-side">
     <div class="line-number diff-line-{displayLine.type}">
       {#if displayLine.type !== 'empty' && prefix(displayLine.type) !== '  '}

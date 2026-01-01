@@ -45,7 +45,7 @@
         const isAdd = lineType === 'add';
         const isDel = lineType === 'del';
         const bgColor = isAdd ? 'rgba(34, 197, 94, 0.25)' : isDel ? 'rgba(239, 68, 68, 0.25)' : 'rgba(234, 179, 8, 0.25)';
-        html += `<span class="segment-change" style="background-color: ${bgColor}; border-radius: 2px;">${highlighted}</span>`;
+        html += `<span class="segment-change" style="background-color: ${bgColor}; border-radius: 0.25rem;">${highlighted}</span>`;
       } else {
         // Equal segments render normally
         html += highlighted;
