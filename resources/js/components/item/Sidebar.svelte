@@ -16,7 +16,6 @@
   let projects = $state([]);
   let linkableItems = $state([]);
   let selectedLinkItems = $state([]);
-  let isLinking = $state(false);
   let linkSearchQuery = $state('');
   let previousSelectedLinkItems = $state([]);
 
@@ -37,8 +36,8 @@
   let isSearchSelectOpen = $state(false);
 
   onMount(async () => {
-    linkedItems = await api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
-    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
+    projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
 
   // Refresh linked items whenever item changes
