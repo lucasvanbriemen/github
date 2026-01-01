@@ -474,49 +474,30 @@ class ItemController extends Controller
                 ->where('number', $targetNumber)
                 ->firstOrFail();
 
-            // If source is a PR, remove the "Closes" keyword from PR description
-            if ($sourceItem->isPullRequest()) {
-                $prData = GitHub::pullRequest()->show(
-                    $organizationName,
-                    $repository->name,
-                    $sourceNumber
-                );
-
-                $description = $prData['body'] ?? '';
-
-                foreach ($keywords as $keyword) {
-                    $pattern = "/\n*$keyword\s+#$targetNumber/i";
-                    $description = preg_replace($pattern, '', $description);
-                }
-
-                GitHub::pullRequest()->update(
-                    $organizationName,
-                    $repository->name,
-                    $sourceNumber,
-                    ['body' => trim($description)]
-                );
-            } else if ($targetItem->isPullRequest()) {
-                // If target is a PR, remove the "Closes" keyword from its description
-                $prData = GitHub::pullRequest()->show(
-                    $organizationName,
-                    $repository->name,
-                    $targetNumber
-                );
-
-                $description = $prData['body'] ?? '';
-
-                foreach ($keywords as $keyword) {
-                    $pattern = "/\n*$keyword\s+#$sourceNumber/i";
-                    $description = preg_replace($pattern, '', $description);
-                }
-
-                GitHub::pullRequest()->update(
-                    $organizationName,
-                    $repository->name,
-                    $targetNumber,
-                    ['body' => trim($description)]
-                );
+            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+                $itemToUpdate = $sourceItem;
+                $itemNumberToUnlink = $targetNumber;
+            } elseif (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+                $itemToUpdate = $targetItem;
+                $itemNumberToUnlink = $sourceNumber;
+            } else {
+                // Both are issues or both are PRs, skip unlinking
+                continue;
             }
+
+            $description = $itemToUpdate->body;
+
+            foreach ($keywords as $keyword) {
+                $pattern = "/\n*$keyword\s+#$itemNumberToUnlink/i";
+                $description = preg_replace($pattern, '', $description);
+            }
+
+            GitHub::pullRequest()->update(
+                $organizationName,
+                $repository->name,
+                $itemToUpdate->number,
+                ['body' => trim($description)]
+            );
         }
 
         return response()->json(['success' => true]);
