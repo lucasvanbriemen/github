@@ -130,35 +130,20 @@
   }
 
   function mergeLinkedItemsIntoSelect() {
-    // Merge linkedItems into linkableItems, marking linked ones as selected
-    const mergedItems = linkableItems.map(item => ({
+    return linkableItems.map(item => ({
       ...item,
       selected: linkedItems.some(linked => linked.number === item.value)
     }));
-
-    // Add linked items that aren't in linkableItems (for already-linked items)
-    linkedItems.forEach(linked => {
-      if (!mergedItems.some(item => item.value === linked.number)) {
-        mergedItems.unshift({
-          value: linked.number,
-          label: linked.title,
-          selected: true
-        });
-      }
-    });
-
-    return mergedItems;
   }
 
   function searchLinkableItems(query) {
     linkSearchQuery = query;
     const url = route('organizations.repositories.item.linkable.search', { $organization, $repository, number: item.number });
     const searchUrl = query ? `${url}?search=${encodeURIComponent(query)}` : url;
+
     api.get(searchUrl).then((result) => {
       linkableItems = result;
-    }).catch((err) => {
-      console.error('Error searching linkable items:', err);
-    });
+    })
   }
 
   function handleSelectionChange() {
