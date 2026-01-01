@@ -10,9 +10,8 @@
   let pendingReviewComments = $state([]);
   let reviewMenuOpen = $state(false);
 
-  // Calculate total additions and deletions across all files
-  let totalAdditions = $derived(files.reduce((sum, file) => sum + (file.additions || 0), 0));
-  let totalDeletions = $derived(files.reduce((sum, file) => sum + (file.deletions || 0), 0));
+  let totalAdditions = $derived(files.reduce((sum, file) => sum + file.additions, 0));
+  let totalDeletions = $derived(files.reduce((sum, file) => sum + file.deletions, 0));
 
   onMount(async () => {
     const raw = item.comments.filter(c => c.type === 'review');
