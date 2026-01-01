@@ -11,8 +11,6 @@
   let labels = $state([]);
   let contributors = $state([]);
 
-  let selectedableReviewers = $state([]);
-
   let linkedItems = $state([]);
   let projects = $state([]);
 
