@@ -161,8 +161,6 @@
   }
 
   function handleSelectionChange() {
-    if (isLinking) return;
-
     const currentSelection = selectedLinkItems || [];
     const previousSelection = previousSelectedLinkItems || [];
 
@@ -172,44 +170,29 @@
     // Find what was removed
     const removedItems = previousSelection.filter(item => !currentSelection.includes(item));
 
-    isLinking = true;
-
     const promises = [];
 
-    // Add new links
     if (addedItems.length > 0) {
       promises.push(
-        api.post(
-          route('organizations.repositories.item.link.bulk.create', { $organization, $repository, number: item.number }),
-          { target_numbers: addedItems }
-        )
+        api.post(route('organizations.repositories.item.link.bulk.create', { $organization, $repository, number: item.number }), { target_numbers: addedItems })
       );
     }
 
-    // Remove unlinked items
     if (removedItems.length > 0) {
       promises.push(
-        api.post(
-          route('organizations.repositories.item.link.bulk.remove', { $organization, $repository, number: item.number }),
-          { target_numbers: removedItems }
-        )
+        api.post(route('organizations.repositories.item.link.bulk.remove', { $organization, $repository, number: item.number }), { target_numbers: removedItems })
       );
     }
 
+    // once the create/remove requests are done, refresh the linked items 
     Promise.all(promises).then(() => {
-      // Refresh linked items
       api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number })).then((result) => {
         linkedItems = result;
       });
 
-      // Refresh search results
       searchLinkableItems(linkSearchQuery);
 
-      // Update previous selection
       previousSelectedLinkItems = currentSelection;
-      isLinking = false;
-    }).catch(() => {
-      isLinking = false;
     });
   }
 
