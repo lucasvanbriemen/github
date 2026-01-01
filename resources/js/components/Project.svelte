@@ -4,6 +4,7 @@
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
   import Group from './sidebar/group.svelte';
+  import Switch from './Switch.svelte';
 
   let { params = {} } = $props();
 
@@ -25,16 +26,7 @@
 <div class="repo-dashboard">
   <Sidebar>
     <Group title="Status">
-      <div class="switch-container">
-        <div class="switch-label">
-          <h3>Show everything</h3>
-          <p>Show all the items in the on the board rather than all of them</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" bind:checked={showEverything} />
-          <span class="slider"></span>
-        </label>
-      </div>
+      <Switch title="Show Everything" description="Toggle to show all items including those assigned to others." bind:input={showEverything}/>
     </Group>
   </Sidebar>
   
