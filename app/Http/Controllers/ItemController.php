@@ -386,34 +386,14 @@ class ItemController extends Controller
         $search = request()->query('search', '');
         $oppositeType = $item->isPullRequest() ? 'issue' : 'pull_request';
 
-        // Get already linked items
-        $linkedItemsResponse = $this->getLinkedItems($organizationName, $repositoryName, $number);
-        $linkedItemsData = json_decode($linkedItemsResponse->getContent(), true);
-        $linkedItemNumbers = array_map(function($item) {
-            return $item['number'];
-        }, $linkedItemsData);
-
         // First try to get open items of the opposite type
         $items = Item::where('repository_id', $repository->id)
             ->where('type', $oppositeType)
-            ->where('state', 'open')
-            ->whereNotIn('number', $linkedItemNumbers)
             ->select(['id', 'number', 'title', 'type', 'state'])
+            ->orderByDesc('state')
             ->orderByDesc('number')
             ->limit(100)
             ->get();
-
-        // If no results and search is provided, search in other states
-        if ($items->isEmpty() && $search) {
-            $items = Item::where('repository_id', $repository->id)
-                ->where('type', $oppositeType)
-                ->where('state', '!=', 'open')
-                ->whereNotIn('number', $linkedItemNumbers)
-                ->select(['id', 'number', 'title', 'type', 'state'])
-                ->orderByDesc('number')
-                ->limit(100)
-                ->get();
-        }
 
         // Apply fuzzy matching if search is provided
         if ($search) {
