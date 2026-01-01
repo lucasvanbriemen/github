@@ -38,24 +38,12 @@
   onMount(async () => {
     updateLinkedItems();
     projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    searchLinkableItems('');
   });
 
   function updateLinkedItems() {
     linkedItems = api.get(route('organizations.repositories.item.linked.get', { $organization, $repository, number: params.number }));
   }
-
-  // Refresh linked items whenever item changes
-  $effect(() => {
-    if (item && item.number) {
-      updateLinkedItems();
-    }
-  });
-
-  $effect(() => {
-    if (isSearchSelectOpen && linkableItems.length === 0) {
-      searchLinkableItems('');
-    }
-  });
 
   // Update previousSelectedLinkItems when linkedItems change
   $effect(() => {
