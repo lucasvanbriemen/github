@@ -50,7 +50,6 @@ class ItemController extends Controller
             query ($org: String!, $repo: String!, $number: Int!) {
             repository(owner: $org, name: $repo) {
                 ' . $type . '(number: $number) {
-                body
                 timelineItems(
                     first: 100
                     itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
@@ -104,11 +103,10 @@ class ItemController extends Controller
             }
         }
 
-        $body = $response->data->repository->{$type}->body;
         $keywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
         foreach ($keywords as $keyword) {
             // Match patterns like "Closes #85" or "closes: #85" or "closes #85,"
-            if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $body, $matches)) {
+            if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $item->body, $matches)) {
                 foreach ($matches[1] as $issueNumber) {
                     $ids[] = (int)$issueNumber;
                 }
