@@ -164,10 +164,10 @@
 
     <!-- Action Buttons Section -->
     <div class="action-buttons">
-      <button class="button-primary-outline" on:click={goToItem}>
+      <button class="button-primary-outline" onclick={goToItem}>
         View Item
       </button>
-      <button class="button-primary" on:click={markAsComplete}>
+      <button class="button-primary" onclick={markAsComplete}>
         Mark as Complete
       </button>
     </div>
