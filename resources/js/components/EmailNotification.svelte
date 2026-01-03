@@ -6,7 +6,6 @@
   let id = params.id;
   let notification = $state(null);
   let loading = $state(true);
-  let error = $state(null);
 
   onMount(async () => {
     notification = await api.get(route('notification.show', { id }));
