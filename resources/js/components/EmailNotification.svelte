@@ -5,5 +5,5 @@
 test
 
 <style>
-  @import "../../scss/components/notification.scss";
+  @import "../../scss/components/email-notification.scss";
 </style>
