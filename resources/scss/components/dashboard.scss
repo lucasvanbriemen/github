@@ -80,6 +80,7 @@ main {
         text-align: left;
         flex-direction: column;
         background-color: var(--background-color-one);
+        cursor: pointer;
 
         &:hover {
           border: 2px solid var(--primary-color);
