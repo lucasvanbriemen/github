@@ -55,7 +55,8 @@ class BaseCommentObserver
 
         Notification::create([
             'type' => 'comment_mention',
-            'related_id' => $baseComment->id
+            'related_id' => $baseComment->id,
+            'triggered_by_id' => $baseComment->user_id,
         ]);
     }
 }

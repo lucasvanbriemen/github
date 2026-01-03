@@ -79,9 +79,15 @@ class ProcessIssueWebhook
 
         $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {
+            $senderData = $payload->sender ?? null;
+            if ($senderData) {
+                GithubUser::updateFromWebhook($senderData);
+            }
+
             Notification::create([
                 'type' => 'item_assigned',
-                'related_id' => $issue->id
+                'related_id' => $issue->id,
+                'triggered_by_id' => $senderData?->id
             ]);
         }
 

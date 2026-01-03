@@ -24,9 +24,15 @@ class Notification extends Model
         return $this->belongsTo(PullRequestReview::class, 'related_id', 'id');
     }
 
+    public function triggeredBy()
+    {
+        return $this->belongsTo(GithubUser::class, 'triggered_by_id', 'id');
+    }
+
     protected $fillable = [
         'type',
         'related_id',
         'completed',
+        'triggered_by_id',
     ];
 }

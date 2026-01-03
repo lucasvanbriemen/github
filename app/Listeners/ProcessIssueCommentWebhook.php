@@ -88,6 +88,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
             Notification::create([
                 'type' => 'item_comment',
                 'related_id' => $comment->id,
+                'triggered_by_id' => $userData->id,
             ]);
         }
 

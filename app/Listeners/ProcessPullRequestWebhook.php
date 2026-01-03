@@ -133,9 +133,15 @@ class ProcessPullRequestWebhook //implements ShouldQueue
 
         $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {
+            $senderData = $payload->sender ?? null;
+            if ($senderData) {
+                GithubUser::updateFromWebhook($senderData);
+            }
+
             Notification::create([
                 'type' => 'item_assigned',
-                'related_id' => $pr->id
+                'related_id' => $pr->id,
+                'triggered_by_id' => $senderData?->id
             ]);
         }
 
@@ -146,9 +152,15 @@ class ProcessPullRequestWebhook //implements ShouldQueue
 
             // create a notification if im being asked for a review
             if ($reviewerData && $reviewerData->id === GithubConfig::USERID) {
+                $senderData = $payload->sender ?? null;
+                if ($senderData) {
+                    GithubUser::updateFromWebhook($senderData);
+                }
+
                 Notification::create([
                     'type' => 'review_requested',
-                    'related_id' => $prData->id
+                    'related_id' => $prData->id,
+                    'triggered_by_id' => $senderData?->id
                 ]);
             }
 

@@ -9,7 +9,7 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notifications = Notification::where('completed', false)->get();
+        $notifications = Notification::where('completed', false)->with('triggeredBy')->get();
 
         foreach ($notifications as $notification) {
             if ($notification->type === 'comment_mention' || $notification->type === 'item_comment') {

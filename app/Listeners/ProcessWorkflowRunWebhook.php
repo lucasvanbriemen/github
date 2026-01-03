@@ -56,7 +56,8 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
                 if ($pr->isCurrentlyAssignedToUser()) {
                     Notification::create([
                         'type' => 'workflow_failed',
-                        'related_id' => $pr->id
+                        'related_id' => $pr->id,
+                        'triggered_by_id' => $payload->sender?->id
                     ]);
                     break; // Only create one notification per workflow run
                 }

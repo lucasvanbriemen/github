@@ -139,6 +139,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             Notification::create([
                 'type' => 'pr_review',
                 'related_id' => $reviewData->id,
+                'triggered_by_id' => $userData->id,
             ]);
         }
 
