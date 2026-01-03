@@ -83,7 +83,7 @@
     <div class="notification-header">
       <div class="header-top">
         <span class="type-badge">{getNotificationTypeLabel(notification.type)}</span>
-        <span class="timestamp">{notification.created_at}</span>
+        <span class="timestamp">{notification.created_at_human}</span>
       </div>
     </div>
 

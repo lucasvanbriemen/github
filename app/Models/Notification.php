@@ -9,6 +9,10 @@ use App\Models\PullRequestReview;
 
 class Notification extends Model
 {
+    protected $appends = [
+        'created_at_human',
+    ];
+
     public function comment()
     {
         return $this->belongsTo(BaseComment::class, 'related_id', 'id');
@@ -27,6 +31,11 @@ class Notification extends Model
     public function triggeredBy()
     {
         return $this->belongsTo(GithubUser::class, 'triggered_by_id', 'id');
+    }
+
+    public function getCreatedAtHumanAttribute()
+    {
+        return $this->created_at->diffForHumans();
     }
 
     protected $fillable = [
