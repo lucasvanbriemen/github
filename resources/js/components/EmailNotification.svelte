@@ -9,13 +9,8 @@
   let error = $state(null);
 
   onMount(async () => {
-    try {
-      notification = await api.get(route('notification.show', { id }));
-      loading = false;
-    } catch (err) {
-      error = err;
-      loading = false;
-    }
+    notification = await api.get(route('notification.show', { id }));
+    loading = false;
   });
 
   function getNotificationTypeLabel(type) {
@@ -53,12 +48,8 @@
   }
 
   async function markAsComplete() {
-    try {
-      await api.post(route('notifications.complete', { id: notification.id }));
-      window.location.hash = '#/';
-    } catch (err) {
-      console.error('Failed to complete notification:', err);
-    }
+    await api.post(route('notifications.complete', { id: notification.id }));
+    window.location.hash = '#/';
   }
 
   function goToItem() {
