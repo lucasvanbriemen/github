@@ -77,11 +77,7 @@
   <div class="notification-detail loading">
     <p>Loading notification...</p>
   </div>
-{:else if error}
-  <div class="notification-detail error">
-    <p>Failed to load notification: {error.message}</p>
-  </div>
-{:else if notification}
+{:else }
   <div class="notification-detail">
     <!-- Header Section -->
     <div class="notification-header">
