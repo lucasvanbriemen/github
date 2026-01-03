@@ -28,6 +28,25 @@ class NotificationController extends Controller
         return response()->json($notifications);
     }
 
+    public function show(Request $request, $id)
+    {
+        $notification = Notification::with('triggeredBy')->findOrFail($id);
+
+        if ($notification->type === 'comment_mention' || $notification->type === 'item_comment') {
+            $notification->load('comment.item.repository');
+        }
+
+        if ($notification->type === 'item_assigned' || $notification->type === 'review_requested') {
+            $notification->load('item.repository');
+        }
+
+        if ($notification->type === 'pr_review') {
+            $notification->load('review.baseComment.item.repository');
+        }
+
+        return response()->json($notification);
+    }
+
     public function complete(Request $request, $id)
     {
         $notification = Notification::findOrFail($id);
