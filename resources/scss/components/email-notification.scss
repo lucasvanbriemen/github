@@ -1,0 +1,232 @@
+.notification-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+
+  &.loading,
+  &.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    color: var(--text-color-secondary);
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.notification-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--background-color-two);
+  padding-bottom: 1.5rem;
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .type-badge {
+    display: inline-block;
+    background-color: var(--background-color-two);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    width: fit-content;
+  }
+
+  .timestamp {
+    color: var(--text-color-secondary);
+    font-size: 0.875rem;
+  }
+}
+
+.triggered-by {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: var(--background-color-one);
+  border-radius: 1rem;
+
+  .avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .action-text {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .username {
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--background-color-one);
+  border-radius: 1rem;
+
+  .item-context {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    h3 {
+      margin: 0;
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+      font-weight: 400;
+    }
+
+    .repository {
+      color: var(--text-color-secondary);
+      font-size: 0.875rem;
+      margin: 0;
+    }
+  }
+
+  .comment-body,
+  .item-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    h4 {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .comment-text,
+    .item-text {
+      color: var(--text-color);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      word-break: break-word;
+      white-space: pre-wrap;
+      background-color: var(--background-color);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border-left: 4px solid var(--primary-color);
+    }
+  }
+
+  .review-state {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    .state-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      width: fit-content;
+      text-transform: uppercase;
+
+      &.approved {
+        background-color: rgba(31, 211, 87, 0.2);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+      }
+
+      &.commented {
+        background-color: rgba(70, 149, 233, 0.2);
+        color: var(--info-color);
+        border: 1px solid var(--info-color);
+      }
+
+      &.changes_requested {
+        background-color: rgba(248, 81, 73, 0.2);
+        color: var(--error-color);
+        border: 1px solid var(--error-color);
+      }
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 2px solid var(--background-color-two);
+  flex-wrap: wrap;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .notification-detail {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .notification-header .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .triggered-by {
+    padding: 1rem;
+  }
+
+  .content-section {
+    padding: 1rem;
+
+    .item-context h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    padding: 1rem;
+
+    button {
+      width: 100%;
+      height: auto;
+      padding: 1rem;
+    }
+  }
+}
