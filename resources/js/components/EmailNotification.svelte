@@ -77,7 +77,7 @@
   <div class="notification-detail loading">
     <p>Loading notification...</p>
   </div>
-{:else }
+{:else}
   <div class="notification-detail">
     <!-- Header Section -->
     <div class="notification-header">
@@ -171,10 +171,6 @@
         Mark as Complete
       </button>
     </div>
-  </div>
-{:else}
-  <div class="notification-detail error">
-    <p>Notification not found</p>
   </div>
 {/if}
 
