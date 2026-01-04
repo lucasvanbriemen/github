@@ -79,14 +79,6 @@
   </div>
 {:else}
   <div class="notification-detail">
-    <!-- Header Section -->
-    <div class="notification-header">
-      <div class="header-top">
-        <span class="type-badge">{getNotificationTypeLabel(notification.type)}</span>
-        <span class="timestamp">{notification.created_at_human}</span>
-      </div>
-    </div>
-
     <!-- Triggered By Section -->
     {#if notification.triggered_by}
       <div class="triggered-by">

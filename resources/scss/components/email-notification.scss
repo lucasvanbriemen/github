@@ -11,33 +11,6 @@
   }
 }
 
-.notification-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-bottom: 2px solid var(--background-color-two);
-  padding-bottom: 1.5rem;
-
-  .header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .type-badge {
-    background-color: var(--background-color-two);
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-  }
-
-  .timestamp {
-    color: var(--text-color-secondary);
-    font-size: 0.875rem;
-  }
-}
-
 .triggered-by {
   display: flex;
   align-items: flex-start;
