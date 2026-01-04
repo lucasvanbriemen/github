@@ -90,9 +90,9 @@
   {:else}
     <div class="triggered-by">
       <img src={notification.triggered_by.avatar_url} alt={notification.triggered_by.display_name} class="avatar" />
-      <div class="user-info">
+      <div class="details-info">
         <p class="action-text">{getActionText(notification.type, notification.triggered_by)}</p>
-        <p class="username">{notification.created_at_human}</p>
+        <p class="created-at">{notification.created_at_human}</p>
       </div>
     </div>
 
