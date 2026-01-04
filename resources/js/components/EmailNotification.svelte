@@ -99,29 +99,18 @@
     </div>
 
     <div class="content-section">
-      {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
-        <h2>{textDetails().title}</h2>
-        <div class="content">{textDetails().body}</div>
-      {/if}
-
-      {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
-        <h2>{textDetails().title}</h2>
-        <div class="content">{textDetails().body}</div>
-      {/if}
-
-      {#if notification.type === 'pr_review'}
+      {#if notification.type === "pr_review"}
         <span class="state-badge {notification.review?.state}">
           {getReviewState(notification.review?.state)}
         </span>
+      {/if}
 
-        <h2>{textDetails().title}</h2>
+      <h2>{textDetails().title}</h2>
 
-        {#if textDetails().body != ""}
-          <div class="content">{textDetails().body}</div>
-        {/if}
+      {#if textDetails().body != ""}
+        <div class="content">{textDetails().body}</div>
       {/if}
     </div>
-
 
     <div class="action-buttons">
       <button class="button-primary-outline" onclick={goToItem}>
