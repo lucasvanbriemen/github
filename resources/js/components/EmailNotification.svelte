@@ -79,18 +79,14 @@
   </div>
 {:else}
   <div class="notification-detail">
-    <!-- Triggered By Section -->
-    {#if notification.triggered_by}
-      <div class="triggered-by">
-        <img src={notification.triggered_by.avatar_url} alt={notification.triggered_by.display_name} class="avatar" />
-        <div class="user-info">
-          <p class="action-text">{getActionText(notification.type, notification.triggered_by)}</p>
-          <p class="username">{notification.created_at_human}</p>
-        </div>
+    <div class="triggered-by">
+      <img src={notification.triggered_by.avatar_url} alt={notification.triggered_by.display_name} class="avatar" />
+      <div class="user-info">
+        <p class="action-text">{getActionText(notification.type, notification.triggered_by)}</p>
+        <p class="username">{notification.created_at_human}</p>
       </div>
-    {/if}
+    </div>
 
-    <!-- Content Section - Comment Based Notifications -->
     {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
       <div class="content-section">
         <div class="item-context">
@@ -108,7 +104,6 @@
       </div>
     {/if}
 
-    <!-- Content Section - Item Assignment/Review Request -->
     {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
       <div class="content-section">
         <div class="item-context">
@@ -128,7 +123,6 @@
       </div>
     {/if}
 
-    <!-- Content Section - PR Review -->
     {#if notification.type === 'pr_review'}
       <div class="content-section">
         <div class="review-state">
@@ -154,7 +148,6 @@
       </div>
     {/if}
 
-    <!-- Action Buttons Section -->
     <div class="action-buttons">
       <button class="button-primary-outline" onclick={goToItem}>
         View Item
