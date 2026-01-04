@@ -84,12 +84,10 @@
   }
 </script>
 
-{#if loading}
-  <div class="loading">
+<div class="notification-detail">
+  {#if loading}
     <ItemSkeleton />
-  </div>
-{:else}
-  <div class="notification-detail">
+  {:else}
     <div class="triggered-by">
       <img src={notification.triggered_by.avatar_url} alt={notification.triggered_by.display_name} class="avatar" />
       <div class="user-info">
@@ -120,8 +118,8 @@
         Mark as Complete
       </button>
     </div>
-  </div>
-{/if}
+  {/if}
+</div>
 
 <style>
   @import "../../scss/components/email-notification.scss";
