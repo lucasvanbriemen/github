@@ -92,11 +92,9 @@
 
     {#if notification.type === 'pr_review'}
       <div class="content-section">
-        <div class="review-state">
-          <span class="state-badge {notification.review?.state}">
-            {getReviewState(notification.review?.state)}
-          </span>
-        </div>
+        <span class="state-badge {notification.review?.state}">
+          {getReviewState(notification.review?.state)}
+        </span>
 
         <h2>{notification.review?.base_comment?.item?.title}</h2>
 
