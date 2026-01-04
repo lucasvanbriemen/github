@@ -37,7 +37,7 @@
   }
 
   async function markAsComplete() {
-    await api.post(route('notifications.complete', { id: notification.id }));
+    await api.post(route('notifications.complete', { id }));
     window.location.hash = '#/';
   }
 
