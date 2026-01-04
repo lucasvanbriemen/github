@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import ItemSkeleton from './item/ItemSkeleton.svelte';
 
   let { params = {} } = $props();
 
@@ -9,7 +10,7 @@
 
   onMount(async () => {
     notification = await api.get(route('notification.show', { id }));
-    loading = false;
+    // loading = false;
   });
 
   function getNotificationTypeLabel(type) {
@@ -73,8 +74,8 @@
 </script>
 
 {#if loading}
-  <div class="notification-detail loading">
-    <p>Loading notification...</p>
+  <div class="loading">
+    <ItemSkeleton />
   </div>
 {:else}
   <div class="notification-detail">

@@ -1,20 +1,10 @@
-.notification-detail {
+.notification-detail, .loading {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   padding: 2rem;
-  max-width: 900px;
+  width: min(110ch, 100%);
   margin: 0 auto;
-
-  &.loading,
-  &.error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    color: var(--text-color-secondary);
-    font-size: 1.1rem;
-  }
 
   p {
     margin: 0;
