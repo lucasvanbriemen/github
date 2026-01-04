@@ -81,11 +81,9 @@
         <div class="item-context">
           <h3>{notification.comment?.item?.type === 'pull_request' ? 'PR' : 'Issue'} #{notification.comment?.item?.number}</h3>
           <h2>{notification.comment?.item?.title}</h2>
-          <p class="repository">{notification.comment?.item?.repository?.full_name}</p>
         </div>
 
         <div class="comment-body">
-          <h4>Comment:</h4>
           <div class="comment-text">
             {notification.comment?.body}
           </div>
@@ -103,7 +101,6 @@
 
         {#if notification.item?.body}
           <div class="item-body">
-            <h4>Description:</h4>
             <div class="item-text">
               {notification.item?.body}
             </div>
@@ -128,7 +125,6 @@
 
         {#if notification.review?.base_comment?.body}
           <div class="comment-body">
-            <h4>Review Comment:</h4>
             <div class="comment-text">
               {notification.review?.base_comment?.body}
             </div>
