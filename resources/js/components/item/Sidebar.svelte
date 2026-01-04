@@ -181,7 +181,7 @@
       contributors = contributors.map(assignee => ({value: assignee.login, label: assignee.display_name, image: assignee.avatar_url}));
       contributors.forEach(contributor => {
         item?.requested_reviewers?.forEach(requestedReviewer => {
-          if (requestedReviewer.user.login == contributor.value) {
+          if (requestedReviewer.user.login == contributor.value && requestedReviewer.state === 'pending') {
             contributor.selected = true;
           }
         });
