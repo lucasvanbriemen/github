@@ -10,7 +10,7 @@
 
   onMount(async () => {
     notification = await api.get(route('notification.show', { id }));
-    // loading = false;
+    loading = false;
   });
 
   function getNotificationTypeLabel(type) {
@@ -93,7 +93,7 @@
         <img src={notification.triggered_by.avatar_url} alt={notification.triggered_by.display_name} class="avatar" />
         <div class="user-info">
           <p class="action-text">{getActionText(notification.type, notification.triggered_by)}</p>
-          <p class="username">@{notification.triggered_by.login}</p>
+          <p class="username">{notification.created_at_human}</p>
         </div>
       </div>
     {/if}
