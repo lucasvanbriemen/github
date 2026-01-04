@@ -60,6 +60,28 @@
       window.location.hash = `#/${item.repository.full_name}/${itemType}/${item.number}`;
     }
   }
+
+  function textDetails() {
+    let title = '';
+    let body = '';
+
+    if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
+      title = `${notification.comment?.author?.display_name} mentioned you in #${notification.comment?.item?.number}`;
+      body = notification.comment?.body;
+    }
+
+    if (notification.type === 'item_assigned' || notification.type === 'review_requested') {
+      title = `${notification.item?.title} was assigned to you`;
+      body = notification.item?.body;
+    }
+
+    if (notification.type === 'pr_review') {
+      title = `${notification.review?.base_comment?.author?.display_name} ${notification.review?.state} your review on #${notification.review?.base_comment?.item?.number}`;
+      body = notification.review?.base_comment?.body;
+    }
+
+    return { title, body };
+  }
 </script>
 
 {#if loading}
@@ -78,13 +100,13 @@
 
     <div class="content-section">
       {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
-        <h2>{notification.comment?.item?.title}</h2>
-        <div class="content">{notification.comment?.body}</div>
+        <h2>{textDetails().title}</h2>
+        <div class="content">{textDetails().body}</div>
       {/if}
 
       {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
-        <h2>{notification.item?.title}</h2>
-        <div class="content">{notification.item?.body}</div>
+        <h2>{textDetails().title}</h2>
+        <div class="content">{textDetails().body}</div>
       {/if}
 
       {#if notification.type === 'pr_review'}
@@ -92,10 +114,10 @@
           {getReviewState(notification.review?.state)}
         </span>
 
-        <h2>{notification.review?.base_comment?.item?.title}</h2>
+        <h2>{textDetails().title}</h2>
 
-        {#if notification.review?.base_comment?.body != ""}
-          <div class="content">{notification.review?.base_comment?.body}</div>
+        {#if textDetails().body != ""}
+          <div class="content">{textDetails().body}</div>
         {/if}
       {/if}
     </div>
