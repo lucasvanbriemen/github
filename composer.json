@@ -12,12 +12,13 @@
         "php": "^8.2",
         "graham-campbell/github": "13.0",
         "laravel/framework": "^12.0",
+        "laravel/reverb": "^1.6",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "plesk/ext-laravel-integration": "*",
         "scrivo/highlight.php": "^9.18",
         "sentry/sentry-laravel": "^4.16",
-        "spatie/laravel-markdown": "^2.7",
-        "plesk/ext-laravel-integration": "*"
+        "spatie/laravel-markdown": "^2.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

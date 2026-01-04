@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\PullRequestReviewCommentWebhookReceived;
+use App\Events\PullRequestUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\PullRequest;
 use App\Models\PullRequestComment;
@@ -54,7 +55,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 
         $sideValue = $commentData->side ?? 'RIGHT';
 
-        PullRequestComment::updateOrCreate(
+        $comment = PullRequestComment::updateOrCreate(
             ['id' => $commentData->id],
             [
                 'pull_request_id' => $prData->id,
@@ -73,6 +74,17 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         // If action is deleted, we just delete the comment
         if ($payload->action === 'deleted') {
             PullRequestComment::where('id', $commentData->id)->delete();
+        } else {
+            // Broadcast code comment update (skip deletion events)
+            event(new PullRequestUpdated(
+                $pr,
+                'code_comment',
+                [
+                    'comment_id' => $comment->id,
+                    'commenter' => $userData->login ?? 'Unknown',
+                    'path' => $commentData->path ?? '',
+                ]
+            ));
         }
 
         return true;

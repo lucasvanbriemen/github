@@ -1,3 +1,4 @@
+import './lib/echo';
 import App from './components/App.svelte';
 import { mount } from 'svelte';
 

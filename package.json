@@ -24,7 +24,9 @@
         "fast-glob": "^3.3.3",
         "github-markdown-css": "^5.8.1",
         "highlight.js": "^11.11.1",
+        "laravel-echo": "^2.2.7",
         "marked": "^16.4.1",
+        "pusher-js": "^8.4.0",
         "shiki": "^3.12.2",
         "svelte-spa-router": "^4.0.1"
     }

@@ -3,11 +3,14 @@
 namespace App\Listeners;
 
 use App\Events\PushWebhookReceived;
+use App\Events\PullRequestUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Commit;
 use App\Models\GithubUser;
 use App\Models\Branch;
 use App\Models\Repository;
+use App\Models\PullRequest;
+use Illuminate\Support\Facades\DB;
 
 class ProcessPushWebhook // implements ShouldQueue
 {
@@ -71,6 +74,43 @@ class ProcessPushWebhook // implements ShouldQueue
                     'message' => $commitData->message,
                 ]
             );
+        }
+
+        // Check if this push affects any open PRs
+        $affectedPRs = PullRequest::where('repository_id', $repository->id)
+            ->whereHas('details', function($query) use ($branchName) {
+                $query->where('head_branch', $branchName);
+            })
+            ->whereIn('state', ['open', 'draft'])
+            ->get();
+
+        foreach ($affectedPRs as $pr) {
+            // Update PR's head_sha to latest commit
+            $latestCommit = $payload->head_commit ?? end($payload->commits);
+
+            if ($latestCommit) {
+                DB::table('pull_requests')
+                    ->where('id', $pr->id)
+                    ->update([
+                        'head_sha' => $latestCommit->id,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            // Broadcast the update
+            event(new PullRequestUpdated(
+                $pr->fresh(),
+                'push',
+                [
+                    'commit_count' => count($payload->commits ?? []),
+                    'pusher' => $payload->pusher->name ?? 'Unknown',
+                    'commits' => array_map(fn($c) => [
+                        'sha' => $c->id,
+                        'message' => $c->message,
+                        'author' => $c->author->name ?? 'Unknown'
+                    ], $payload->commits ?? [])
+                ]
+            ));
         }
     }
 }

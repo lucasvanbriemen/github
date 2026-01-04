@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\PullRequestReviewWebhookReceived;
+use App\Events\PullRequestUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\PullRequestReview;
 use App\Models\PullRequest;
@@ -142,6 +143,17 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
                 'triggered_by_id' => $userData->id,
             ]);
         }
+
+        // Broadcast review update
+        event(new PullRequestUpdated(
+            $pr,
+            'review',
+            [
+                'review_id' => $review->id,
+                'reviewer' => $userData->login ?? 'Unknown',
+                'state' => $reviewData->state,
+            ]
+        ));
 
         return true;
     }

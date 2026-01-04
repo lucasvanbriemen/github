@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\IssueCommentWebhookReceived;
+use App\Events\PullRequestUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Issue;
 use App\Models\BaseComment;
@@ -90,6 +91,19 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
                 'related_id' => $comment->id,
                 'triggered_by_id' => $userData->id,
             ]);
+        }
+
+        // Broadcast PR updates if this is a comment on a PR
+        if ($item->type === 'pull_request') {
+            event(new PullRequestUpdated(
+                PullRequest::find($item->id),
+                'comment',
+                [
+                    'comment_id' => $comment->id,
+                    'commenter' => $userData->login ?? 'Unknown',
+                    'body_preview' => substr($commentData->body ?? '', 0, 100),
+                ]
+            ));
         }
 
         return true;
