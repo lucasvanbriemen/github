@@ -76,22 +76,18 @@
       </div>
     </div>
 
-    {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
-      <div class="content-section">
+    <div class="content-section">
+      {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
         <h2>{notification.comment?.item?.title}</h2>
         <div class="content">{notification.comment?.body}</div>
-      </div>
-    {/if}
+      {/if}
 
-    {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
-      <div class="content-section">
+      {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
         <h2>{notification.item?.title}</h2>
         <div class="content">{notification.item?.body}</div>
-      </div>
-    {/if}
+      {/if}
 
-    {#if notification.type === 'pr_review'}
-      <div class="content-section">
+      {#if notification.type === 'pr_review'}
         <span class="state-badge {notification.review?.state}">
           {getReviewState(notification.review?.state)}
         </span>
@@ -101,8 +97,9 @@
         {#if notification.review?.base_comment?.body != ""}
           <div class="content">{notification.review?.base_comment?.body}</div>
         {/if}
-      </div>
-    {/if}
+      {/if}
+    </div>
+
 
     <div class="action-buttons">
       <button class="button-primary-outline" onclick={goToItem}>
