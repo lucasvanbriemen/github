@@ -9,15 +9,17 @@
   p {
     margin: 0;
   }
+
+  .triggered-by, .content-section {
+    background-color: var(--background-color-one);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
 }
 
 .triggered-by {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem;
-  background-color: var(--background-color-one);
-  border-radius: 1rem;
-
   .avatar {
     width: 3rem;
     height: 3rem;
@@ -44,12 +46,7 @@
 }
 
 .content-section {
-  display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background-color: var(--background-color-one);
-  border-radius: 1rem;
 
   h2 {
     margin: 0;
