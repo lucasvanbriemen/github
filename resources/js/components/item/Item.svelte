@@ -48,6 +48,11 @@
     selectedFile = files[selectedFileIndex];
     loadingFiles = false;
   }
+
+  function githubUrl(item) {
+    type = item.type == 'pull_request' ? 'pull' : 'issues';
+    return `https://github.com/${$organization}/${$repository}/${type}/${item.number}`;
+  }
 </script>
 
 <div class="item-overview">
@@ -58,6 +63,9 @@
     {#if isLoading}
       <ItemSkeleton />
     {:else}
+
+      <button onclick={() => navigator.clipboard.writeText(githubUrl(item))} class="button-primary-outline copy-url">Copy URL</button>
+
       <ItemHeader {item} />
 
       <!-- PR Header: Branch Information (PR only) -->
