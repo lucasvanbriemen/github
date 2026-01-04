@@ -79,7 +79,6 @@
     {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
       <div class="content-section">
         <div class="item-context">
-          <h3>{notification.comment?.item?.type === 'pull_request' ? 'PR' : 'Issue'} #{notification.comment?.item?.number}</h3>
           <h2>{notification.comment?.item?.title}</h2>
         </div>
 
@@ -94,7 +93,6 @@
     {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
       <div class="content-section">
         <div class="item-context">
-          <h3>{notification.item?.type === 'pull_request' ? 'PR' : 'Issue'} #{notification.item?.number}</h3>
           <h2>{notification.item?.title}</h2>
           <p class="repository">{notification.item?.repository?.full_name}</p>
         </div>
@@ -118,7 +116,6 @@
         </div>
 
         <div class="item-context">
-          <h3>PR #{notification.review?.base_comment?.item?.number}</h3>
           <h2>{notification.review?.base_comment?.item?.title}</h2>
           <p class="repository">{notification.review?.base_comment?.item?.repository?.full_name}</p>
         </div>
