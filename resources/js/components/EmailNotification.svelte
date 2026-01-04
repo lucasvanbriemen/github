@@ -99,7 +99,10 @@
         </div>
 
         <h2>{notification.review?.base_comment?.item?.title}</h2>
-        <div class="content">{notification.review?.base_comment?.body}</div>
+
+        {#if notification.review?.base_comment?.body != ""}
+          <div class="content">{notification.review?.base_comment?.body}</div>
+        {/if}
       </div>
     {/if}
 
