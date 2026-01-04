@@ -52,7 +52,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             ]
         );
 
-        PullRequestReview::updateOrCreate(
+        $review = PullRequestReview::updateOrCreate(
             ['id' => $reviewData->id],
             [
             'base_comment_id' => $baseComment->id,
@@ -138,7 +138,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         if ($pr->isCurrentlyAssignedToUser() || $pr->opened_by_id === GithubConfig::USERID) {
             Notification::create([
                 'type' => 'pr_review',
-                'related_id' => $reviewData->id,
+                'related_id' => $review->id,
                 'triggered_by_id' => $userData->id,
             ]);
         }
