@@ -1,10 +1,20 @@
 <script>
   import Icon from "./Icon.svelte";
+  import { organization, repository } from "./stores.js";
+
   let { item } = $props();
 
   function itemUrl(number) {
-    const base = window.location.href;
-    return `${base}/${number}`;
+    const base = window.location.origin;
+
+    let type = 'issues';
+    if (item.type === 'pull_request') {
+      type = 'prs';
+    } else if (item.type === 'project') {
+      type = 'projects';
+    }
+
+    return `${base}/#/${$organization}/${$repository}/${type}/${number}`;
   }
 
   function subTitle() {
