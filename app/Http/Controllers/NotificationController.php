@@ -12,20 +12,18 @@ class NotificationController extends Controller
         $notifications = Notification::where('completed', false)->with('triggeredBy')->get();
 
         foreach ($notifications as $notification) {
-            if ($notification->type === 'comment_mention' || $notification->type === 'item_comment') {
-                $notification->load('comment.item.repository');
-            }
-
-            if ($notification->type === 'item_assigned' || $notification->type === 'review_requested') {
-                $notification->load('item.repository');
-            }
-
-            if ($notification->type === 'pr_review') {
-                $notification->load('review.baseComment.item.repository');
-            }
+            $this->loadRelatedData($notification);
         }
 
         return response()->json($notifications);
+    }
+
+    public function show(Request $request, $id)
+    {
+        $notification = Notification::with('triggeredBy')->findOrFail($id);
+        $this->loadRelatedData($notification);
+
+        return response()->json($notification);
     }
 
     public function complete(Request $request, $id)
@@ -35,5 +33,20 @@ class NotificationController extends Controller
         $notification->save();
 
         return response()->json(['sucess' => true]);
+    }
+
+    private function loadRelatedData(Notification $notification)
+    {
+        if ($notification->type === 'comment_mention' || $notification->type === 'item_comment') {
+            $notification->load('comment.item.repository');
+        }
+
+        if ($notification->type === 'item_assigned' || $notification->type === 'review_requested') {
+            $notification->load('item.repository');
+        }
+
+        if ($notification->type === 'pr_review') {
+            $notification->load('review.baseComment.item.repository');
+        }
     }
 }

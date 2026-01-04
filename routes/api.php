@@ -19,6 +19,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications');
 
+    Route::get('/notification/{id}', [NotificationController::class, 'show'])
+        ->name('notification.show');
+
     Route::post('/notifications/{id}/complete', [NotificationController::class, 'complete'])
         ->name('notifications.complete');
 
