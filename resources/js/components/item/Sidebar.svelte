@@ -33,7 +33,7 @@
 
   onMount(async () => {
     updateLinkedItems();
-    projects = api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    projects =  await api.get(route('organizations.repositories.projects', { $organization, $repository }));
   });
 
   async function updateLinkedItems() {
