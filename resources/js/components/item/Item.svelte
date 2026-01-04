@@ -64,7 +64,9 @@
       <ItemSkeleton />
     {:else}
 
-      <button onclick={() => navigator.clipboard.writeText(githubUrl(item))} class="button-primary-outline copy-url">Copy URL</button>
+      {#if activeTab === 'conversation'}
+        <button onclick={() => navigator.clipboard.writeText(githubUrl(item))} class="button-primary-outline copy-url">Copy URL</button>
+      {/if}
 
       <ItemHeader {item} />
 
