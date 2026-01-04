@@ -1,7 +1,7 @@
 .notification-detail, .loading {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   padding: 2rem;
   width: min(110ch, 100%);
   margin: 0 auto;
@@ -145,8 +145,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  padding: 1.5rem;
-  border-top: 2px solid var(--background-color-two);
   flex-wrap: wrap;
 }
 
