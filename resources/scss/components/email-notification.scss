@@ -97,13 +97,7 @@
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .triggered-by, .content-section {
-    padding: 1rem;
     border-radius: 0 !important;
-  }
-  .content-section {
-    .item-context h2 {
-      font-size: 1.25rem;
-    }
   }
 
   .action-buttons {
