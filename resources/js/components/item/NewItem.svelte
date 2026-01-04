@@ -26,7 +26,6 @@
   function selectTemplate(template) {
     body = template.body;
     selectedTemplate = template;
-    title = template.name;
   }
   
   onMount(async () => {
