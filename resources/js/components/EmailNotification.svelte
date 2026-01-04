@@ -13,17 +13,6 @@
     loading = false;
   });
 
-  function getNotificationTypeLabel(type) {
-    const labels = {
-      comment_mention: 'Mentioned in comment',
-      item_comment: 'Comment on item',
-      item_assigned: 'Assigned to you',
-      review_requested: 'Review requested',
-      pr_review: 'Pull request review'
-    };
-    return labels[type] || type;
-  }
-
   function getActionText(type, triggeredBy) {
     if (!triggeredBy) return '';
     const name = triggeredBy.display_name || triggeredBy.login;
