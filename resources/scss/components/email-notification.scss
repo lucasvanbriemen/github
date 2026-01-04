@@ -67,8 +67,7 @@
     font-weight: 400;
   }
 
-  .comment-body,
-  .item-body {
+  .content {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -80,18 +79,16 @@
       font-weight: 500;
     }
 
-    .comment-text,
-    .item-text {
-      color: var(--text-color);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      word-break: break-word;
-      white-space: pre-wrap;
-      background-color: var(--background-color);
-      padding: 1rem;
-      border-radius: 0.5rem;
-      border-left: 4px solid var(--primary-color);
-    }
+    
+    color: var(--text-color);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    word-break: break-word;
+    white-space: pre-wrap;
+    background-color: var(--background-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--primary-color);
   }
 
   .review-state {

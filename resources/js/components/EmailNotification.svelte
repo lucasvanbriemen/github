@@ -79,26 +79,14 @@
     {#if notification.type === 'comment_mention' || notification.type === 'item_comment'}
       <div class="content-section">
         <h2>{notification.comment?.item?.title}</h2>
-
-        <div class="comment-body">
-          <div class="comment-text">
-            {notification.comment?.body}
-          </div>
-        </div>
+        <div class="content">{notification.comment?.body}</div>
       </div>
     {/if}
 
     {#if notification.type === 'item_assigned' || notification.type === 'review_requested'}
       <div class="content-section">
         <h2>{notification.item?.title}</h2>
-
-        {#if notification.item?.body}
-          <div class="item-body">
-            <div class="item-text">
-              {notification.item?.body}
-            </div>
-          </div>
-        {/if}
+        <div class="content">{notification.item?.body}</div>
       </div>
     {/if}
 
@@ -111,14 +99,7 @@
         </div>
 
         <h2>{notification.review?.base_comment?.item?.title}</h2>
-
-        {#if notification.review?.base_comment?.body}
-          <div class="comment-body">
-            <div class="comment-text">
-              {notification.review?.base_comment?.body}
-            </div>
-          </div>
-        {/if}
+        <div class="content">{notification.review?.base_comment?.body}</div>
       </div>
     {/if}
 
