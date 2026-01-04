@@ -17,28 +17,28 @@
     display: flex;
     gap: 1rem;
   }
-}
 
-.triggered-by {
-  align-items: center;
+  .triggered-by {
+    align-items: center;
 
-  .avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-  }
-
-  .details-info {
-
-    .action-text {
-      font-size: 1rem;
-      font-weight: 500;
+    .avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
     }
 
-    .created-at {
-      color: var(--text-color-secondary);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
+    .details-info {
+
+      .action-text {
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .created-at {
+        color: var(--text-color-secondary);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
     }
   }
 }
