@@ -23,7 +23,7 @@ class NotificationCreated extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Notification',
+            subject: "github: {$this->notification->subject}",
         );
     }
 
