@@ -13,6 +13,12 @@ class Notification extends Model
         'created_at_human',
     ];
 
+    private static array $stateMap = [
+        'approved' => 'approved',
+        'changes_requested' => 'requested changes',
+        'commented' => 'commented',
+    ];
+
     public function comment()
     {
         return $this->belongsTo(BaseComment::class, 'related_id', 'id');
@@ -41,16 +47,26 @@ class Notification extends Model
     public function subject()
     {
         if ($this->type === 'comment_mention') {
-            return 'You were mentioned in a comment';
+            return "{$this->comment->author->display_name} mentioned you in {$this->comment->item->title}";
         }
 
         if ($this->type === 'item_comment') {
-            return 'New comment on an item you are watching';
+            return "{$this->comment->author->display_name} commented on {$this->comment->item->title}";
         }
 
         if ($this->type === 'item_assigned') {
-            return 'You were assigned to an item';
+            return "{$this->item->title} was assigned to you";
         }
+
+        if ($this->type === 'review_requested') {
+            return "You were requested to review {$this->item->title}";
+        }
+
+        if ($this->type === 'pr_review') {
+            return "{$this->review->baseComment->author->display_name} " . self::$stateMap[$this->review->state] . " on {$this->review->baseComment->item->title}";
+        }
+
+        return 'Notification';
     }
 
     public function loadRelatedData()
