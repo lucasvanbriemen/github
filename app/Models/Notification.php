@@ -53,6 +53,21 @@ class Notification extends Model
         }
     }
 
+    public function loadRelatedData()
+    {
+        if ($this->type === 'comment_mention' || $this->type === 'item_comment') {
+            $this->load('comment.item.repository');
+        }
+
+        if ($this->type === 'item_assigned' || $this->type === 'review_requested') {
+            $this->load('item.repository');
+        }
+
+        if ($this->type === 'pr_review') {
+            $this->load('review.baseComment.item.repository');
+        }
+    }
+
     protected $fillable = [
         'type',
         'related_id',
