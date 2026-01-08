@@ -20,6 +20,10 @@ class NotificationController extends Controller
             ])
             ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
 
+        foreach ($notifications as $notification) {
+            $notification->subject = $notification->subject();
+        }
+
         return response()->json($notifications);
     }
 

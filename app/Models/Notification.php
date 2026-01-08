@@ -38,6 +38,21 @@ class Notification extends Model
         return $this->created_at->diffForHumans();
     }
 
+    public function subject()
+    {
+        if ($this->type === 'comment_mention') {
+            return 'You were mentioned in a comment';
+        }
+
+        if ($this->type === 'item_comment') {
+            return 'New comment on an item you are watching';
+        }
+
+        if ($this->type === 'item_assigned') {
+            return 'You were assigned to an item';
+        }
+    }
+
     protected $fillable = [
         'type',
         'related_id',
