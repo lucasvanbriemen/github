@@ -54,6 +54,10 @@
   });
 
   function requestReviewer({selectedValue}) {
+    if (typeof selectedValue === 'string') {
+      selectedValue = [selectedValue];
+    }
+
     api.post(route('organizations.repositories.pr.add.reviewers', { $organization, $repository, number: item.number }), {
       reviewers: selectedValue
     });
