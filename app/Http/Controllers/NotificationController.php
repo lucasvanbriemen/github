@@ -9,11 +9,16 @@ class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notifications = Notification::where('completed', false)->with('triggeredBy')->get();
-
-        foreach ($notifications as $notification) {
-            $this->loadRelatedData($notification);
-        }
+        $notifications = Notification::where('completed', false)
+            ->with([
+                'triggeredBy:id,name',
+                'comment.item.repository:id,full_name',
+                'comment.author:id,display_name',
+                'item.repository:id,full_name',
+                'review.baseComment.item.repository:id,full_name',
+                'review.baseComment.author:id,display_name'
+            ])
+            ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
 
         return response()->json($notifications);
     }
