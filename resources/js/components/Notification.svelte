@@ -10,23 +10,23 @@
 
   function getNotificationTitle() {
     if (notification.type === 'comment_mention') {
-      return `${notification.comment.author.display_name} mentioned you in #${notification.comment.item.number}`;
+      return `${notification.comment.author.display_name} mentioned you in ${notification.comment.item.title}`;
     }
 
     if (notification.type === 'item_comment') {
-      return `${notification.comment.author.display_name} commented on #${notification.comment.item.number}`;
+      return `${notification.comment.author.display_name} commented on ${notification.comment.item.title}`;
     }
 
     if (notification.type === 'item_assigned') {
-      return `#${notification.item.number} was assigned to you`;
+      return `${notification.item.title} was assigned to you`;
     }
 
     if (notification.type === 'review_requested') {
-      return `You were requested to review #${notification.item.number}`;
+      return `You were requested to review ${notification.item.title}`;
     }
 
     if (notification.type === 'pr_review') {
-      return `${notification.review.base_comment.author.display_name} ${stateMap[notification.review.state]} on #${notification.review.base_comment.item.number}`;
+      return `${notification.review.base_comment.author.display_name} ${stateMap[notification.review.state]} on ${notification.review.base_comment.item.title}`;
     }
 
     return 'Notification';
