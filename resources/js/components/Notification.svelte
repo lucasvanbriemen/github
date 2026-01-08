@@ -2,6 +2,12 @@
   let { notification } = $props();
   import Icon from './Icon.svelte';
 
+  const stateMap = {
+    approved: 'approved',
+    changes_requested: 'requested changes',
+    commented: 'commented',
+  };
+
   function getNotificationTitle() {
     if (notification.type === 'comment_mention') {
       return `${notification.comment.author.display_name} mentioned you in #${notification.comment.item.number}`;
@@ -20,7 +26,7 @@
     }
 
     if (notification.type === 'pr_review') {
-      return `${notification.review.base_comment.author.display_name} ${notification.review.state} your review on #${notification.review.base_comment.item.number}`;
+      return `${notification.review.base_comment.author.display_name} ${stateMap[notification.review.state]} on #${notification.review.base_comment.item.number}`;
     }
 
     return 'Notification';
