@@ -136,11 +136,18 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
 
         // Create notification if user is assigned OR is the author of the PR
         if ($pr->isCurrentlyAssignedToUser() || $pr->opened_by_id === GithubConfig::USERID) {
-            Notification::create([
-                'type' => 'pr_review',
-                'related_id' => $review->id,
-                'triggered_by_id' => $userData->id,
-            ]);
+            // Don't create notification if actor is the configured user
+            if ($userData->id === GithubConfig::USERID) {
+                // Continue processing but skip notification
+            } elseif (!Notification::where('type', 'pr_review')
+                ->where('related_id', $review->id)
+                ->exists()) {
+                Notification::create([
+                    'type' => 'pr_review',
+                    'related_id' => $review->id,
+                    'triggered_by_id' => $userData->id,
+                ]);
+            }
         }
 
         return true;

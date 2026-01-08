@@ -13,6 +13,7 @@ use App\Models\Item;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
+use App\GithubConfig;
 
 class ProcessIssueCommentWebhook //implements ShouldQueue
 {
@@ -85,6 +86,16 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
             ->first();
 
         if ($item->isCurrentlyAssignedToUser()) {
+            // Don't create notification if actor is the configured user
+            if ($userData->id === GithubConfig::USERID) {
+                return true;
+            }
+
+            // Avoid duplicate notifications for the same comment
+            if (Notification::where('type', 'item_comment')->where('related_id', $comment->id)->exists()) {
+                return true;
+            }
+
             Notification::create([
                 'type' => 'item_comment',
                 'related_id' => $comment->id,

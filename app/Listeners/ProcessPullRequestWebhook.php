@@ -138,11 +138,18 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 GithubUser::updateFromWebhook($senderData);
             }
 
-            Notification::create([
-                'type' => 'item_assigned',
-                'related_id' => $pr->id,
-                'triggered_by_id' => $senderData?->id
-            ]);
+            // Don't create notification if actor is the configured user
+            if ($senderData?->id === GithubConfig::USERID) {
+                // Continue processing but skip notification
+            } elseif (!Notification::where('type', 'item_assigned')
+                ->where('related_id', $pr->id)
+                ->exists()) {
+                Notification::create([
+                    'type' => 'item_assigned',
+                    'related_id' => $pr->id,
+                    'triggered_by_id' => $senderData?->id
+                ]);
+            }
         }
 
         if ($payload->action === 'review_requested') {
@@ -157,11 +164,18 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                     GithubUser::updateFromWebhook($senderData);
                 }
 
-                Notification::create([
-                    'type' => 'review_requested',
-                    'related_id' => $prData->id,
-                    'triggered_by_id' => $senderData?->id
-                ]);
+                // Don't create notification if actor is the configured user
+                if ($senderData?->id === GithubConfig::USERID) {
+                    // Continue processing but skip notification
+                } elseif (!Notification::where('type', 'review_requested')
+                    ->where('related_id', $prData->id)
+                    ->exists()) {
+                    Notification::create([
+                        'type' => 'review_requested',
+                        'related_id' => $prData->id,
+                        'triggered_by_id' => $senderData?->id
+                    ]);
+                }
             }
 
             RequestedReviewer::updateOrCreate(

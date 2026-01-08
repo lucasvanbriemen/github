@@ -7,6 +7,7 @@ use App\Models\Commit;
 use App\Models\Workflow;
 use App\Models\PullRequest;
 use App\Models\Notification;
+use App\GithubConfig;
 
 class ProcessWorkflowRunWebhook // implements ShouldQueue
 {
@@ -54,6 +55,18 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
 
             foreach ($prs as $pr) {
                 if ($pr->isCurrentlyAssignedToUser()) {
+                    // Don't create notification if actor is the configured user
+                    if ($payload->sender?->id === GithubConfig::USERID) {
+                        break;
+                    }
+
+                    // Avoid duplicate notifications for the same PR workflow failure
+                    if (Notification::where('type', 'workflow_failed')
+                        ->where('related_id', $pr->id)
+                        ->exists()) {
+                        break;
+                    }
+
                     Notification::create([
                         'type' => 'workflow_failed',
                         'related_id' => $pr->id,

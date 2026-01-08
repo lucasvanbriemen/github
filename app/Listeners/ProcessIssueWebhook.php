@@ -7,6 +7,7 @@ use App\Models\GithubUser;
 use App\Models\Issue;
 use App\Models\Repository;
 use App\Models\Notification;
+use App\GithubConfig;
 
 class ProcessIssueWebhook
 {
@@ -84,11 +85,18 @@ class ProcessIssueWebhook
                 GithubUser::updateFromWebhook($senderData);
             }
 
-            Notification::create([
-                'type' => 'item_assigned',
-                'related_id' => $issue->id,
-                'triggered_by_id' => $senderData?->id
-            ]);
+            // Don't create notification if actor is the configured user
+            if ($senderData?->id === GithubConfig::USERID) {
+                // Continue processing but skip notification
+            } elseif (!Notification::where('type', 'item_assigned')
+                ->where('related_id', $issue->id)
+                ->exists()) {
+                Notification::create([
+                    'type' => 'item_assigned',
+                    'related_id' => $issue->id,
+                    'triggered_by_id' => $senderData?->id
+                ]);
+            }
         }
 
         return true;
