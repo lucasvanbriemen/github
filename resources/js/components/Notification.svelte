@@ -2,12 +2,6 @@
   let { notification } = $props();
   import Icon from './Icon.svelte';
 
-  const stateMap = {
-    approved: 'approved',
-    changes_requested: 'requested changes',
-    commented: 'commented',
-  };
-
   function getNotificationBody() {
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       return notification.comment.body;
