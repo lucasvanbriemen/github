@@ -9,7 +9,7 @@
   let organization = $state('');
   let repository = $state('');
   let number = $state('');
-  let showReplyForm = $state(false);
+  let isExpandedReplyForm = $state(false);
   let replyBody = $state('');
   let isSubmittingReply = $state(false);
 
@@ -43,11 +43,13 @@
   }
 
   // Reply to comment functions
-  function toggleReplyForm() {
-    showReplyForm = !showReplyForm;
-    if (!showReplyForm) {
-      replyBody = '';
-    }
+  function expandReplyForm() {
+    isExpandedReplyForm = true;
+  }
+
+  function closeReplyForm() {
+    isExpandedReplyForm = false;
+    replyBody = '';
   }
 
   async function submitReply() {
@@ -82,7 +84,7 @@
       if (response.success || response.id) {
         // Clear form and close it
         replyBody = '';
-        showReplyForm = false;
+        closeReplyForm();
 
         // Refresh the item to show the new reply
         // For now, we'll just show a success message
@@ -126,38 +128,26 @@
 
         <Markdown content={comment.body} canEdit={false} />
 
-        <!-- Reply button and form -->
-        <div class="item-comment-actions">
-          <button class="reply-button" onclick={toggleReplyForm}>
-            {showReplyForm ? 'Cancel' : 'Reply'}
-          </button>
-        </div>
-
-        {#if showReplyForm}
-          <div class="reply-form">
-            <textarea
-              placeholder="Add a reply..."
-              bind:value={replyBody}
-              class="reply-textarea"
-            ></textarea>
-            <div class="reply-form-actions">
-              <button
-                class="reply-submit-button"
-                onclick={submitReply}
-                disabled={isSubmittingReply || !replyBody.trim()}
-              >
-                {isSubmittingReply ? 'Posting...' : 'Reply'}
-              </button>
-              <button
-                class="reply-cancel-button"
-                onclick={toggleReplyForm}
-                disabled={isSubmittingReply}
-              >
-                Cancel
-              </button>
+        <!-- Compact/Expandable Reply Form (always visible) -->
+        <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
+          {#if !isExpandedReplyForm}
+            <!-- Compact form -->
+            <div class="reply-form-compact" onclick={expandReplyForm}>
+              <input type="text" placeholder="Add a reply..." class="reply-input-compact" readonly/>
             </div>
-          </div>
-        {/if}
+          {:else}
+            <!-- Expanded form -->
+            <div class="reply-form-expanded">
+              <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
+              <div class="reply-form-actions">
+                <button class="reply-submit-button" onclick={submitReply} disabled={isSubmittingReply || !replyBody.trim()}>
+                  {isSubmittingReply ? 'Posting...' : 'Reply'}
+                </button>
+                <button class="reply-cancel-button" onclick={closeReplyForm} disabled={isSubmittingReply}>cancel</button>
+              </div>
+            </div>
+          {/if}
+        </div>
 
         {#if comment.child_comments}
           <div class="item-comment-replies">

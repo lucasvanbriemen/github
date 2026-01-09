@@ -79,51 +79,60 @@
   overflow: hidden;
 }
 
-.item-comment-actions {
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 0 0 0;
-}
-
-.reply-button {
-  padding: 0.4rem 0.8rem;
-  background-color: transparent;
-  border: 1px solid var(--text-color-tertiary);
-  border-radius: 0.4rem;
-  color: var(--text-color-secondary);
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: var(--background-color-one);
-    border-color: var(--text-color-secondary);
-  }
-}
-
-.reply-form {
+.reply-form-container {
+  margin-top: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 0.5rem 0;
-  margin-top: 0.5rem;
 }
 
-.reply-textarea {
+.reply-form-compact {
+  cursor: text;
+}
+
+.reply-input-compact {
+  width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--background-color-one);
   border-radius: 0.5rem;
   background-color: var(--background-color-three);
-  color: var(--text-color);
+  color: var(--text-color-secondary);
   font-size: 14px;
   font-family: inherit;
-  min-height: 100px;
-  resize: vertical;
+  transition: all 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: var(--accent-color);
+  &:hover {
+    border-color: var(--text-color-tertiary);
+    background-color: var(--background-color-two);
   }
+}
+
+.reply-form-expanded {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 100vh;
+  }
+}
+
+.reply-form-expanded :global(.markdown-container) {
+  border: 1px solid var(--background-color-one);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.reply-form-expanded :global(.markdown-editor) {
+  min-height: 150px !important;
 }
 
 .reply-form-actions {
@@ -134,7 +143,7 @@
 
 .reply-submit-button,
 .reply-cancel-button {
-  padding: 0.4rem 1rem;
+  padding: 0.5rem 1.2rem;
   border: none;
   border-radius: 0.4rem;
   cursor: pointer;
