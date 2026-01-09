@@ -90,16 +90,12 @@
 
         <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
           {#if !isExpandedReplyForm}
-            <div class="reply-form-compact" onclick={expandReplyForm}>
-              <input type="text" placeholder="Add a reply..." class="reply-input-compact" readonly/>
-            </div>
+            <input type="text" onclick={expandReplyForm} placeholder="Add a reply..." class="reply-input-compact" readonly/>
           {:else}
-            <div class="reply-form-expanded">
-              <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
-              <div class="reply-form-actions">
-                <button class="button-primary" onclick={submitReply}>Reply</button>
-                <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
-              </div>
+            <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
+            <div class="reply-form-actions">
+              <button class="button-primary" onclick={submitReply}>Reply</button>
+              <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
             </div>
           {/if}
         </div>

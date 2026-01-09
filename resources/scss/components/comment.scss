@@ -84,10 +84,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  display: flex;
+  width: calc(100% - 1rem);
+  margin: 1rem 0.5rem 0 0.5rem;
 
   .reply-input-compact {
-    width: calc(100% - 2.75rem);
-    margin: 0 0.5rem;
+    width: calc(100% - 1.5rem);
     padding: 0.75rem;
     border: 1px solid var(--background-color-one);
     border-radius: 0.5rem;
@@ -97,14 +99,6 @@
     &:hover {
       background-color: var(--background-color-two);
     }
-  }
-
-  .reply-form-expanded {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: calc(100% - 1rem);
-    margin: 0 0.5rem;
   }
 
   .reply-form-actions {
