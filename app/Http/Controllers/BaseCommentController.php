@@ -83,6 +83,65 @@ class BaseCommentController extends Controller
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
+        $inReplyToId = request()->input('in_reply_to_id');
+
+        // If this is a reply to an existing comment
+        if ($inReplyToId) {
+            $parentComment = BaseComment::find($inReplyToId);
+            if (!$parentComment) {
+                return response()->json(['error' => 'Parent comment not found'], 404);
+            }
+
+            // For replies, use the GitHub reply endpoint
+            $payload = [
+                'body' => request()->input('body'),
+                'in_reply_to' => $parentComment->comment_id, // GitHub comment ID
+            ];
+
+            $response = ApiHelper::githubApi(
+                "/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments",
+                'POST',
+                $payload
+            );
+
+            // Store the reply locally
+            $prComment = PullRequest::find($item->id);
+            if ($prComment) {
+                $localReply = BaseComment::updateOrCreate(
+                    ['comment_id' => $response['id']],
+                    [
+                        'issue_id' => $item->id,
+                        'user_id' => $response['user']['id'],
+                        'body' => $response['body'],
+                        'created_at' => $response['created_at'],
+                        'updated_at' => $response['updated_at'],
+                        'type' => 'code',
+                        'resolved' => false,
+                    ]
+                );
+
+                // Create the PullRequestComment record with in_reply_to_id
+                PullRequestComment::updateOrCreate(
+                    ['base_comment_id' => $localReply->id],
+                    [
+                        'pull_request_id' => $item->id,
+                        'in_reply_to_id' => $inReplyToId,
+                        'diff_hunk' => $parentComment->diff_hunk ?? null,
+                        'path' => $parentComment->path ?? null,
+                        'line_start' => $parentComment->line_start ?? null,
+                        'line_end' => $parentComment->line_end ?? null,
+                        'side' => $parentComment->side ?? null,
+                    ]
+                );
+
+                $localReply->load(['author']);
+                return response()->json($localReply);
+            }
+
+            return response()->json(['success' => true]);
+        }
+
+        // Original comment creation logic (non-reply)
         $commitSha = $item->getLatestCommitSha();
         $payload = [
             'body'      => request()->input('body'),
