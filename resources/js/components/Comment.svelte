@@ -3,7 +3,7 @@
   import Markdown from './Markdown.svelte';
   import DiffHunk from './DiffHunk.svelte';
   import Self from './Comment.svelte';
-  import { organization, repository } from '../stores';
+  import { organization, repository } from './stores.js';
 
   let { comment, params = {} } = $props();
 
@@ -103,7 +103,7 @@
               <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
               <div class="reply-form-actions">
                 <button class="button-primary" onclick={submitReply}>Reply</button>
-                <button class="reply-cancel-button" onclick={closeReplyForm}>cancel</button>
+                <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
               </div>
             </div>
           {/if}
