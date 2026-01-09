@@ -87,19 +87,14 @@ class BaseCommentController extends Controller
 
         if ($inReplyToId) {
             $parentComment = BaseComment::find($inReplyToId);
-            if (!$parentComment) {
-                return response()->json(['error' => 'Parent comment not found'], 404);
-            }
-
-            $payload = [
-                'body' => request()->input('body'),
-                'in_reply_to' => $parentComment->comment_id,
-            ];
 
             ApiHelper::githubApi(
                 "/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments",
                 'POST',
-                $payload
+                [
+                    'body' => request()->input('body'),
+                    'in_reply_to' => $parentComment->comment_id,
+                ]
             );
 
             return response()->json(['success' => true]);
