@@ -52,44 +52,36 @@
   }
 
   async function submitReply() {
-    if (!replyBody.trim()) return;
-    try {
-      // Check if this is a code comment (has path field) or a regular comment
-      const isCodeComment = !!comment.path;
+    // Check if this is a code comment (has path field) or a regular comment
+    const isCodeComment = !!comment.path;
 
-      const payload = {
-        body: replyBody,
-        in_reply_to_id: comment.id,
-      };
+    const payload = {
+      body: replyBody,
+      in_reply_to_id: comment.id,
+    };
 
-      if (isCodeComment) {
-        // For code comments, include the diff context
-        payload.path = comment.path;
-        payload.line = comment.line_start || comment.line_end;
-        payload.side = comment.side || 'RIGHT';
-      }
+    if (isCodeComment) {
+      // For code comments, include the diff context
+      payload.path = comment.path;
+      payload.line = comment.line_start || comment.line_end;
+      payload.side = comment.side || 'RIGHT';
+    }
 
-      const response = await api.post(
-        route(`organizations.repositories.item.review.comments.create`, {
-          organization,
-          repository,
-          number
-        }),
-        payload
-      );
+    const response = await api.post(
+      route(`organizations.repositories.item.review.comments.create`, {
+        organization,
+        repository,
+        number
+      }),
+      payload
+    );
 
-      if (response.success || response.id) {
-        // Clear form and close it
-        replyBody = '';
-        closeReplyForm();
+    if (response.success || response.id) {
+      // Clear form and close it
+      replyBody = '';
+      closeReplyForm();
 
-        // Refresh the item to show the new reply
-        // For now, we'll just show a success message
-        console.log('Reply posted successfully');
-      }
-    } catch (error) {
-      console.error('Error posting reply:', error);
-    } 
+    }
   }
 
 </script>
@@ -135,7 +127,7 @@
             <div class="reply-form-expanded">
               <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
               <div class="reply-form-actions">
-                <button class="button-primary">{isSubmittingReply ? 'Posting...' : 'Reply'}</button>
+                <button class="button-primary" onclick={submitReply}>{isSubmittingReply ? 'Posting...' : 'Reply'}</button>
                 <button class="reply-cancel-button" onclick={closeReplyForm}>cancel</button>
               </div>
             </div>
