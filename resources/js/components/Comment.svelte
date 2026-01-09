@@ -93,19 +93,16 @@
 
         <Markdown content={comment.body} canEdit={false} />
 
-        <!-- Compact/Expandable Reply Form (always visible) -->
         <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
           {#if !isExpandedReplyForm}
-            <!-- Compact form -->
             <div class="reply-form-compact" onclick={expandReplyForm}>
               <input type="text" placeholder="Add a reply..." class="reply-input-compact" readonly/>
             </div>
           {:else}
-            <!-- Expanded form -->
             <div class="reply-form-expanded">
               <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
               <div class="reply-form-actions">
-                <button class="button-primary" onclick={submitReply}>{isSubmittingReply ? 'Posting...' : 'Reply'}</button>
+                <button class="button-primary" onclick={submitReply}>Reply</button>
                 <button class="reply-cancel-button" onclick={closeReplyForm}>cancel</button>
               </div>
             </div>
