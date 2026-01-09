@@ -11,7 +11,6 @@
   let number = $state('');
   let isExpandedReplyForm = $state(false);
   let replyBody = $state('');
-  let isSubmittingReply = $state(false);
 
   onMount(async () => {
     organization = params.organization;
@@ -54,8 +53,6 @@
 
   async function submitReply() {
     if (!replyBody.trim()) return;
-
-    isSubmittingReply = true;
     try {
       // Check if this is a code comment (has path field) or a regular comment
       const isCodeComment = !!comment.path;
@@ -92,9 +89,7 @@
       }
     } catch (error) {
       console.error('Error posting reply:', error);
-    } finally {
-      isSubmittingReply = false;
-    }
+    } 
   }
 
 </script>
@@ -140,10 +135,8 @@
             <div class="reply-form-expanded">
               <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
               <div class="reply-form-actions">
-                <button class="reply-submit-button" onclick={submitReply} disabled={isSubmittingReply || !replyBody.trim()}>
-                  {isSubmittingReply ? 'Posting...' : 'Reply'}
-                </button>
-                <button class="reply-cancel-button" onclick={closeReplyForm} disabled={isSubmittingReply}>cancel</button>
+                <button class="button-primary">{isSubmittingReply ? 'Posting...' : 'Reply'}</button>
+                <button class="reply-cancel-button" onclick={closeReplyForm}>cancel</button>
               </div>
             </div>
           {/if}
