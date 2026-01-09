@@ -38,7 +38,6 @@
     });
   }
 
-  // Reply to comment functions
   function expandReplyForm() {
     isExpandedReplyForm = true;
   }
@@ -57,10 +56,8 @@
       }
     );
 
-    if (response.success || response.id) {
-      replyBody = '';
-      closeReplyForm();
-    }
+    replyBody = '';
+    closeReplyForm();
   }
 </script>
 
