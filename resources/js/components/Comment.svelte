@@ -53,10 +53,7 @@
       route(`organizations.repositories.item.review.comments.create`, { $organization, $repository, number }),
       {
         body: replyBody,
-        in_reply_to_id: comment.id,
-        path: comment.path,
-        line: comment.line_start || comment.line_end,
-        side: comment.side || 'RIGHT',
+        in_reply_to_id: comment.id
       }
     );
 
