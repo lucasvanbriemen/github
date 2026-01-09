@@ -3,18 +3,15 @@
   import Markdown from './Markdown.svelte';
   import DiffHunk from './DiffHunk.svelte';
   import Self from './Comment.svelte';
+  import { organization, repository } from '../stores';
 
   let { comment, params = {} } = $props();
 
-  let organization = $state('');
-  let repository = $state('');
   let number = $state('');
   let isExpandedReplyForm = $state(false);
   let replyBody = $state('');
 
   onMount(async () => {
-    organization = params.organization;
-    repository = params.repository;
     number = params.number;
   });
 
@@ -36,7 +33,7 @@
   function toggleItemComment(comment) {
     comment.resolved = !comment.resolved;
 
-    api.post(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
+    api.post(route(`organizations.repositories.item.comment`, { $organization, $repository, number, comment_id: comment.id }), {
       resolved: comment.resolved,
     });
   }
@@ -52,38 +49,22 @@
   }
 
   async function submitReply() {
-    // Check if this is a code comment (has path field) or a regular comment
-    const isCodeComment = !!comment.path;
-
-    const payload = {
-      body: replyBody,
-      in_reply_to_id: comment.id,
-    };
-
-    if (isCodeComment) {
-      // For code comments, include the diff context
-      payload.path = comment.path;
-      payload.line = comment.line_start || comment.line_end;
-      payload.side = comment.side || 'RIGHT';
-    }
-
     const response = await api.post(
-      route(`organizations.repositories.item.review.comments.create`, {
-        organization,
-        repository,
-        number
-      }),
-      payload
+      route(`organizations.repositories.item.review.comments.create`, { $organization, $repository, number }),
+      {
+        body: replyBody,
+        in_reply_to_id: comment.id,
+        path: comment.path,
+        line: comment.line_start || comment.line_end,
+        side: comment.side || 'RIGHT',
+      }
     );
 
     if (response.success || response.id) {
-      // Clear form and close it
       replyBody = '';
       closeReplyForm();
-
     }
   }
-
 </script>
 
 {#if showComment}
