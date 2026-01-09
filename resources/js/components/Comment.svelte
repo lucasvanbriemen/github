@@ -29,7 +29,6 @@
     showComment = false;
   }
 
-  // Toggle functions for different comment types
   function toggleItemComment(comment) {
     comment.resolved = !comment.resolved;
 
@@ -44,11 +43,10 @@
 
   function closeReplyForm() {
     isExpandedReplyForm = false;
-    replyBody = '';
   }
 
   async function submitReply() {
-    const response = await api.post(
+    await api.post(
       route(`organizations.repositories.item.review.comments.create`, { $organization, $repository, number }),
       {
         body: replyBody,
