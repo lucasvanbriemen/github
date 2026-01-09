@@ -85,17 +85,15 @@ class BaseCommentController extends Controller
 
         $inReplyToId = request()->input('in_reply_to_id');
 
-        // If this is a reply to an existing comment
         if ($inReplyToId) {
             $parentComment = BaseComment::find($inReplyToId);
             if (!$parentComment) {
                 return response()->json(['error' => 'Parent comment not found'], 404);
             }
 
-            // For replies, use the GitHub reply endpoint
             $payload = [
                 'body' => request()->input('body'),
-                'in_reply_to' => $parentComment->comment_id, // GitHub comment ID
+                'in_reply_to' => $parentComment->comment_id,
             ];
 
             ApiHelper::githubApi(
@@ -107,7 +105,6 @@ class BaseCommentController extends Controller
             return response()->json(['success' => true]);
         }
 
-        // Original comment creation logic (non-reply)
         $commitSha = $item->getLatestCommitSha();
         $payload = [
             'body'      => request()->input('body'),
