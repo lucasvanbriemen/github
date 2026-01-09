@@ -83,6 +83,23 @@ class BaseCommentController extends Controller
             ->where('number', $pullRequestNumber)
             ->firstOrFail();
 
+        $inReplyToId = request()->input('in_reply_to_id');
+
+        if ($inReplyToId) {
+            $parentComment = BaseComment::find($inReplyToId);
+
+            ApiHelper::githubApi(
+                "/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments",
+                'POST',
+                [
+                    'body' => request()->input('body'),
+                    'in_reply_to' => $parentComment->comment_id,
+                ]
+            );
+
+            return response()->json(['success' => true]);
+        }
+
         $commitSha = $item->getLatestCommitSha();
         $payload = [
             'body'      => request()->input('body'),
