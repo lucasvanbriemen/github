@@ -13,6 +13,7 @@
 
   onMount(async () => {
     number = params.number;
+    console.log(comment)
   });
 
   function commentHeaderText() {
@@ -88,17 +89,19 @@
 
         <Markdown content={comment.body} canEdit={false} />
 
-        <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
-          {#if !isExpandedReplyForm}
-            <input type="text" onclick={expandReplyForm} placeholder="Add a reply..." class="reply-input-compact" readonly/>
-          {:else}
-            <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
-            <div class="reply-form-actions">
-              <button class="button-primary" onclick={submitReply}>Reply</button>
-              <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
-            </div>
-          {/if}
-        </div>
+        {#if comment.type === 'code'}
+          <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
+            {#if !isExpandedReplyForm}
+              <input type="text" onclick={expandReplyForm} placeholder="Add a reply..." class="reply-input-compact" readonly/>
+            {:else}
+              <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
+              <div class="reply-form-actions">
+                <button class="button-primary" onclick={submitReply}>Reply</button>
+                <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
+              </div>
+            {/if}
+          </div>
+        {/if}
 
         {#if comment.child_comments}
           <div class="item-comment-replies">
