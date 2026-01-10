@@ -53,6 +53,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/item/{number}/update-labels', [ItemController::class, 'updateLabels'])
             ->name('item.label.update');
 
+        Route::post('/item/{number}/update-assignees', [ItemController::class, 'updateAssignees'])
+            ->name('item.assignees.update');
+
         Route::post('/item/{number}', [ItemController::class, 'update'])
             ->name('item.update');
 

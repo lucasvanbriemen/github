@@ -360,6 +360,24 @@ class ItemController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function updateAssignees($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $currentAssignees = $item->assignees->pluck('login')->all();
+        $updatedAssignees = request()->input('assignees', []);
+
+        $toBeAdded   = array_values(array_diff($updatedAssignees, $currentAssignees));
+        $toBeRemoved = array_values(array_diff($currentAssignees, $updatedAssignees));
+
+        GitHub::issues()->assignees()->add($organizationName, $repositoryName, $number, ['assignees' => $toBeAdded]);
+        GitHub::issues()->assignees()->remove($organizationName, $repositoryName, $number, ['assignees' => $toBeRemoved]);
+    }
+
     private function calculateSimilarity($str1, $str2)
     {
         $str1 = strtolower($str1);

@@ -16,6 +16,8 @@
   let projects = $state([]);
   let linkableItems = $state([]);
   let linkSearchQuery = $state('');
+  let possibleAssignees = $state([]);
+  let selectedAssignees = $state([]);
 
   function getItemProject(projectId) {
     return item.projects.find(p => p.id === projectId);
@@ -34,6 +36,17 @@
   onMount(async () => {
     updateLinkedItems();
     projects =  await api.get(route('organizations.repositories.projects', { $organization, $repository }));
+
+    const metadata = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
+    possibleAssignees = (metadata.assignees || []).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
+
+    possibleAssignees.forEach(assignee => {
+      item.assignees.forEach(itemAssignee => {
+        if (itemAssignee.login == assignee.value) {
+          assignee.selected = true;
+        }
+      });
+    });
   });
 
   async function updateLinkedItems() {
@@ -167,6 +180,12 @@
     searchLinkableItems(linkSearchQuery);
   }
 
+  async function addAssignees() {
+    await api.post(route('organizations.repositories.item.assignees.update', { $organization, $repository, number: item.number }), {
+      assignees: selectedAssignees
+    });
+  }
+
   $effect(() => {
     void isLoading;
     void metadata;
@@ -208,7 +227,6 @@
         {/each}
       </div>
     </SidebarGroup>
-
   {/if}
 
   {#if !isLoading && activeTab === 'conversation'}
@@ -236,6 +254,8 @@
           <span>{assignee.display_name}</span>
         </div>
       {/each}
+
+      <Select name="assignee" selectableItems={possibleAssignees} bind:selectedValue={selectedAssignees} onChange={() => { addAssignees() }} multiple={true} />
     </SidebarGroup>
 
     <SidebarGroup title="Linked Items">
