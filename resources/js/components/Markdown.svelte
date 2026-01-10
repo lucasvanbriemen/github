@@ -229,13 +229,7 @@
     improvementError = null;
 
     try {
-      const response = await api.post(route('comment.improve'), { text: content });
-    const data = await response.json();
-
-      if (!response.ok) {
-        improvementError = data.error || 'Failed to improve comment';
-        return;
-      }
+      const data = await api.post(route('comment.improve'), { text: content });
 
       improvedText = data.improved;
     } catch (error) {
