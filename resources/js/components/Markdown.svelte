@@ -284,13 +284,7 @@
           {#each Object.entries(shortcutMap) as [key, shortcut]}
             <button class="markdown-shortcut button-primary-outline" onclick={() => insertShortcut(shortcut.key)}>{shortcut.title}</button>
           {/each}
-          <button
-            class="markdown-shortcut button-primary-outline improve-button"
-            onclick={improveComment}
-            disabled={isImproving || !content.trim()}
-          >
-            {isImproving ? '✨ Improving...' : '✨ Improve'}
-          </button>
+          <button class="markdown-shortcut button-primary-outline" onclick={improveComment} disabled={isImproving || !content.trim()} >{isImproving ? '✨ Improving...' : '✨ Improve'}</button>
         </div>
       {/if}
     </header>
