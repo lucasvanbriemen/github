@@ -19,8 +19,9 @@ class ItemController extends Controller
         $state = request()->query('state', 'open');
         $assignee = request()->query('assignee', 'any');
         $search = request()->query('search', '');
+        $milestone = request()->query('milestone', null);
 
-        $query = $repository->items($type, $state, $assignee, $search)
+        $query = $repository->items($type, $state, $assignee, $search, $milestone)
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
