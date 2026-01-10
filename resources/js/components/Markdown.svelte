@@ -1,6 +1,7 @@
 <script>
   import { onMount, untrack } from 'svelte';
   import { marked } from 'marked';
+  import { organization, repository } from './stores';
   import 'github-markdown-css/github-markdown-dark.css';
 
   let { content = $bindable(''), canEdit = true, isEditing = false, change } = $props();
@@ -219,7 +220,7 @@
 
   async function improveComment() {
     isImproving = true;
-    const data = await api.post(route('comment.improve'), { text: content });
+    const data = await api.post(route('comment.improve', { organization: $organization, repository: $repository }), { text: content });
     content = data.improved;
     isImproving = false;
   }
