@@ -387,8 +387,6 @@ class ItemController extends Controller
             $number,
             $toBeRemoved
         );
-
-        
     }
 
     private function calculateSimilarity($str1, $str2)
