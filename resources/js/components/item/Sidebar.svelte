@@ -40,7 +40,7 @@
 
     const metadata = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
     possibleAssignees = (metadata.assignees || []).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
-    possibleMilestones = (metadata.milestones || []).map((m) => ({ value: m.id, label: m.title }));
+    possibleMilestones = (metadata.milestones || []).map((m) => ({ value: m.number, label: m.title }));
 
     possibleAssignees.forEach(assignee => {
       item.assignees.forEach(itemAssignee => {
@@ -52,7 +52,7 @@
 
     possibleMilestones.forEach(milestone => {
       item.milestone.forEach(itemMilestone => {
-        if (itemMilestone.id == milestone.value) {
+        if (itemMilestone.number == milestone.value) {
           milestone.selected = true;
         }
       });
