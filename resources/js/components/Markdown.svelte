@@ -9,7 +9,6 @@
   let editor = $state(null);
   let improvedText = $state(null);
   let isImproving = $state(false);
-  let improvementError = $state(null);
 
   const shortcutMap = {
     heading: {
@@ -220,20 +219,12 @@
   }
 
   async function improveComment() {
-    if (!content.trim()) {
-      improvementError = 'Nothing to improve';
-      return;
-    }
-
     isImproving = true;
-    improvementError = null;
 
     try {
       const data = await api.post(route('comment.improve'), { text: content });
-
       improvedText = data.improved;
     } catch (error) {
-      improvementError = 'Error: ' + error.message;
     } finally {
       isImproving = false;
     }
@@ -249,7 +240,6 @@
 
   function rejectImprovement() {
     improvedText = null;
-    improvementError = null;
   }
 
   onMount(() => {
@@ -324,10 +314,6 @@
         <button class="reject-button button-primary-outline" onclick={rejectImprovement}>Reject</button>
       </div>
     </div>
-  {/if}
-
-  {#if improvementError}
-    <div class="improvement-error">{improvementError}</div>
   {/if}
 
   {#if isEditing && canEdit}
