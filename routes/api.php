@@ -11,6 +11,7 @@ use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\BaseCommentController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\WorkflowJobController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index'])
@@ -85,6 +86,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::get('/pr/{number}/files', [PullRequestController::class, 'getFiles'])
             ->name('pr.files');
+
+        Route::get('/workflow-job/{jobId}/logs', [WorkflowJobController::class, 'getLogs'])
+            ->name('workflow-job.logs');
 
         Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('branches.pr.notices');
