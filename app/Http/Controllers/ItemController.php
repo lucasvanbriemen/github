@@ -187,7 +187,8 @@ class ItemController extends Controller
             ->with([
                 'assignees',
                 'openedBy',
-                'comments'
+                'comments',
+                'milestone',
             ])
             ->firstOrFail();
 
@@ -360,15 +361,15 @@ class ItemController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function milestoneUpdate($organizationName, $repositoryName, $number)
+    public function updateMilestone($organizationName, $repositoryName, $number)
     {
         $milestoneId = request()->input('milestone');
 
-        GitHub::issues()->milestones()->update(
+        GitHub::issues()->update(
             $organizationName,
             $repositoryName,
             $number,
-            ['milestone' => $milestoneId]
+            ['milestone' => (int) $milestoneId]
         );
 
         return response()->json(['success' => true]);

@@ -116,4 +116,9 @@ class Item extends Model
     {
         return $this->details()->first()->head_sha;
     }
+
+    public function milestone()
+    {
+        return $this->belongsTo(Milestone::class, 'milestone_id', 'id');
+    }
 }
