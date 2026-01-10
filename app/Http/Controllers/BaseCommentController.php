@@ -118,9 +118,7 @@ class BaseCommentController extends Controller
 
     public function improveComment()
     {
-        $apiKey = config('services.openai.api_key');
-
-        $client = OpenAI::client($apiKey);
+        $client = OpenAI::client(config('services.openai.api_key'));
 
         $response = $client->chat()->create([
             'model' => 'gpt-5-mini',
