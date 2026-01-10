@@ -137,9 +137,6 @@ class BaseCommentController extends Controller
 
         $improved = $response->choices[0]->message->content;
 
-        return response()->json([
-            'original' => request()->input('text'),
-            'improved' => $improved,
-        ]);
+        return response()->json(['improved' => $improved]);
     }
 }
