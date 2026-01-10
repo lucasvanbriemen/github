@@ -282,6 +282,16 @@
       <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
     </SidebarGroup>
 
+    <SidebarGroup title="Milestone">
+      {#if item.milestone?.id}
+        <div class="milestone">
+          {item.milestone.title}
+        </div>
+      {/if}
+
+      <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
+    </SidebarGroup>
+
     {#if isPR}
       <SidebarGroup title="Reviewers">
         {#each item.requested_reviewers as reviewer}
