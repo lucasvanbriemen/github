@@ -71,9 +71,11 @@ class ProcessIssueWebhook
                 'number' => $issueData->number,
                 'title' => $issueData->title,
                 'body' => $issueData->body ?? '',
+                'milestone_id' => $issueData->milestone->id ?? null,
                 'state' => $issueData->state,
                 'labels' => json_encode($issueData->labels ?? []),
-            ]);
+            ]
+        );
 
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);

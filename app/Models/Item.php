@@ -28,6 +28,7 @@ class Item extends Model
         'labels',
         'opened_by_id',
         'type',
+        'milestone_id',
     ];
 
     protected $casts = [
