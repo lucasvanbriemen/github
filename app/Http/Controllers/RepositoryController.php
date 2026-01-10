@@ -76,6 +76,7 @@ class RepositoryController extends Controller
         $master_branch = $repository->master_branch;
         $default_assignee = GithubConfig::USERNAME;
         $labels = $repository->labels()->get();
+        $milestones = $repository->milestones()->get();
 
         $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
             return $contributor->githubUser;
@@ -85,12 +86,13 @@ class RepositoryController extends Controller
         $templates = json_decode($templatesJson, true);
 
         return response()->json([
-           'branches' => $branchNames,
-           'assignees' => $assignees,
-           'default_assignee' => $default_assignee,
-           'master_branch' => $master_branch,
-           'templates' => $templates,
-           'labels' => $labels,
+            'branches' => $branchNames,
+            'assignees' => $assignees,
+            'default_assignee' => $default_assignee,
+            'master_branch' => $master_branch,
+            'templates' => $templates,
+            'labels' => $labels,
+            'milestones' => $milestones,
         ]);
     }
 }

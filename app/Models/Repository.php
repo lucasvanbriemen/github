@@ -23,6 +23,12 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
+    public function milestones()
+    {
+        return $this->hasMany(Milestone::class, 'repository_id', 'id')
+            ->orderBy('due_on', 'asc');
+    }
+
     public function labels()
     {
         return $this->hasMany(Label::class, 'repository_id', 'id')
