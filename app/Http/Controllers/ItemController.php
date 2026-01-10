@@ -335,7 +335,7 @@ class ItemController extends Controller
 
         $payload = [];
         foreach (request()->all() as $key => $value) {
-            if (!in_array($key, ['state'])) {
+            if (!in_array($key, ['state', 'milestone'])) {
                 continue;
             }
 
