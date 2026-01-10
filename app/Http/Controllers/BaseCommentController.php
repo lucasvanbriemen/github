@@ -119,15 +119,6 @@ class BaseCommentController extends Controller
     public function improveComment()
     {
         $apiKey = config('services.openai.api_key');
-        if (!$apiKey) {
-            return response()->json([
-                'error' => 'OpenAI API key not configured. Add OPENAI_API_KEY to .env',
-            ], 400);
-        }
-
-        $data = request()->validate([
-            'text' => 'required|string|max:5000',
-        ]);
 
         try {
             $client = OpenAI::client($apiKey);
@@ -136,8 +127,12 @@ class BaseCommentController extends Controller
                 'model' => 'gpt-5-mini',
                 'messages' => [
                     [
+                        'role' => 'system',
+                        'content' => 'You are an expert at improving GitHub comments to make them clearer, more professional, and grammatically correct while preserving the original intent. You return only the improved text without any additional explanation.',
+                    ],
+                    [
                         'role' => 'user',
-                        'content' => "Improve this GitHub comment for clarity, grammar, and professionalism. Keep it concise and maintain the original intent. Return ONLY the improved text without any explanation:\n\n{$data['text']}",
+                        'content' => request()->input('text'),
                     ],
                 ],
                 'max_completion_tokens' => 1024,
