@@ -97,7 +97,7 @@
     item.labels = allLabels.filter(l => selectedValue.includes(l.name));
   }
 
-  async function updateMilestone(selectedValue) {
+  async function updateMilestone({selectedValue}) {
     api.post(route('organizations.repositories.item.milestone.update', { $organization, $repository, number: item.number }), {
       milestone: selectedValue
     });
@@ -305,7 +305,7 @@
         </div>
       {/if}
 
-      <Select name="label" selectableItems={possibleMilestones} onChange={updateMilestone} multiple/>
+      <Select name="label" selectableItems={possibleMilestones} onChange={updateMilestone} />
     </SidebarGroup>
 
     {#if isPR}

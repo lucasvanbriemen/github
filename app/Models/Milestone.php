@@ -17,6 +17,7 @@ class Milestone extends Model
     protected $fillable = [
         'id',
         'repository_id',
+        'number',
         'state',
         'title',
         'due_on',

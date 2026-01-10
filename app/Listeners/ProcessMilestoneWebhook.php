@@ -28,6 +28,7 @@ class ProcessMilestoneWebhook
             [
                 'repository_id' => $repositoryData->id,
                 'state' => $milestoneData->state,
+                'number' => $milestoneData->number,
                 'title' => $milestoneData->title,
                 'due_on' => Carbon::parse($milestoneData->due_on),
             ]
