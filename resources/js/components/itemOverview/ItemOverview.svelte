@@ -147,7 +147,7 @@
     {:else}
 
       {#each branchesForNotice as branch}
-        <PrNotice item={branch} {params} />
+        <PrNotice item={branch} />
       {/each}
 
 

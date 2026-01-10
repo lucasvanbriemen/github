@@ -4,25 +4,24 @@
   import Comment from '../Comment.svelte';
   import MergePanel from './pr/MergePanel.svelte';
   import ClosedPanel from './ClosedPanel.svelte';
+  import { organization, repository } from '../stores';
 
   let { item, params = {} } = $props();
   let body = $state(item.body);
   let issueComment = $state('');
 
-  let organization = params.organization;
-  let repository = params.repository;
   let number = params.number;
 
   function save_body(e) {
     body = e.value;
 
-    api.post(route(`organizations.repositories.item.update`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.item.update`, { $organization, $repository, number }), {
       body,
     });
   }
 
   function post_comment(e) {
-    api.post(route(`organizations.repositories.item.comment.create`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.item.comment.create`, { $organization, $repository, number }), {
       body: issueComment,
     }).then((newComment) => {
       untrack(() => {

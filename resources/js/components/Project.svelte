@@ -5,6 +5,7 @@
   import ListItemSkeleton from './ListItemSkeleton.svelte';
   import Group from './sidebar/group.svelte';
   import Switch from './Switch.svelte';
+  import { organization, repository } from './stores';
 
   let { params = {} } = $props();
 
@@ -13,12 +14,7 @@
   let showEverything = $state(false);
 
   onMount(async () => {
-    cols = await api.get(route('organizations.repositories.project.show', {
-      organization: params.organization,
-      repository: params.repository,
-      number: params.number,
-    }));
-
+    cols = await api.get(route('organizations.repositories.project.show', { $organization, $repository, number: params.number }));
     isLoading = false;
   });
 </script>

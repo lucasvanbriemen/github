@@ -53,7 +53,7 @@
   }
 
   async function createPR() {
-    const res = await api.post(route(`organizations.repositories.pr.create`, { organization: params.organization, repository: params.repository }), {
+    const res = await api.post(route(`organizations.repositories.pr.create`, { $organization, $repository }), {
       head_branch,
       base_branch,
       title,
@@ -61,17 +61,17 @@
       assignee,
     });
 
-    window.location.hash = `#/${params.organization}/${params.repository}/prs/${Number(res.number)}`;
+    window.location.hash = `#/${$organization}/${$repository}/prs/${Number(res.number)}`;
   }
 
   async function createIssue() {
-    const res = await api.post(route(`organizations.repositories.issues.create`, { organization: params.organization, repository: params.repository }), {
+    const res = await api.post(route(`organizations.repositories.issues.create`, { $organization, $repository }), {
       title,
       body,
       assignee,
     });
 
-    window.location.hash = `#/${params.organization}/${params.repository}/issues/${Number(res.number)}`;
+    window.location.hash = `#/${$organization}/${$repository}/issues/${Number(res.number)}`;
   }
 </script>
 

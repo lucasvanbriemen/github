@@ -1,13 +1,12 @@
 <script>
   import Markdown from '../../Markdown.svelte';
   import Comment from '../../Comment.svelte';
+  import { organization, repository } from '../../stores';
 
   let { params = {}, pendingReviewComments = [], reviewMenuOpen = $bindable(false) } = $props();
 
   let reviewBody = $state('');
 
-  let organization = params.organization;
-  let repository = params.repository;
   let number = params.number;
 
   async function submitReview(state) {
@@ -29,7 +28,7 @@
     });
 
     await api.post(
-      route(`organizations.repositories.pr.review.submit`, {organization, repository, number}), {
+      route(`organizations.repositories.pr.review.submit`, {$organization, $repository, number}), {
         body: reviewBody,
         state: state,
         comments: comments,

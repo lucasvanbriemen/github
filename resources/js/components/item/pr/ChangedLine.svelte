@@ -3,11 +3,10 @@
   import HighlightedDiffLine from '../../HighlightedDiffLine.svelte';
   import Comment from '../../Comment.svelte';
   import Markdown from '../../Markdown.svelte';
+  import { organization, repository } from '../../stores';
 
   let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true } = $props();
 
-  let organization = params.organization;
-  let repository = params.repository;
   let number = params.number;
 
   let mergedComments = [...comments, ...pendingReviewComments];
@@ -19,7 +18,7 @@
   }
 
   function post_comment(e) {
-    api.post(route(`organizations.repositories.item.review.comments.create`, { organization, repository, number }), {
+    api.post(route(`organizations.repositories.item.review.comments.create`, {$organization, $repository, number}), {
       path: selectedFile.filename,
       line: line.number,
       side: side.toUpperCase(),

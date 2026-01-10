@@ -2,17 +2,13 @@
   import { onMount } from 'svelte';
   import ListItem from './ListItem.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
-
-  let { params = {} } = $props();
+  import { organization, repository } from './stores';
 
   let isLoading = $state(true);
   let projects = $state([]);
 
   onMount(async () => {
-    projects = await api.get(route('organizations.repositories.projects', {
-      organization: params.organization,
-      repository: params.repository,
-    }));
+    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
     isLoading = false;
   });
 </script>
