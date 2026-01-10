@@ -79,9 +79,6 @@ class RepositoryController extends Controller
 
         $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
             return $contributor->githubUser;
-        })->filter(function ($user) {
-            // Exclude current user from reviewer list
-            return $user->login !== GithubConfig::USERNAME;
         })->values();
 
         $templatesJson = file_get_contents(resource_path('repository_templates/templates.json'));
