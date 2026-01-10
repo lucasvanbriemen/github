@@ -229,7 +229,6 @@
         {/each}
       </div>
     </SidebarGroup>
-
   {/if}
 
   {#if !isLoading && activeTab === 'conversation'}
