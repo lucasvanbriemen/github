@@ -109,14 +109,4 @@
       border-top: none;
     }
   }
-
-  .improvement-error {
-    background-color: rgba(239, 68, 68, 0.1);
-    border: 1px solid var(--danger-color, #ef4444);
-    border-radius: 0.35rem;
-    padding: 0.75rem;
-    margin: 0.5rem 0;
-    color: var(--danger-color, #ef4444);
-    font-size: 0.9rem;
-  }
 }
