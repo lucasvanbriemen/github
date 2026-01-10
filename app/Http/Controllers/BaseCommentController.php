@@ -120,34 +120,28 @@ class BaseCommentController extends Controller
     {
         $apiKey = config('services.openai.api_key');
 
-        try {
-            $client = OpenAI::client($apiKey);
+        $client = OpenAI::client($apiKey);
 
-            $response = $client->chat()->create([
-                'model' => 'gpt-5-mini',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'You are an expert at improving GitHub comments to make them clearer, more professional, and grammatically correct while preserving the original intent. You return only the improved text without any additional explanation.',
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => request()->input('text'),
-                    ],
+        $response = $client->chat()->create([
+            'model' => 'gpt-5-mini',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => 'You are an expert at improving GitHub comments to make them clearer, more professional, and grammatically correct while preserving the original intent. You return only the improved text without any additional explanation.',
                 ],
-                'max_completion_tokens' => 1024,
-            ]);
+                [
+                    'role' => 'user',
+                    'content' => request()->input('text'),
+                ],
+            ],
+            'max_completion_tokens' => 1024,
+        ]);
 
-            $improved = $response->choices[0]->message->content;
+        $improved = $response->choices[0]->message->content;
 
-            return response()->json([
-                'original' => $data['text'],
-                'improved' => $improved,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to improve comment: ' . $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'original' => request()->input('text'),
+            'improved' => $improved,
+        ]);
     }
 }
