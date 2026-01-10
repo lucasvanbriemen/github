@@ -80,8 +80,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('item/{number}/comment', [BaseCommentController::class, 'createItemComment'])
             ->name('item.comment.create');
 
-        Route::post('/comment/improve', [BaseCommentController::class, 'improveComment'])
-            ->name('comment.improve');
+        
 
         Route::post('/item/{number}/review/comments', [BaseCommentController::class, 'createPRComment'])
             ->name('item.review.comments.create');
@@ -117,3 +116,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
     ->name('api.webhook');
+
+Route::post('/comment/improve', [BaseCommentController::class, 'improveComment'])
+    ->name('comment.improve');

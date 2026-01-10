@@ -229,17 +229,8 @@
     improvementError = null;
 
     try {
-      const response = await fetch('/api/comment/improve', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({ text: content }),
-      });
-
-      const data = await response.json();
+      const response = await api.post(route('comment.improve'), { text: content });
+    const data = await response.json();
 
       if (!response.ok) {
         improvementError = data.error || 'Failed to improve comment';

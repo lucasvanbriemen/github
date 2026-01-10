@@ -9,7 +9,7 @@ use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
 use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
-use OpenAI\Client as OpenAIClient;
+use OpenAI;
 
 class BaseCommentController extends Controller
 {
@@ -130,9 +130,7 @@ class BaseCommentController extends Controller
         ]);
 
         try {
-            $client = OpenAIClient::factory()
-                ->withApiKey($apiKey)
-                ->make();
+            $client = OpenAI::client($apiKey);
 
             $response = $client->chat()->create([
                 'model' => 'gpt-5-mini',
@@ -142,8 +140,7 @@ class BaseCommentController extends Controller
                         'content' => "Improve this GitHub comment for clarity, grammar, and professionalism. Keep it concise and maintain the original intent. Return ONLY the improved text without any explanation:\n\n{$data['text']}",
                     ],
                 ],
-                'temperature' => 0.7,
-                'max_tokens' => 1024,
+                'max_completion_tokens' => 1024,
             ]);
 
             $improved = $response->choices[0]->message->content;
