@@ -17,13 +17,9 @@ class Milestone extends Model
     protected $fillable = [
         'id',
         'repository_id',
-        'number',
-        'title',
-        'body',
         'state',
-        'labels',
-        'opened_by_id',
-        'type',
+        'title',
+        'due_on',
     ];
 
     protected $casts = [
