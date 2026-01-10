@@ -9,6 +9,7 @@ use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
 use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
+use OpenAI;
 
 class BaseCommentController extends Controller
 {
@@ -113,5 +114,45 @@ class BaseCommentController extends Controller
 
         // For simplicity, we won't store the comment locally for now and we let the webhook handle it
         return response()->json(['success' => true]);
+    }
+
+    public function improveComment()
+    {
+        $client = OpenAI::client(config('services.openai.api_key'));
+
+        $response = $client->chat()->create([
+            'model' => 'gpt-5-mini',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => <<<TEXT
+                        You are an expert in refining GitHub Markdown to improve clarity, professionalism, structure, and grammatical correctness while strictly preserving the original intent.
+
+                        Return only the improved text. Do not include explanations, commentary, or meta remarks. Do not introduce new examples, content, or assumptions that were not present in the original text.
+
+                        Use Markdown features where appropriate, including:
+
+                        blockquotes, and emphasis
+
+                        Properly formatted links using [link text](url)
+                        Properly formatted code blocks with syntax highlighting:
+
+                        ```language
+                        // code here
+                        ```
+                        Ensure the result is concise, precise, and neutral in tone. Never be passive-aggressive or rude.
+                    TEXT,
+                ],
+                [
+                    'role' => 'user',
+                    'content' => request()->input('text'),
+                ],
+            ],
+            'max_completion_tokens' => 1024,
+        ]);
+
+        $improved = $response->choices[0]->message->content;
+
+        return response()->json(['improved' => $improved]);
     }
 }
