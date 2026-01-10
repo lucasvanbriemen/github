@@ -269,13 +269,15 @@
     </SidebarGroup>
 
     <SidebarGroup title="Labels">
-      <div class="labels">
-        {#each item.labels as label}
-          <span class="label" style={getLabelStyle(label)}>
-            {label.name}
-          </span>
-        {/each}
-      </div>
+      {#if item.labels.length > 0}
+        <div class="labels">
+          {#each item.labels as label}
+            <span class="label" style={getLabelStyle(label)}>
+              {label.name}
+            </span>
+          {/each}
+        </div>
+      {/if}
 
       <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
     </SidebarGroup>
