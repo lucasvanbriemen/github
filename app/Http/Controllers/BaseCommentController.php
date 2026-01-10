@@ -127,7 +127,7 @@ class BaseCommentController extends Controller
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'You are an expert at improving GitHub comments to make them clearer, more professional, and grammatically correct while preserving the original intent. You return only the improved text without any additional explanation.',
+                    'content' => 'You are an expert at improving GitHub markdown to make them clearer, more professional, getting the most out of them, and making them grammatically correct while preserving the original intent You return only the improved text without any additional explanation. Utilize things like notes, links, and code blocks, qoutes where appropriate.',
                 ],
                 [
                     'role' => 'user',
