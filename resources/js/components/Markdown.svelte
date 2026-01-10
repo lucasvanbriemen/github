@@ -220,22 +220,15 @@
 
   async function improveComment() {
     isImproving = true;
-
-    try {
-      const data = await api.post(route('comment.improve'), { text: content });
-      improvedText = data.improved;
-    } catch (error) {
-    } finally {
-      isImproving = false;
-    }
+    const data = await api.post(route('comment.improve'), { text: content });
+    improvedText = data.improved;
+    isImproving = false;
   }
 
   function acceptImprovement() {
-    if (improvedText) {
-      content = improvedText;
-      improvedText = null;
-      editor?.focus();
-    }
+    content = improvedText;
+    improvedText = null;
+    editor?.focus();
   }
 
   function rejectImprovement() {
