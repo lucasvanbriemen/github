@@ -18,6 +18,7 @@
   let linkSearchQuery = $state('');
   let possibleAssignees = $state([]);
   let selectedAssignees = $state([]);
+  let possableMilestones = $state([]);
 
   function getItemProject(projectId) {
     return item.projects.find(p => p.id === projectId);
@@ -39,6 +40,7 @@
 
     const metadata = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
     possibleAssignees = (metadata.assignees || []).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
+    possableMilestones = (metadata.milestones || []).map((m) => ({ value: m.id, label: m.title }));
 
     possibleAssignees.forEach(assignee => {
       item.assignees.forEach(itemAssignee => {
@@ -85,6 +87,12 @@
 
     labels = labels.map(l => ({ ...l, selected: selectedValue.includes(l.value) }));
     item.labels = allLabels.filter(l => selectedValue.includes(l.name));
+  }
+
+  async function updateMilestone(selectedValue) {
+    api.post(route('organizations.repositories.item.milestone.update', { $organization, $repository, number: item.number }), {
+      milestone: selectedValue
+    });
   }
 
   async function updateProjectStatus(projectId, newStatusId) {
@@ -289,7 +297,7 @@
         </div>
       {/if}
 
-      <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
+      <Select name="label" selectableItems={possableMilestones} onChange={updateMilestone} multiple/>
     </SidebarGroup>
 
     {#if isPR}
