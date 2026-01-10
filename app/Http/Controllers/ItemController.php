@@ -378,14 +378,14 @@ class ItemController extends Controller
             $organizationName,
             $repositoryName,
             $number,
-            $toBeAdded
+            ['assignees' => $toBeAdded]
         );
 
         GitHub::issues()->assignees()->remove(
             $organizationName,
             $repositoryName,
             $number,
-            $toBeRemoved
+            ['assignees' => $toBeRemoved]
         );
     }
 

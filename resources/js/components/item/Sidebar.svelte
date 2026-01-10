@@ -181,10 +181,8 @@
   }
 
   async function addAssignees() {
-
-    console.log('Adding assignees:', selectedAssignees);
     await api.post(route('organizations.repositories.item.assignees.update', { $organization, $repository, number: item.number }), {
-      assignees: selectedAssignees.map(a => a.value)
+      assignees: selectedAssignees
     });
   }
 
