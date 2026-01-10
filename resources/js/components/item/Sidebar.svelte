@@ -41,7 +41,7 @@
     possibleAssignees = (metadata.assignees || []).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
 
     possibleAssignees.forEach(assignee => {
-      item?.assignees?.forEach(itemAssignee => {
+      item.assignees.forEach(itemAssignee => {
         if (itemAssignee.login == assignee.value) {
           assignee.selected = true;
         }
