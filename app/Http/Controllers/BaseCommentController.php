@@ -9,6 +9,7 @@ use App\Models\PullRequestComment;
 use App\Services\RepositoryService;
 use App\Helpers\ApiHelper;
 use GrahamCampbell\GitHub\Facades\GitHub;
+use OpenAI\Client as OpenAIClient;
 
 class BaseCommentController extends Controller
 {
@@ -113,5 +114,48 @@ class BaseCommentController extends Controller
 
         // For simplicity, we won't store the comment locally for now and we let the webhook handle it
         return response()->json(['success' => true]);
+    }
+
+    public function improveComment()
+    {
+        $apiKey = config('services.openai.api_key');
+        if (!$apiKey) {
+            return response()->json([
+                'error' => 'OpenAI API key not configured. Add OPENAI_API_KEY to .env',
+            ], 400);
+        }
+
+        $data = request()->validate([
+            'text' => 'required|string|max:5000',
+        ]);
+
+        try {
+            $client = OpenAIClient::factory()
+                ->withApiKey($apiKey)
+                ->make();
+
+            $response = $client->chat()->create([
+                'model' => 'gpt-5-mini',
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => "Improve this GitHub comment for clarity, grammar, and professionalism. Keep it concise and maintain the original intent. Return ONLY the improved text without any explanation:\n\n{$data['text']}",
+                    ],
+                ],
+                'temperature' => 0.7,
+                'max_tokens' => 1024,
+            ]);
+
+            $improved = $response->choices[0]->message->content;
+
+            return response()->json([
+                'original' => $data['text'],
+                'improved' => $improved,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to improve comment: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

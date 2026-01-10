@@ -7,6 +7,9 @@
   let rendered = $state('');
 
   let editor = $state(null);
+  let improvedText = $state(null);
+  let isImproving = $state(false);
+  let improvementError = $state(null);
 
   const shortcutMap = {
     heading: {
@@ -216,6 +219,54 @@
     editor.focus();
   }
 
+  async function improveComment() {
+    if (!content.trim()) {
+      improvementError = 'Nothing to improve';
+      return;
+    }
+
+    isImproving = true;
+    improvementError = null;
+
+    try {
+      const response = await fetch('/api/comment/improve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ text: content }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        improvementError = data.error || 'Failed to improve comment';
+        return;
+      }
+
+      improvedText = data.improved;
+    } catch (error) {
+      improvementError = 'Error: ' + error.message;
+    } finally {
+      isImproving = false;
+    }
+  }
+
+  function acceptImprovement() {
+    if (improvedText) {
+      content = improvedText;
+      improvedText = null;
+      editor?.focus();
+    }
+  }
+
+  function rejectImprovement() {
+    improvedText = null;
+    improvementError = null;
+  }
+
   onMount(() => {
     renderer.checkbox = function (data) {
       const isChecked = data.checked;
@@ -258,9 +309,40 @@
           {#each Object.entries(shortcutMap) as [key, shortcut]}
             <button class="markdown-shortcut button-primary-outline" onclick={() => insertShortcut(shortcut.key)}>{shortcut.title}</button>
           {/each}
+          <button
+            class="markdown-shortcut button-primary-outline improve-button"
+            onclick={improveComment}
+            disabled={isImproving || !content.trim()}
+          >
+            {isImproving ? '✨ Improving...' : '✨ Improve'}
+          </button>
         </div>
       {/if}
     </header>
+  {/if}
+
+  {#if improvedText}
+    <div class="improvement-panel">
+      <div class="improvement-header">AI Suggestion</div>
+      <div class="improvement-comparison">
+        <div class="original">
+          <strong>Original:</strong>
+          <div class="text">{content}</div>
+        </div>
+        <div class="improved">
+          <strong>Improved:</strong>
+          <div class="text">{improvedText}</div>
+        </div>
+      </div>
+      <div class="improvement-actions">
+        <button class="accept-button button-primary-outline" onclick={acceptImprovement}>Accept</button>
+        <button class="reject-button button-primary-outline" onclick={rejectImprovement}>Reject</button>
+      </div>
+    </div>
+  {/if}
+
+  {#if improvementError}
+    <div class="improvement-error">{improvementError}</div>
   {/if}
 
   {#if isEditing && canEdit}
