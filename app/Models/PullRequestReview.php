@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseComment;
 
-class PullRequestReview extends Model
+class PullRequestReview extends BaseComment
 {
+    public const ABSOLUTE_ANSWERS = ['approved', 'changes_requested'];
+
     protected $table = 'pull_request_reviews';
 
     protected $keyType = 'int';
@@ -14,18 +17,26 @@ class PullRequestReview extends Model
 
     public $timestamps = true;
 
+    protected $with = ['childComments'];
+
     public function pullRequest()
     {
         return $this->belongsTo(PullRequest::class, 'pull_request_id', 'id');
     }
 
-    public function author()
+    public function baseComment()
     {
-        return $this->belongsTo(GithubUser::class, 'user_id', 'id');
+        return $this->belongsTo(BaseComment::class, 'base_comment_id', 'id')
+            ->where('type', 'review');
     }
 
     public function childComments()
     {
+        // return $this->hasMany(PullRequestComment::class, 'pull_request_review_id', 'id')
+        //     ->where('in_reply_to_id', null)
+        //     ->orderBy('created_at', 'asc')
+        //     ->with(['author', 'childComments']);
+
         $query = $this->hasMany(PullRequestComment::class, 'pull_request_review_id', 'id');
         $query->with(['author', 'childComments.author'])->whereNull('in_reply_to_id')->orderBy('created_at', 'asc');
 
@@ -34,9 +45,7 @@ class PullRequestReview extends Model
 
     protected $fillable = [
         'id',
-        'pull_request_id',
-        'user_id',
-        'body',
+        'base_comment_id',
         'state',
         'resolved',
     ];

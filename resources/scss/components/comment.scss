@@ -20,6 +20,15 @@
   border: none;
   cursor: pointer;
   font-size: 14px;
+
+  .badge {
+    background-color: var(--background-color-two);
+    color: var(--text-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
 }
 
 .item-comment-header img {
@@ -68,4 +77,32 @@
 .item-comment-resolved .item-comment-body {
   height: 0;
   overflow: hidden;
+}
+
+.reply-form-container {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  display: flex;
+  width: calc(100% - 1rem);
+  margin: 1rem 0.5rem 0 0.5rem;
+
+  .reply-input-compact {
+    width: calc(100% - 1.5rem);
+    padding: 0.75rem;
+    border: 1px solid var(--background-color-one);
+    border-radius: 0.5rem;
+    background-color: var(--background-color-one);
+    color: var(--text-color-secondary);
+
+    &:hover {
+      background-color: var(--background-color-two);
+    }
+  }
+
+  .reply-form-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
 }

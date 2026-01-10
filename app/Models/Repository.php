@@ -23,7 +23,19 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
-    public function issues($state = 'open', $assignee = 'any')
+    public function milestones()
+    {
+        return $this->hasMany(Milestone::class, 'repository_id', 'id')
+            ->orderBy('due_on', 'asc');
+    }
+
+    public function labels()
+    {
+        return $this->hasMany(Label::class, 'repository_id', 'id')
+            ->orderBy('name', 'asc');
+    }
+
+    public function issues($state = 'open', $assignee = 'any', $search = null)
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');
         $query->with('assignees', 'openedBy');
@@ -32,6 +44,10 @@ class Repository extends Model
             $query->where('state', $state);
         }
 
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
         if ($assignee !== 'any') {
             $query->whereHas('assignees', function ($q) use ($assignee) {
                 $q->where('github_users.id', $assignee);
@@ -43,7 +59,7 @@ class Repository extends Model
         return $query;
     }
 
-    public function pullRequests($state = 'open', $assignee = 'any')
+    public function pullRequests($state = 'open', $assignee = 'any', $search = null)
     {
         $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy');
@@ -52,6 +68,10 @@ class Repository extends Model
             $query->where('state', $state);
         }
 
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
         if ($assignee !== 'any') {
             $query->whereHas('assignees', function ($q) use ($assignee) {
                 $q->where('github_users.id', $assignee);
@@ -63,15 +83,13 @@ class Repository extends Model
         return $query;
     }
 
-    public function items($type, $state = null, $assignee = null)
+    public function items($type, $state = null, $assignee = null, $search = null)
     {
-        if ($type === 'issue') {
-            return $this->issues($state, $assignee);
-        } elseif ($type === 'pr') {
-            return $this->pullRequests($state, $assignee);
+        if ($type === 'prs') {
+            return $this->pullRequests($state, $assignee, $search);
         }
 
-        throw new \InvalidArgumentException("Invalid item type: $type");
+        return $this->issues($state, $assignee, $search);
     }
 
     public function branches()

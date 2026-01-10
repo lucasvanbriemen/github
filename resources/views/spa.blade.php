@@ -29,7 +29,10 @@ $userID = \App\GithubConfig::USERID;
             let uri = route.uri;
 
             for (const [key, value] of Object.entries(params)) {
-                uri = uri.replace(`{${key}}`, encodeURIComponent(value));
+                // Remove the $ if present
+                const cleanKey = key.startsWith('$') ? key.slice(1) : key;
+
+                uri = uri.replace(`{${cleanKey}}`, encodeURIComponent(value));
             }
 
             return `/${uri}`;

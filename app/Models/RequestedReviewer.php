@@ -20,5 +20,6 @@ class RequestedReviewer extends Model
         'pull_request_id',
         'user_id',
         'state',
+        'last_state_before_dismiss',
     ];
 }

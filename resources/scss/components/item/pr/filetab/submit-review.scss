@@ -1,0 +1,56 @@
+.review-panel {
+  position: absolute;
+  right: 1rem;
+  top: 1.25rem;
+
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--background-color-two);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  width: 50%;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  :global(.item-comment .markdown-body) {
+    border-radius: 0 0 0.9rem 0.9rem !important;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    button {
+      flex: 1;
+      text-wrap: nowrap;
+    }
+
+    .button-comment {
+      background-color: var(--primary-color);
+
+      &:hover {
+        background-color: var(--primary-color-dark);
+      }
+    }
+
+    .button-changes {
+      background-color: var(--error-color);
+
+      &:hover {
+        background-color: #b13930;
+      }
+    }
+
+    .button-approve {
+      background-color: var(--success-color);
+
+      &:hover {
+        background-color: #318340;
+      }
+    }
+  }
+}
