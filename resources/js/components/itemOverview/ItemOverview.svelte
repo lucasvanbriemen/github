@@ -18,6 +18,7 @@
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
   let repositoryMetadata = $state({});
+  let selectableMilestones = $state([]);
 
   const isPR= $derived(type === 'prs');
 
@@ -27,6 +28,7 @@
   let assignees = $state([]);
   let selectedAssignee = $state(window.USER_ID);
   let searchQuery = $state('');
+  let selectedMilestone = $state(null);
 
   const anyAssigneeOption = { value: 'any', label: 'Any' };
 
@@ -40,6 +42,13 @@
     assignees.unshift(anyAssigneeOption);
   }
 
+  async function getMilestones() {
+    selectableMilestones = repositoryMetadata.milestones.map(milestone => ({
+      value: milestone.id,
+      label: milestone.title,
+    }));
+  }
+
   async function getItems(pageNr = 1) {
     isLoading = true;
     currentPage = pageNr;
@@ -47,6 +56,9 @@
     let url = `${route('organizations.repositories.items', {$organization, $repository, type})}?page=${pageNr}&state=${state}`;
     url += `&assignee=${selectedAssignee}`;
     url += `&search=${searchQuery}`;
+    if (selectedMilestone) {
+      url += `&milestone=${selectedMilestone}`;
+    }
 
     const json = await api.get(url)
     issues = json.data
@@ -84,6 +96,7 @@
   onMount(async () => {
     repositoryMetadata = await api.get(route('organizations.repositories.metadata', { $organization, $repository }));
     getContributors();
+    getMilestones();
     getItems(currentPage);
   });
 
@@ -123,6 +136,10 @@
 
     <SidebarGroup title="State">
       <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
+    </SidebarGroup>
+
+    <SidebarGroup title="Milestone">
+      <Select name="milestone" selectableItems={selectableMilestones} bind:selectedValue={selectedMilestone} onChange={() => { filterItem() }} searchable={false} />
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">
