@@ -20,7 +20,7 @@
   let repositoryMetadata = $state({});
   let selectableMilestones = $state([]);
 
-  const isPR= $derived(type === 'prs');
+  const isPR = $derived(type === 'prs');
 
   let stateOptions = $state([]);
 
