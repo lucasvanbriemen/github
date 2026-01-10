@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Models\Milestone;
 use App\Events\MilestoneWebhookReceived;
+use Carbon\Carbon;
 
 class ProcessMilestoneWebhook
 {
@@ -28,7 +29,7 @@ class ProcessMilestoneWebhook
                 'repository_id' => $repositoryData->id,
                 'state' => $milestoneData->state,
                 'title' => $milestoneData->title,
-                'due_on' => $milestoneData->due_on,
+                'due_on' => Carbon::parse($milestoneData->due_on),
             ]
         );
 
