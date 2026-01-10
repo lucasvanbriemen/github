@@ -7,7 +7,6 @@
   let rendered = $state('');
 
   let editor = $state(null);
-  let improvedText = $state(null);
   let isImproving = $state(false);
 
   const shortcutMap = {
@@ -221,18 +220,8 @@
   async function improveComment() {
     isImproving = true;
     const data = await api.post(route('comment.improve'), { text: content });
-    improvedText = data.improved;
+    content = data.improved;
     isImproving = false;
-  }
-
-  function acceptImprovement() {
-    content = improvedText;
-    improvedText = null;
-    editor?.focus();
-  }
-
-  function rejectImprovement() {
-    improvedText = null;
   }
 
   onMount(() => {
@@ -281,26 +270,6 @@
         </div>
       {/if}
     </header>
-  {/if}
-
-  {#if improvedText}
-    <div class="improvement-panel">
-      <div class="improvement-header">AI Suggestion</div>
-      <div class="improvement-comparison">
-        <div class="original">
-          <strong>Original:</strong>
-          <div class="text">{content}</div>
-        </div>
-        <div class="improved">
-          <strong>Improved:</strong>
-          <div class="text">{improvedText}</div>
-        </div>
-      </div>
-      <div class="improvement-actions">
-        <button class="accept-button button-primary-outline" onclick={acceptImprovement}>Accept</button>
-        <button class="reject-button button-primary-outline" onclick={rejectImprovement}>Reject</button>
-      </div>
-    </div>
   {/if}
 
   {#if isEditing && canEdit}
