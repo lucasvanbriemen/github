@@ -220,7 +220,7 @@
 
   async function improveComment() {
     isImproving = true;
-    const data = await api.post(route('comment.improve', { organization: $organization, repository: $repository }), { text: content });
+    const data = await api.post(route('organizations.repositories.comment.improve', { organization: $organization, repository: $repository }), { text: content });
     content = data.improved;
     isImproving = false;
   }
