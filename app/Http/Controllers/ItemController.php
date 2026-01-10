@@ -374,19 +374,8 @@ class ItemController extends Controller
         $toBeAdded   = array_values(array_diff($updatedAssignees, $currentAssignees));
         $toBeRemoved = array_values(array_diff($currentAssignees, $updatedAssignees));
 
-        GitHub::issues()->assignees()->add(
-            $organizationName,
-            $repositoryName,
-            $number,
-            ['assignees' => $toBeAdded]
-        );
-
-        GitHub::issues()->assignees()->remove(
-            $organizationName,
-            $repositoryName,
-            $number,
-            ['assignees' => $toBeRemoved]
-        );
+        GitHub::issues()->assignees()->add($organizationName, $repositoryName, $number, ['assignees' => $toBeAdded]);
+        GitHub::issues()->assignees()->remove($organizationName, $repositoryName, $number, ['assignees' => $toBeRemoved]);
     }
 
     private function calculateSimilarity($str1, $str2)
