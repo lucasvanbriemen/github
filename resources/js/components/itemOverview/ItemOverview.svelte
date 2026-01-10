@@ -38,7 +38,6 @@
     }));
 
     assignees.unshift(anyAssigneeOption);
-    selectedAssignee = window.USER_ID;
   }
 
   async function getItems(pageNr = 1) {
