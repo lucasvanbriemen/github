@@ -44,9 +44,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/metadata', [RepositoryController::class, 'metadata'])
             ->name('metadata');
 
-        Route::get('/contributors', [RepositoryController::class, 'getContributors'])
-            ->name('contributors');
-
         Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('items');
 

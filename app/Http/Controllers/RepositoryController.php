@@ -10,20 +10,6 @@ use App\GithubConfig;
 
 class RepositoryController extends Controller
 {
-    public function getContributors($organizationName, $repositoryName)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $contributorsPivot = $repository->contributors()->get();
-        $contributors = [];
-
-        foreach ($contributorsPivot as $contributor) {
-            $contributors[] = $contributor->githubUser;
-        }
-
-        return response()->json($contributors);
-    }
-
     public function getBranchesForPRNotices($organizationName, $repositoryName)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);

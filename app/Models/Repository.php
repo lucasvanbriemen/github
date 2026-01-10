@@ -35,7 +35,7 @@ class Repository extends Model
             ->orderBy('name', 'asc');
     }
 
-    public function issues($state = 'open', $assignee = 'any', $search = null)
+    public function issues($state = 'open', $assignee = 'any', $search = null, $milestone = null)
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');
         $query->with('assignees', 'openedBy');
@@ -54,12 +54,16 @@ class Repository extends Model
             });
         }
 
+        if ($milestone) {
+            $query->where('milestone_id', $milestone);
+        }
+
         $query->orderBy('created_at', 'desc');
 
         return $query;
     }
 
-    public function pullRequests($state = 'open', $assignee = 'any', $search = null)
+    public function pullRequests($state = 'open', $assignee = 'any', $search = null, $milestone = null)
     {
         $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy');
@@ -78,18 +82,22 @@ class Repository extends Model
             });
         }
 
+        if ($milestone) {
+            $query->where('milestone_id', $milestone);
+        }
+
         $query->orderBy('created_at', 'desc');
 
         return $query;
     }
 
-    public function items($type, $state = null, $assignee = null, $search = null)
+    public function items($type, $state = null, $assignee = null, $search = null, $milestone = null)
     {
         if ($type === 'prs') {
-            return $this->pullRequests($state, $assignee, $search);
+            return $this->pullRequests($state, $assignee, $search, $milestone);
         }
 
-        return $this->issues($state, $assignee, $search);
+        return $this->issues($state, $assignee, $search, $milestone);
     }
 
     public function branches()
