@@ -98,7 +98,7 @@
   }
 
   async function updateMilestone({selectedValue}) {
-    api.post(route('organizations.repositories.item.milestone.update', { $organization, $repository, number: item.number }), {
+    api.post(route('organizations.repositories.item.update', { $organization, $repository, number: item.number }), {
       milestone: selectedValue
     });
   }

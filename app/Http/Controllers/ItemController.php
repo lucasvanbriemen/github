@@ -361,20 +361,6 @@ class ItemController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function updateMilestone($organizationName, $repositoryName, $number)
-    {
-        $milestoneId = request()->input('milestone');
-
-        GitHub::issues()->update(
-            $organizationName,
-            $repositoryName,
-            $number,
-            ['milestone' => (int) $milestoneId]
-        );
-
-        return response()->json(['success' => true]);
-    }
-
     public function updateAssignees($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
