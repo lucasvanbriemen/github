@@ -39,6 +39,10 @@
     base_branch = data.master_branch;
 
     templates = data.templates.filter(t => t.type === type);
+
+    // Set the first template as the default selected template
+    selectTemplate(templates[0]);
+    body = selectedTemplate.body ;
   });
 
   function createItem() {
