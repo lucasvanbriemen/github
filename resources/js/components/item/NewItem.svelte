@@ -42,7 +42,6 @@
 
     // Set the first template as the default selected template
     selectTemplate(templates[0]);
-    body = selectedTemplate.body ;
   });
 
   function createItem() {
