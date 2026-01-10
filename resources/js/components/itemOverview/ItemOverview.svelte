@@ -17,6 +17,7 @@
   let currentPage = $state(1);
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
+  let repositoryMetadata = $state({});
 
   const isPR= $derived(type === 'prs');
 
@@ -30,23 +31,15 @@
   const anyAssigneeOption = { value: 'any', label: 'Any' };
 
   async function getContributors() {
-    // Get the assnees and map them to the {value, label} format for Select component
-    assignees = await api.get(route('organizations.repositories.contributors', {$organization, $repository}))
-      .then(response => response.map(assignee => ({
-        value: assignee.id,
-        image: assignee.avatar_url,
-        label: assignee.display_name,
-      })
-    ));
+    assignees = repositoryMetadata.assignees.map(assignee => ({
+      value: assignee.id,
+      image: assignee.avatar_url,
+      label: assignee.display_name,
+    }));
 
     assignees.unshift(anyAssigneeOption);
-
-    const currentUserId = Number(window.USER_ID);
-    if (currentUserId && assignees.some(a => a.value === currentUserId)) {
-      selectedAssignee = currentUserId;
-    }
+    selectedAssignee = window.USER_ID;
   }
-
 
   async function getItems(pageNr = 1) {
     isLoading = true;
@@ -90,6 +83,7 @@
   }
 
   onMount(async () => {
+    repositoryMetadata = await api.get(route('organizations.repositories.metadata', { $organization, $repository }));
     getContributors();
     getItems(currentPage);
   });
