@@ -12,7 +12,7 @@
   let { params = {} } = $props();
   let type = $derived(params.type);
 
-  let issues = $state([]);
+  let items = $state([]);
   let paginationLinks = $state([]);
   let currentPage = $state(1);
   let isLoading = $state(true);
@@ -61,14 +61,14 @@
     }
 
     const json = await api.get(url)
-    issues = json.data
+    items = json.data
     paginationLinks = json.links
     
-    for (let i = 0; i < issues.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       try {
-        issues[i].labels = JSON.parse(issues[i].labels);
+        items[i].labels = JSON.parse(items[i].labels);
       } catch (e) {
-        issues[i].labels = [];
+        items[i].labels = [];
       }
     }
 
@@ -161,7 +161,7 @@
       {/each}
 
 
-      {#each issues as item}
+      {#each items as item}
         <ListItem {item} />
       {/each}
 
