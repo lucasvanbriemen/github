@@ -1,12 +1,14 @@
 <script>
   import { onMount, untrack } from 'svelte';
   import { marked } from 'marked';
+  import { organization, repository } from './stores';
   import 'github-markdown-css/github-markdown-dark.css';
 
   let { content = $bindable(''), canEdit = true, isEditing = false, change } = $props();
   let rendered = $state('');
 
   let editor = $state(null);
+  let isImproving = $state(false);
 
   const shortcutMap = {
     heading: {
@@ -216,6 +218,13 @@
     editor.focus();
   }
 
+  async function improveComment() {
+    isImproving = true;
+    const data = await api.post(route('organizations.repositories.comment.improve', { organization: $organization, repository: $repository }), { text: content });
+    content = data.improved;
+    isImproving = false;
+  }
+
   onMount(() => {
     renderer.checkbox = function (data) {
       const isChecked = data.checked;
@@ -258,6 +267,7 @@
           {#each Object.entries(shortcutMap) as [key, shortcut]}
             <button class="markdown-shortcut button-primary-outline" onclick={() => insertShortcut(shortcut.key)}>{shortcut.title}</button>
           {/each}
+          <button class="markdown-shortcut button-primary-outline" onclick={improveComment} disabled={isImproving || !content.trim()} >{isImproving ? '✨ Improving...' : '✨ Improve'}</button>
         </div>
       {/if}
     </header>
