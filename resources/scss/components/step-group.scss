@@ -5,31 +5,12 @@
   overflow: hidden;
   background-color: var(--background-color-one);
 
-  &.success {
-    border: 1px solid var(--success-color) !important;
-    opacity: 0.8;
-  }
-
   &.failure {
     border: 1px solid var(--error-color) !important;
   }
 
-  &.skipped {
-    border: 1px solid var(--text-color-secondary) !important;
+  &.skipped, &.in-progress, &.cancelled, &.success {
     opacity: 0.6;
-  }
-
-  &.cancelled {
-    border: 1px solid var(--text-color-secondary) !important;
-    opacity: 0.6;
-  }
-
-  &.in-progress {
-    border: 1px solid #1f6feb !important; // GitHub blue
-  }
-
-  &.neutral {
-    border: 1px solid var(--text-color-secondary) !important;
   }
 }
 
