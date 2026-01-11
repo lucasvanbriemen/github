@@ -7,7 +7,6 @@
 
   let steps = $state([]);
   let isLoading = $state(true);
-  let error = $state(null);
 
   function fetchWorkflowFile() {
     return api.get(route('organizations.repositories.workflow-file', { $organization, $repository }));
@@ -153,8 +152,6 @@
         number: step.number,
         status: step.status,
         conclusion: step.conclusion,
-        started_at: step.started_at,
-        completed_at: step.completed_at,
         logGroups: logGroupsArray,
         logs: stepLogText,
         isExpanded: false
@@ -221,7 +218,6 @@
 
   onMount(async () => {
     isLoading = true;
-    error = null;
 
     // Parse job steps from API data
     const jobSteps = job.steps;

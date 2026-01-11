@@ -17,8 +17,7 @@ class WorkflowJobController extends Controller
 
         $steps = json_decode($job->steps, true);
 
-
-        return response()->json($output);
+        return response()->json([]);
     }
 
     public function getLogs($organizationName, $repositoryName, $jobId)
