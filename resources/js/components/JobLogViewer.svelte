@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { organization, repository } from './stores';
   import StepGroup from './StepGroup.svelte';
+  import ListItemSkeleton from './ListItemSkeleton.svelte';
 
   let { job } = $props();
 
@@ -17,9 +18,9 @@
 
 <div class="job-log-viewer">
   {#if isLoading}
-    <div class="loading">
-      <p>Loading logs...</p>
-    </div>
+    {#each Array(3) as _}
+      <ListItemSkeleton />
+    {/each}
   {:else}
     <div class="steps-container">
       {#each steps as step, idx (idx)}
