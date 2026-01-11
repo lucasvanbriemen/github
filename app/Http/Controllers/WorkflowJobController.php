@@ -7,17 +7,6 @@ use App\Models\WorkflowJob;
 
 class WorkflowJobController extends Controller
 {
-    /**
-     * Process and format workflow job logs
-     *
-     * This method orchestrates the entire log processing pipeline:
-     * 1. Fetches raw logs from GitHub
-     * 2. Extracts the workflow YAML file
-     * 3. Maps each job step to its corresponding run command
-     * 4. Matches and formats logs to each step
-     *
-     * @return \Illuminate\Http\JsonResponse Array of processed steps with formatted logs
-     */
     public function getLogs($organizationName, $repositoryName, $jobId)
     {
         $job = WorkflowJob::find($jobId);
