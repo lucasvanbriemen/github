@@ -6,6 +6,16 @@ use App\Helpers\ApiHelper;
 
 class WorkflowJobController extends Controller
 {
+
+    public function show($organizationName, $repositoryName, $jobId)
+    {
+        $logs = $this->getLogs($organizationName, $repositoryName, $jobId);
+        $workflowFile = $this->getWorkflowFile($organizationName, $repositoryName);
+        $output = [];
+
+        return response()->json($output);
+    }
+
     public function getLogs($organizationName, $repositoryName, $jobId)
     {
         $body = ApiHelper::githubApi('/repos/' . $organizationName . '/' . $repositoryName . '/actions/jobs/' . $jobId . '/logs', 'GET', null, true);
