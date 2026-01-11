@@ -18,7 +18,7 @@ class ApiHelper
         ];
     }
 
-    public static function githubApi($route, $method = 'GET', $payload = null)
+    public static function githubApi($route, $method = 'GET', $payload = null, $rawResponse = false,  $headers = [])
     {
         self::init();
 
@@ -26,16 +26,24 @@ class ApiHelper
 
         $ch = curl_init($fullUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, self::formatHeaders());
+        curl_setopt($ch, CURLOPT_HTTPHEADER, self::formatHeaders($headers));
 
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         }
 
+        if ($rawResponse) {
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        }
+
         $responseBody = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+
+        if ($rawResponse) {
+            return $responseBody;
+        }
 
         if ($httpCode === 200) {
             return json_decode($responseBody);
@@ -70,10 +78,14 @@ class ApiHelper
         return null;
     }
 
-    private static function formatHeaders()
+    private static function formatHeaders($headers = [])
     {
         $formatted = [];
         foreach (self::$headers as $key => $value) {
+            $formatted[] = $key.': '.$value;
+        }
+
+        foreach ($headers as $key => $value) {
             $formatted[] = $key.': '.$value;
         }
 

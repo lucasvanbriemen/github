@@ -40,6 +40,13 @@
       padding: 0.25rem 0.5rem;
       border-radius: 0.5rem;
       width: 50%;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--background-color-one);
+      }
     }
 
     .complete-title {

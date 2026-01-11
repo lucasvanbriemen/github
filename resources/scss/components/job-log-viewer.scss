@@ -1,0 +1,8 @@
+.job-log-viewer {
+  width: 100%;
+  height: calc(100% - 1rem);
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
