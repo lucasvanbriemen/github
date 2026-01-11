@@ -6,30 +6,30 @@
   background-color: var(--background-color-one);
 
   &.success {
-    border-color: var(--success-color);
+    border: 1px solid var(--success-color) !important;
     opacity: 0.8;
   }
 
   &.failure {
-    border-color: var(--error-color);
+    border: 1px solid var(--error-color) !important;
   }
 
   &.skipped {
-    border-color: var(--text-color-secondary);
+    border: 1px solid var(--text-color-secondary) !important;
     opacity: 0.6;
   }
 
   &.cancelled {
-    border-color: var(--text-color-secondary);
+    border: 1px solid var(--text-color-secondary) !important;
     opacity: 0.6;
   }
 
   &.in-progress {
-    border-color: #1f6feb; // GitHub blue
+    border: 1px solid #1f6feb !important; // GitHub blue
   }
 
   &.neutral {
-    border-color: var(--text-color-secondary);
+    border: 1px solid var(--text-color-secondary) !important;
   }
 }
 
