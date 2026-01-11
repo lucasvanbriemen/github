@@ -12,7 +12,7 @@
   onMount(async () => {
     isLoading = true;
     steps = await api.get(route('organizations.repositories.workflow-job.logs', { $organization, $repository, jobId: job.id }));
-    // isLoading = false;
+    isLoading = false;
   });
 </script>
 
