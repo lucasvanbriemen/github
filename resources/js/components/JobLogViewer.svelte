@@ -10,11 +10,7 @@
 
   onMount(async () => {
     isLoading = true;
-
-    // Fetch processed logs from backend
-    const response = await api.get(route('organizations.repositories.workflow-job.logs', { $organization, $repository, jobId: job.id }));
-    steps = response;
-
+    steps = await api.get(route('organizations.repositories.workflow-job.logs', { $organization, $repository, jobId: job.id }));
     isLoading = false;
   });
 </script>
