@@ -225,7 +225,6 @@ class WorkflowJobController extends Controller
                 ];
             }
 
-            // Create the final step object with all metadata and organized logs
             $result[] = [
                 'name' => $step['name'],
                 'status' => $step['status'],
