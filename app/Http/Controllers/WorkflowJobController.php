@@ -231,24 +231,7 @@ class WorkflowJobController extends Controller
             // Extract all ##[group]...##[endgroup] sections from the logs
             $logGroups = $this->parseLogsIntoMap($stepLogText);
 
-            // Track which lines belong to groups
-            $groupedLines = [];
-            $lastGroupStart = -1;
-            $lastGroupEnd = -1;
-
             $logLines = explode("\n", $stepLogText);
-            for ($i = 0; $i < count($logLines); $i++) {
-                if (strpos($logLines[$i], '##[group]') !== false) {
-                    $lastGroupStart = $i;
-                }
-                if (strpos($logLines[$i], '##[endgroup]') !== false) {
-                    $lastGroupEnd = $i;
-                    // Mark all lines in this group as grouped
-                    for ($j = $lastGroupStart; $j <= $lastGroupEnd; $j++) {
-                        $groupedLines[$j] = true;
-                    }
-                }
-            }
 
             // Capture any output that appears after groups (ungrouped output)
             $ungroupedLogs = [];
