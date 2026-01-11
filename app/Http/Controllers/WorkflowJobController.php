@@ -7,19 +7,6 @@ use App\Models\WorkflowJob;
 
 class WorkflowJobController extends Controller
 {
-
-    public function show($organizationName, $repositoryName, $jobId)
-    {
-
-        $job = WorkflowJob::find($jobId);
-        $logs = $this->getLogs($organizationName, $repositoryName, $jobId);
-        $workflowFile = $this->getWorkflowFile($organizationName, $repositoryName);
-
-        $steps = json_decode($job->steps, true);
-
-        return response()->json([]);
-    }
-
     /**
      * Process and format workflow job logs
      *
