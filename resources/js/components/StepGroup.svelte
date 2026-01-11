@@ -46,7 +46,6 @@
       {/if}
     </span>
     <span class="step-status-icon" title={step.conclusion}>{getStatusIcon()}</span>
-    <span class="step-number">#{step.number}</span>
     <span class="step-name">{step.name}</span>
   </button>
 
