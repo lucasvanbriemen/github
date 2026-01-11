@@ -79,49 +79,106 @@
     const lines = rawLogText.split('\n');
     const cleanLines = lines.map(line => stripTimestamps(line));
 
-    // For each job step, find its logs by searching for the run command
+    // For each job step, find its logs
     return jobSteps.map((step, stepIndex) => {
       const runCommand = runCommands[step.name];
       let stepLogs = [];
+      let stepStartIndex = -1;
 
       if (runCommand) {
-        let foundStep = false;
-        let foundIndex = -1;
-
+        // Look for where this step's command appears in the logs
         for (let i = 0; i < cleanLines.length; i++) {
           const line = cleanLines[i];
 
-          // Look for the run command text
-          if (!foundStep && line.includes(runCommand)) {
-            foundStep = true;
-            foundIndex = i;
-            // Start collecting from this line
-            stepLogs.push(line);
-            continue;
+          // Match the run command (could be in ##[group] or standalone)
+          if (line.includes(runCommand)) {
+            stepStartIndex = i;
+            break;
           }
+        }
 
-          // If we found the step, collect lines until next significant marker
-          if (foundStep) {
-            stepLogs.push(line);
-
-            // Stop if we encounter another step's run command (look ahead)
+        if (stepStartIndex !== -1) {
+          // Collect everything from step start onwards
+          for (let i = stepStartIndex; i < cleanLines.length; i++) {
+            // Check if we've hit the NEXT step's run command
             if (stepIndex + 1 < jobSteps.length) {
               const nextRunCommand = runCommands[jobSteps[stepIndex + 1].name];
-              if (nextRunCommand && line.includes(nextRunCommand)) {
-                stepLogs.pop(); // Remove the line with next command
+              if (nextRunCommand && cleanLines[i].includes(nextRunCommand)) {
+                // Stop here - don't include the next step's command
                 break;
               }
             }
+
+            stepLogs.push(cleanLines[i]);
           }
         }
       }
 
-      // Join logs and parse into groups
+      // Join logs
       const stepLogText = stepLogs.join('\n').trim();
+
+      // Parse into groups (will only get content within ##[group]...##[endgroup])
       const logGroups = parseLogsIntoMap(stepLogText);
+
+      // Also track which lines are in groups
+      const groupedLines = new Set();
+      const groupMatch = /##\[group\](.*)/g;
+      let match;
+      let lastGroupStart = -1;
+      let lastGroupEnd = -1;
+
+      const logLines = stepLogText.split('\n');
+      for (let i = 0; i < logLines.length; i++) {
+        if (logLines[i].includes('##[group]')) {
+          lastGroupStart = i;
+        }
+        if (logLines[i].includes('##[endgroup]')) {
+          lastGroupEnd = i;
+          // Mark all lines in this group
+          for (let j = lastGroupStart; j <= lastGroupEnd; j++) {
+            groupedLines.add(j);
+          }
+        }
+      }
+
+      // Find any ungrouped logs (output after ##[endgroup])
+      let ungroupedLogs = [];
+      let inUngroupedSection = false;
+      for (let i = 0; i < logLines.length; i++) {
+        if (logLines[i].includes('##[endgroup]')) {
+          inUngroupedSection = true;
+          continue;
+        }
+
+        if (inUngroupedSection && logLines[i].includes('##[group]')) {
+          inUngroupedSection = false;
+        }
+
+        if (inUngroupedSection && logLines[i].trim()) {
+          ungroupedLogs.push(logLines[i]);
+        }
+      }
 
       // Calculate duration from timestamps
       const duration = calculateDuration(step.started_at, step.completed_at);
+
+      // Build log groups array
+      const logGroupsArray = Object.entries(logGroups)
+        .filter(([name, logs]) => logs && logs.trim().length > 0)
+        .map(([name, logs]) => ({
+          name: name,
+          logs: logs,
+          isExpanded: false
+        }));
+
+      // Add ungrouped logs as a special group if they exist
+      if (ungroupedLogs.length > 0) {
+        logGroupsArray.push({
+          name: 'Output',
+          logs: ungroupedLogs.join('\n').trim(),
+          isExpanded: false
+        });
+      }
 
       return {
         name: step.name,
@@ -131,13 +188,7 @@
         started_at: step.started_at,
         completed_at: step.completed_at,
         duration: duration,
-        logGroups: Object.entries(logGroups)
-          .filter(([name, logs]) => logs && logs.trim().length > 0)
-          .map(([name, logs]) => ({
-            name: name,
-            logs: logs,
-            isExpanded: false
-          })),
+        logGroups: logGroupsArray,
         logs: stepLogText,
         isExpanded: false
       };
