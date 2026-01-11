@@ -83,26 +83,29 @@ class WorkflowJobController extends Controller
             // Search for the "run:" command in the next 20 lines
             for ($j = $i; $j < min($i + 20, count($lines)); $j++) {
                 $nextLine = $lines[$j];
-                if (preg_match('/^\s+run:/', $nextLine)) {
-                    // Extract the command, removing "run:" and quotes
-                    $runCommand = preg_replace('/^\s+run:\s*[\'"]?/', '', $nextLine);
-                    $runCommand = preg_replace('/[\'"]?\s*$/', '', $runCommand);
 
-                    // Multi-line commands in YAML are indented on following lines
-                    $k = $j + 1;
-                    while ($k < count($lines)) {
-                        $cmdLine = $lines[$k];
-                        // Continue adding lines that are indented but not list items or new keys
-                        if (preg_match('/^\s+/', $cmdLine) && !preg_match('/^\s+-\s+/', $cmdLine) && !preg_match('/^\s+\w+:/', $cmdLine)) {
-                            $runCommand .= ' ' . trim($cmdLine);
-                            $k++;
-                        } else {
-                            break;
-                        }
-                    }
-
-                    return $runCommand;
+                if (!preg_match('/^\s+run:/', $nextLine)) {
+                    continue;
                 }
+
+                // Extract the command, removing "run:" and quotes
+                $runCommand = preg_replace('/^\s+run:\s*[\'"]?/', '', $nextLine);
+                $runCommand = preg_replace('/[\'"]?\s*$/', '', $runCommand);
+
+                // Multi-line commands in YAML are indented on following lines
+                $k = $j + 1;
+                while ($k < count($lines)) {
+                    $cmdLine = $lines[$k];
+                    // Continue adding lines that are indented but not list items or new keys
+                    if (preg_match('/^\s+/', $cmdLine) && !preg_match('/^\s+-\s+/', $cmdLine) && !preg_match('/^\s+\w+:/', $cmdLine)) {
+                        $runCommand .= ' ' . trim($cmdLine);
+                        $k++;
+                    } else {
+                        break;
+                    }
+                }
+
+                return $runCommand;
             }
         }
 
