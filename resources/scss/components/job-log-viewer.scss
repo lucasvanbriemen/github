@@ -5,26 +5,11 @@
   flex-direction: column;
 }
 
-.loading,
-.error,
-.empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 200px;
-
-  p {
-    margin: 0;
-    color: var(--text-color-secondary);
-    font-size: 0.95rem;
-  }
-}
-
-.error {
-  p {
-    color: var(--error-color);
-  }
+.loading p {
+  margin: 4rem;
+  color: var(--text-color-secondary);
+  font-size: 1.25rem;
+  text-align: center;
 }
 
 .steps-container {
