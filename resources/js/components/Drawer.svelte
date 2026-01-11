@@ -33,9 +33,6 @@
     <div class="drawer">
       <div class="drawer-header">
         <h2 class="drawer-title">{title}</h2>
-        <button class="drawer-close" onclick={onClose} aria-label="Close drawer">
-          ✕
-        </button>
       </div>
       <div class="drawer-content">
         {@render children?.()}

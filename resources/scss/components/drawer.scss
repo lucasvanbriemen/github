@@ -13,8 +13,7 @@
   .drawer {
     width: 40vw;
     height: 100%;
-    background-color: var(--background-color-one);
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+    background-color: var(--background-color);
     display: flex;
     flex-direction: column;
     animation: slideIn 0.3s ease-in-out;
@@ -23,45 +22,18 @@
       width: 50vw;
     }
 
-
     .drawer-header {
       padding: 1.5rem;
       border-bottom: 1px solid var(--color-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-shrink: 0;
 
       .drawer-title {
         margin: 0;
         font-size: 1.25rem;
         font-weight: 600;
-        color: var(--text-color);
-      }
-
-      .drawer-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
         color: var(--text-color-secondary);
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 2rem;
-        min-height: 2rem;
-        border-radius: 0.25rem;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background-color: var(--background-color-two);
-          color: var(--text-color);
-        }
-
-        &:active {
-          transform: scale(0.95);
-        }
       }
     }
 
