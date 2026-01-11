@@ -289,7 +289,7 @@ class WorkflowJobController extends Controller
                 $logGroupsArray[] = [
                     'name' => 'Output',
                     'logs' => trim(implode("\n", $ungroupedLogs)),
-                    'isExpanded' => false
+                    'isExpanded' => $step['conclusion'] === 'failure'  // Auto-expand if the step failed
                 ];
             }
 
@@ -301,7 +301,7 @@ class WorkflowJobController extends Controller
                 'conclusion' => $step['conclusion'],
                 'logGroups' => $logGroupsArray,     // Array of collapsible log groups
                 'logs' => $stepLogText,               // Full raw logs for this step
-                'isExpanded' => false
+                'isExpanded' => $step['conclusion'] === 'failure'  // Auto-expand failed steps
             ];
         }
 
