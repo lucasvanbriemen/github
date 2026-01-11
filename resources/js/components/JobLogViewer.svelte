@@ -8,7 +8,6 @@
   let steps = $state([]);
   let isLoading = $state(true);
   let error = $state(null);
-  let logsMap = $state({});
 
   function calculateDuration(startedAt, completedAt) {
     if (!startedAt || !completedAt) return null;
@@ -33,11 +32,7 @@
   }
 
   function fetchWorkflowFile() {
-    // Call backend endpoint to fetch the workflow file
-    return api.get(route('organizations.repositories.workflow-file', {
-      $organization,
-      $repository
-    }));
+    return api.get(route('organizations.repositories.workflow-file', { $organization, $repository }));
   }
 
   function getRunCommandFromWorkflow(yamlText, stepName) {
@@ -278,11 +273,7 @@
       });
 
       // Fetch full logs
-      const logText = await api.get(route('organizations.repositories.workflow-job.logs', {
-        $organization,
-        $repository,
-        jobId: job.id
-      }));
+      const logText = await api.get(route('organizations.repositories.workflow-job.logs', { $organization, $repository, jobId: job.id }));
 
       if (typeof logText !== 'string') {
         error = 'Failed to fetch job logs';
