@@ -8,9 +8,7 @@ class WorkflowJobController extends Controller
 {
     public function getLogs($organizationName, $repositoryName, $jobId)
     {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $fullUrl = 'https://api.github.com/repos/' . $organization->name . '/' . $repository->name . '/actions/jobs/' . $jobId . '/logs';
+        $fullUrl = 'https://api.github.com/repos/' . $organizationName . '/' . $repositoryName . '/actions/jobs/' . $jobId . '/logs';
 
         $headers = [
             'Accept: application/json',
@@ -40,10 +38,8 @@ class WorkflowJobController extends Controller
 
     public function getWorkflowFile($organizationName, $repositoryName)
     {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
         // Hardcoded workflow file path
-        $fullUrl = 'https://api.github.com/repos/' . $organization->name . '/' . $repository->name . '/contents/.github/workflows/ruby.yml';
+        $fullUrl = 'https://api.github.com/repos/' . $organizationName . '/' . $repositoryName . '/contents/.github/workflows/ruby.yml';
 
         $headers = [
             'Accept: application/vnd.github.v3.raw',
