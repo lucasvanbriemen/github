@@ -51,7 +51,7 @@
     });
 
     possibleMilestones.forEach(milestone => {
-      item.milestone?.number == milestone.value ? milestone.selected = true : milestone.selected = false;
+      milestone.selected = item.milestone?.number == milestone.value;
     });
   });
 
