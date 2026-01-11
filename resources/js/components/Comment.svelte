@@ -13,7 +13,6 @@
 
   onMount(async () => {
     number = params.number;
-    console.log(comment)
   });
 
   function commentHeaderText() {
