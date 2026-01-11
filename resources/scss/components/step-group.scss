@@ -14,6 +14,20 @@
     border-color: var(--error-color);
   }
 
+  &.skipped {
+    border-color: var(--text-color-secondary);
+    opacity: 0.6;
+  }
+
+  &.cancelled {
+    border-color: var(--text-color-secondary);
+    opacity: 0.6;
+  }
+
+  &.in-progress {
+    border-color: #1f6feb; // GitHub blue
+  }
+
   &.neutral {
     border-color: var(--text-color-secondary);
   }
@@ -72,6 +86,29 @@
   .step-group.failure & {
     color: var(--error-color);
   }
+
+  .step-group.skipped & {
+    color: var(--text-color-secondary);
+    opacity: 0.6;
+  }
+
+  .step-group.cancelled & {
+    color: var(--text-color-secondary);
+    opacity: 0.6;
+  }
+
+  .step-group.in-progress & {
+    color: #1f6feb; // GitHub blue
+  }
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+  margin-right: 0.375rem;
+  flex-shrink: 0;
 }
 
 .step-name {
@@ -80,6 +117,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 500;
+}
+
+.step-duration {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 .step-logs {
@@ -126,4 +172,13 @@
     color: var(--text-color-secondary);
     font-size: 0.85rem;
   }
+}
+
+.log-groups-container {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--background-color-one);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }

@@ -90,6 +90,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/workflow-job/{jobId}/logs', [WorkflowJobController::class, 'getLogs'])
             ->name('workflow-job.logs');
 
+        Route::get('/workflow-file', [WorkflowJobController::class, 'getWorkflowFile'])
+            ->name('workflow-file');
+
         Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('branches.pr.notices');
 
