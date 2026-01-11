@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { organization, repository } from './stores';
-  import StepGroup from './StepGroup.svelte';
+  import Step from './Step.svelte';
   import ListItemSkeleton from './ListItemSkeleton.svelte';
 
   let { job } = $props();
@@ -23,7 +23,7 @@
     {/each}
   {:else}
     {#each steps as step, idx (idx)}
-      <StepGroup {step} />
+      <Step {step} />
     {/each}
   {/if}
 </div>
