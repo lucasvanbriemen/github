@@ -117,8 +117,6 @@
 
       // Also track which lines are in groups
       const groupedLines = new Set();
-      const groupMatch = /##\[group\](.*)/g;
-      let match;
       let lastGroupStart = -1;
       let lastGroupEnd = -1;
 
