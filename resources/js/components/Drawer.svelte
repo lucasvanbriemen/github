@@ -9,30 +9,20 @@
     }
   }
 
-  function handleKeydown(e) {
-    if (e.key === 'Escape') {
-      onClose?.();
-    }
-  }
-
   onMount(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleKeydown);
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeydown);
       document.body.style.overflow = '';
     };
   });
 
   $effect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleKeydown);
       document.body.style.overflow = 'hidden';
     } else {
-      document.removeEventListener('keydown', handleKeydown);
       document.body.style.overflow = '';
     }
   });
