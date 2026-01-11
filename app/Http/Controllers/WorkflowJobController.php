@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
+use App\Models\WorkflowJob;
 
 class WorkflowJobController extends Controller
 {
 
     public function show($organizationName, $repositoryName, $jobId)
     {
+
+        $job = WorkflowJob::find($jobId);
         $logs = $this->getLogs($organizationName, $repositoryName, $jobId);
         $workflowFile = $this->getWorkflowFile($organizationName, $repositoryName);
-        $output = [];
+
+        $steps = json_decode($job->steps, true);
+
 
         return response()->json($output);
     }

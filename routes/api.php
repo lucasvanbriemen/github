@@ -87,6 +87,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/pr/{number}/files', [PullRequestController::class, 'getFiles'])
             ->name('pr.files');
 
+        Route::get('/workflow-job/{jobId}', [WorkflowJobController::class, 'show'])
+            ->name('workflow-job.show');
+
         Route::get('/workflow-job/{jobId}/logs', [WorkflowJobController::class, 'getLogs'])
             ->name('workflow-job.logs');
 

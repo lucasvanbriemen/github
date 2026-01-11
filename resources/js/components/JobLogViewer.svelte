@@ -220,47 +220,31 @@
   }
 
   onMount(async () => {
-    try {
-      isLoading = true;
-      error = null;
+    isLoading = true;
+    error = null;
 
-      // Parse job steps from API data
-      const jobSteps = typeof job.steps === 'string' ? JSON.parse(job.steps) : job.steps;
+    // Parse job steps from API data
+    const jobSteps = job.steps;
 
-      if (!jobSteps || jobSteps.length === 0) {
-        error = 'No steps found in job';
-        return;
+    // Fetch the workflow YAML file
+    const workflowYaml = await fetchWorkflowFile();
+
+    // For each job step, get its run command from the workflow
+    const runCommands = {};
+    jobSteps.forEach(step => {
+      const runCommand = getRunCommandFromWorkflow(workflowYaml, step.name);
+      if (runCommand) {
+        runCommands[step.name] = runCommand;
       }
+    });
 
-      // Fetch the workflow YAML file
-      const workflowYaml = await fetchWorkflowFile();
+    // Fetch full logs
+    const logText = await api.get(route('organizations.repositories.workflow-job.logs', { $organization, $repository, jobId: job.id }));
 
-      // For each job step, get its run command from the workflow
-      const runCommands = {};
-      jobSteps.forEach(step => {
-        const runCommand = getRunCommandFromWorkflow(workflowYaml, step.name);
-        if (runCommand) {
-          runCommands[step.name] = runCommand;
-        }
-      });
+    // Match logs to job steps
+    steps = matchLogsToJobSteps(logText, jobSteps, runCommands);
 
-      // Fetch full logs
-      const logText = await api.get(route('organizations.repositories.workflow-job.logs', { $organization, $repository, jobId: job.id }));
-
-      if (typeof logText !== 'string') {
-        error = 'Failed to fetch job logs';
-        return;
-      }
-
-      // Match logs to job steps
-      steps = matchLogsToJobSteps(logText, jobSteps, runCommands);
-
-    } catch (e) {
-      error = e.message || 'Failed to load workflow';
-      console.error('Error:', e);
-    } finally {
-      isLoading = false;
-    }
+    isLoading = false;
   });
 </script>
 
@@ -269,19 +253,11 @@
     <div class="loading">
       <p>Loading logs...</p>
     </div>
-  {:else if error}
-    <div class="error">
-      <p>Error: {error}</p>
-    </div>
-  {:else if steps.length > 0}
+  {:else}
     <div class="steps-container">
       {#each steps as step, idx (idx)}
         <StepGroup {step} />
       {/each}
-    </div>
-  {:else}
-    <div class="empty">
-      <p>No steps available</p>
     </div>
   {/if}
 </div>
