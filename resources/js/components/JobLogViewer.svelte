@@ -22,11 +22,9 @@
       <ListItemSkeleton />
     {/each}
   {:else}
-    <div class="steps-container">
-      {#each steps as step, idx (idx)}
-        <StepGroup {step} />
-      {/each}
-    </div>
+    {#each steps as step, idx (idx)}
+      <StepGroup {step} />
+    {/each}
   {/if}
 </div>
 
