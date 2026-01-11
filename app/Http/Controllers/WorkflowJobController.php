@@ -48,15 +48,6 @@ class WorkflowJobController extends Controller
         return $body;
     }
 
-    /**
-     * Remove ISO timestamps from log lines
-     *
-     * GitHub Actions logs include timestamps at the start of each line.
-     * This removes them to clean up the output and make logs more readable.
-     *
-     * @param string $text Log line with potential timestamp
-     * @return string Log line without timestamp
-     */
     private function stripTimestamps($text)
     {
         // Pattern matches: 2024-01-10T12:34:56.1234567Z
