@@ -54,20 +54,6 @@ class WorkflowJobController extends Controller
         return preg_replace('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s*/', '', $text);
     }
 
-    /**
-     * Extract the run command for a specific step from the workflow YAML
-     *
-     * Searches the workflow file for a step by name and extracts its 'run' command.
-     * Handles both single-line and multi-line run commands.
-     *
-     * Example YAML:
-     *   - name: Install dependencies
-     *     run: npm install
-     *
-     * @param string $yamlText The workflow YAML file content
-     * @param string $stepName The name of the step to find
-     * @return string|null The run command or null if not found
-     */
     private function getRunCommandFromWorkflow($yamlText, $stepName)
     {
         $lines = explode("\n", $yamlText);
@@ -112,22 +98,6 @@ class WorkflowJobController extends Controller
         return null;
     }
 
-    /**
-     * Parse logs into groups based on GitHub Actions group markers
-     *
-     * GitHub Actions logs use ##[group] and ##[endgroup] markers to organize output.
-     * This method extracts all content between these markers and creates a map
-     * where the key is the group name and the value is the group content.
-     *
-     * Example log format:
-     *   ##[group]Build Steps
-     *   > npm run build
-     *   ...output...
-     *   ##[endgroup]
-     *
-     * @param string $logText Raw log text with group markers
-     * @return array Map of group names to their log content
-     */
     private function parseLogsIntoMap($logText)
     {
         $map = [];
@@ -173,21 +143,6 @@ class WorkflowJobController extends Controller
         return $map;
     }
 
-    /**
-     * Match raw logs to individual workflow job steps
-     *
-     * This is the core processing method. It:
-     * 1. Finds each step's logs by searching for its run command
-     * 2. Extracts logs from where the command appears until the next step
-     * 3. Parses logs into collapsible groups using GitHub Actions markers
-     * 4. Captures any ungrouped output after groups
-     * 5. Returns a structured array of steps with organized logs
-     *
-     * @param string $rawLogText Raw unformatted logs from GitHub
-     * @param array $jobSteps Array of step definitions from the job
-     * @param array $runCommands Map of step names to their run commands
-     * @return array Array of formatted steps with logs organized into groups
-     */
     private function matchLogsToJobSteps($rawLogText, $jobSteps, $runCommands)
     {
         $lines = explode("\n", $rawLogText);
