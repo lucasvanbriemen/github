@@ -9,28 +9,6 @@
   let isLoading = $state(true);
   let error = $state(null);
 
-  function calculateDuration(startedAt, completedAt) {
-    if (!startedAt || !completedAt) return null;
-
-    const start = new Date(startedAt);
-    const end = new Date(completedAt);
-    const durationMs = end - start;
-    const seconds = Math.floor(durationMs / 1000);
-
-    if (seconds < 60) {
-      return `${seconds}s`;
-    }
-
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-
-    if (remainingSeconds === 0) {
-      return `${minutes}m`;
-    }
-
-    return `${minutes}m ${remainingSeconds}s`;
-  }
-
   function fetchWorkflowFile() {
     return api.get(route('organizations.repositories.workflow-file', { $organization, $repository }));
   }
@@ -152,9 +130,6 @@
         }
       }
 
-      // Calculate duration from timestamps
-      const duration = calculateDuration(step.started_at, step.completed_at);
-
       // Build log groups array
       const logGroupsArray = Object.entries(logGroups)
         .filter(([name, logs]) => logs && logs.trim().length > 0)
@@ -180,7 +155,6 @@
         conclusion: step.conclusion,
         started_at: step.started_at,
         completed_at: step.completed_at,
-        duration: duration,
         logGroups: logGroupsArray,
         logs: stepLogText,
         isExpanded: false

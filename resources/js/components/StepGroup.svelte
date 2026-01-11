@@ -48,9 +48,6 @@
     <span class="step-status-icon" title={step.conclusion}>{getStatusIcon()}</span>
     <span class="step-number">#{step.number}</span>
     <span class="step-name">{step.name}</span>
-    {#if step.duration}
-      <span class="step-duration">— {step.duration}</span>
-    {/if}
   </button>
 
   {#if isExpanded}
