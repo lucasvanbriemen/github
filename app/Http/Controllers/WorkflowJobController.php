@@ -221,19 +221,18 @@ class WorkflowJobController extends Controller
                 $logGroupsArray[] = [
                     'name' => 'Output',
                     'logs' => trim(implode("\n", $ungroupedLogs)),
-                    'isExpanded' => $step['conclusion'] === 'failure'  // Auto-expand if the step failed
+                    'isExpanded' => $step['conclusion'] === 'failure'
                 ];
             }
 
             // Create the final step object with all metadata and organized logs
             $result[] = [
                 'name' => $step['name'],
-                'number' => $step['number'],
                 'status' => $step['status'],
                 'conclusion' => $step['conclusion'],
                 'logGroups' => $logGroupsArray,     // Array of collapsible log groups
                 'logs' => $stepLogText,               // Full raw logs for this step
-                'isExpanded' => $step['conclusion'] === 'failure'  // Auto-expand failed steps
+                'isExpanded' => $step['conclusion'] === 'failure'
             ];
         }
 
