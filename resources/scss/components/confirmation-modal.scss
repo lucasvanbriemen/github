@@ -1,0 +1,75 @@
+.modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	animation: fadeIn 0.2s ease-in-out;
+
+	.confirmation-modal {
+		background-color: var(--background-color);
+		border-radius: 0.5rem;
+		min-width: 400px;
+		max-width: 500px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		animation: scaleIn 0.2s ease-in-out;
+
+		@media (max-width: 768px) {
+			min-width: 90vw;
+		}
+
+		.modal-header {
+			padding: 1.5rem 1.5rem 1rem 1.5rem;
+			border-bottom: 1px solid var(--color-border);
+
+			.modal-title {
+				font-size: 1.25rem;
+				margin: 0;
+				font-weight: 600;
+				color: var(--text-color-secondary);
+			}
+		}
+
+		.modal-body {
+			padding: 1.5rem;
+
+			p {
+				margin: 0;
+				color: var(--text-color);
+				line-height: 1.5;
+			}
+		}
+
+		.modal-actions {
+			padding: 1rem 1.5rem 1.5rem 1.5rem;
+			display: flex;
+			justify-content: flex-end;
+			gap: 0.75rem;
+		}
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes scaleIn {
+	from {
+		transform: scale(0.95);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
