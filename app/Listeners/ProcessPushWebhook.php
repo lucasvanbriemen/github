@@ -55,7 +55,6 @@ class ProcessPushWebhook // implements ShouldQueue
             return;
         }
 
-        // Process commits
         foreach ($payload->commits as $commitData) {
             $author = GithubUser::where('name', $commitData->author->username)->first();
             if (!$author) {

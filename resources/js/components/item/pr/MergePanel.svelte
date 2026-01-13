@@ -1,0 +1,76 @@
+<script>
+  import { organization, repository } from "../../stores";
+  import Drawer from "../../Drawer.svelte";
+  import JobLogViewer from "../../JobLogViewer.svelte";
+
+  let { item } = $props();
+  let number = item.number;
+
+  let selectedJobId = $state(null);
+  let selectedJob = $state(null);
+  let drawerOpen = $state(false);
+
+  function close() {
+    api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
+      state: 'closed',
+    });
+    item.state = 'closed';
+  }
+
+  function merge() {
+    api.post(route(`organizations.repositories.pr.merge`, { $organization, $repository, number }));
+    item.state = 'merged';
+  }
+
+  function ready_for_review() {
+    api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
+      draft: false,
+    });
+
+    item.state = 'open';
+  }
+
+  function openJobLog(job) {
+    selectedJobId = job.id;
+    selectedJob = job;
+    drawerOpen = true;
+  }
+</script>
+
+<div class="merge-panel">
+  {#if item.latest_commit?.workflow}
+    {#if item.latest_commit.workflow.conclusion != 'success'}
+      <div class="workflow {item.latest_commit.workflow.conclusion}">
+        <span class="workflow-name">{item.latest_commit.workflow.name}</span>
+        {#each item.latest_commit.workflow.jobs as job}
+          <button class="job {job.conclusion}" onclick={() => openJobLog(job)}>{job.name}</button>
+        {/each}
+      </div>
+    {:else}
+      <div class="workflow success">
+        <span class="workflow-name">{item.latest_commit.workflow.name}</span>
+        <span class="complete-title">All checks have passed</span>
+        <span class="complete-metadata">All {item.latest_commit.workflow.jobs.length} jobs completed successfully</span>
+      </div>
+    {/if}
+  {/if}
+
+  {#if item.state === 'open'}
+    <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
+    <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>
+  {/if}
+  
+  {#if item.state === 'draft'}
+    <button class="button-primary ready-for-review" onclick={ready_for_review}>Ready for Review</button>
+  {/if}
+</div>
+
+{#if drawerOpen && selectedJob}
+  <Drawer isOpen={drawerOpen} onClose={() => drawerOpen = false} title={selectedJob.name}>
+    <JobLogViewer job={selectedJob} />
+  </Drawer>
+{/if}
+
+<style lang="scss">
+  @import '../../../../scss/components/item/pr/merge-panel';
+</style>

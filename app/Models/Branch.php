@@ -29,22 +29,13 @@ class Branch extends Model
             ->orderBy('created_at', 'desc');
     }
 
-    public function showNotice()
+    public function scopeShowNotice($query)
     {
-        $show = true;
-        if (in_array($this->name, self::MASTER_BRANCHES)) {
-            $show = false;
-        }
-
-        if ($this->hasPullRequest) {
-            $show = false;
-        }
-
         $sixHoursAgo = now()->subHours(self::NOTICE_CREATED_TIME_HOURS);
-        if ($this->created_at < $sixHoursAgo) {
-            $show = false;
-        }
 
-        return $show;
+        return $query
+            ->whereNotIn('name', self::MASTER_BRANCHES)
+            ->where('created_at', '>=', $sixHoursAgo)
+            ->whereDoesntHave('hasPullRequest');
     }
 }

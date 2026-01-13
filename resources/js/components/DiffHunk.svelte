@@ -19,7 +19,7 @@
 
       // Determine line type
       let type = 'context';
-      let displayLine = line;
+      let codeContent = line.slice(1); // Strip the diff marker (first character)
 
       if (line.startsWith('+')) {
         type = 'added';
@@ -27,15 +27,15 @@
         if (end !== null) {
           const effectiveStart = start ?? end - 3; // Default to 3 lines before end if start not provided
           if (currentLine >= effectiveStart && currentLine <= end) {
-            hunkLines.push({ type, content: displayLine, lineNumber: currentLine });
+            hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
           }
         } else {
-          hunkLines.push({ type, content: displayLine, lineNumber: currentLine });
+          hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
         }
         currentLine++;
       } else if (line.startsWith('-')) {
         type = 'removed';
-        hunkLines.push({ type, content: displayLine, lineNumber: null });
+        hunkLines.push({ type, content: codeContent, lineNumber: null });
         // Removed lines don't increment currentLine
       } else if (line.trim() !== '') {
         // Context line
@@ -43,10 +43,10 @@
           const effectiveStart = start ?? end - 3; // Default to 3 lines before end if start not provided
           // Include some context around the target lines
           if (currentLine >= effectiveStart - 3 && currentLine <= end + 3) {
-            hunkLines.push({ type, content: displayLine, lineNumber: currentLine });
+            hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
           }
         } else {
-          hunkLines.push({ type, content: displayLine, lineNumber: currentLine });
+          hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
         }
         currentLine++;
       }
