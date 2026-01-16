@@ -25,7 +25,7 @@
 	<div class="modal-backdrop" onclick={handleBackdropClick}>
 		<div class="confirmation-modal">
 			<div class="modal-header">
-				<h2 class="modal-title">{title}</h2>
+				<h3 class="modal-title">{title}</h3>
 			</div>
 			<div class="modal-body">
 				<p>{message}</p>
