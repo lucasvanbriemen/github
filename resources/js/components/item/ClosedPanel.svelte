@@ -1,8 +1,10 @@
 <script>
   import { organization, repository } from "../stores";
+  import ConfirmationModal from "../ConfirmationModal.svelte";
 
   let { item } = $props();
   let number = item.number;
+  let closeConfirmOpen = $state(false);
 
   function close() {
     api.post(route(`organizations.repositories.item.update`, { $organization, $repository, number }), {
@@ -14,10 +16,12 @@
 
 {#if item.state === 'open'}
   <div class="merge-panel">
-    <button class="button-primary" onclick={() => close()}>Close issue</button>
+    <button class="button-primary" onclick={() => closeConfirmOpen = true}>Close issue</button>
   </div>
 {/if}
-  
+
+<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Issue" message="Are you sure you want to close this issue? The issue can be reopened later." confirmText="Close"/>
+
 <style lang="scss">
   @import '../../../scss/components/item/pr/merge-panel';
 </style>

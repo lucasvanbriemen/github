@@ -1,14 +1,16 @@
 <script>
   import { organization, repository } from "../../stores";
   import Drawer from "../../Drawer.svelte";
+  import ConfirmationModal from "../../ConfirmationModal.svelte";
   import JobLogViewer from "../../JobLogViewer.svelte";
 
   let { item } = $props();
   let number = item.number;
 
-  let selectedJobId = $state(null);
   let selectedJob = $state(null);
   let drawerOpen = $state(false);
+  let mergeConfirmOpen = $state(false);
+  let closeConfirmOpen = $state(false);
 
   function close() {
     api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
@@ -56,14 +58,17 @@
   {/if}
 
   {#if item.state === 'open'}
-    <button class="button-primary" onclick={() => merge()}>Merge Pull Request</button>
-    <button class="button-error-outline" onclick={() => close()}>Close Pull Request</button>
+    <button class="button-primary" onclick={() => mergeConfirmOpen = true}>Merge Pull Request</button>
+    <button class="button-error-outline" onclick={() => closeConfirmOpen = true}>Close Pull Request</button>
   {/if}
   
   {#if item.state === 'draft'}
     <button class="button-primary ready-for-review" onclick={ready_for_review}>Ready for Review</button>
   {/if}
 </div>
+
+<ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" message="Are you sure you want to merge this pull request? This action will merge the changes into the base branch." confirmText="Merge"/>
+<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" message="Are you sure you want to close this pull request without merging? The pull request can be reopened later."confirmText="Close" />
 
 {#if drawerOpen && selectedJob}
   <Drawer isOpen={drawerOpen} onClose={() => drawerOpen = false} title={selectedJob.name}>
