@@ -11,14 +11,6 @@
 		onConfirm?.();
 		onClose?.();
 	}
-
-	$effect(() => {
-		if (isOpen) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = '';
-		}
-	});
 </script>
 
 {#if isOpen}
