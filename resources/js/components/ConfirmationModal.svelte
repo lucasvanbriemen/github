@@ -1,6 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
-
 	let { isOpen = false, onClose, onConfirm, title = 'Confirm Action', message = 'Are you sure you want to proceed?', confirmText = 'Confirm', cancelText = 'Cancel'} = $props();
 
 	function handleBackdropClick(e) {
