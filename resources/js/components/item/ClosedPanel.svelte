@@ -1,6 +1,6 @@
 <script>
   import { organization, repository } from "../stores";
-  import ConfirmationModal from "./ConfirmationModal.svelte";
+  import ConfirmationModal from "../ConfirmationModal.svelte";
 
   let { item } = $props();
   let number = item.number;
