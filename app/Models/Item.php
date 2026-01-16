@@ -42,7 +42,7 @@ class Item extends Model
 
     public function getCreatedAtHumanAttribute()
     {
-        return $this->created_at->diffForHumans();
+        return $this->created_at?->diffForHumans();
     }
 
     public function repository()

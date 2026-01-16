@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Fuse\Fuse;
+
 use App\Models\Item;
 use App\Services\RepositoryService;
 use App\Models\Issue;
@@ -380,20 +382,6 @@ class ItemController extends Controller
         GitHub::issues()->assignees()->remove($organizationName, $repositoryName, $number, ['assignees' => $toBeRemoved]);
     }
 
-    private function calculateSimilarity($str1, $str2)
-    {
-        $str1 = strtolower($str1);
-        $str2 = strtolower($str2);
-
-        // Use Levenshtein distance for fuzzy matching
-        $distance = levenshtein($str1, $str2);
-        $maxLen = max(strlen($str1), strlen($str2));
-
-        // Calculate similarity as percentage (0-100)
-        if ($maxLen === 0) return 100;
-        return round((1 - ($distance / $maxLen)) * 100);
-    }
-
     public function searchLinkableItems($organizationName, $repositoryName, $number)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -407,26 +395,26 @@ class ItemController extends Controller
         $items = Item::where('repository_id', $repository->id)
             ->where('type', $oppositeType)
             ->select(['id', 'number', 'title', 'type', 'state'])
-            ->orderByDesc('state')
-            ->orderByDesc('number')
-            ->limit(100)
             ->get();
 
-        // Apply fuzzy matching if search is provided
+        // Use Fuse.js for fuzzy search if search term provided
         if ($search) {
-            $items = $items->filter(function ($item) use ($search) {
-                $numberSimilarity = $this->calculateSimilarity((string)$item->number, $search);
-                $titleSimilarity = $this->calculateSimilarity($item->title, $search);
+            $fuse = new Fuse($items->toArray(), [
+                'keys' => ['number', 'title'],
+                'threshold' => 0.3,
+                'shouldSort' => true,
+            ]);
 
-                // Return items with >= 70% similarity
-                return $numberSimilarity >= 70 || $titleSimilarity >= 70;
-            })->values();
+            $results = $fuse->search($search);
+            $items = collect($results)->pluck('item');
         }
 
-        $result = $items->map(function ($item) {
+        $result = $items->take(100)->map(function ($item) {
             return [
-                'value' => $item->number,
-                'label' => $item->title
+                'value' => $item['number'] ?? $item->number,
+                'label' => $item['title'] ?? $item->title,
+                'state' => $item['state'] ?? $item->state,
+                'type' => $item['type'] ?? $item->type
             ];
         });
 

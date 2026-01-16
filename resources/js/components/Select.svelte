@@ -88,11 +88,14 @@
     <div class="option-wrapper">
       {#each visableOptions() as option (option.value)}
         <button class="option-item" class:active={selectedValue == option.value || option.selected} onclick={() => selectOption(option.value)} type="button">
-          <div>
+          <div class="option-content">
             {#if option.image}
               <img src={option.image} alt={option.label} class="option-image" />
             {/if}
-            {option.label}
+            {#if option.type}
+              <Icon name={option.type} className="icon {option.state}" />
+            {/if}
+            <span>{option.label}</span>
           </div>
 
           {#if multiple && option.selected}
