@@ -1,0 +1,56 @@
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.7);
+	display: grid;
+	place-items: center;
+	z-index: 1000;
+	animation: fadeIn 0.2s ease-in-out;
+
+	.confirmation-modal {
+		background-color: var(--background-color);
+		border-radius: 1rem;
+		width: calc(min(70ch, 80vw));
+		box-shadow: 0 40px 60px rgba(0, 0, 0, 0.2);
+		animation: scaleIn 0.2s ease-in-out;
+
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		padding: 1.5rem;
+
+		h3, p {
+			margin: 0;
+		}
+
+		p {
+			color: var(--text-color-secondary);
+		}
+
+		.modal-actions {
+			display: flex;
+			justify-content: flex-end;
+			gap: 0.75rem;
+		}
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes scaleIn {
+	from {
+		transform: scale(0.95);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
