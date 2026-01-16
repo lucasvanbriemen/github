@@ -7,7 +7,6 @@
   let { item } = $props();
   let number = item.number;
 
-  let selectedJobId = $state(null);
   let selectedJob = $state(null);
   let drawerOpen = $state(false);
   let mergeConfirmOpen = $state(false);
