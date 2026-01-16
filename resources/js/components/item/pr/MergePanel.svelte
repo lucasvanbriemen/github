@@ -67,13 +67,8 @@
   {/if}
 </div>
 
-{#if mergeConfirmOpen}
-  <ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" message="Are you sure you want to merge this pull request? This action will merge the changes into the base branch." confirmText="Merge"/>
-{/if}
-
-{#if closeConfirmOpen}
-  <ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" message="Are you sure you want to close this pull request without merging? The pull request can be reopened later."confirmText="Close" />
-{/if}
+<ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" message="Are you sure you want to merge this pull request? This action will merge the changes into the base branch." confirmText="Merge"/>
+<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" message="Are you sure you want to close this pull request without merging? The pull request can be reopened later."confirmText="Close" />
 
 {#if drawerOpen && selectedJob}
   <Drawer isOpen={drawerOpen} onClose={() => drawerOpen = false} title={selectedJob.name}>
