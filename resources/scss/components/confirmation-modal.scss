@@ -1,19 +1,15 @@
 .modal-backdrop {
 	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	inset: 0;
 	background-color: rgba(0, 0, 0, 0.7);
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	display: grid;
+	place-items: center;
 	z-index: 1000;
 	animation: fadeIn 0.2s ease-in-out;
 
 	.confirmation-modal {
 		background-color: var(--background-color);
-		border-radius: 0.5rem;
+		border-radius: 1rem;
 		width: calc(min(70ch, 80vw));
 		box-shadow: 0 40px 60px rgba(0, 0, 0, 0.2);
 		animation: scaleIn 0.2s ease-in-out;
