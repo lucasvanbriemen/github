@@ -28,8 +28,6 @@
     title="Close Issue"
     message="Are you sure you want to close this issue? The issue can be reopened later."
     confirmText="Close"
-    cancelText="Cancel"
-    variant="primary"
   />
 {/if}
 

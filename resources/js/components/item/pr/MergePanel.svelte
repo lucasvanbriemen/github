@@ -76,8 +76,6 @@
     title="Merge Pull Request"
     message="Are you sure you want to merge this pull request? This action will merge the changes into the base branch."
     confirmText="Merge"
-    cancelText="Cancel"
-    variant="primary"
   />
 {/if}
 
@@ -89,8 +87,6 @@
     title="Close Pull Request"
     message="Are you sure you want to close this pull request without merging? The pull request can be reopened later."
     confirmText="Close"
-    cancelText="Cancel"
-    variant="error"
   />
 {/if}
 

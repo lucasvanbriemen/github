@@ -1,16 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 
-	let {
-		isOpen = false,
-		onClose,
-		onConfirm,
-		title = 'Confirm Action',
-		message = 'Are you sure you want to proceed?',
-		confirmText = 'Confirm',
-		cancelText = 'Cancel',
-		variant = 'primary' // 'primary' or 'error'
-	} = $props();
+	let { isOpen = false, onClose, onConfirm, title = 'Confirm Action', message = 'Are you sure you want to proceed?', confirmText = 'Confirm', cancelText = 'Cancel'} = $props();
 
 	function handleBackdropClick(e) {
 		if (e.target === e.currentTarget) {
@@ -43,7 +34,7 @@
 			</div>
 			<div class="modal-actions">
 				<button class="button-primary-outline" onclick={onClose}>{cancelText}</button>
-				<button class="button-{variant}" onclick={handleConfirm}>{confirmText}</button>
+				<button class="button-primary" onclick={handleConfirm}>{confirmText}</button>
 			</div>
 		</div>
 	</div>
