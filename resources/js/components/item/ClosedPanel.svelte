@@ -21,14 +21,7 @@
 {/if}
 
 {#if closeConfirmOpen}
-  <ConfirmationModal
-    isOpen={closeConfirmOpen}
-    onClose={() => closeConfirmOpen = false}
-    onConfirm={close}
-    title="Close Issue"
-    message="Are you sure you want to close this issue? The issue can be reopened later."
-    confirmText="Close"
-  />
+  <ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Issue" message="Are you sure you want to close this issue? The issue can be reopened later." confirmText="Close"/>
 {/if}
 
 <style lang="scss">
