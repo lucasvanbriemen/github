@@ -24,12 +24,8 @@
 {#if isOpen}
 	<div class="modal-backdrop" onclick={handleBackdropClick}>
 		<div class="confirmation-modal">
-			<div class="modal-header">
-				<h3 class="modal-title">{title}</h3>
-			</div>
-			<div class="modal-body">
-				<p>{message}</p>
-			</div>
+			<h3 class="modal-title">{title}</h3>
+			<p>{message}</p>
 			<div class="modal-actions">
 				<button class="button-primary-outline" onclick={onClose}>{cancelText}</button>
 				<button class="button-primary" onclick={handleConfirm}>{confirmText}</button>
