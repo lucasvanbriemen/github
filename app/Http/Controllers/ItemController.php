@@ -6,14 +6,61 @@ use Fuse\Fuse;
 
 use App\Models\Item;
 use App\Services\RepositoryService;
+use App\Services\ImportanceScoreService;
 use App\Models\Issue;
 use App\Models\Commit;
 use App\Helpers\ApiHelper;
 use App\GithubConfig;
 use GrahamCampbell\GitHub\Facades\GitHub;
+use Carbon\Carbon;
 
 class ItemController extends Controller
 {
+    public function nextToWorkOn()
+    {
+        $items = Item::where('importance_score', '>', 0)
+            ->where('state', 'open')
+            ->orderBy('importance_score', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->with([
+                'repository.organization:id,name',
+                'openedBy:id,display_name,avatar_url',
+                'assignees:id,name,avatar_url',
+                'milestone:id,due_on,title',
+                'comments:id,issue_id,type,resolved,user_id',
+                'comments.author:id,name',
+            ])
+            ->get();
+
+        // Apply Friday hotfix filter if enabled
+        $config = GithubConfig::IMPORTANCE_SCORING;
+        $today = Carbon::now()->dayOfWeek; // 0=Sunday, 5=Friday
+        $isFriday = $today === $config['hotfix_friday']['day'];
+
+        if ($isFriday) {
+            $hotfixLabel = $config['hotfix_friday']['label'];
+            $items = $items->filter(function ($item) use ($hotfixLabel) {
+                $labels = is_array($item->labels) ? $item->labels : (json_decode($item->labels, true) ?? []);
+                return in_array($hotfixLabel, $labels);
+            });
+        }
+
+        // Batch load project statuses via GraphQL
+        $projectStatuses = ImportanceScoreService::getProjectStatusesForItems($items->all());
+
+        // Add score breakdown and project info to each item
+        $items->each(function ($item) use ($projectStatuses) {
+            $item->project_status = $projectStatuses[$item->id] ?? null;
+
+            if (is_string($item->labels)) {
+                $item->labels = json_decode($item->labels, true);
+            }
+        });
+
+        return response()->json($items);
+    }
+
     public function index($organizationName, $repositoryName, $type)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);

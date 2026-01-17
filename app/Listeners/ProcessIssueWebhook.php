@@ -8,6 +8,7 @@ use App\Models\Issue;
 use App\Models\Repository;
 use App\Models\Notification;
 use App\GithubConfig;
+use App\Services\ImportanceScoreService;
 
 class ProcessIssueWebhook
 {
@@ -79,6 +80,8 @@ class ProcessIssueWebhook
 
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);
+
+        ImportanceScoreService::updateItemScore($issue);
 
         $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {

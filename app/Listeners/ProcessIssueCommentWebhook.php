@@ -14,6 +14,7 @@ use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
 use App\GithubConfig;
+use App\Services\ImportanceScoreService;
 
 class ProcessIssueCommentWebhook //implements ShouldQueue
 {
@@ -102,6 +103,8 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
                 'triggered_by_id' => $userData->id,
             ]);
         }
+
+        ImportanceScoreService::updateItemScore($item);
 
         return true;
     }

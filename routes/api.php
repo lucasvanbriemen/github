@@ -20,6 +20,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications');
 
+    Route::get('/next-to-work-on', [ItemController::class, 'nextToWorkOn'])
+        ->name('items.next-to-work-on');
+
     Route::get('/notification/{id}', [NotificationController::class, 'show'])
         ->name('notification.show');
 

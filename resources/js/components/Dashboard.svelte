@@ -1,10 +1,12 @@
 <script>
   import { organization, repository } from './stores';
   import Notification from './Notification.svelte';
+  import ListItem from './ListItem.svelte';
   import { onMount } from 'svelte';
 
   let organizations = $state([]);
   let notifications = $state([]);
+  let nextItems = $state([]);
 
   onMount(async () => {
     organization.set(null);
@@ -12,6 +14,7 @@
 
     organizations = await api.get(route('organizations'));
     notifications = await api.get(route('notifications'));
+    nextItems = await api.get(route('items.next-to-work-on'));
   });
 
   function selectRepository(org, repo) {
@@ -54,6 +57,12 @@
   <div class="notifications">
     {#each notifications as notification}
       <Notification {notification} />
+    {/each}
+  </div>
+
+  <div class="next-to-work-on">
+    {#each nextItems as item}
+      <ListItem {item} />
     {/each}
   </div>
 </main>
