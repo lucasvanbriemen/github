@@ -8,12 +8,6 @@ class GithubConfig
     public const USERNAME = "lukaas-007";
     public const USER_EMAIL = "contact@lucasvanbriemen.nl";
 
-    /**
-     * Importance scoring system for items
-     * Items assigned to the current user are filtered first, then scored
-     * Higher score = higher priority
-     */
-
     // Run php artisan items:recalculate-scores when changing config
     public const IMPORTANCE_SCORING = [
         'filters' => [
