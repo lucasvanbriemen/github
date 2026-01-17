@@ -55,10 +55,6 @@ class ImportanceScoreService
     {
         $config = GithubConfig::IMPORTANCE_SCORING['milestone_proximity'];
 
-        if (!$config['enabled']) {
-            return 0;
-        }
-
         if (!$item->milestone || !$item->milestone->due_on) {
             return GithubConfig::IMPORTANCE_SCORING['without_milestone']['normalized_score'];
         }
@@ -68,7 +64,7 @@ class ImportanceScoreService
         $daysUntilDue = $now->diffInDays($dueDate, false); // Can be negative
 
         // Handle overdue
-        if ($daysUntilDue < 0 && $config['overdue']['enabled']) {
+        if ($daysUntilDue < 0) {
             $daysOverdue = abs($daysUntilDue);
             $baseScore = $config['overdue']['normalized_score'];
             $escalation = min(
@@ -94,10 +90,6 @@ class ImportanceScoreService
     public static function getProjectStatusScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING['project_board_status'];
-
-        if (!$config['enabled']) {
-            return 0;
-        }
 
         $status = self::getProjectStatusViaGraphQL($item);
 
@@ -184,10 +176,6 @@ class ImportanceScoreService
     {
         $config = GithubConfig::IMPORTANCE_SCORING['hotfix_friday'];
 
-        if (!$config['enabled']) {
-            return 0;
-        }
-
         $today = Carbon::now()->dayOfWeek; // 0=Sunday, 5=Friday
 
         if ($today !== $config['day']) {
@@ -209,7 +197,7 @@ class ImportanceScoreService
     {
         $config = GithubConfig::IMPORTANCE_SCORING['review_status'];
 
-        if (!$config['enabled'] || !$item->isPullRequest()) {
+        if (!$item->isPullRequest()) {
             return 0;
         }
 
@@ -266,10 +254,6 @@ class ImportanceScoreService
     public static function getUnresolvedCommentsScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING['unresolved_comments'];
-
-        if (!$config['enabled']) {
-            return 0;
-        }
 
         // Get unresolved code comments (use cached or query)
         $unresolvedComments = self::getCodeComments($item)->load('author');

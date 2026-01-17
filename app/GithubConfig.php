@@ -26,10 +26,7 @@ class GithubConfig
         ],
 
         'milestone_proximity' => [
-            'enabled' => true,
-
             'overdue' => [
-                'enabled' => true,
                 'normalized_score' => 100,
                 'escalation_per_day' => 5,  // Capped at 100 total
             ],
@@ -43,14 +40,12 @@ class GithubConfig
         ],
 
         'project_board_status' => [
-            'enabled' => true,
             // Keywords to match in project status field
             'in_progress_keywords' => ['in progress', 'review required', 'UAT (testing done, action for dev)'],
             'normalized_score' => 80,  // Items actively being worked on
         ],
 
         'hotfix_friday' => [
-            'enabled' => true,
             'day' => 5, // 0=Sunday, 5=Friday
             'label' => 'hotfix',
             'hide_non_hotfix_on_friday' => true,
@@ -58,14 +53,12 @@ class GithubConfig
         ],
 
         'review_status' => [
-            'enabled' => true,
             'pending_review_normalized' => 20,
             'changes_requested_normalized' => 100,
             'approved_normalized' => 60,
         ],
 
         'unresolved_comments' => [
-            'enabled' => true,
             'max_score_at_count' => 10,  // 10+ comments = 100%
             'critical_reviewer' => 'dewiWG',
             'critical_count_multiplier' => 3,
