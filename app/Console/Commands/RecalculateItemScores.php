@@ -16,7 +16,7 @@ class RecalculateItemScores extends Command
     {
         $query = Item::query();
 
-        $this->info('Recalculating scores for all items...');
+        $this->info('Recalculating scores for all items');
 
         $items = $query->get();
         $total = $items->count();
@@ -28,7 +28,7 @@ class RecalculateItemScores extends Command
         });
 
         $this->newLine();
-        $this->info("✓ Recalculated scores for {$updated} items (out of {$total} total)");
+        $this->info("Recalculated scores for {$total} items");
 
         return self::SUCCESS;
     }
