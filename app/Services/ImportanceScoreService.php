@@ -387,7 +387,7 @@ class ImportanceScoreService
 
         // Use cached or query reviews
         $reviews = self::getReviewComments($item)
-            ->mapWithKeys(function($review) {
+            ->mapWithKeys(function ($review) {
                 return [$review->id => $review->reviewDetails];
             })
             ->filter();
@@ -396,19 +396,11 @@ class ImportanceScoreService
             return 'pending';
         }
 
-        // Check if any review has changes requested
-        $hasChangesRequested = $reviews->contains(fn($review) => $review->state === 'CHANGES_REQUESTED');
-        if ($hasChangesRequested) {
+        $blockingReview = $reviews->contains(fn($review) => $review->state === 'CHANGES_REQUESTED' || $review->state === 'COMMENTED');
+        if ($blockingReview) {
             return 'changes_requested';
         }
 
-        // Check if any review has comments
-        $hasComments = $reviews->contains(fn($review) => $review->state === 'COMMENTED');
-        if ($hasComments) {
-            return 'changes_requested'; // Treat comments as actionable
-        }
-
-        // Check if all reviews are approved
         $allApproved = $reviews->every(fn($review) => $review->state === 'APPROVED');
         if ($allApproved) {
             return 'approved';
