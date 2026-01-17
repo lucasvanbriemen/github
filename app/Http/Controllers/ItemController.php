@@ -40,6 +40,10 @@ class ItemController extends Controller
         // Add score breakdown and project info to each item
         $items->each(function ($item) use ($projectStatuses) {
             $item->project_status = $projectStatuses[$item->id] ?? null;
+
+            if (is_string($item->labels)) {
+                $item->labels = json_decode($item->labels, true);
+            }
         });
 
         return response()->json($items);
