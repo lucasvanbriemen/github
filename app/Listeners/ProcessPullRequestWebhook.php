@@ -132,7 +132,6 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             $pr->assignees()->sync($assigneeGithubIds);
         }
 
-        // Recalculate importance score
         ImportanceScoreService::updateItemScore($pr);
 
         $currentlyAssigned = $pr->isCurrentlyAssignedToUser();

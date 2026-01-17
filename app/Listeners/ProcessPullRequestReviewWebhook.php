@@ -135,7 +135,6 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             $updateData
         );
 
-        // Recalculate importance score (review status changes affect priority)
         ImportanceScoreService::updateItemScore($pr);
 
         // Create notification if user is assigned OR is the author of the PR
