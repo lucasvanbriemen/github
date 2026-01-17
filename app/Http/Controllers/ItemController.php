@@ -75,7 +75,7 @@ class ItemController extends Controller
             ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
-                'assignees:id,name,avatar_url'
+                'assignees:id,name,avatar_url',
             ]);
 
         $page = request()->query('page', 1);
