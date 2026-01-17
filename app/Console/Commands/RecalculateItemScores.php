@@ -13,7 +13,7 @@ class RecalculateItemScores extends Command
      *
      * @var string
      */
-    protected $signature = 'items:recalculate-scores {--only-assigned : Only recalculate for items assigned to the current user}';
+    protected $signature = 'items:recalculate-scores';
 
     /**
      * The console command description.
@@ -29,22 +29,13 @@ class RecalculateItemScores extends Command
     {
         $query = Item::query();
 
-        if ($this->option('only-assigned')) {
-            $this->info('Recalculating scores for assigned items only...');
-            // We'll filter in PHP since the isCurrentlyAssignedToUser check requires the relationship
-        } else {
-            $this->info('Recalculating scores for all items...');
-        }
+        $this->info('Recalculating scores for all items...');
 
         $items = $query->get();
         $total = $items->count();
         $updated = 0;
 
         $this->withProgressBar($items, function ($item) use (&$updated) {
-            if ($this->option('only-assigned') && !$item->isCurrentlyAssignedToUser()) {
-                return;
-            }
-
             ImportanceScoreService::updateItemScore($item);
             $updated++;
         });
