@@ -14,11 +14,9 @@ class RecalculateItemScores extends Command
 
     public function handle(): int
     {
-        $query = Item::query();
-
         $this->info('Recalculating scores for all items');
 
-        $items = $query->get();
+        $items = Item::all();
 
         $this->withProgressBar($items, function ($item) {
             ImportanceScoreService::updateItemScore($item);
