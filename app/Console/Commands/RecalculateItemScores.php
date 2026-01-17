@@ -8,23 +8,10 @@ use App\Services\ImportanceScoreService;
 
 class RecalculateItemScores extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'items:recalculate-scores';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Recalculate importance scores for all items';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): int
     {
         $query = Item::query();
