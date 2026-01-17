@@ -33,6 +33,19 @@ class ItemController extends Controller
             ])
             ->get();
 
+        // Apply Friday hotfix filter if enabled
+        $config = GithubConfig::IMPORTANCE_SCORING;
+        $today = Carbon::now()->dayOfWeek; // 0=Sunday, 5=Friday
+        $isFriday = $today === $config['hotfix_friday']['day'];
+
+        if ($isFriday && $config['hotfix_friday']['hide_non_hotfix_on_friday']) {
+            $hotfixLabel = $config['hotfix_friday']['label'];
+            $items = $items->filter(function ($item) use ($hotfixLabel) {
+                $labels = is_array($item->labels) ? $item->labels : (json_decode($item->labels, true) ?? []);
+                return in_array($hotfixLabel, $labels);
+            });
+        }
+
         // Batch load project statuses
         $itemIds = $items->pluck('id')->toArray();
         $projectStatuses = $this->getProjectStatusesForItems($itemIds);

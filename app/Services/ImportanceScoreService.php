@@ -19,6 +19,11 @@ class ImportanceScoreService
             return -999; // Return very low score for non-assigned items
         }
 
+        // Hard filter: exclude items with "waiting" label
+        if (self::hasLabel($item, 'waiting')) {
+            return -999;
+        }
+
         $config = GithubConfig::IMPORTANCE_SCORING;
         $weights = $config['category_weights'];
 
@@ -91,30 +96,81 @@ class ImportanceScoreService
             return 0;
         }
 
-        try {
-            $projectItem = \DB::table('project_items')
-                ->where('item_id', $item->id)
-                ->first();
+        $status = self::getProjectStatusViaGraphQL($item);
 
-            if (!$projectItem) {
-                return 0;
-            }
-
-            $status = \DB::table('project_item_field_values')
-                ->where('project_item_id', $projectItem->id)
-                ->where('field_name', 'Status')
-                ->value('field_value');
-
-            if (!$status) {
-                return 0;
-            }
-
-            $isInProgress = collect($config['in_progress_keywords'])->some(fn($keyword) => str_contains(strtolower($status), $keyword));
-
-            return $isInProgress ? $config['normalized_score'] : 0;
-        } catch (\Exception $e) {
-            // Tables don't exist, return 0
+        if (!$status) {
             return 0;
+        }
+
+        $isInProgress = collect($config['in_progress_keywords'])->some(fn($keyword) => str_contains(strtolower($status), $keyword));
+
+        return $isInProgress ? $config['normalized_score'] : 0;
+    }
+
+    /**
+     * Fetch project status from GitHub GraphQL API
+     */
+    private static function getProjectStatusViaGraphQL(Item $item): ?string
+    {
+        try {
+            $item->load(['repository.organization']);
+
+            if (!$item->repository || !$item->repository->organization) {
+                return null;
+            }
+
+            $organizationName = $item->repository->organization->name;
+            $repositoryName = $item->repository->name;
+            $itemNumber = $item->number;
+
+            $query = <<<'GRAPHQL'
+                query ($org: String!, $repo: String!, $number: Int!) {
+                    repository(owner: $org, name: $repo) {
+                        issueOrPullRequest(number: $number) {
+                            ... on Issue {
+                                projectItems(first: 10) {
+                                    nodes {
+                                        fieldValueByName(name: "Status") {
+                                            ... on ProjectV2ItemFieldSingleSelectValue {
+                                                name
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            ... on PullRequest {
+                                projectItems(first: 10) {
+                                    nodes {
+                                        fieldValueByName(name: "Status") {
+                                            ... on ProjectV2ItemFieldSingleSelectValue {
+                                                name
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            GRAPHQL;
+
+            $response = \App\Helpers\ApiHelper::githubGraphql($query, [
+                'org' => $organizationName,
+                'repo' => $repositoryName,
+                'number' => $itemNumber,
+            ]);
+
+            $data = $response->data->repository->issueOrPullRequest->projectItems->nodes ?? [];
+
+            // Return the first project's status value if available
+            if (!empty($data) && isset($data[0]->fieldValueByName->name)) {
+                return $data[0]->fieldValueByName->name;
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            // If GraphQL query fails, return null (item won't get project status score)
+            return null;
         }
     }
 
