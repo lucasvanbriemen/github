@@ -12,10 +12,22 @@
     organization.set(null);
     repository.set(null);
 
-    organizations = await api.get(route('organizations'));
-    notifications = await api.get(route('notifications'));
-    nextItems = await api.get(route('items.next-to-work-on'));
+    getOrganizations();
+    getNotifications();
+    getNextItems();
   });
+
+  async function getNextItems() {
+    nextItems = await api.get(route('items.next-to-work-on'));
+  }
+
+  async function getNotifications() {
+    notifications = await api.get(route('notifications'));
+  }
+
+  async function getOrganizations() {
+    organizations = await api.get(route('organizations'));
+  }
 
   function selectRepository(org, repo) {
     organization.set(org.name);
