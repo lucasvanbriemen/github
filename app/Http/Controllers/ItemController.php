@@ -6,14 +6,65 @@ use Fuse\Fuse;
 
 use App\Models\Item;
 use App\Services\RepositoryService;
+use App\Services\ImportanceScoreService;
 use App\Models\Issue;
 use App\Models\Commit;
 use App\Helpers\ApiHelper;
 use App\GithubConfig;
 use GrahamCampbell\GitHub\Facades\GitHub;
+use Carbon\Carbon;
 
 class ItemController extends Controller
 {
+    public function nextToWorkOn()
+    {
+        $items = Item::where('importance_score', '>', 0)
+            ->where('state', 'open')
+            ->orderBy('importance_score', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->with([
+                'repository.organization:id,name',
+                'openedBy:id,display_name,avatar_url',
+                'assignees:id,name,avatar_url',
+                'milestone:id,due_on,title',
+            ])
+            ->get();
+
+        // Add score breakdown and project info to each item
+        $items->each(function ($item) {
+            $item->score_breakdown = $this->getScoreBreakdown($item);
+            $item->project_status = $this->getProjectStatus($item);
+        });
+
+        return response()->json($items);
+    }
+
+    private function getProjectStatus(Item $item): ?string
+    {
+        try {
+            // Get the project status from the item's project board
+            $projectItem = \DB::table('project_items')
+                ->where('item_id', $item->id)
+                ->first();
+
+            if (!$projectItem) {
+                return null;
+            }
+
+            // Get the field value for the status
+            $status = \DB::table('project_item_field_values')
+                ->where('project_item_id', $projectItem->id)
+                ->where('field_name', 'Status')
+                ->value('field_value');
+
+            return $status;
+        } catch (\Exception $e) {
+            // Tables don't exist, return null
+            return null;
+        }
+    }
+
     public function index($organizationName, $repositoryName, $type)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -24,14 +75,21 @@ class ItemController extends Controller
         $milestone = request()->query('milestone', null);
 
         $query = $repository->items($type, $state, $assignee, $search, $milestone)
-            ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type'])
+            ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type', 'importance_score', 'milestone_id'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
+                'milestone:id,due_on',
             ]);
 
         $page = request()->query('page', 1);
         $items = $query->paginate(30, ['*'], 'page', $page);
+
+        // Add score breakdown to each item
+        $items->getCollection()->transform(function ($item) {
+            $item->score_breakdown = $this->getScoreBreakdown($item);
+            return $item;
+        });
 
         return response()->json($items);
     }
@@ -509,5 +567,112 @@ class ItemController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    private function getScoreBreakdown(Item $item): array
+    {
+        $breakdown = [];
+        $config = GithubConfig::IMPORTANCE_SCORING;
+
+        // Check if assigned to user
+        if (!$item->isCurrentlyAssignedToUser()) {
+            $breakdown[] = 'Not assigned to you';
+            return $breakdown;
+        }
+
+        // Project board status (In Progress/In Review)
+        $projectStatus = $this->getProjectStatus($item);
+        if ($projectStatus) {
+            $config = GithubConfig::IMPORTANCE_SCORING['project_board_status'];
+            $isInProgress = collect($config['in_progress_keywords'])->some(fn($keyword) => str_contains(strtolower($projectStatus), $keyword));
+            if ($isInProgress) {
+                $breakdown[] = "Project status ($projectStatus): " . $config['in_progress_points'] . " pts";
+            }
+        }
+
+        // Hotfix Friday
+        $today = Carbon::now()->dayOfWeek;
+        if ($today == $config['hotfix_friday']['day']) {
+            $hasHotfixLabel = is_array($item->labels) && in_array($config['hotfix_friday']['label'], $item->labels);
+            if ($hasHotfixLabel) {
+                $breakdown[] = 'Hotfix Friday: ' . $config['hotfix_friday']['points_when_active'] . ' pts';
+            }
+        }
+
+        // Milestone proximity
+        if ($item->milestone && $item->milestone->due_on) {
+            $daysUntilDue = Carbon::now()->diffInDays(Carbon::parse($item->milestone->due_on), false);
+            if ($daysUntilDue > 0 && $daysUntilDue <= 7) {
+                $points = 0;
+                foreach ($config['milestone_proximity']['points_by_days_until_due'] as $days => $pts) {
+                    if ($daysUntilDue <= $days) {
+                        $points = $pts;
+                        break;
+                    }
+                }
+                if ($points > 0) {
+                    $breakdown[] = "Due in $daysUntilDue days: $points pts";
+                }
+            }
+        }
+
+        // Review status (for PRs)
+        if ($item->isPullRequest()) {
+            $reviewStatus = $this->getPullRequestReviewStatus($item);
+            if ($reviewStatus === 'pending') {
+                $breakdown[] = 'Pending review: ' . $config['review_status']['pending_review_points'] . ' pts';
+            } elseif ($reviewStatus === 'changes_requested') {
+                $breakdown[] = 'Changes requested: ' . $config['review_status']['changes_requested_points'] . ' pts';
+            } elseif ($reviewStatus === 'approved') {
+                $breakdown[] = 'All approved: ' . $config['review_status']['all_approved_points'] . ' pts';
+            }
+        }
+
+        // No milestone baseline
+        if (!$item->milestone_id) {
+            $breakdown[] = 'No milestone: ' . $config['without_milestone']['default_points'] . ' pts';
+        }
+
+        if (empty($breakdown)) {
+            $breakdown[] = 'Score: ' . $item->importance_score . ' pts';
+        }
+
+        return $breakdown;
+    }
+
+    private function getPullRequestReviewStatus(Item $item): string
+    {
+        if (!$item->isPullRequest()) {
+            return 'none';
+        }
+
+        $reviews = \App\Models\BaseComment::where('issue_id', $item->id)
+            ->where('type', 'review')
+            ->get()
+            ->mapWithKeys(function($review) {
+                return [$review->id => $review->reviewDetails];
+            })
+            ->filter();
+
+        if ($reviews->isEmpty()) {
+            return 'pending';
+        }
+
+        $hasChangesRequested = $reviews->contains(fn($review) => $review->state === 'CHANGES_REQUESTED');
+        if ($hasChangesRequested) {
+            return 'changes_requested';
+        }
+
+        $hasComments = $reviews->contains(fn($review) => $review->state === 'COMMENTED');
+        if ($hasComments) {
+            return 'changes_requested';
+        }
+
+        $allApproved = $reviews->every(fn($review) => $review->state === 'APPROVED');
+        if ($allApproved) {
+            return 'approved';
+        }
+
+        return 'pending';
     }
 }

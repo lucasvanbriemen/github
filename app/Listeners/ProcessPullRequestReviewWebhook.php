@@ -12,6 +12,7 @@ use App\Models\Notification;
 use App\Models\RequestedReviewer;
 use App\GithubConfig;
 use App\Models\BaseComment;
+use App\Services\ImportanceScoreService;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -133,6 +134,9 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             ],
             $updateData
         );
+
+        // Recalculate importance score (review status changes affect priority)
+        ImportanceScoreService::updateItemScore($pr);
 
         // Create notification if user is assigned OR is the author of the PR
         if ($pr->isCurrentlyAssignedToUser() || $pr->opened_by_id === GithubConfig::USERID) {

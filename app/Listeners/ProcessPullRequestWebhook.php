@@ -11,6 +11,7 @@ use App\Models\RequestedReviewer;
 use App\GithubConfig;
 use App\Models\Notification;
 use App\Helpers\ApiHelper;
+use App\Services\ImportanceScoreService;
 use RuntimeException;
 use Carbon\Carbon;
 
@@ -130,6 +131,9 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         if ($pr) {
             $pr->assignees()->sync($assigneeGithubIds);
         }
+
+        // Recalculate importance score
+        ImportanceScoreService::updateItemScore($pr);
 
         $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {

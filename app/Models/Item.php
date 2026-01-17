@@ -29,6 +29,7 @@ class Item extends Model
         'opened_by_id',
         'type',
         'milestone_id',
+        'importance_score',
     ];
 
     protected $casts = [
