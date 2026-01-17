@@ -46,9 +46,8 @@ class ItemController extends Controller
             });
         }
 
-        // Batch load project statuses
-        $itemIds = $items->pluck('id')->toArray();
-        $projectStatuses = $this->getProjectStatusesForItems($itemIds);
+        // Batch load project statuses via GraphQL
+        $projectStatuses = ImportanceScoreService::getProjectStatusesForItems($items->all());
 
         // Add score breakdown and project info to each item
         $items->each(function ($item) use ($projectStatuses) {
@@ -62,62 +61,6 @@ class ItemController extends Controller
         return response()->json($items);
     }
 
-    private function getProjectStatusesForItems(array $itemIds): array
-    {
-        if (empty($itemIds)) {
-            return [];
-        }
-
-        try {
-            $statuses = [];
-            $projectItems = \DB::table('project_items')
-                ->whereIn('item_id', $itemIds)
-                ->pluck('id', 'item_id');
-
-            if ($projectItems->isEmpty()) {
-                return $statuses;
-            }
-
-            $fieldValues = \DB::table('project_item_field_values')
-                ->whereIn('project_item_id', $projectItems->values())
-                ->where('field_name', 'Status')
-                ->pluck('field_value', 'project_item_id');
-
-            foreach ($projectItems as $itemId => $projectItemId) {
-                $statuses[$itemId] = $fieldValues[$projectItemId] ?? null;
-            }
-
-            return $statuses;
-        } catch (\Exception $e) {
-            // Tables don't exist or query failed
-            return [];
-        }
-    }
-
-    private function getProjectStatus(Item $item): ?string
-    {
-        try {
-            // Get the project status from the item's project board
-            $projectItem = \DB::table('project_items')
-                ->where('item_id', $item->id)
-                ->first();
-
-            if (!$projectItem) {
-                return null;
-            }
-
-            // Get the field value for the status
-            $status = \DB::table('project_item_field_values')
-                ->where('project_item_id', $projectItem->id)
-                ->where('field_name', 'Status')
-                ->value('field_value');
-
-            return $status;
-        } catch (\Exception $e) {
-            // Tables don't exist, return null
-            return null;
-        }
-    }
 
     public function index($organizationName, $repositoryName, $type)
     {

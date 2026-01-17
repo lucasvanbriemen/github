@@ -11,9 +11,7 @@ class GithubConfig
     // Run php artisan items:recalculate-scores when changing config
     public const IMPORTANCE_SCORING = [
         'filters' => [
-            // Hard filter: must be assigned to current user
             'assigned_to_user' => true,
-            // Labels that should be excluded from priority list
             'excluded_labels' => ['waiting', 'needs-uat'],
         ],
 

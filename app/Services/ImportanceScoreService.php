@@ -103,7 +103,102 @@ class ImportanceScoreService
     }
 
     /**
-     * Fetch project status from GitHub GraphQL API
+     * Batch fetch project statuses from GitHub GraphQL API for multiple items
+     */
+    public static function getProjectStatusesForItems(array $items): array
+    {
+        if (empty($items)) {
+            return [];
+        }
+
+        // Group items by (organization, repository)
+        $groupedByRepo = [];
+        foreach ($items as $item) {
+            if (!$item->repository || !$item->repository->organization) {
+                continue;
+            }
+
+            $repoKey = $item->repository->organization->name . '/' . $item->repository->name;
+            if (!isset($groupedByRepo[$repoKey])) {
+                $groupedByRepo[$repoKey] = [
+                    'org' => $item->repository->organization->name,
+                    'repo' => $item->repository->name,
+                    'items' => [],
+                ];
+            }
+            $groupedByRepo[$repoKey]['items'][] = $item;
+        }
+
+        $statuses = [];
+
+        // Query each repository's items
+        foreach ($groupedByRepo as $repoData) {
+            try {
+                $org = $repoData['org'];
+                $repo = $repoData['repo'];
+                $itemsInRepo = $repoData['items'];
+
+                // Build a query for up to 10 items per repo
+                $queryParts = [];
+                foreach (array_slice($itemsInRepo, 0, 10) as $index => $item) {
+                    $alias = "item{$index}";
+                    $queryParts[] = "$alias: issueOrPullRequest(number: {$item->number}) {
+                        ... on Issue {
+                            projectItems(first: 10) {
+                                nodes {
+                                    fieldValueByName(name: \"Status\") {
+                                        ... on ProjectV2ItemFieldSingleSelectValue {
+                                            name
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        ... on PullRequest {
+                            projectItems(first: 10) {
+                                nodes {
+                                    fieldValueByName(name: \"Status\") {
+                                        ... on ProjectV2ItemFieldSingleSelectValue {
+                                            name
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }";
+                }
+
+                $query = "query (\$owner: String!, \$repo: String!) {
+                    repository(owner: \$owner, name: \$repo) {
+                        " . implode("\n", $queryParts) . "
+                    }
+                }";
+
+                $response = \App\Helpers\ApiHelper::githubGraphql($query, [
+                    'owner' => $org,
+                    'repo' => $repo,
+                ]);
+
+                // Extract statuses from response
+                foreach (array_slice($itemsInRepo, 0, 10) as $index => $item) {
+                    $alias = "item{$index}";
+                    $projectItems = $response->data->repository->{$alias}->projectItems->nodes ?? [];
+
+                    if (!empty($projectItems) && isset($projectItems[0]->fieldValueByName->name)) {
+                        $statuses[$item->id] = $projectItems[0]->fieldValueByName->name;
+                    }
+                }
+            } catch (\Exception $e) {
+                // If GraphQL query fails, skip this repo
+                continue;
+            }
+        }
+
+        return $statuses;
+    }
+
+    /**
+     * Fetch project status from GitHub GraphQL API for a single item
      */
     private static function getProjectStatusViaGraphQL(Item $item): ?string
     {
