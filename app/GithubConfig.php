@@ -46,7 +46,6 @@ class GithubConfig
         'hotfix_friday' => [
             'day' => 5, // 0=Sunday, 5=Friday
             'label' => 'hotfix',
-            'hide_non_hotfix_on_friday' => true,
             'normalized_score' => 100,  // Hotfix items get max priority on Friday
         ],
 

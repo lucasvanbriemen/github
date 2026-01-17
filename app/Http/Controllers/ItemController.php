@@ -38,7 +38,7 @@ class ItemController extends Controller
         $today = Carbon::now()->dayOfWeek; // 0=Sunday, 5=Friday
         $isFriday = $today === $config['hotfix_friday']['day'];
 
-        if ($isFriday && $config['hotfix_friday']['hide_non_hotfix_on_friday']) {
+        if ($isFriday) {
             $hotfixLabel = $config['hotfix_friday']['label'];
             $items = $items->filter(function ($item) use ($hotfixLabel) {
                 $labels = is_array($item->labels) ? $item->labels : (json_decode($item->labels, true) ?? []);
