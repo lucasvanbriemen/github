@@ -17,6 +17,10 @@
 
     api.post(route(`organizations.repositories.item.update`, { $organization, $repository, number }), {
       body,
+    }).then((updatedItem) => {
+      item = updatedItem;
+    }).catch((error) => {
+      console.error('Failed to save issue body:', error);
     });
   }
 
