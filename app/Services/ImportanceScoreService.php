@@ -9,42 +9,81 @@ use Carbon\Carbon;
 class ImportanceScoreService
 {
     /**
-     * Calculate the importance score for an item
-     * Score is based on rules defined in GithubConfig::IMPORTANCE_SCORING
+     * Calculate the importance score for an item using weighted normalized scores
+     * Each category returns 0-100, then weighted and summed for final score
      */
     public static function calculateScore(Item $item): int
     {
-        $score = 0;
-
         // Hard filter: item must be assigned to current user
         if (!$item->isCurrentlyAssignedToUser()) {
             return -999; // Return very low score for non-assigned items
         }
 
-        // Check Project Board Status
-        $score += self::getProjectStatusPoints($item);
+        $config = GithubConfig::IMPORTANCE_SCORING;
+        $weights = $config['category_weights'];
 
-        // Check Hotfix Friday
-        $score += self::getHotfixFridayPoints($item);
+        $categoryScores = [
+            'milestone_urgency' => self::getMilestoneUrgencyScore($item),
+            'review_status' => self::getReviewStatusScore($item),
+            'unresolved_comments' => self::getUnresolvedCommentsScore($item),
+            'project_board_status' => self::getProjectStatusScore($item),
+            'hotfix_friday' => self::getHotfixFridayScore($item),
+        ];
 
-        // Check Milestone Proximity
-        $score += self::getMilestoneProximityPoints($item);
-
-        // Check Review Status
-        $score += self::getReviewStatusPoints($item);
-
-        // Default points for items without milestone
-        if (!$item->milestone_id) {
-            $score += GithubConfig::IMPORTANCE_SCORING['without_milestone']['default_points'];
+        $finalScore = 0;
+        foreach ($categoryScores as $category => $normalizedScore) {
+            $weight = $weights[$category] ?? 0;
+            $finalScore += ($normalizedScore * $weight) / 100;
         }
 
-        return $score;
+        return (int) round($finalScore);
     }
 
     /**
-     * Get points based on project board status (In Progress/In Review)
+     * Get milestone urgency score (0-100)
+     * Handles overdue milestones with escalation
      */
-    private static function getProjectStatusPoints(Item $item): int
+    public static function getMilestoneUrgencyScore(Item $item): int
+    {
+        $config = GithubConfig::IMPORTANCE_SCORING['milestone_proximity'];
+
+        if (!$config['enabled']) {
+            return 0;
+        }
+
+        if (!$item->milestone || !$item->milestone->due_on) {
+            return GithubConfig::IMPORTANCE_SCORING['without_milestone']['normalized_score'];
+        }
+
+        $dueDate = Carbon::parse($item->milestone->due_on);
+        $now = Carbon::now();
+        $daysUntilDue = $now->diffInDays($dueDate, false); // Can be negative
+
+        // Handle overdue
+        if ($daysUntilDue < 0 && $config['overdue']['enabled']) {
+            $daysOverdue = abs($daysUntilDue);
+            $baseScore = $config['overdue']['normalized_score'];
+            $escalation = min(
+                $daysOverdue * $config['overdue']['escalation_per_day'],
+                100 - $baseScore
+            );
+            return min($baseScore + $escalation, 100);
+        }
+
+        // Find matching range
+        foreach ($config['ranges'] as $range) {
+            if ($daysUntilDue >= $range['min_days'] && $daysUntilDue <= $range['max_days']) {
+                return $range['normalized_score'];
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get project board status score (0-100)
+     */
+    public static function getProjectStatusScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING['project_board_status'];
 
@@ -72,7 +111,7 @@ class ImportanceScoreService
 
             $isInProgress = collect($config['in_progress_keywords'])->some(fn($keyword) => str_contains(strtolower($status), $keyword));
 
-            return $isInProgress ? $config['in_progress_points'] : 0;
+            return $isInProgress ? $config['normalized_score'] : 0;
         } catch (\Exception $e) {
             // Tables don't exist, return 0
             return 0;
@@ -80,9 +119,9 @@ class ImportanceScoreService
     }
 
     /**
-     * Get points based on Hotfix Friday rules
+     * Get hotfix friday score (0-100)
      */
-    private static function getHotfixFridayPoints(Item $item): int
+    public static function getHotfixFridayScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING['hotfix_friday'];
 
@@ -98,43 +137,16 @@ class ImportanceScoreService
 
         // Check if item has the hotfix label
         if (self::hasLabel($item, $config['label'])) {
-            return $config['points_when_active'];
+            return $config['normalized_score'];
         }
 
         return 0;
     }
 
     /**
-     * Get points based on how close the milestone due date is
+     * Get review status score (0-100)
      */
-    private static function getMilestoneProximityPoints(Item $item): int
-    {
-        $config = GithubConfig::IMPORTANCE_SCORING['milestone_proximity'];
-
-        if (!$config['enabled'] || !$item->milestone) {
-            return 0;
-        }
-
-        $dueDate = Carbon::parse($item->milestone->due_on);
-        $now = Carbon::now();
-        $daysUntilDue = $now->diffInDays($dueDate, false); // Can be negative
-
-        // Find the closest matching days threshold
-        $points = 0;
-        foreach ($config['points_by_days_until_due'] as $days => $pointsValue) {
-            if ($daysUntilDue <= $days && $daysUntilDue > 0) {
-                $points = $pointsValue;
-                break;
-            }
-        }
-
-        return $points;
-    }
-
-    /**
-     * Get points based on review status
-     */
-    private static function getReviewStatusPoints(Item $item): int
+    public static function getReviewStatusScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING['review_status'];
 
@@ -145,17 +157,63 @@ class ImportanceScoreService
         $reviewStatus = self::getPullRequestReviewStatus($item);
 
         return match ($reviewStatus) {
-            'pending' => $config['pending_review_points'],
-            'changes_requested' => $config['changes_requested_points'],
-            'approved' => $config['all_approved_points'],
+            'pending' => $config['pending_review_normalized'],
+            'changes_requested' => $config['changes_requested_normalized'],
+            'approved' => $config['approved_normalized'],
             default => 0,
         };
     }
 
     /**
+     * Get unresolved comments score (0-100)
+     * Normalizes comment count based on max_score_at_count
+     */
+    public static function getUnresolvedCommentsScore(Item $item): int
+    {
+        $config = GithubConfig::IMPORTANCE_SCORING['unresolved_comments'];
+
+        if (!$config['enabled']) {
+            return 0;
+        }
+
+        // Get unresolved code comments (from pull request reviews)
+        $unresolvedComments = \App\Models\BaseComment::where('issue_id', $item->id)
+            ->where('type', 'code')
+            ->where(function ($q) {
+                $q->where('resolved', false)
+                  ->orWhereNull('resolved');
+            })
+            ->with('author')
+            ->get();
+
+        if ($unresolvedComments->isEmpty()) {
+            return 0;
+        }
+
+        $count = 0;
+        foreach ($unresolvedComments as $comment) {
+            $authorName = $comment->author?->name ?? '';
+
+            if ($authorName === $config['critical_reviewer']) {
+                // Critical reviewer comments count as multiplier
+                $count += $config['critical_count_multiplier'];
+            } else {
+                // Normal unresolved comments
+                $count += 1;
+            }
+        }
+
+        // Normalize: at max_score_at_count, return 100
+        $maxCount = $config['max_score_at_count'];
+        $normalizedScore = min(($count / $maxCount) * 100, 100);
+
+        return (int) round($normalizedScore);
+    }
+
+    /**
      * Determine the review status of a pull request
      */
-    private static function getPullRequestReviewStatus(Item $item): string
+    public static function getPullRequestReviewStatus(Item $item): string
     {
         if (!$item->isPullRequest()) {
             return 'none';

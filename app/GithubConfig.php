@@ -21,11 +21,36 @@ class GithubConfig
             'assigned_to_user' => true,
         ],
 
+        'category_weights' => [
+            'milestone_urgency' => 40,      // Deadlines matter most
+            'review_status' => 25,           // Actionable items
+            'unresolved_comments' => 15,    // Feedback pending
+            'project_board_status' => 10,   // Work state context
+            'hotfix_friday' => 10,          // Time-based boost
+        ],
+
+        'milestone_proximity' => [
+            'enabled' => true,
+
+            'overdue' => [
+                'enabled' => true,
+                'normalized_score' => 100,
+                'escalation_per_day' => 5,  // Capped at 100 total
+            ],
+
+            'ranges' => [
+                ['min_days' => 0, 'max_days' => 2, 'normalized_score' => 100],
+                ['min_days' => 3, 'max_days' => 6, 'normalized_score' => 80],
+                ['min_days' => 7, 'max_days' => 14, 'normalized_score' => 50],
+                ['min_days' => 15, 'max_days' => 30, 'normalized_score' => 25],
+            ],
+        ],
+
         'project_board_status' => [
             'enabled' => true,
             // Keywords to match in project status field
             'in_progress_keywords' => ['in progress', 'review required', 'UAT (testing done, action for dev)'],
-            'in_progress_points' => 20, // Items actively being worked on
+            'normalized_score' => 80,  // Items actively being worked on
         ],
 
         'hotfix_friday' => [
@@ -33,28 +58,25 @@ class GithubConfig
             'day' => 5, // 0=Sunday, 5=Friday
             'label' => 'hotfix',
             'hide_non_hotfix_on_friday' => true,
-            'points_when_active' => 100, // Hotfix items get max priority on Friday
-        ],
-
-        'milestone_proximity' => [
-            'enabled' => true,
-            // Points increase as deadline approaches
-            'points_by_days_until_due' => [
-                1 => 100,  // Due tomorrow: max points
-                3 => 80,   // Due in 3 days: high points
-                7 => 50,   // Due in 7 days: moderate points
-            ],
+            'normalized_score' => 100,  // Hotfix items get max priority on Friday
         ],
 
         'review_status' => [
             'enabled' => true,
-            'pending_review_points' => -40,      // Deprioritize: blocked waiting
-            'changes_requested_points' => 60,    // Actionable: can fix now
-            'all_approved_points' => 40,         // Ready to merge/deploy
+            'pending_review_normalized' => 20,
+            'changes_requested_normalized' => 100,
+            'approved_normalized' => 60,
+        ],
+
+        'unresolved_comments' => [
+            'enabled' => true,
+            'max_score_at_count' => 10,  // 10+ comments = 100%
+            'critical_reviewer' => 'dewiWG',
+            'critical_count_multiplier' => 3,
         ],
 
         'without_milestone' => [
-            'default_points' => 10, // Items without milestone still get baseline points
+            'normalized_score' => 10,
         ],
     ];
 }

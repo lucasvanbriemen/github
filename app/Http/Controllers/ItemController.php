@@ -580,99 +580,40 @@ class ItemController extends Controller
             return $breakdown;
         }
 
-        // Project board status (In Progress/In Review)
-        $projectStatus = $this->getProjectStatus($item);
-        if ($projectStatus) {
-            $config = GithubConfig::IMPORTANCE_SCORING['project_board_status'];
-            $isInProgress = collect($config['in_progress_keywords'])->some(fn($keyword) => str_contains(strtolower($projectStatus), $keyword));
-            if ($isInProgress) {
-                $breakdown[] = "Project status ($projectStatus): " . $config['in_progress_points'] . " pts";
+        $weights = $config['category_weights'];
+
+        $categories = [
+            'milestone_urgency' => ImportanceScoreService::getMilestoneUrgencyScore($item),
+            'review_status' => ImportanceScoreService::getReviewStatusScore($item),
+            'unresolved_comments' => ImportanceScoreService::getUnresolvedCommentsScore($item),
+            'project_board_status' => ImportanceScoreService::getProjectStatusScore($item),
+            'hotfix_friday' => ImportanceScoreService::getHotfixFridayScore($item),
+        ];
+
+        foreach ($categories as $key => $score) {
+            if ($score > 0) {
+                $weight = $weights[$key] ?? 0;
+                $contribution = round(($score * $weight) / 100, 1);
+                $label = ucwords(str_replace('_', ' ', $key));
+                $breakdown[] = "{$label}: {$score}/100 (×{$weight}%) = {$contribution} pts";
             }
         }
 
-        // Hotfix Friday
-        $today = Carbon::now()->dayOfWeek;
-        if ($today == $config['hotfix_friday']['day']) {
-            $hasHotfixLabel = is_array($item->labels) && in_array($config['hotfix_friday']['label'], $item->labels);
-            if ($hasHotfixLabel) {
-                $breakdown[] = 'Hotfix Friday: ' . $config['hotfix_friday']['points_when_active'] . ' pts';
-            }
-        }
-
-        // Milestone proximity
-        if ($item->milestone && $item->milestone->due_on) {
+        // Add overdue detail if applicable
+        if ($categories['milestone_urgency'] > 0 && $item->milestone && $item->milestone->due_on) {
             $daysUntilDue = Carbon::now()->diffInDays(Carbon::parse($item->milestone->due_on), false);
-            if ($daysUntilDue > 0 && $daysUntilDue <= 7) {
-                $points = 0;
-                foreach ($config['milestone_proximity']['points_by_days_until_due'] as $days => $pts) {
-                    if ($daysUntilDue <= $days) {
-                        $points = $pts;
-                        break;
-                    }
-                }
-                if ($points > 0) {
-                    $breakdown[] = "Due in $daysUntilDue days: $points pts";
-                }
+            if ($daysUntilDue < 0) {
+                $breakdown[] = "  └─ OVERDUE by " . abs($daysUntilDue) . " days!";
+            } else {
+                $breakdown[] = "  └─ Due in {$daysUntilDue} days";
             }
-        }
-
-        // Review status (for PRs)
-        if ($item->isPullRequest()) {
-            $reviewStatus = $this->getPullRequestReviewStatus($item);
-            if ($reviewStatus === 'pending') {
-                $breakdown[] = 'Pending review: ' . $config['review_status']['pending_review_points'] . ' pts';
-            } elseif ($reviewStatus === 'changes_requested') {
-                $breakdown[] = 'Changes requested: ' . $config['review_status']['changes_requested_points'] . ' pts';
-            } elseif ($reviewStatus === 'approved') {
-                $breakdown[] = 'All approved: ' . $config['review_status']['all_approved_points'] . ' pts';
-            }
-        }
-
-        // No milestone baseline
-        if (!$item->milestone_id) {
-            $breakdown[] = 'No milestone: ' . $config['without_milestone']['default_points'] . ' pts';
         }
 
         if (empty($breakdown)) {
-            $breakdown[] = 'Score: ' . $item->importance_score . ' pts';
+            $breakdown[] = 'Total score: ' . $item->importance_score . ' pts';
         }
 
         return $breakdown;
     }
 
-    private function getPullRequestReviewStatus(Item $item): string
-    {
-        if (!$item->isPullRequest()) {
-            return 'none';
-        }
-
-        $reviews = \App\Models\BaseComment::where('issue_id', $item->id)
-            ->where('type', 'review')
-            ->get()
-            ->mapWithKeys(function($review) {
-                return [$review->id => $review->reviewDetails];
-            })
-            ->filter();
-
-        if ($reviews->isEmpty()) {
-            return 'pending';
-        }
-
-        $hasChangesRequested = $reviews->contains(fn($review) => $review->state === 'CHANGES_REQUESTED');
-        if ($hasChangesRequested) {
-            return 'changes_requested';
-        }
-
-        $hasComments = $reviews->contains(fn($review) => $review->state === 'COMMENTED');
-        if ($hasComments) {
-            return 'changes_requested';
-        }
-
-        $allApproved = $reviews->every(fn($review) => $review->state === 'APPROVED');
-        if ($allApproved) {
-            return 'approved';
-        }
-
-        return 'pending';
-    }
 }
