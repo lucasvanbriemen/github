@@ -38,7 +38,6 @@ class GithubConfig
         ],
 
         'project_board_status' => [
-            // Keywords to match in project status field
             'in_progress_keywords' => ['in progress', 'review required', 'UAT (testing done, action for dev)'],
             'normalized_score' => 80,  // Items actively being worked on
         ],
