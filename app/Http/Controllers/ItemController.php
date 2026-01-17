@@ -28,16 +28,53 @@ class ItemController extends Controller
                 'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
                 'milestone:id,due_on,title',
+                'comments:id,issue_id,type,resolved,user_id',
+                'comments.author:id,name',
             ])
             ->get();
 
+        // Batch load project statuses
+        $itemIds = $items->pluck('id')->toArray();
+        $projectStatuses = $this->getProjectStatusesForItems($itemIds);
+
         // Add score breakdown and project info to each item
-        $items->each(function ($item) {
-            $item->score_breakdown = $this->getScoreBreakdown($item);
-            $item->project_status = $this->getProjectStatus($item);
+        $items->each(function ($item) use ($projectStatuses) {
+            $item->project_status = $projectStatuses[$item->id] ?? null;
         });
 
         return response()->json($items);
+    }
+
+    private function getProjectStatusesForItems(array $itemIds): array
+    {
+        if (empty($itemIds)) {
+            return [];
+        }
+
+        try {
+            $statuses = [];
+            $projectItems = \DB::table('project_items')
+                ->whereIn('item_id', $itemIds)
+                ->pluck('id', 'item_id');
+
+            if ($projectItems->isEmpty()) {
+                return $statuses;
+            }
+
+            $fieldValues = \DB::table('project_item_field_values')
+                ->whereIn('project_item_id', $projectItems->values())
+                ->where('field_name', 'Status')
+                ->pluck('field_value', 'project_item_id');
+
+            foreach ($projectItems as $itemId => $projectItemId) {
+                $statuses[$itemId] = $fieldValues[$projectItemId] ?? null;
+            }
+
+            return $statuses;
+        } catch (\Exception $e) {
+            // Tables don't exist or query failed
+            return [];
+        }
     }
 
     private function getProjectStatus(Item $item): ?string
@@ -84,12 +121,6 @@ class ItemController extends Controller
 
         $page = request()->query('page', 1);
         $items = $query->paginate(30, ['*'], 'page', $page);
-
-        // Add score breakdown to each item
-        $items->getCollection()->transform(function ($item) {
-            $item->score_breakdown = $this->getScoreBreakdown($item);
-            return $item;
-        });
 
         return response()->json($items);
     }
@@ -568,52 +599,4 @@ class ItemController extends Controller
 
         return response()->json(['success' => true]);
     }
-
-    private function getScoreBreakdown(Item $item): array
-    {
-        $breakdown = [];
-        $config = GithubConfig::IMPORTANCE_SCORING;
-
-        // Check if assigned to user
-        if (!$item->isCurrentlyAssignedToUser()) {
-            $breakdown[] = 'Not assigned to you';
-            return $breakdown;
-        }
-
-        $weights = $config['category_weights'];
-
-        $categories = [
-            'milestone_urgency' => ImportanceScoreService::getMilestoneUrgencyScore($item),
-            'review_status' => ImportanceScoreService::getReviewStatusScore($item),
-            'unresolved_comments' => ImportanceScoreService::getUnresolvedCommentsScore($item),
-            'project_board_status' => ImportanceScoreService::getProjectStatusScore($item),
-            'hotfix_friday' => ImportanceScoreService::getHotfixFridayScore($item),
-        ];
-
-        foreach ($categories as $key => $score) {
-            if ($score > 0) {
-                $weight = $weights[$key] ?? 0;
-                $contribution = round(($score * $weight) / 100, 1);
-                $label = ucwords(str_replace('_', ' ', $key));
-                $breakdown[] = "{$label}: {$score}/100 (×{$weight}%) = {$contribution} pts";
-            }
-        }
-
-        // Add overdue detail if applicable
-        if ($categories['milestone_urgency'] > 0 && $item->milestone && $item->milestone->due_on) {
-            $daysUntilDue = Carbon::now()->diffInDays(Carbon::parse($item->milestone->due_on), false);
-            if ($daysUntilDue < 0) {
-                $breakdown[] = "  └─ OVERDUE by " . abs($daysUntilDue) . " days!";
-            } else {
-                $breakdown[] = "  └─ Due in {$daysUntilDue} days";
-            }
-        }
-
-        if (empty($breakdown)) {
-            $breakdown[] = 'Total score: ' . $item->importance_score . ' pts';
-        }
-
-        return $breakdown;
-    }
-
 }

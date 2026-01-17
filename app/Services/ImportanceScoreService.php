@@ -165,6 +165,42 @@ class ImportanceScoreService
     }
 
     /**
+     * Get cached review comments or query if not cached
+     */
+    private static function getReviewComments(Item $item)
+    {
+        // Use eager-loaded relation if available
+        if ($item->relationLoaded('comments')) {
+            return $item->comments->filter(fn($c) => $c->type === 'review');
+        }
+
+        // Fallback to query
+        return \App\Models\BaseComment::where('issue_id', $item->id)
+            ->where('type', 'review')
+            ->get();
+    }
+
+    /**
+     * Get cached code comments or query if not cached
+     */
+    private static function getCodeComments(Item $item)
+    {
+        // Use eager-loaded relation if available
+        if ($item->relationLoaded('comments')) {
+            return $item->comments->filter(fn($c) => $c->type === 'code' && (!$c->resolved || is_null($c->resolved)));
+        }
+
+        // Fallback to query
+        return \App\Models\BaseComment::where('issue_id', $item->id)
+            ->where('type', 'code')
+            ->where(function ($q) {
+                $q->where('resolved', false)
+                  ->orWhereNull('resolved');
+            })
+            ->get();
+    }
+
+    /**
      * Get unresolved comments score (0-100)
      * Normalizes comment count based on max_score_at_count
      */
@@ -176,15 +212,8 @@ class ImportanceScoreService
             return 0;
         }
 
-        // Get unresolved code comments (from pull request reviews)
-        $unresolvedComments = \App\Models\BaseComment::where('issue_id', $item->id)
-            ->where('type', 'code')
-            ->where(function ($q) {
-                $q->where('resolved', false)
-                  ->orWhereNull('resolved');
-            })
-            ->with('author')
-            ->get();
+        // Get unresolved code comments (use cached or query)
+        $unresolvedComments = self::getCodeComments($item)->load('author');
 
         if ($unresolvedComments->isEmpty()) {
             return 0;
@@ -219,10 +248,8 @@ class ImportanceScoreService
             return 'none';
         }
 
-        // Get reviews from base_comments table where type='review'
-        $reviews = \App\Models\BaseComment::where('issue_id', $item->id)
-            ->where('type', 'review')
-            ->get()
+        // Use cached or query reviews
+        $reviews = self::getReviewComments($item)
             ->mapWithKeys(function($review) {
                 return [$review->id => $review->reviewDetails];
             })
