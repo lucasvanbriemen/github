@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\GithubConfig;
 use App\Models\Item;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class ImportanceScoreService
@@ -28,19 +29,16 @@ class ImportanceScoreService
         }
 
         $config = GithubConfig::IMPORTANCE_SCORING;
-        $weights = $config['category_weights'];
-
-        $categoryScores = [
-            'milestone_urgency' => self::getMilestoneUrgencyScore($item),
-            'review_status' => self::getReviewStatusScore($item),
-            'unresolved_comments' => self::getUnresolvedCommentsScore($item),
-            'project_board_status' => self::getProjectStatusScore($item),
-            'hotfix_friday' => self::getHotfixFridayScore($item),
-        ];
 
         $finalScore = 0;
-        foreach ($categoryScores as $category => $normalizedScore) {
-            $weight = $weights[$category] ?? 0;
+        foreach ($config['category_weights'] as $category => $weight) {
+            $method = 'get' . Str::studly($category) . 'Score';
+
+            if (!method_exists(self::class, $method)) {
+                continue;
+            }
+
+            $normalizedScore = self::$method($item);
             $finalScore += ($normalizedScore * $weight) / 100;
         }
 
@@ -87,7 +85,7 @@ class ImportanceScoreService
     /**
      * Get project board status score (0-100)
      */
-    public static function getProjectStatusScore(Item $item): int
+    public static function getProjectBoardStatusScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING['project_board_status'];
 
