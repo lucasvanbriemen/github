@@ -51,7 +51,7 @@ class GithubConfig
         ],
 
         'review_status' => [
-            'pending_review_normalized' => 20,
+            'pending_review_normalized' => -20,
             'changes_requested_normalized' => 100,
             'approved_normalized' => 60,
         ],
