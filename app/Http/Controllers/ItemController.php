@@ -61,7 +61,6 @@ class ItemController extends Controller
         return response()->json($items);
     }
 
-
     public function index($organizationName, $repositoryName, $type)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
