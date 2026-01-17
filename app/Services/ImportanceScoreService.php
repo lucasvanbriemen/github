@@ -437,14 +437,4 @@ class ImportanceScoreService
         $item->importance_score = self::calculateScore($item);
         $item->save();
     }
-
-    /**
-     * Recalculate and update scores for multiple items
-     */
-    public static function updateMultipleItemScores(array $items): void
-    {
-        foreach ($items as $item) {
-            self::updateItemScore($item);
-        }
-    }
 }
