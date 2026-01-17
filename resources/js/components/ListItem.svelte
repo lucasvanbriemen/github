@@ -48,6 +48,15 @@
           {/each}
         </div>
       {/if}
+
+      {#if item.score_breakdown?.length > 0}
+        <div class="score-breakdown">
+          Score: {item.importance_score}
+          {#each item.score_breakdown as reason}
+            <div>{reason}</div>
+          {/each}
+        </div>
+      {/if}
     </div>
   </div>
 

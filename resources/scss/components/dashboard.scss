@@ -7,7 +7,7 @@ main {
     flex-direction: column;
   }
 
-  .notifications, .organizations {
+  .notifications, .organizations, .next-to-work-on {
     width: 33%;
 
     display: flex;
@@ -17,6 +17,12 @@ main {
     @media screen and (max-width: 768px) {
       width: 100%;
     }
+  }
+
+  .next-to-work-on {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .organizations .organization {
