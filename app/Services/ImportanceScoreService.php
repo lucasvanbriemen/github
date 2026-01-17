@@ -19,9 +19,12 @@ class ImportanceScoreService
             return -999; // Return very low score for non-assigned items
         }
 
-        // Hard filter: exclude items with "waiting" label
-        if (self::hasLabel($item, 'waiting')) {
-            return -999;
+        // Hard filter: exclude items with any excluded labels
+        $excludedLabels = GithubConfig::IMPORTANCE_SCORING['filters']['excluded_labels'] ?? [];
+        foreach ($excludedLabels as $excludedLabel) {
+            if (self::hasLabel($item, $excludedLabel)) {
+                return -999;
+            }
         }
 
         $config = GithubConfig::IMPORTANCE_SCORING;

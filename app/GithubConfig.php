@@ -13,6 +13,8 @@ class GithubConfig
         'filters' => [
             // Hard filter: must be assigned to current user
             'assigned_to_user' => true,
+            // Labels that should be excluded from priority list
+            'excluded_labels' => ['waiting', 'needs-uat'],
         ],
 
         'category_weights' => [
