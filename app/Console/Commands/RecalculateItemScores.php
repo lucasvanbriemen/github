@@ -19,16 +19,13 @@ class RecalculateItemScores extends Command
         $this->info('Recalculating scores for all items');
 
         $items = $query->get();
-        $total = $items->count();
-        $updated = 0;
 
-        $this->withProgressBar($items, function ($item) use (&$updated) {
+        $this->withProgressBar($items, function ($item) {
             ImportanceScoreService::updateItemScore($item);
-            $updated++;
         });
 
         $this->newLine();
-        $this->info("Recalculated scores for {$total} items");
+        $this->info("Recalculated scores for {$items->count()} items");
 
         return self::SUCCESS;
     }
