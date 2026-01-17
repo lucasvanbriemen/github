@@ -13,22 +13,23 @@ class ImportanceScoreService
      * Calculate the importance score for an item using weighted normalized scores
      * Each category returns 0-100, then weighted and summed for final score
      */
+
     public static function calculateScore(Item $item): int
     {
+        $config = GithubConfig::IMPORTANCE_SCORING;
+
         // Hard filter: item must be assigned to current user
         if (!$item->isCurrentlyAssignedToUser()) {
             return -999; // Return very low score for non-assigned items
         }
 
         // Hard filter: exclude items with any excluded labels
-        $excludedLabels = GithubConfig::IMPORTANCE_SCORING['filters']['excluded_labels'] ?? [];
+        $excludedLabels = $config['filters']['excluded_labels'] ?? [];
         foreach ($excludedLabels as $excludedLabel) {
             if (self::hasLabel($item, $excludedLabel)) {
                 return -999;
             }
         }
-
-        $config = GithubConfig::IMPORTANCE_SCORING;
 
         $finalScore = 0;
         foreach ($config['category_weights'] as $category => $weight) {
