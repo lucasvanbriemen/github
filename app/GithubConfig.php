@@ -19,7 +19,7 @@ class GithubConfig
             'milestone_urgency' => 30,      // Deadlines matter most
             'review_status' => 50,          // Actionable items
             'unresolved_comments' => 15,    // Feedback pending
-            'project_board_status' => 20,   // Work state context
+            'project_board_status' => 25,   // Work state context
             'hotfix_friday' => 10,          // Time-based boost
         ],
 
