@@ -8,6 +8,7 @@
 
   onMount(async () => {
     organizations = await api.get(route('organizations'));
+    selectedRoute = window.location.hash.split('/')[3] || '';
   });
 </script>
 
