@@ -86,7 +86,7 @@
       <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
       {#if item.conflicts && item.conflicts.length > 0}
         {#each item.conflicts as conflict}
-          <div class="conflict-file">{conflict.filename}</div>
+          <div class="conflict-file">{conflict}</div>
         {/each}
       {/if}
     </div>

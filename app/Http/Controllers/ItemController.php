@@ -277,11 +277,7 @@ class ItemController extends Controller
                         // When mergeable_state is dirty, assume modified files might be conflicting
                         // Add files with conflict markers, or all modified files if we can't detect markers
                         if ($hasConflictMarkers || ($prData->mergeable_state === 'dirty' && in_array($file->status, ['modified', 'added', 'deleted']))) {
-                            $conflictFiles[] = [
-                                'filename' => $file->filename ?? '',
-                                'status' => $file->status ?? 'modified',
-                                'patch' => $file->patch ?? ''
-                            ];
+                            $conflictFiles[] = $file->filename ?? '';
                         }
                     }
                 }
