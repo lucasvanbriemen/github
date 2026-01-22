@@ -46,6 +46,12 @@ body {
       cursor: pointer;
     }
   }
+
+  &:disabled {
+    background-color: transparent !important;
+    border: 2px solid var(--primary-color) !important;
+    opacity: 0.37;
+  }
 }
 
 .button-error {
