@@ -11,7 +11,7 @@
     display: none;
   }
 
-  .workflow {
+  .workflow, .merge-conflicts, .merge-status {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
@@ -26,7 +26,7 @@
     
     border: 2px solid var(--starred-color);
 
-    .workflow-name {
+    .workflow-name, .conflicts-title {
       font-size: 0.85rem;
       font-weight: bold;
       line-height: 0rem;
@@ -76,19 +76,13 @@
   }
 
   .merge-conflicts {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-    background-color: var(--background-color);
-    border-radius: 1rem;
-    padding: 1rem;
     border: 2px solid var(--error-color);
 
     .conflicts-title {
-      font-weight: bold;
+      margin-top: 1rem;
       color: var(--error-color);
       font-size: 0.95rem;
+      font-weight: 400;
     }
 
     .conflicts-message {
