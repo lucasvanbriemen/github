@@ -82,7 +82,7 @@
 
   {#if item.conflicts?.length > 0}
     <div class="merge-conflicts">
-      <span class="conflicts-title">⚠️ Merge Conflicts</span>
+      <span class="conflicts-title">Merge Conflicts</span>
       <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
       {#each item.conflicts as conflict}
         <div class="conflict-file">{conflict}</div>
