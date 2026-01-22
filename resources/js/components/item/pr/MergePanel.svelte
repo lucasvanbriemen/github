@@ -43,7 +43,7 @@
       return false;
     }
 
-    const failingJobs = item.latest_commit.workflow.jobs.filter(job => job.conclusion !== 'success');
+    const failingJobs = item.latest_commit.workflow.jobs.filter(job => job.conclusion === 'failure');
 
     // Only one failing job and it contains "untested code" in the name
     if (failingJobs.length === 1 && failingJobs[0].name.toLowerCase().includes('untested code')) {
@@ -54,10 +54,10 @@
   }
 
   function isMergeable() {
-    // If has_conflicts flag is set or mergeable is explicitly false
     if (item.has_conflicts || item.mergeable === false) {
       return false;
     }
+
     return true;
   }
 </script>
