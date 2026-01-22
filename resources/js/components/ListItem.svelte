@@ -14,7 +14,8 @@
       type = 'projects';
     }
 
-    return `${base}/#/${$organization}/${$repository}/${type}/${number}`;
+    let repo_path = item.repository.full_name;
+    return `${base}/#/${repo_path}/${type}/${number}`;
   }
 
   function subTitle() {
