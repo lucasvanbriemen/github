@@ -284,7 +284,6 @@ class ItemController extends Controller
             }
 
             $item->conflicts = $conflictFiles;
-            $item->has_conflicts = $hasConflicts;
         }
 
         $type = $item->isPullRequest() ? 'pullRequest' : 'issue';

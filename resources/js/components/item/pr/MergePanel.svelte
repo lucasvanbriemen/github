@@ -54,7 +54,7 @@
   }
 
   function isMergeable() {
-    if (item.has_conflicts || item.mergeable === false) {
+    if (item.conflicts?.length > 0 || item.mergeable === false) {
       return false;
     }
 
@@ -80,15 +80,13 @@
     {/if}
   {/if}
 
-  {#if item.has_conflicts}
+  {#if item.conflicts?.length > 0}
     <div class="merge-conflicts">
       <span class="conflicts-title">⚠️ Merge Conflicts</span>
       <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
-      {#if item.conflicts && item.conflicts.length > 0}
-        {#each item.conflicts as conflict}
-          <div class="conflict-file">{conflict}</div>
-        {/each}
-      {/if}
+      {#each item.conflicts as conflict}
+        <div class="conflict-file">{conflict}</div>
+      {/each}
     </div>
   {/if}
 
