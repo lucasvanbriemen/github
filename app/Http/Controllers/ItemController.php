@@ -256,6 +256,31 @@ class ItemController extends Controller
             // Load the latest commit with workflow information
             $latestSha = $item->getLatestCommitSha();
             $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
+
+            $prData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$issueNumber}");
+            $item->mergeable = $prData->mergeable ?? null;
+            $item->mergeable_state = $prData->mergeable_state ?? null;
+
+            $hasConflicts = $prData->mergeable === false || $prData->mergeable_state === 'dirty';
+
+            $conflictFiles = [];
+            if ($hasConflicts) {
+                $filesData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$issueNumber}/files?per_page=100");
+                if (is_array($filesData)) {
+                    foreach ($filesData as $file) {
+                        // Check for conflict markers in patch
+                        $hasConflictMarkers = isset($file->patch) && strpos($file->patch, '<<<<<<< HEAD') !== false;
+
+                        // When mergeable_state is dirty, assume modified files might be conflicting
+                        // Add files with conflict markers, or all modified files if we can't detect markers
+                        if ($hasConflictMarkers || ($prData->mergeable_state === 'dirty' && in_array($file->status, ['modified', 'added', 'deleted']))) {
+                            $conflictFiles[] = $file->filename ?? '';
+                        }
+                    }
+                }
+            }
+
+            $item->conflicts = $conflictFiles;
         }
 
         $type = $item->isPullRequest() ? 'pullRequest' : 'issue';

@@ -37,6 +37,29 @@
     selectedJob = job;
     drawerOpen = true;
   }
+
+  function canMergeOnWorkflowFailure() {
+    if (!item.latest_commit?.workflow || item.latest_commit.workflow.conclusion === 'success') {
+      return false;
+    }
+
+    const failingJobs = item.latest_commit.workflow.jobs.filter(job => job.conclusion === 'failure');
+
+    // Only one failing job and it contains "untested code" in the name
+    if (failingJobs.length === 1 && failingJobs[0].name.toLowerCase().includes('untested code')) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function isMergeable() {
+    if (item.conflicts?.length > 0 || item.mergeable === false) {
+      return false;
+    }
+
+    return true;
+  }
 </script>
 
 <div class="merge-panel">
@@ -57,11 +80,33 @@
     {/if}
   {/if}
 
+  {#if item.conflicts?.length > 0}
+    <div class="merge-conflicts">
+      <span class="conflicts-title">Merge Conflicts</span>
+      <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
+      {#each item.conflicts as conflict}
+        <div class="conflict-file">{conflict}</div>
+      {/each}
+    </div>
+  {/if}
+
+  {#if item.mergeable_state === 'blocked'}
+    <div class="merge-status blocked">
+      <span class="status-message">This pull request cannot be merged because requested changes are pending review.</span>
+    </div>
+  {/if}
+
   {#if item.state === 'open'}
-    <button class="button-primary" onclick={() => mergeConfirmOpen = true}>Merge Pull Request</button>
+    {#if !isMergeable()}
+      <button class="button-primary" disabled title="This pull request cannot be merged">Merge Pull Request</button>
+    {:else if canMergeOnWorkflowFailure()}
+      <button class="button-primary-outline" onclick={() => mergeConfirmOpen = true} title="Merge despite workflow failures">Merge Pull Request</button>
+    {:else}
+      <button class="button-primary" onclick={() => mergeConfirmOpen = true}>Merge Pull Request</button>
+    {/if}
     <button class="button-error-outline" onclick={() => closeConfirmOpen = true}>Close Pull Request</button>
   {/if}
-  
+
   {#if item.state === 'draft'}
     <button class="button-primary ready-for-review" onclick={ready_for_review}>Ready for Review</button>
   {/if}
