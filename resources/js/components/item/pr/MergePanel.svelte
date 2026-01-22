@@ -85,13 +85,9 @@
       <span class="conflicts-title">⚠️ Merge Conflicts</span>
       <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
       {#if item.conflicts && item.conflicts.length > 0}
-        <div class="conflicts-list">
-          {#each item.conflicts as conflict}
-            <div class="conflict-file">
-              <span class="file-name">{conflict.filename}</span>
-            </div>
-          {/each}
-        </div>
+        {#each item.conflicts as conflict}
+          <div class="conflict-file">{conflict.filename}</div>
+        {/each}
       {/if}
     </div>
   {/if}
