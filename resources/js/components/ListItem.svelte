@@ -14,8 +14,11 @@
       type = 'projects';
     }
 
-    let repo_path = item.repository.full_name;
-    return `${base}/#/${repo_path}/${type}/${number}`;
+    // Use item data if stores are not set (e.g., on homepage)
+    const org = $organization || item.repository?.full_name?.split('/')[0];
+    const repo = $repository || item.repository?.full_name?.split('/')[1];
+
+    return `${base}/#/${org}/${repo}/${type}/${number}`;
   }
 
   function subTitle() {

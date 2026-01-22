@@ -13,3 +13,4 @@ function syncFromUrl() {
 }
 
 syncFromUrl();
+window.addEventListener('hashchange', syncFromUrl);

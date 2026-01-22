@@ -12,6 +12,8 @@
   let number = $derived(params.number);
   let activeTab = $derived(params.tab || 'conversation');
   let type = $derived(params.type);
+  organization.set(params.organization);
+  repository.set(params.repository);
   let metadata = $state({});
 
   let files = $state([]);
