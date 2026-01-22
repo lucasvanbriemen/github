@@ -88,7 +88,6 @@
         <div class="conflicts-list">
           {#each item.conflicts as conflict}
             <div class="conflict-file">
-              <span class="file-status {conflict.status}">{conflict.status}</span>
               <span class="file-name">{conflict.filename}</span>
             </div>
           {/each}
