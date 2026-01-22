@@ -74,4 +74,98 @@
   .skipped {
     border-color: var(--text-color-secondary) !important;
   }
+
+  .merge-conflicts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    background-color: var(--background-color);
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 2px solid var(--error-color);
+
+    .conflicts-title {
+      font-weight: bold;
+      color: var(--error-color);
+      font-size: 0.95rem;
+    }
+
+    .conflicts-message {
+      color: var(--text-color-secondary);
+      font-size: 0.85rem;
+    }
+
+    .conflicts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+
+      .conflict-file {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background-color: var(--background-color-one);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+
+        .file-status {
+          display: inline-block;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          font-weight: bold;
+          text-transform: uppercase;
+          min-width: 60px;
+          text-align: center;
+
+          &.modified {
+            background-color: var(--warning-color);
+            color: var(--background-color-one);
+          }
+
+          &.added {
+            background-color: var(--success-color);
+            color: var(--background-color-one);
+          }
+
+          &.deleted {
+            background-color: var(--error-color);
+            color: var(--background-color-one);
+          }
+        }
+
+        .file-name {
+          font-family: monospace;
+          color: var(--text-color);
+          flex: 1;
+          word-break: break-all;
+        }
+      }
+    }
+  }
+
+  .merge-status {
+    display: flex;
+    width: 100%;
+    background-color: var(--background-color);
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 2px solid var(--error-color);
+
+    &.blocked {
+      border-color: var(--error-color);
+
+      .status-message {
+        color: var(--error-color);
+        font-weight: 500;
+      }
+    }
+
+    .status-message {
+      font-size: 0.9rem;
+    }
+  }
 }
