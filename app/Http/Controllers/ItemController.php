@@ -257,15 +257,12 @@ class ItemController extends Controller
             $latestSha = $item->getLatestCommitSha();
             $item->latest_commit = Commit::where('sha', $latestSha)->with('workflow')->first();
 
-            // Fetch mergeable status and conflicts from GitHub API
             $prData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$issueNumber}");
             $item->mergeable = $prData->mergeable ?? null;
             $item->mergeable_state = $prData->mergeable_state ?? null;
 
-            // Detect conflicts: mergeable=false or mergeable_state=dirty indicates conflicts
             $hasConflicts = $prData->mergeable === false || $prData->mergeable_state === 'dirty';
 
-            // If there are conflicts, fetch the files involved
             $conflictFiles = [];
             if ($hasConflicts) {
                 $filesData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$issueNumber}/files?per_page=100");
