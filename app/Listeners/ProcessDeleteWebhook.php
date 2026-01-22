@@ -25,7 +25,7 @@ class ProcessDeleteWebhook implements ShouldQueue
         $payload = $event->payload;
 
         if (isset($payload->ref_type) && $payload->ref_type === 'branch' && isset($payload->ref)) {
-            Branch::delete(
+            Branch::destroy(
                 [
                     'name' => $payload->ref,
                     'repository_id' => $payload->repository->id
