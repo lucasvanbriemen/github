@@ -268,26 +268,22 @@ class ItemController extends Controller
             // If there are conflicts, fetch the files involved
             $conflictFiles = [];
             if ($hasConflicts) {
-                try {
-                    $filesData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$issueNumber}/files?per_page=100");
-                    if (is_array($filesData)) {
-                        foreach ($filesData as $file) {
-                            // Check for conflict markers in patch
-                            $hasConflictMarkers = isset($file->patch) && strpos($file->patch, '<<<<<<< HEAD') !== false;
+                $filesData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/pulls/{$issueNumber}/files?per_page=100");
+                if (is_array($filesData)) {
+                    foreach ($filesData as $file) {
+                        // Check for conflict markers in patch
+                        $hasConflictMarkers = isset($file->patch) && strpos($file->patch, '<<<<<<< HEAD') !== false;
 
-                            // When mergeable_state is dirty, assume modified files might be conflicting
-                            // Add files with conflict markers, or all modified files if we can't detect markers
-                            if ($hasConflictMarkers || ($prData->mergeable_state === 'dirty' && in_array($file->status, ['modified', 'added', 'deleted']))) {
-                                $conflictFiles[] = [
-                                    'filename' => $file->filename ?? '',
-                                    'status' => $file->status ?? 'modified',
-                                    'patch' => $file->patch ?? ''
-                                ];
-                            }
+                        // When mergeable_state is dirty, assume modified files might be conflicting
+                        // Add files with conflict markers, or all modified files if we can't detect markers
+                        if ($hasConflictMarkers || ($prData->mergeable_state === 'dirty' && in_array($file->status, ['modified', 'added', 'deleted']))) {
+                            $conflictFiles[] = [
+                                'filename' => $file->filename ?? '',
+                                'status' => $file->status ?? 'modified',
+                                'patch' => $file->patch ?? ''
+                            ];
                         }
                     }
-                } catch (\Exception $e) {
-                    // If we can't fetch files, just indicate conflicts exist
                 }
             }
 
