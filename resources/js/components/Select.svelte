@@ -13,10 +13,11 @@
   });
 
   let visableOptions = $derived(() => {
-    if (!searchQuery || !searchable) return selectableItems;
+    const filtered = selectableItems.filter(o => o);
+    if (!searchQuery || !searchable) return filtered;
 
     const query = searchQuery.toLowerCase();
-    return selectableItems.filter(option => option.label.toLowerCase().includes(query));
+    return filtered.filter(option => option.label.toLowerCase().includes(query));
   });
 
   function handleClickOutside(event) {
@@ -68,7 +69,7 @@
 <div class="search-select-wrapper">
   <select {name} style="display: none;" bind:value={selectedValue}>
     <option value="" disabled selected hidden></option>
-    {#each selectableItems as option}
+    {#each selectableItems.filter(o => o) as option}
       <option value={option.value}>{option.label}</option>
     {/each}
   </select>
