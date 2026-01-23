@@ -1,6 +1,9 @@
 <script>
+  import { onMount } from 'svelte';
+import Icon from './Icon.svelte';
   let { notification } = $props();
-  import Icon from './Icon.svelte';
+
+  let url = $state('');
 
   function getNotificationBody() {
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
@@ -24,6 +27,15 @@
       return;
     }
 
+    window.location.hash = url;
+  }
+
+  function completeNotification(id) {
+    notification.completed = true;
+    api.post(route('notifications.complete', { id }));
+  }
+
+  function setUrl() {
     let item = {};
     let type = '';
 
@@ -45,21 +57,20 @@
       type = 'prs';
     }
     
-    window.location.hash = `#/${item.repository.full_name}/${type}/${item.number}`;
+    url = `#/${item.repository.full_name}/${type}/${item.number}`;
   }
 
-  function completeNotification(id) {
-    notification.completed = true;
-    api.post(route('notifications.complete', { id }));
-  }
+  onMount(() => {
+    setUrl();
+});
 </script>
 
 {#if !notification.completed}
   <button class="notification" onclick="{goToNotificationUrl}">
-    <div>
+    <a href="{url}">
       <h3 class="title">{notification.subject}</h3>
       <p class="body">{getNotificationBody()}</p>
-    </div>
+    </a>
 
     <Icon name="approved" size="1.5rem" onclick={() => completeNotification(notification.id)} />
   </button>

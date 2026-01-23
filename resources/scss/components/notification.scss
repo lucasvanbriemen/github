@@ -11,6 +11,10 @@
   text-decoration: none;
   cursor: pointer;
 
+  a {
+    text-decoration: none;
+  }
+
   &:hover {
     border: 2px solid var(--primary-color);
   }
