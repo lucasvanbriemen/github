@@ -141,11 +141,9 @@
 </script>
 
 {#if isOpen}
-  <div class="modal-backdrop" onclick={handleBackdropClick}>
-    <div class="ai-review-modal">
+  <Modal isOpen={isOpen} onClose={() => { onClose?.(); resetModal(); }} title="AI Self-Review">
+    <div class="contents">
       {#if state === 'input'}
-        <div class="modal-content">
-          <h3 class="modal-title">AI Self-Review</h3>
           <p class="modal-description">GPT-4 will analyze this pull request for potential issues and improvements.</p>
 
           <div class="form-group">
@@ -162,18 +160,12 @@
             <button class="button-primary-outline" onclick={onClose}>Cancel</button>
             <button class="button-primary" onclick={startReview}>Start Review</button>
           </div>
-        </div>
 
       {:else if state === 'analyzing'}
-        <div class="modal-content">
-          <h3 class="modal-title">Analyzing...</h3>
           <p class="analyzing-message">GPT-4 is reviewing the PR changes...</p>
           <div class="spinner"></div>
-        </div>
 
       {:else if state === 'clarifying'}
-        <div class="modal-content">
-          <h3 class="modal-title">Clarify Unclear Sections ({getClarifiedCount()} of {unclearItems.length})</h3>
           <p class="modal-description">Review the sections flagged as unclear. Clarify each one to help generate better comments.</p>
 
           <div class="unclear-items-list">
@@ -201,7 +193,6 @@
                 </div>
               </div>
             {/each}
-          </div>
 
           <div class="modal-actions">
             <button class="button-primary-outline" onclick={onClose}>Cancel</button>
@@ -212,8 +203,6 @@
         </div>
 
       {:else if state === 'review'}
-        <div class="modal-content">
-          <h3 class="modal-title">Suggested Comments ({getSelectedCount()} selected)</h3>
           <p class="modal-description">Review and edit the suggested comments before posting.</p>
 
           <div class="comments-list">
@@ -264,24 +253,15 @@
               Post {getSelectedCount()} Comment{getSelectedCount() === 1 ? '' : 's'}
             </button>
           </div>
-        </div>
 
       {:else if state === 'posting'}
-        <div class="modal-content">
-          <h3 class="modal-title">Posting Comments...</h3>
           <p class="analyzing-message">Uploading comments to GitHub...</p>
           <div class="spinner"></div>
-        </div>
 
       {:else if state === 'success'}
-        <div class="modal-content">
-          <h3 class="modal-title">Success!</h3>
           <p class="success-message">Comments posted successfully. The PR view will refresh.</p>
-        </div>
 
       {:else if state === 'error'}
-        <div class="modal-content">
-          <h3 class="modal-title">Error</h3>
           <p class="error-message">{errorMessage}</p>
 
           <div class="modal-actions">
@@ -294,10 +274,9 @@
               <button class="button-primary" onclick={() => state = 'input'}>Try Again</button>
             {/if}
           </div>
-        </div>
       {/if}
     </div>
-  </div>
+  </Modal>
 {/if}
 
 <style lang="scss">
