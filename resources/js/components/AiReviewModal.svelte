@@ -1,5 +1,6 @@
 <script>
   import { organization, repository } from "./stores.js";
+  import Modal from "./Modal.svelte";
 
   let { isOpen = false, onClose, item } = $props();
 
