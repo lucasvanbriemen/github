@@ -134,6 +134,16 @@
   }
 }
 
+.custom-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  button {
+    border-color: var(--primary-color-dark);
+  }
+}
+
 .file-selector {
   display: flex;
   flex-direction: column;

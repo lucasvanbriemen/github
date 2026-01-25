@@ -198,6 +198,19 @@
     });
   }
 
+  function getCustomButtons() {
+    return window.ORG_RULES[$organization].custom_buttons;
+  }
+
+  function handleCustomButtonClick(button) {
+    const currentLabelNames = (item?.labels || []).map(l => l.name);
+    let newLabels = [...currentLabelNames];
+    newLabels.push(button.value);
+
+    updateLabels({ selectedValue: newLabels });
+  }
+
+
   $effect(() => {
     void isLoading;
     void metadata;
@@ -292,6 +305,14 @@
       {/if}
 
       <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
+    </SidebarGroup>
+
+    <SidebarGroup title="Quick Actions">
+      <div class="custom-buttons">
+        {#each getCustomButtons() as button}
+          <button class="button-primary-outline" onclick={() => handleCustomButtonClick(button)}>{button.label}</button>
+        {/each}
+      </div>
     </SidebarGroup>
 
     <SidebarGroup title="Milestone">

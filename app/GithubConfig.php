@@ -64,4 +64,31 @@ class GithubConfig
             'normalized_score' => 10,
         ],
     ];
+
+    public const ORG_RULES = [
+        'webinargeek' => [
+            'custom_buttons' => [
+                [
+                    'label' => 'Deploy stack',
+                    'type' => 'toggle_label',
+                    'value' => 'fbe'
+                ],
+                [
+                    'label' => 'Request UAT',
+                    'type' => 'toggle_label',
+                    'value' => 'needs-uat'
+                ]
+            ],
+        ],
+
+        'lucasvanbriemen' => [
+            'custom_buttons' => [
+                [
+                    'label' => 'Start bugfix',
+                    'type' => 'toggle_label',
+                    'value' => 'bug'
+                ]
+            ],
+        ],
+    ];
 }
