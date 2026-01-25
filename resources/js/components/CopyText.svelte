@@ -25,9 +25,10 @@
     border-radius: 0.5rem;
     font-size: 14px;
     color: var(--text-color-secondary);
-    
-    &:not(.copied):hover {
-      cursor: pointer;
+    border: 2px solid var(--primary-color-dark);
+
+    &:hover {
+      border: 2px solid var(--primary-color-dark);
       background-color: var(--primary-color-dark);
     }
 
