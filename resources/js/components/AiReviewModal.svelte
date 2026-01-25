@@ -85,7 +85,7 @@
     {#if state === 'input'}
       <p class="modal-description">AI will analyze this pull request for potential issues and improvements.</p>
 
-      <textarea id="context" bind:value={userContext} placeholder="Optional context for the AI to consider (e.g. what is the purpose of this PR)" rows="5"></textarea>
+      <textarea id="context" bind:value={userContext} placeholder="Optional context for the AI to consider (e.g. what is the purpose of this PR)"></textarea>
 
       <div class="modal-actions">
         <button class="button-primary-outline" onclick={onClose}>Cancel</button>
@@ -102,7 +102,7 @@
             <span class="item-location">{item.path}:{item.line}</span>
             <div class="code-snippet">{item.code}</div>
             <span class="item-reason">{item.reason}</span>
-            <textarea id="clarification-{index}" bind:value={clarifications[index]} placeholder="Explain the intent or context of this code..." class="clarification-input"></textarea>
+            <textarea id="clarification-{index}" bind:value={clarifications[index]} placeholder="Explain the intent or context of this code..."></textarea>
           </div>
         {/each}
       </div>
@@ -127,7 +127,7 @@
             </div>
 
             {#if editingCommentIndex === index}
-              <textarea bind:value={editingCommentText} class="comment-textarea editing"></textarea>
+              <textarea bind:value={editingCommentText}></textarea>
               <div class="edit-actions">
                 <button class="button-primary-outline" onclick={cancelEdit}>Cancel</button>
                 <button class="button-primary" onclick={saveEdit}>Save</button>
