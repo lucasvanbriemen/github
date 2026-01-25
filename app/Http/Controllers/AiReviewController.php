@@ -38,9 +38,19 @@ class AiReviewController extends Controller
 
         // Build GPT-4 prompt for identifying unclear code
         $systemPrompt = <<<SYSTEM
-You are a code reviewer. Identify unclear or confusing code sections.
+Analyze all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
+1. Any logic changes - especially if different from old code or seems risky/wrong
+2. Anything unusual or weird - if code seems odd/unconventional, flag it
+3. Unclear intentions - variable names, logic that's not self-evident
+4. Potential bugs - off-by-one, type issues, missing null checks
+5. Vague business logic - code that needs context to understand
 
-Return ONLY valid JSON with no extra text:
+Be aggressive: Flag anything that even slightly stands out or seems noteworthy.
+Only ignore: pure style/whitespace changes.
+
+First analyze the full diff completely, then return findings.
+
+Return ONLY valid JSON:
 {"unclearItems": [{"path": "file.js", "line": 42, "code": "code snippet", "reason": "brief reason"}]}
 SYSTEM;
 
@@ -51,7 +61,7 @@ SYSTEM;
         if (!empty($userContext)) {
             $userPrompt .= "\nContext: " . substr($userContext, 0, 300);
         }
-        $userPrompt .= "\n\nChanges:\n{$diffText}";
+        $userPrompt .= "\n\nAnalyze this full diff, then identify odd/unclear sections:\n{$diffText}";
 
         try {
             $client = OpenAI::client(config('services.openai.api_key'));
@@ -167,13 +177,18 @@ SYSTEM;
 
         // Build GPT-4 prompt for generating comments based on clarifications
         $systemPrompt = <<<SYSTEM
-Generate helpful inline comments based on code clarifications.
+Generate concise inline comments explaining:
+- Why the logic changed this way
+- What the code does that might be unclear
+- Any potential issues and why they're handled this way
+
+Comments should be brief and specific to the code snippet.
 
 Return ONLY valid JSON:
-{"comments": [{"path": "file.js", "line": 42, "side": "RIGHT", "body": "helpful comment"}]}
+{"comments": [{"path": "file.js", "line": 42, "side": "RIGHT", "body": "brief comment"}]}
 SYSTEM;
 
-        $userPrompt = "Generate comments:\n\n{$itemsList}";
+        $userPrompt = "Generate explanatory comments:\n\n{$itemsList}";
 
         try {
             $client = OpenAI::client(config('services.openai.api_key'));
