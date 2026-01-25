@@ -348,4 +348,5 @@
 
 <style lang="scss">
   @import '../../scss/components/ai-review-modal';
+  @import '../../scss/components/confirmation-modal';
 </style>
