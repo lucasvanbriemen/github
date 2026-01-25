@@ -1,6 +1,6 @@
 <script>
   import { organization, repository } from "../stores";
-  import ConfirmationModal from "../ConfirmationModal.svelte";
+  import Modal from "../Modal.svelte";
 
   let { item } = $props();
   let number = item.number;
@@ -20,7 +20,9 @@
   </div>
 {/if}
 
-<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Issue" message="Are you sure you want to close this issue? The issue can be reopened later." confirmText="Close"/>
+<Modal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Issue" confirmText="Close">
+  Are you sure you want to close this issue? The issue can be reopened later.
+</Modal>
 
 <style lang="scss">
   @import '../../../scss/components/item/pr/merge-panel';

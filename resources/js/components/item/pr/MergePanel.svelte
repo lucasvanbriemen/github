@@ -1,9 +1,10 @@
 <script>
   import { organization, repository } from "../../stores";
   import Drawer from "../../Drawer.svelte";
-  import ConfirmationModal from "../../ConfirmationModal.svelte";
+  import Modal from "../../Modal.svelte";
   import JobLogViewer from "../../JobLogViewer.svelte";
   import CopyText from "../../CopyText.svelte";
+  import AiReviewModal from "../../AiReviewModal.svelte";
 
   let { item } = $props();
   let number = item.number;
@@ -12,6 +13,7 @@
   let drawerOpen = $state(false);
   let mergeConfirmOpen = $state(false);
   let closeConfirmOpen = $state(false);
+  let aiReviewModalOpen = $state(false);
 
   function close() {
     api.post(route(`organizations.repositories.pr.update`, { $organization, $repository, number }), {
@@ -104,6 +106,10 @@
     </div>
   {/if}
 
+  {#if item.state === 'open' || item.state === 'draft'}
+    <button class="button-primary-outline" onclick={() => aiReviewModalOpen = true}>AI Self-Review</button>
+  {/if}
+
   {#if item.state === 'open'}
     {#if !isMergeable()}
       <button class="button-primary" disabled title="This pull request cannot be merged">Merge Pull Request</button>
@@ -120,8 +126,14 @@
   {/if}
 </div>
 
-<ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" message="Are you sure you want to merge this pull request? This action will merge the changes into the base branch." confirmText="Merge"/>
-<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" message="Are you sure you want to close this pull request without merging? The pull request can be reopened later."confirmText="Close" />
+<Modal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" confirmText="Merge">
+  Are you sure you want to merge this pull request? This action will merge the changes into the base branch.
+</Modal>
+<Modal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" confirmText="Close">
+  Are you sure you want to close this pull request without merging? The pull request can be reopened later.
+</Modal>
+
+<AiReviewModal isOpen={aiReviewModalOpen} onClose={() => aiReviewModalOpen = false} {item} />
 
 {#if drawerOpen && selectedJob}
   <Drawer isOpen={drawerOpen} onClose={() => drawerOpen = false} title={selectedJob.name}>
