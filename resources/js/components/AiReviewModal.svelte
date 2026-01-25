@@ -122,12 +122,7 @@
 
         <div class="form-group">
           <label for="context">Optional Context (What should the reviewer focus on?)</label>
-          <textarea
-            id="context"
-            bind:value={userContext}
-            placeholder="e.g., Focus on error handling and edge cases..."
-            class="context-input"
-          />
+          <textarea id="context" bind:value={userContext} placeholder="e.g., Focus on error handling and edge cases..." class="context-input"></textarea>
         </div>
 
         <div class="modal-actions">
@@ -156,12 +151,7 @@
 
               <div class="clarification-input-group">
                 <label for="clarification-{index}">Your clarification (optional):</label>
-                <textarea
-                  id="clarification-{index}"
-                  bind:value={clarifications[index]}
-                  placeholder="Explain the intent or context of this code..."
-                  class="clarification-input"
-                />
+                <textarea id="clarification-{index}" bind:value={clarifications[index]} placeholder="Explain the intent or context of this code..." class="clarification-input"></textarea>
               </div>
             </div>
           {/each}
