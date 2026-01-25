@@ -25,7 +25,7 @@
   let item = $state({});
   let isPR = type == 'prs';
   let isLoading = $state(true);
-  let showWhitespace = $state(true);
+  let showWhitespace = $state(false);
 
   onMount(async () => {
     isLoading = true;

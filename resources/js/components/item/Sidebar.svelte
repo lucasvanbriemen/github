@@ -7,7 +7,7 @@
   import Switch from '../Switch.svelte';
   import { organization, repository } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(true), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
