@@ -107,12 +107,8 @@
       <div class="unclear-items-list">
         {#each unclearItems as item, index (index)}
           <div class="unclear-item">
-            <div class="item-header">
-              <div class="item-info">
-                <span class="item-location">{item.path}:{item.line}</span>
-                <span class="item-reason">{item.reason}</span>
-              </div>
-            </div>
+            <span class="item-location">{item.path}:{item.line}</span>
+            <span class="item-reason">{item.reason}</span>
 
             <div class="code-snippet">
               <code>{item.code}</code>
