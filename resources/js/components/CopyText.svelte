@@ -17,12 +17,7 @@
   }
 </script>
 
-<button
-  onclick={handleCopy}
-  class="copy-text-button"
-  class:copied={isCopied}
-  title={isCopied ? 'Copied!' : 'Copy to clipboard'}
->
+<button onclick={handleCopy} class="copy-text-button" class:copied={isCopied} title={isCopied ? 'Copied!' : 'Copy to clipboard'}>
   <Icon name={isCopied ? 'checkmark' : 'copy'} size="1rem" />
   <span>{isCopied ? 'Copied!' : label}</span>
 </button>
