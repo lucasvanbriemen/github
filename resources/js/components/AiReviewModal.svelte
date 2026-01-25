@@ -157,9 +157,7 @@
 
         <div class="modal-actions">
           <button class="button-primary-outline" onclick={onClose}>Cancel</button>
-          <button class="button-primary" onclick={submitClarifications}>
-            Generate Comments
-          </button>
+          <button class="button-primary" onclick={submitClarifications}>Generate Comments</button>
         </div>
       </div>
 
@@ -170,29 +168,15 @@
           {#each comments as comment, index (index)}
             <div class="comment-item" class:unchecked={!selectedComments[index]}>
               <div class="comment-header">
-                <input
-                  type="checkbox"
-                  checked={selectedComments[index]}
-                  onchange={() => toggleComment(index)}
-                  class="comment-checkbox"
-                />
+                <input type="checkbox" checked={selectedComments[index]} onchange={() => toggleComment(index)} class="comment-checkbox"/>
                 <span class="comment-location">{getCommentLocation(comment)}</span>
                 {#if editingCommentIndex !== index}
-                  <button
-                    class="edit-btn"
-                    onclick={() => startEditing(index)}
-                    title="Edit comment"
-                  >
-                    ✏️
-                  </button>
+                  <button class="edit-btn" onclick={() => startEditing(index)} title="Edit comment">✏️</button>
                 {/if}
               </div>
 
               {#if editingCommentIndex === index}
-                <textarea
-                  bind:value={editingCommentText}
-                  class="comment-textarea editing"
-                />
+                <textarea bind:value={editingCommentText} class="comment-textarea editing"></textarea>
                 <div class="edit-actions">
                   <button class="button-primary-outline" onclick={cancelEdit}>Cancel</button>
                   <button class="button-primary" onclick={saveEdit}>Save</button>
