@@ -85,7 +85,7 @@
   }
 </script>
 
-<Modal isOpen={isOpen} onClose={() => { onClose?.(); }} title="AI Self-Review" showButtons={false}>
+<Modal isOpen={isOpen} onClose={() => { onClose?.(); }} showButtons={false}>
   <div class="contents">
     {#if state === 'input'}
       <p class="modal-description">AI will analyze this pull request for potential issues and improvements.</p>
@@ -127,7 +127,7 @@
               <input type="checkbox" checked={selectedComments[index]} onchange={() => toggleComment(index)} class="comment-checkbox"/>
               <span class="comment-location">{getCommentLocation(comment)}</span>
               {#if editingCommentIndex !== index}
-                <button class="edit-btn" onclick={() => startEditing(index)} title="Edit comment">✏️</button>
+                <button class="edit-btn" onclick={() => startEditing(index)}>✏️</button>
               {/if}
             </div>
 
