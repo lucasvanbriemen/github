@@ -28,10 +28,9 @@
     state = 'analyzing';
 
     const response = await api.post(route(`organizations.repositories.pr.ai-review.generate-comments`, { $organization, $repository, number: item.number, }), {
-        unclearItems: unclearItems,
-        clarifications: clarifications,
-      }
-    );
+      unclearItems: unclearItems,
+      clarifications: clarifications,
+    });
 
     comments = response.comments || [];
 
