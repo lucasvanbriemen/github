@@ -48,6 +48,9 @@ Analyze all code changes carefully. Flag anything that seems odd, unusual, or no
 Be aggressive: Flag anything that even slightly stands out or seems noteworthy.
 Only ignore: pure style/whitespace changes.
 
+IMPORTANT: Only flag ADDED or MODIFIED lines (lines starting with + or changed from -).
+Do NOT flag context lines (lines starting with space).
+
 First analyze the full diff completely, then return findings.
 
 Return ONLY valid JSON:
@@ -263,16 +266,33 @@ SYSTEM;
             ]);
         }
 
+        // Get PR files to build a map of valid line numbers for each file
+        $files = PullRequestController::getFiles($organizationName, $repositoryName, $number);
+        $validLines = $this->buildValidLinesMap($files);
+
         $commitSha = $item->getLatestCommitSha();
         $successCount = 0;
         $failedComments = [];
 
         foreach ($comments as $comment) {
+            $path = $comment['path'];
+            $line = $comment['line'];
+
+            // Validate that the line is actually changed in the PR
+            if (!isset($validLines[$path]) || !in_array($line, $validLines[$path])) {
+                $failedComments[] = [
+                    'path' => $path,
+                    'line' => $line,
+                    'reason' => 'Line not in PR changes',
+                ];
+                continue;
+            }
+
             $payload = [
                 'body' => $comment['body'],
                 'commit_id' => $commitSha,
-                'path' => $comment['path'],
-                'line' => $comment['line'],
+                'path' => $path,
+                'line' => $line,
                 'side' => $comment['side'] ?? 'RIGHT',
             ];
 
@@ -286,8 +306,9 @@ SYSTEM;
                 $successCount++;
             } else {
                 $failedComments[] = [
-                    'path' => $comment['path'],
-                    'line' => $comment['line'],
+                    'path' => $path,
+                    'line' => $line,
+                    'reason' => 'GitHub API error',
                 ];
             }
         }
@@ -298,6 +319,36 @@ SYSTEM;
             'failedCount' => count($failedComments),
             'failedComments' => $failedComments,
         ]);
+    }
+
+    /**
+     * Build a map of valid line numbers for each file (only added/modified lines)
+     */
+    private function buildValidLinesMap(array $files): array
+    {
+        $validLines = [];
+
+        foreach ($files as $file) {
+            $path = $file['filename'];
+            $validLines[$path] = [];
+
+            if (empty($file['changes'])) {
+                continue;
+            }
+
+            foreach ($file['changes'] as $hunk) {
+                foreach ($hunk['rows'] as $row) {
+                    $right = $row['right'];
+
+                    // Include lines that are added or modified (have a right-side line number)
+                    if ($right && isset($right['number']) && $right['type'] !== 'del') {
+                        $validLines[$path][] = $right['number'];
+                    }
+                }
+            }
+        }
+
+        return $validLines;
     }
 
     /**
