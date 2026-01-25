@@ -4,7 +4,7 @@
 
   let { isOpen = false, onClose, item } = $props();
 
-  let state = $state('input'); // input | analyzing | clarifying | review | posting | success
+  let state = $state('input');
   let userContext = $state('');
   let unclearItems = $state([]);
   let clarifications = $state({});
@@ -12,17 +12,6 @@
   let selectedComments = $state({});
   let editingCommentIndex = $state(null);
   let editingCommentText = $state('');
-
-  function resetModal() {
-    state = 'input';
-    userContext = '';
-    unclearItems = [];
-    clarifications = {};
-    comments = [];
-    selectedComments = {};
-    editingCommentIndex = null;
-    editingCommentText = '';
-  }
 
   async function startReview() {
     state = 'analyzing';
@@ -84,7 +73,6 @@
 
     setTimeout(() => {
       onClose?.();
-      resetModal();
     }, 1500);
   }
 
@@ -97,10 +85,10 @@
   }
 </script>
 
-<Modal isOpen={isOpen} onClose={() => { onClose?.(); resetModal(); }} title="AI Self-Review" showButtons={false}>
+<Modal isOpen={isOpen} onClose={() => { onClose?.(); }} title="AI Self-Review" showButtons={false}>
   <div class="contents">
     {#if state === 'input'}
-      <p class="modal-description">GPT-4 will analyze this pull request for potential issues and improvements.</p>
+      <p class="modal-description">AI will analyze this pull request for potential issues and improvements.</p>
 
       <div class="form-group">
         <label for="context">Optional Context (What should the reviewer focus on?)</label>
@@ -111,7 +99,7 @@
         <button class="button-primary-outline" onclick={onClose}>Cancel</button>
         <button class="button-primary" onclick={startReview}>Start Review</button>
       </div>
-    {:else if state === 'analyzing'}
+    {:else if state === 'analyzing' || state === 'posting'}
       <div class="spinner"></div>
     {:else if state === 'clarifying'}
       <p class="modal-description">Review the sections flagged as unclear. Clarify each one to help generate better comments.</p>
@@ -174,9 +162,6 @@
         <button class="button-primary-outline" onclick={onClose}>Cancel</button>
         <button class="button-primary" onclick={postSelectedComments} disabled={getSelectedCount() === 0}>Post {getSelectedCount()} Comment{getSelectedCount() === 1 ? '' : 's'}</button>
       </div>
-
-    {:else if state === 'posting'}
-      <div class="spinner"></div>
     {:else if state === 'success'}
       <p class="success-message">Comments posted successfully. The PR view will refresh.</p>
     {/if}
