@@ -123,8 +123,12 @@
   {/if}
 </div>
 
-<ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" message="Are you sure you want to merge this pull request? This action will merge the changes into the base branch." confirmText="Merge"/>
-<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" message="Are you sure you want to close this pull request without merging? The pull request can be reopened later."confirmText="Close" />
+<ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" confirmText="Merge">
+  Are you sure you want to merge this pull request? This action will merge the changes into the base branch.
+</ConfirmationModal>
+<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" confirmText="Close">
+  Are you sure you want to close this pull request without merging? The pull request can be reopened later.
+</ConfirmationModal>
 
 <AiReviewModal isOpen={aiReviewModalOpen} onClose={() => aiReviewModalOpen = false} {item} />
 
