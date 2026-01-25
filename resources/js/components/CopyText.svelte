@@ -37,21 +37,16 @@
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 14px;
-    cursor: pointer;
     transition: all 0.3s ease;
     width: fit-content;
-
-    &:hover {
+    
+    &:not(.copied):hover {
+      cursor: pointer;
       background-color: var(--primary-color-dark);
     }
 
     &.copied {
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-
-      &:hover {
-        background-color: var(--primary-color);
-      }
+      opacity: 0.25;
     }
   }
 </style>
