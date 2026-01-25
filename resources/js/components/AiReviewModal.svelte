@@ -9,7 +9,6 @@
   let unclearItems = $state([]);
   let clarifications = $state({});
   let comments = $state([]);
-  let errorMessage = $state('');
   let selectedComments = $state({});
   let editingCommentIndex = $state(null);
   let editingCommentText = $state('');
@@ -20,7 +19,6 @@
     unclearItems = [];
     clarifications = {};
     comments = [];
-    errorMessage = '';
     selectedComments = {};
     editingCommentIndex = null;
     editingCommentText = '';
@@ -28,7 +26,6 @@
 
   async function startReview() {
     state = 'analyzing';
-    errorMessage = '';
 
     const response = await api.post(route(`organizations.repositories.pr.ai-review.analyze`, { $organization, $repository, number: item.number, }), { context: userContext });
 
@@ -43,7 +40,6 @@
 
   async function submitClarifications() {
     state = 'analyzing';
-    errorMessage = '';
 
     const response = await api.post(route(`organizations.repositories.pr.ai-review.generate-comments`, { $organization, $repository, number: item.number, }), {
         unclearItems: unclearItems,
@@ -60,9 +56,6 @@
     });
 
     state = comments.length > 0 ? 'review' : 'error';
-    if (comments.length === 0) {
-      errorMessage = 'No comments generated from the clarifications.';
-    }
   }
 
   function toggleComment(index) {
@@ -87,13 +80,10 @@
 
   async function postSelectedComments() {
     state = 'posting';
-    errorMessage = '';
 
     const toPost = comments.filter((_, index) => selectedComments[index]);
 
     if (toPost.length === 0) {
-      errorMessage = 'No comments selected';
-      state = 'error';
       return;
     }
 
@@ -197,19 +187,6 @@
         <div class="spinner"></div>
       {:else if state === 'success'}
         <p class="success-message">Comments posted successfully. The PR view will refresh.</p>
-      {:else if state === 'error'}
-        <p class="error-message">{errorMessage}</p>
-
-        <div class="modal-actions">
-          <button class="button-primary-outline" onclick={onClose}>Close</button>
-          {#if comments.length > 0}
-            <button class="button-primary" onclick={() => state = 'review'}>Back to Review</button>
-          {:else if unclearItems.length > 0}
-            <button class="button-primary" onclick={() => state = 'clarifying'}>Back to Clarifying</button>
-          {:else}
-            <button class="button-primary" onclick={() => state = 'input'}>Try Again</button>
-          {/if}
-        </div>
       {/if}
     </div>
   </Modal>
