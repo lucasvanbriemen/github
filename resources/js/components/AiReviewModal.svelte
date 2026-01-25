@@ -108,11 +108,8 @@
         {#each unclearItems as item, index (index)}
           <div class="unclear-item">
             <span class="item-location">{item.path}:{item.line}</span>
+            <div class="code-snippet">{item.code}</div>
             <span class="item-reason">{item.reason}</span>
-
-            <div class="code-snippet">
-              <code>{item.code}</code>
-            </div>
 
             <div class="clarification-input-group">
               <label for="clarification-{index}">Your clarification (optional):</label>
@@ -120,12 +117,12 @@
             </div>
           </div>
         {/each}
+      </div>
 
       <div class="modal-actions">
         <button class="button-primary-outline" onclick={onClose}>Cancel</button>
         <button class="button-primary" onclick={submitClarifications}>Generate Comments</button>
       </div>
-    </div>
 
     {:else if state === 'review'}
       <p class="modal-description">Review and edit the suggested comments before posting.</p>
