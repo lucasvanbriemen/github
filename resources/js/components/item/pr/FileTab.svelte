@@ -42,13 +42,11 @@
   });
 
   function isApplicableForPreview(file) {
-    if (file.status != 'added') {
+    if (file.status != 'added' || !applicableExtensionsForPreview.includes(file.filename.split('.').pop())) {
       return false;
     }
 
-    if (applicableExtensionsForPreview.includes(file.filename.split('.').pop())) {
-      return true;
-    }
+    return true;
   }
 </script>
 
