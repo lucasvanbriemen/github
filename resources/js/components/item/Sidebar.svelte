@@ -198,6 +198,28 @@
     });
   }
 
+  function getCustomButtons() {
+    const orgRules = window.ORG_RULES?.[$organization];
+    return orgRules?.custom_buttons || {};
+  }
+
+  function handleCustomButtonClick(labelKey) {
+    const currentLabelNames = (item?.labels || []).map(l => l.name);
+    let newLabels = [...currentLabelNames];
+
+    if (currentLabelNames.includes(labelKey)) {
+      newLabels = newLabels.filter(l => l !== labelKey);
+    } else {
+      newLabels.push(labelKey);
+    }
+
+    updateLabels({ selectedValue: newLabels });
+  }
+
+  function isCustomButtonActive(labelKey) {
+    return (item?.labels || []).some(l => l.name === labelKey);
+  }
+
   $effect(() => {
     void isLoading;
     void metadata;
@@ -293,6 +315,22 @@
 
       <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
     </SidebarGroup>
+
+    {#if Object.keys(getCustomButtons()).length > 0}
+      <SidebarGroup title="Quick Actions">
+        <div class="custom-buttons">
+          {#each Object.entries(getCustomButtons()) as [labelKey, buttonLabel]}
+            <button
+              class="custom-button"
+              class:active={isCustomButtonActive(labelKey)}
+              onclick={() => handleCustomButtonClick(labelKey)}
+            >
+              {buttonLabel}
+            </button>
+          {/each}
+        </div>
+      </SidebarGroup>
+    {/if}
 
     <SidebarGroup title="Milestone">
       {#if item.milestone?.id}

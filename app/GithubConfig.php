@@ -75,6 +75,7 @@ class GithubConfig
 
         'lucasvanbriemen' => [
             'custom_buttons' => [
+                'bug' => 'Start bugfix',
             ],
         ],
     ];

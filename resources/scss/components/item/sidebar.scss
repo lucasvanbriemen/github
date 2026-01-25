@@ -134,6 +134,34 @@
   }
 }
 
+.custom-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .custom-button {
+    background-color: var(--background-color-two);
+    border: 1px solid var(--background-color-three);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: var(--background-color-three);
+      border-color: var(--primary-color);
+    }
+
+    &.active {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--background-color);
+    }
+  }
+}
+
 .file-selector {
   display: flex;
   flex-direction: column;
