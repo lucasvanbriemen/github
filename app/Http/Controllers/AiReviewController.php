@@ -30,11 +30,6 @@ class AiReviewController extends Controller
             ], 400);
         }
 
-        // Limit diff text to reduce token usage
-        $maxDiffLength = 4000;
-        if (strlen($diffText) > $maxDiffLength) {
-            $diffText = substr($diffText, 0, $maxDiffLength) . "\n\n[... diff truncated ...]";
-        }
 
         // Build GPT-4 prompt for identifying unclear code
         $systemPrompt = <<<SYSTEM
@@ -70,7 +65,7 @@ SYSTEM;
             $client = OpenAI::client(config('services.openai.api_key'));
 
             $response = $client->chat()->create([
-                'model' => 'gpt-4',
+                'model' => 'gpt-4-turbo',
                 'messages' => [
                     [
                         'role' => 'system',
@@ -162,20 +157,13 @@ SYSTEM;
             ]);
         }
 
-        // Build the list of items for the prompt (limit length to reduce tokens)
+        // Build the list of items for the prompt
         $itemsList = '';
-        $charCount = 0;
-        $maxChars = 3000;
         foreach ($itemsWithClarifications as $idx => $item) {
             $itemText = "Item " . ($idx + 1) . ": {$item['path']}:{$item['line']}\n";
             $itemText .= "Code: {$item['code']}\n";
             $itemText .= "Clarification: {$item['clarification']}\n\n";
-
-            if ($charCount + strlen($itemText) > $maxChars) {
-                break;
-            }
             $itemsList .= $itemText;
-            $charCount += strlen($itemText);
         }
 
         // Build GPT-4 prompt for generating comments based on clarifications
@@ -197,7 +185,7 @@ SYSTEM;
             $client = OpenAI::client(config('services.openai.api_key'));
 
             $response = $client->chat()->create([
-                'model' => 'gpt-4',
+                'model' => 'gpt-4-turbo',
                 'messages' => [
                     [
                         'role' => 'system',
@@ -296,11 +284,7 @@ SYSTEM;
                 'side' => $comment['side'] ?? 'RIGHT',
             ];
 
-            $result = ApiHelper::githubApi(
-                "/repos/{$organizationName}/{$repositoryName}/pulls/{$number}/comments",
-                'POST',
-                $payload
-            );
+            $result = ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$number}/comments", 'POST', $payload);
 
             if ($result) {
                 $successCount++;
