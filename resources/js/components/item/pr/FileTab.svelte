@@ -90,18 +90,28 @@
         </span>
       </button>
 
-      <div class="file-changes">
-        {#each selectedFile.changes as hunk (hunk)}
-          {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
-            <div class="changed-line-pair">
-              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
-              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
-            </div>
-          {/each}
+      {#if !isPreviewing || !isApplicableForPreview(selectedFile) }
+        <div class="file-changes">
+          {#each selectedFile.changes as hunk (hunk)}
+            {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
+              <div class="changed-line-pair">
+                <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
+                <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
+              </div>
+            {/each}
 
-          <div class="hunk-separator"></div>
-        {/each}
-      </div>
+            <div class="hunk-separator"></div>
+          {/each}
+        </div>
+      {:else}
+        <div class="file-preview">
+          {#if selectedFile.filename.split('.').pop() === 'svg'}
+            {@html selectedFile.changes.map(hunk => hunk.rows.map(row => row.right?.content || '').join('\n')).join('\n')}
+          {:else}
+            <p>Preview not available for this file type.</p>
+          {/if}
+        </div>
+      {/if}
     </div>
   {/if}
 </div>
