@@ -199,8 +199,7 @@
   }
 
   function getCustomButtons() {
-    const orgRules = window.ORG_RULES?.[$organization];
-    return orgRules?.custom_buttons || [];
+    return window.ORG_RULES.[$organization].custom_buttons;
   }
 
   function handleCustomButtonClick(button) {
@@ -313,20 +312,18 @@
       <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
     </SidebarGroup>
 
-    {#if getCustomButtons().length > 0}
-      <SidebarGroup title="Quick Actions">
-        <div class="custom-buttons">
-          {#each getCustomButtons() as button}
-            <button
-              class="custom-button"
-              onclick={() => handleCustomButtonClick(button)}
-            >
-              {button.label}
-            </button>
-          {/each}
-        </div>
-      </SidebarGroup>
-    {/if}
+    <SidebarGroup title="Quick Actions">
+      <div class="custom-buttons">
+        {#each getCustomButtons() as button}
+          <button
+            class="custom-button"
+            onclick={() => handleCustomButtonClick(button)}
+          >
+            {button.label}
+          </button>
+        {/each}
+      </div>
+    </SidebarGroup>
 
     <SidebarGroup title="Milestone">
       {#if item.milestone?.id}
