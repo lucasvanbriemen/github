@@ -205,12 +205,7 @@
   function handleCustomButtonClick(button) {
     const currentLabelNames = (item?.labels || []).map(l => l.name);
     let newLabels = [...currentLabelNames];
-
-    if (currentLabelNames.includes(button.value)) {
-      newLabels = newLabels.filter(l => l !== button.value);
-    } else {
-      newLabels.push(button.value);
-    }
+    newLabels.push(button.value);
 
     updateLabels({ selectedValue: newLabels });
   }
