@@ -37,32 +37,20 @@
     state = 'analyzing';
     errorMessage = '';
 
-    try {
-      const response = await api.post(
-        route(`organizations.repositories.pr.ai-review.analyze`, {
-          $organization,
-          $repository,
-          number: item.number,
-        }),
-        { context: userContext }
-      );
+    const response = await api.post(route(`organizations.repositories.pr.ai-review.analyze`, { $organization, $repository, number: item.number, }), { context: userContext });
 
-      if (response.error) {
-        errorMessage = response.error;
-        state = 'error';
-        return;
-      }
-
-      unclearItems = response.unclearItems || [];
-      clarifications = {};
-
-      state = unclearItems.length > 0 ? 'clarifying' : 'error';
-      if (unclearItems.length === 0) {
-        errorMessage = 'No unclear sections found in the PR changes.';
-      }
-    } catch (e) {
-      errorMessage = e.message || 'Failed to analyze PR';
+    if (response.error) {
+      errorMessage = response.error;
       state = 'error';
+      return;
+    }
+
+    unclearItems = response.unclearItems || [];
+    clarifications = {};
+
+    state = unclearItems.length > 0 ? 'clarifying' : 'error';
+    if (unclearItems.length === 0) {
+      errorMessage = 'No unclear sections found in the PR changes.';
     }
   }
 
@@ -70,40 +58,35 @@
     state = 'analyzing';
     errorMessage = '';
 
-    try {
-      const response = await api.post(
-        route(`organizations.repositories.pr.ai-review.generate-comments`, {
-          $organization,
-          $repository,
-          number: item.number,
-        }),
-        {
-          unclearItems: unclearItems,
-          clarifications: clarifications,
-        }
-      );
-
-      if (response.error) {
-        errorMessage = response.error;
-        state = 'error';
-        return;
+    const response = await api.post(
+      route(`organizations.repositories.pr.ai-review.generate-comments`, {
+        $organization,
+        $repository,
+        number: item.number,
+      }),
+      {
+        unclearItems: unclearItems,
+        clarifications: clarifications,
       }
+    );
 
-      comments = response.comments || [];
-
-      // Initialize selected state - all comments selected by default
-      selectedComments = {};
-      comments.forEach((_, index) => {
-        selectedComments[index] = true;
-      });
-
-      state = comments.length > 0 ? 'review' : 'error';
-      if (comments.length === 0) {
-        errorMessage = 'No comments generated from the clarifications.';
-      }
-    } catch (e) {
-      errorMessage = e.message || 'Failed to generate comments';
+    if (response.error) {
+      errorMessage = response.error;
       state = 'error';
+      return;
+    }
+
+    comments = response.comments || [];
+
+    // Initialize selected state - all comments selected by default
+    selectedComments = {};
+    comments.forEach((_, index) => {
+      selectedComments[index] = true;
+    });
+
+    state = comments.length > 0 ? 'review' : 'error';
+    if (comments.length === 0) {
+      errorMessage = 'No comments generated from the clarifications.';
     }
   }
 
@@ -148,29 +131,17 @@
       return;
     }
 
-    try {
-      const response = await api.post(
-        route(`organizations.repositories.pr.ai-review.post-comments`, {
-          $organization,
-          $repository,
-          number: item.number,
-        }),
-        { comments: toPost }
-      );
+    const response = await api.post(route(`organizations.repositories.pr.ai-review.post-comments`, { $organization, $repository, number: item.number }), { comments: toPost });
 
-      if (response.failedCount > 0) {
-        errorMessage = `Posted ${response.postedCount} comments, ${response.failedCount} failed.`;
-        state = 'error';
-      } else {
-        state = 'success';
-        setTimeout(() => {
-          onClose?.();
-          resetModal();
-        }, 1500);
-      }
-    } catch (e) {
-      errorMessage = e.message || 'Failed to post comments';
+    if (response.failedCount > 0) {
+      errorMessage = `Posted ${response.postedCount} comments, ${response.failedCount} failed.`;
       state = 'error';
+    } else {
+      state = 'success';
+      setTimeout(() => {
+        onClose?.();
+        resetModal();
+      }, 1500);
     }
   }
 
