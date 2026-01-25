@@ -16,17 +16,8 @@ class AiReviewController extends Controller
         $item = Item::where('repository_id', $repository->id)->where('number', $number)->firstOrFail();
         $userContext = request()->input('context', '');
 
-        // Get PR files and build diff text
         $files = PullRequestController::getFiles($organizationName, $repositoryName, $number);
         $diffText = $this->buildDiffText($files);
-
-        if (empty($diffText)) {
-            return response()->json([
-                'error' => 'No changes found in PR',
-                'unclearItems' => [],
-            ], 400);
-        }
-
 
         // Build GPT-4 prompt for identifying unclear code
         $systemPrompt = <<<SYSTEM
@@ -76,7 +67,6 @@ class AiReviewController extends Controller
 
         $responseText = $response->choices[0]->message->content;
 
-        // Parse JSON response
         $parsed = json_decode($responseText, true);
 
         if (!$parsed || !isset($parsed['unclearItems'])) {
@@ -189,24 +179,12 @@ class AiReviewController extends Controller
 
         $responseText = $response->choices[0]->message->content;
 
-        // Parse JSON response
         $parsed = json_decode($responseText, true);
 
         if (!$parsed || !isset($parsed['comments'])) {
-            // Try to extract JSON if wrapped in markdown
-            if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
-                $parsed = json_decode($matches[1], true);
-            }
+            return response()->json(['error' => 'Failed to parse AI response' ], 400);
         }
 
-        if (!$parsed || !isset($parsed['comments'])) {
-            return response()->json([
-                'error' => 'Failed to parse AI response',
-                'comments' => [],
-            ], 400);
-        }
-
-        // Filter and validate comments
         $validComments = array_filter(
             $parsed['comments'],
             fn($comment) => isset($comment['path']) && isset($comment['line']) && isset($comment['body'])
@@ -216,7 +194,6 @@ class AiReviewController extends Controller
             'success' => true,
             'comments' => array_values($validComments),
         ]);
-    
     }
 
     public function postComments($organizationName, $repositoryName, $number)
