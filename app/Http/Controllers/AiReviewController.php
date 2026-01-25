@@ -19,10 +19,9 @@ class AiReviewController extends Controller
         $files = PullRequestController::getFiles($organizationName, $repositoryName, $number);
         $diffText = $this->buildDiffText($files);
 
-        // Build GPT-4 prompt for identifying unclear code
         $systemPrompt = <<<SYSTEM
             You are an AI helping the user to write a self-review of their own code changes in a pull request.
-            Its your task to place yourself in the position of a reviewer seeing this code for the first time.
+            It's your task to place yourself in the position of a reviewer seeing this code for the first time.
             Your goal is to review all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
             Ask the user for clarification on these points to help them improve their code and explanations.
             1. Any logic changes - especially if different from old code or seems risky/wrong
@@ -72,21 +71,6 @@ class AiReviewController extends Controller
 
         $parsed = json_decode($responseText, true);
 
-        if (!$parsed || !isset($parsed['unclearItems'])) {
-            // Try to extract JSON if wrapped in markdown
-            if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
-                $parsed = json_decode($matches[1], true);
-            }
-        }
-
-        if (!$parsed || !isset($parsed['unclearItems'])) {
-            return response()->json([
-                'error' => 'Failed to parse AI response',
-                'unclearItems' => [],
-            ], 400);
-        }
-
-        // Filter and validate unclear items
         $validItems = array_filter(
             $parsed['unclearItems'],
             fn($item) => isset($item['path']) && isset($item['line']) && isset($item['code']) && isset($item['reason'])
