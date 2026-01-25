@@ -5,15 +5,11 @@
   let isCopied = $state(false);
 
   async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(text);
-      isCopied = true;
-      setTimeout(() => {
-        isCopied = false;
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
+    await navigator.clipboard.writeText(text);
+    isCopied = true;
+    setTimeout(() => {
+      isCopied = false;
+    }, 2000);
   }
 </script>
 
