@@ -7,6 +7,7 @@
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
   import { organization, repository } from '../stores';
+  import CopyText from '../CopyText.svelte';
 
   let { params = {} } = $props();
   let number = $derived(params.number);
@@ -67,7 +68,7 @@
     {:else}
 
       {#if activeTab === 'conversation'}
-        <button onclick={() => navigator.clipboard.writeText(githubUrl(item))} class="button-primary-outline copy-url">Copy URL</button>
+        <CopyText text={githubUrl(item)} label="GitHub URL" />
       {/if}
 
       <ItemHeader {item} />
