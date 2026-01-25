@@ -199,7 +199,10 @@
   }
 
   function getCustomButtons() {
-    return window.ORG_RULES[$organization].custom_buttons;
+    let key = $organization;
+    key = key.lowerCase();
+
+    return window.ORG_RULES[key].custom_buttons;
   }
 
   function handleCustomButtonClick(button) {
