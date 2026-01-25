@@ -156,73 +156,67 @@ class AiReviewController extends Controller
 
         // Build GPT-4 prompt for generating comments based on clarifications
         $systemPrompt = <<<SYSTEM
-Generate concise inline comments explaining:
-- Why the logic changed this way
-- What the code does that might be unclear
-- Any potential issues and why they're handled this way
+            Generate concise inline comments explaining:
+            - Why the logic changed this way
+            - What the code does that might be unclear
+            - Any potential issues and why they're handled this way
 
-Comments should be brief and specific to the code snippet.
+            Comments should be brief and specific to the code snippet.
 
-Return ONLY valid JSON:
-{"comments": [{"path": "file.js", "line": 42, "side": "RIGHT", "body": "brief comment"}]}
-SYSTEM;
+            Return ONLY valid JSON:
+            {"comments": [{"path": "file.js", "line": 42, "side": "RIGHT", "body": "brief comment"}]}
+        SYSTEM;
 
         $userPrompt = "Generate explanatory comments:\n\n{$itemsList}";
 
-        try {
-            $client = OpenAI::client(config('services.openai.api_key'));
+        $client = OpenAI::client(config('services.openai.api_key'));
 
-            $response = $client->chat()->create([
-                'model' => 'gpt-4-turbo',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => $systemPrompt,
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $userPrompt,
-                    ],
+        $response = $client->chat()->create([
+            'model' => 'gpt-4-turbo',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => $systemPrompt,
                 ],
-                'max_completion_tokens' => 2048,
-                'temperature' => 0.7,
-            ]);
+                [
+                    'role' => 'user',
+                    'content' => $userPrompt,
+                ],
+            ],
+            'max_completion_tokens' => 2048,
+            'temperature' => 0.7,
+        ]);
 
-            $responseText = $response->choices[0]->message->content;
+        $responseText = $response->choices[0]->message->content;
 
-            // Parse JSON response
-            $parsed = json_decode($responseText, true);
+        // Parse JSON response
+        $parsed = json_decode($responseText, true);
 
-            if (!$parsed || !isset($parsed['comments'])) {
-                // Try to extract JSON if wrapped in markdown
-                if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
-                    $parsed = json_decode($matches[1], true);
-                }
+        if (!$parsed || !isset($parsed['comments'])) {
+            // Try to extract JSON if wrapped in markdown
+            if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
+                $parsed = json_decode($matches[1], true);
             }
-
-            if (!$parsed || !isset($parsed['comments'])) {
-                return response()->json([
-                    'error' => 'Failed to parse AI response',
-                    'comments' => [],
-                ], 400);
-            }
-
-            // Filter and validate comments
-            $validComments = array_filter(
-                $parsed['comments'],
-                fn($comment) => isset($comment['path']) && isset($comment['line']) && isset($comment['body'])
-            );
-
-            return response()->json([
-                'success' => true,
-                'comments' => array_values($validComments),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Comment generation failed: ' . $e->getMessage(),
-                'comments' => [],
-            ], 500);
         }
+
+        if (!$parsed || !isset($parsed['comments'])) {
+            return response()->json([
+                'error' => 'Failed to parse AI response',
+                'comments' => [],
+            ], 400);
+        }
+
+        // Filter and validate comments
+        $validComments = array_filter(
+            $parsed['comments'],
+            fn($comment) => isset($comment['path']) && isset($comment['line']) && isset($comment['body'])
+        );
+
+        return response()->json([
+            'success' => true,
+            'comments' => array_values($validComments),
+        ]);
+    
     }
 
     public function postComments($organizationName, $repositoryName, $number)
