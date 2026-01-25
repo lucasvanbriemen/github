@@ -61,6 +61,10 @@
 
     return true;
   }
+
+  function mergeCommand () {
+    return `git checkout ${item.details?.base_branch} && git pull && git checkout ${item.details?.head_branch} && git merge ${item.details?.base_branch}`;
+  }
 </script>
 
 <div class="merge-panel">
@@ -86,7 +90,7 @@
       <span class="conflicts-title">Merge Conflicts</span>
       <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
 
-      <CopyText text={"git merge "} label="git merge" />
+      <CopyText text={mergeCommand()} label="git merge {item.details?.base_branch}" />
 
       {#each item.conflicts as conflict}
         <div class="conflict-file">{conflict}</div>
