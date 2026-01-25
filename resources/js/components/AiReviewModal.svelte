@@ -90,10 +90,7 @@
     {#if state === 'input'}
       <p class="modal-description">AI will analyze this pull request for potential issues and improvements.</p>
 
-      <div class="form-group">
-        <label for="context">Optional Context (What should the AI focus on?)</label>
-        <textarea id="context" bind:value={userContext} placeholder="e.g., Focus on error handling and edge cases..." class="context-input"></textarea>
-      </div>
+      <textarea id="context" bind:value={userContext} placeholder="Optional context for the AI to consider (e.g. what is the purpose of this PR)" rows="5"></textarea>
 
       <div class="modal-actions">
         <button class="button-primary-outline" onclick={onClose}>Cancel</button>
@@ -110,11 +107,7 @@
             <span class="item-location">{item.path}:{item.line}</span>
             <div class="code-snippet">{item.code}</div>
             <span class="item-reason">{item.reason}</span>
-
-            <div class="clarification-input-group">
-              <label for="clarification-{index}">Your clarification (optional):</label>
-              <textarea id="clarification-{index}" bind:value={clarifications[index]} placeholder="Explain the intent or context of this code..." class="clarification-input"></textarea>
-            </div>
+            <textarea id="clarification-{index}" bind:value={clarifications[index]} placeholder="Explain the intent or context of this code..." class="clarification-input"></textarea>
           </div>
         {/each}
       </div>
