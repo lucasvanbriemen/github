@@ -77,13 +77,7 @@ class GithubConfig
                     'label' => 'Request UAT',
                     'type' => 'toggle_label',
                     'value' => 'needs-uat'
-                ],
-                [
-                    'label' => 'Self Review',
-                    'type' => 'api_request',
-                    'route' => 'organizations',
-                    'method' => 'GET',
-                ],
+                ]
             ],
         ],
 
@@ -93,13 +87,7 @@ class GithubConfig
                     'label' => 'Start bugfix',
                     'type' => 'toggle_label',
                     'value' => 'bug'
-                ],
-                [
-                    'label' => 'Self Review',
-                    'type' => 'api_request',
-                    'route' => 'organizations',
-                    'method' => 'GET',
-                ],
+                ]
             ],
         ],
     ];

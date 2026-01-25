@@ -204,54 +204,18 @@
   }
 
   function handleCustomButtonClick(button) {
-    if (button.type === 'toggle_label') {
-      handleToggleLabel(button.value);
-    } else if (button.type === 'api_request') {
-      handleApiRequest(button);
-    }
-  }
-
-  function handleToggleLabel(labelName) {
     const currentLabelNames = (item?.labels || []).map(l => l.name);
     let newLabels = [...currentLabelNames];
 
-    if (currentLabelNames.includes(labelName)) {
-      newLabels = newLabels.filter(l => l !== labelName);
+    if (currentLabelNames.includes(button.value)) {
+      newLabels = newLabels.filter(l => l !== button.value);
     } else {
-      newLabels.push(labelName);
+      newLabels.push(button.value);
     }
 
     updateLabels({ selectedValue: newLabels });
   }
 
-  function handleApiRequest(button) {
-    const routeParams = {
-      organization: $organization,
-      repository: $repository,
-      number: item.number
-    };
-
-    const data = replaceTokens(button.data || {});
-    const url = route(button.route, routeParams);
-
-    api[button.method.toLowerCase()](url, data);
-  }
-
-  function replaceTokens(data) {
-    const tokens = {
-      '{current_user}': window.USERNAME,
-      '{organization}': $organization,
-      '{repository}': $repository,
-      '{number}': item.number
-    };
-
-    const jsonString = JSON.stringify(data);
-    const replaced = Object.entries(tokens).reduce((str, [token, value]) => {
-      return str.replaceAll(token, value);
-    }, jsonString);
-
-    return JSON.parse(replaced);
-  }
 
   $effect(() => {
     void isLoading;
