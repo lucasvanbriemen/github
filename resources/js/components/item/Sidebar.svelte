@@ -200,7 +200,7 @@
 
   function getCustomButtons() {
     let key = $organization;
-    key = key.lowerCase();
+    key = key.toLowerCase();
 
     return window.ORG_RULES[key].custom_buttons;
   }
