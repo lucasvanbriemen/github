@@ -130,7 +130,6 @@
           <button class="button-primary" onclick={startReview}>Start Review</button>
         </div>
       {:else if state === 'analyzing'}
-        <p class="analyzing-message">GPT-4 is reviewing the PR changes...</p>
         <div class="spinner"></div>
       {:else if state === 'clarifying'}
         <p class="modal-description">Review the sections flagged as unclear. Clarify each one to help generate better comments.</p>
@@ -207,22 +206,13 @@
 
         <div class="modal-actions">
           <button class="button-primary-outline" onclick={onClose}>Cancel</button>
-          <button
-            class="button-primary"
-            onclick={postSelectedComments}
-            disabled={getSelectedCount() === 0}
-          >
-            Post {getSelectedCount()} Comment{getSelectedCount() === 1 ? '' : 's'}
-          </button>
+          <button class="button-primary" onclick={postSelectedComments} disabled={getSelectedCount() === 0}>Post {getSelectedCount()} Comment{getSelectedCount() === 1 ? '' : 's'}</button>
         </div>
 
       {:else if state === 'posting'}
-        <p class="analyzing-message">Uploading comments to GitHub...</p>
         <div class="spinner"></div>
-
       {:else if state === 'success'}
         <p class="success-message">Comments posted successfully. The PR view will refresh.</p>
-
       {:else if state === 'error'}
         <p class="error-message">{errorMessage}</p>
 
