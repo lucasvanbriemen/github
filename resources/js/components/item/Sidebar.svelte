@@ -310,12 +310,7 @@
     <SidebarGroup title="Quick Actions">
       <div class="custom-buttons">
         {#each getCustomButtons() as button}
-          <button
-            class="custom-button"
-            onclick={() => handleCustomButtonClick(button)}
-          >
-            {button.label}
-          </button>
+          <button class="custom-button" onclick={() => handleCustomButtonClick(button)}>{button.label}</button>
         {/each}
       </div>
     </SidebarGroup>
