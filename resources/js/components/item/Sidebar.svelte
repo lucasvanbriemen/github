@@ -199,7 +199,7 @@
   }
 
   function getCustomButtons() {
-    return window.ORG_RULES.[$organization].custom_buttons;
+    return window.ORG_RULES[$organization].custom_buttons;
   }
 
   function handleCustomButtonClick(button) {
@@ -310,7 +310,7 @@
     <SidebarGroup title="Quick Actions">
       <div class="custom-buttons">
         {#each getCustomButtons() as button}
-          <button class="custom-button" onclick={() => handleCustomButtonClick(button)}>{button.label}</button>
+          <button class="button-primary-outline" onclick={() => handleCustomButtonClick(button)}>{button.label}</button>
         {/each}
       </div>
     </SidebarGroup>
