@@ -68,14 +68,38 @@ class GithubConfig
     public const ORG_RULES = [
         'webinargeek' => [
             'custom_buttons' => [
-                'fbe' => 'Deploy stack',
-                'needs-uat' => 'Request UAT',
+                [
+                    'label' => 'Deploy stack',
+                    'type' => 'toggle_label',
+                    'value' => 'fbe'
+                ],
+                [
+                    'label' => 'Request UAT',
+                    'type' => 'toggle_label',
+                    'value' => 'needs-uat'
+                ],
+                [
+                    'label' => 'Self Review',
+                    'type' => 'api_request',
+                    'route' => 'organizations',
+                    'method' => 'GET',
+                ],
             ],
         ],
 
         'lucasvanbriemen' => [
             'custom_buttons' => [
-                'bug' => 'Start bugfix',
+                [
+                    'label' => 'Start bugfix',
+                    'type' => 'toggle_label',
+                    'value' => 'bug'
+                ],
+                [
+                    'label' => 'Self Review',
+                    'type' => 'api_request',
+                    'route' => 'organizations',
+                    'method' => 'GET',
+                ],
             ],
         ],
     ];

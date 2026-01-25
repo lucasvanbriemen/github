@@ -200,24 +200,57 @@
 
   function getCustomButtons() {
     const orgRules = window.ORG_RULES?.[$organization];
-    return orgRules?.custom_buttons || {};
+    return orgRules?.custom_buttons || [];
   }
 
-  function handleCustomButtonClick(labelKey) {
+  function handleCustomButtonClick(button) {
+    if (button.type === 'toggle_label') {
+      handleToggleLabel(button.value);
+    } else if (button.type === 'api_request') {
+      handleApiRequest(button);
+    }
+  }
+
+  function handleToggleLabel(labelName) {
     const currentLabelNames = (item?.labels || []).map(l => l.name);
     let newLabels = [...currentLabelNames];
 
-    if (currentLabelNames.includes(labelKey)) {
-      newLabels = newLabels.filter(l => l !== labelKey);
+    if (currentLabelNames.includes(labelName)) {
+      newLabels = newLabels.filter(l => l !== labelName);
     } else {
-      newLabels.push(labelKey);
+      newLabels.push(labelName);
     }
 
     updateLabels({ selectedValue: newLabels });
   }
 
-  function isCustomButtonActive(labelKey) {
-    return (item?.labels || []).some(l => l.name === labelKey);
+  function handleApiRequest(button) {
+    const routeParams = {
+      organization: $organization,
+      repository: $repository,
+      number: item.number
+    };
+
+    const data = replaceTokens(button.data || {});
+    const url = route(button.route, routeParams);
+
+    api[button.method.toLowerCase()](url, data);
+  }
+
+  function replaceTokens(data) {
+    const tokens = {
+      '{current_user}': window.USERNAME,
+      '{organization}': $organization,
+      '{repository}': $repository,
+      '{number}': item.number
+    };
+
+    const jsonString = JSON.stringify(data);
+    const replaced = Object.entries(tokens).reduce((str, [token, value]) => {
+      return str.replaceAll(token, value);
+    }, jsonString);
+
+    return JSON.parse(replaced);
   }
 
   $effect(() => {
@@ -316,16 +349,15 @@
       <Select name="label" selectableItems={labels} onChange={updateLabels} multiple/>
     </SidebarGroup>
 
-    {#if Object.keys(getCustomButtons()).length > 0}
+    {#if getCustomButtons().length > 0}
       <SidebarGroup title="Quick Actions">
         <div class="custom-buttons">
-          {#each Object.entries(getCustomButtons()) as [labelKey, buttonLabel]}
+          {#each getCustomButtons() as button}
             <button
               class="custom-button"
-              class:active={isCustomButtonActive(labelKey)}
-              onclick={() => handleCustomButtonClick(labelKey)}
+              onclick={() => handleCustomButtonClick(button)}
             >
-              {buttonLabel}
+              {button.label}
             </button>
           {/each}
         </div>
