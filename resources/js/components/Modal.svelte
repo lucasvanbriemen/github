@@ -1,5 +1,5 @@
 <script>
-	let { isOpen = false, onClose, onConfirm, title = 'Confirm Action', confirmText = 'Confirm', cancelText = 'Cancel', slot} = $props();
+	let { isOpen = false, onClose, onConfirm, title = 'Confirm Action', confirmText = 'Confirm', cancelText = 'Cancel', showButtons = true} = $props();
 
 	function handleBackdropClick(e) {
 		if (e.target === e.currentTarget) {
@@ -18,10 +18,13 @@
 		<div class="modal">
 			<h3 class="modal-title">{title}</h3>
 			<slot />
-			<div class="modal-actions">
-				<button class="button-primary-outline" onclick={onClose}>{cancelText}</button>
-				<button class="button-primary" onclick={handleConfirm}>{confirmText}</button>
-			</div>
+
+			{#if showButtons}
+				<div class="modal-actions">
+					<button class="button-primary-outline" onclick={onClose}>{cancelText}</button>
+					<button class="button-primary" onclick={handleConfirm}>{confirmText}</button>
+				</div>
+			{/if}
 		</div>
 	</div>
 {/if}

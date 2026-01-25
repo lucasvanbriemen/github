@@ -141,7 +141,7 @@
 </script>
 
 {#if isOpen}
-  <Modal isOpen={isOpen} onClose={() => { onClose?.(); resetModal(); }} title="AI Self-Review">
+  <Modal isOpen={isOpen} onClose={() => { onClose?.(); resetModal(); }} title="AI Self-Review" showButtons={false}>
     <div class="contents">
       {#if state === 'input'}
           <p class="modal-description">GPT-4 will analyze this pull request for potential issues and improvements.</p>
