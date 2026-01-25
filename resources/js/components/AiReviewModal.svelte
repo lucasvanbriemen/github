@@ -79,13 +79,9 @@
     state = 'posting';
 
     const toPost = comments.filter((_, index) => selectedComments[index]);
-
-    if (toPost.length === 0) {
-      return;
-    }
-
     await api.post(route(`organizations.repositories.pr.ai-review.post-comments`, { $organization, $repository, number: item.number }), { comments: toPost });
     state = 'success';
+
     setTimeout(() => {
       onClose?.();
       resetModal();
