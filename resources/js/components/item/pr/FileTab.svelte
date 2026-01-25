@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import FileNavigation from './FileNavigation.svelte';
   import ChangedLine from './ChangedLine.svelte';
   import ReviewPanel from './ReviewPanel.svelte';
@@ -9,6 +9,7 @@
   let comments = $state([]);
   let pendingReviewComments = $state([]);
   let reviewMenuOpen = $state(false);
+  let isPreviewing = $state(false);
 
   let totalAdditions = $derived(files.reduce((sum, file) => sum + file.additions, 0));
   let totalDeletions = $derived(files.reduce((sum, file) => sum + file.deletions, 0));
@@ -37,7 +38,23 @@
 
   $effect(() => {
     selectedFile = files[selectedFileIndex];
+
+    untrack(() => {
+      isPreviewing = false;
+    });
   });
+
+  function isApplicableForPreview(file) {
+    if (file.status != 'added') {
+      return false;
+    }
+
+    // File extensions that are applicable for preview
+    const applicableExtensions = ['svg'];
+    if (applicableExtensions.includes(file.filename.split('.').pop())) {
+      return true;
+    }
+  }
 </script>
 
 {#if !loadingFiles}
@@ -58,6 +75,10 @@
       <button class="header" type="button">
         <span class="file-status file-status-{selectedFile.status}">{selectedFile.status}</span>
         <span class="file-name">{selectedFile.filename}</span>
+
+        {#if isApplicableForPreview(selectedFile)}
+          <button class="button-primary-outline" onclick={() => isPreviewing = !isPreviewing}>{isPreviewing ? 'Hide Preview' : 'Preview'}</button>
+        {/if}
 
         <span class="file-stats">
           {#if selectedFile.additions > 0}
