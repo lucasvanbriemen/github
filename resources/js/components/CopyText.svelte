@@ -13,7 +13,7 @@
   }
 </script>
 
-<button onclick={handleCopy} class="copy-text-button" class:copied={isCopied}>
+<button onclick={handleCopy} class="copy-text-button button-primary-outline" class:copied={isCopied}>
   <Icon name='copy' size="1rem" />
   {isCopied ? 'Copied!' : label}
 </button>
@@ -21,14 +21,9 @@
 <style>
   .copy-text-button {
     display: flex;
-    align-items: center;
     gap: 0.5rem;
-    background-color: transparent;
-    border: 2px solid var(--primary-color-dark);
-    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 14px;
-    width: fit-content;
     color: var(--text-color-secondary);
     
     &:not(.copied):hover {
@@ -38,6 +33,11 @@
 
     &.copied {
       opacity: 0.25;
+
+      &:hover {
+        cursor: default;
+        background-color: transparent;
+      }
     }
   }
 </style>
