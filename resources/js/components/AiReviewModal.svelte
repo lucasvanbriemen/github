@@ -39,12 +39,6 @@
 
     const response = await api.post(route(`organizations.repositories.pr.ai-review.analyze`, { $organization, $repository, number: item.number, }), { context: userContext });
 
-    if (response.error) {
-      errorMessage = response.error;
-      state = 'error';
-      return;
-    }
-
     unclearItems = response.unclearItems || [];
     clarifications = {};
 
@@ -58,23 +52,11 @@
     state = 'analyzing';
     errorMessage = '';
 
-    const response = await api.post(
-      route(`organizations.repositories.pr.ai-review.generate-comments`, {
-        $organization,
-        $repository,
-        number: item.number,
-      }),
-      {
+    const response = await api.post(route(`organizations.repositories.pr.ai-review.generate-comments`, { $organization, $repository, number: item.number, }), {
         unclearItems: unclearItems,
         clarifications: clarifications,
       }
     );
-
-    if (response.error) {
-      errorMessage = response.error;
-      state = 'error';
-      return;
-    }
 
     comments = response.comments || [];
 
