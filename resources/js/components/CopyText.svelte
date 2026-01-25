@@ -4,8 +4,8 @@
   let { text, label = 'Copy' } = $props();
   let isCopied = $state(false);
 
-  async function handleCopy() {
-    await navigator.clipboard.writeText(text);
+  function handleCopy() {
+    navigator.clipboard.writeText(text);
     isCopied = true;
     setTimeout(() => {
       isCopied = false;
