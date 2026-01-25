@@ -30,88 +30,79 @@ class AiReviewController extends Controller
 
         // Build GPT-4 prompt for identifying unclear code
         $systemPrompt = <<<SYSTEM
-Analyze all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
-1. Any logic changes - especially if different from old code or seems risky/wrong
-2. Anything unusual or weird - if code seems odd/unconventional, flag it
-3. Unclear intentions - variable names, logic that's not self-evident
-4. Potential bugs - off-by-one, type issues, missing null checks
-5. Vague business logic - code that needs context to understand
+            Analyze all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
+            1. Any logic changes - especially if different from old code or seems risky/wrong
+            2. Anything unusual or weird - if code seems odd/unconventional, flag it
+            3. Unclear intentions - variable names, logic that's not self-evident
+            4. Potential bugs - off-by-one, type issues, missing null checks
+            5. Vague business logic - code that needs context to understand
 
-Be aggressive: Flag anything that even slightly stands out or seems noteworthy.
-Only ignore: pure style/whitespace changes.
+            Be aggressive: Flag anything that even slightly stands out or seems noteworthy.
+            Only ignore: pure style/whitespace changes.
 
-IMPORTANT: Only flag ADDED or MODIFIED lines (lines starting with + or changed from -).
-Do NOT flag context lines (lines starting with space).
+            IMPORTANT: Only flag ADDED or MODIFIED lines (lines starting with + or changed from -).
+            Do NOT flag context lines (lines starting with space).
 
-First analyze the full diff completely, then return findings.
+            First analyze the full diff completely, then return findings.
 
-Return ONLY valid JSON:
-{"unclearItems": [{"path": "file.js", "line": 42, "code": "code snippet", "reason": "brief reason"}]}
-SYSTEM;
+            Return ONLY valid JSON:
+            {"unclearItems": [{"path": "file.js", "line": 42, "code": "code snippet", "reason": "brief reason"}]}
+        SYSTEM;
 
         $userPrompt = "PR: {$item->title}";
-        if (!empty($item->body)) {
-            $userPrompt .= "\n" . substr($item->body, 0, 500);
-        }
+        $userPrompt .= "\n" . substr($item->body, 0, 500);
         if (!empty($userContext)) {
             $userPrompt .= "\nContext: " . substr($userContext, 0, 300);
         }
         $userPrompt .= "\n\nAnalyze this full diff, then identify odd/unclear sections:\n{$diffText}";
 
-        try {
-            $client = OpenAI::client(config('services.openai.api_key'));
+        $client = OpenAI::client(config('services.openai.api_key'));
 
-            $response = $client->chat()->create([
-                'model' => 'gpt-4-turbo',
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => $systemPrompt,
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => $userPrompt,
-                    ],
+        $response = $client->chat()->create([
+            'model' => 'gpt-4-turbo',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => $systemPrompt,
                 ],
-                'max_completion_tokens' => 2048,
-                'temperature' => 0.7,
-            ]);
+                [
+                    'role' => 'user',
+                    'content' => $userPrompt,
+                ],
+            ],
+            'max_completion_tokens' => 2048,
+            'temperature' => 0.7,
+        ]);
 
-            $responseText = $response->choices[0]->message->content;
+        $responseText = $response->choices[0]->message->content;
 
-            // Parse JSON response
-            $parsed = json_decode($responseText, true);
+        // Parse JSON response
+        $parsed = json_decode($responseText, true);
 
-            if (!$parsed || !isset($parsed['unclearItems'])) {
-                // Try to extract JSON if wrapped in markdown
-                if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
-                    $parsed = json_decode($matches[1], true);
-                }
+        if (!$parsed || !isset($parsed['unclearItems'])) {
+            // Try to extract JSON if wrapped in markdown
+            if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
+                $parsed = json_decode($matches[1], true);
             }
-
-            if (!$parsed || !isset($parsed['unclearItems'])) {
-                return response()->json([
-                    'error' => 'Failed to parse AI response',
-                    'unclearItems' => [],
-                ], 400);
-            }
-
-            // Filter and validate unclear items
-            $validItems = array_filter(
-                $parsed['unclearItems'],
-                fn($item) => isset($item['path']) && isset($item['line']) && isset($item['code']) && isset($item['reason'])
-            );
-
-            return response()->json([
-                'success' => true,
-                'unclearItems' => array_values($validItems),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'AI analysis failed: ' . $e->getMessage(),
-                'unclearItems' => [],
-            ], 500);
         }
+
+        if (!$parsed || !isset($parsed['unclearItems'])) {
+            return response()->json([
+                'error' => 'Failed to parse AI response',
+                'unclearItems' => [],
+            ], 400);
+        }
+
+        // Filter and validate unclear items
+        $validItems = array_filter(
+            $parsed['unclearItems'],
+            fn($item) => isset($item['path']) && isset($item['line']) && isset($item['code']) && isset($item['reason'])
+        );
+
+        return response()->json([
+            'success' => true,
+            'unclearItems' => array_values($validItems),
+        ]);
     }
 
     public function generateComments($organizationName, $repositoryName, $number)
