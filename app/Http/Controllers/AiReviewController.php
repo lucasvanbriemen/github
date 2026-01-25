@@ -13,10 +13,7 @@ class AiReviewController extends Controller
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
-        $item = Item::where('repository_id', $repository->id)
-            ->where('number', $number)
-            ->firstOrFail();
-
+        $item = Item::where('repository_id', $repository->id)->where('number', $number)->firstOrFail();
         $userContext = request()->input('context', '');
 
         // Get PR files and build diff text
@@ -256,7 +253,6 @@ SYSTEM;
 
         // Get PR files to build a map of valid line numbers for each file
         $files = PullRequestController::getFiles($organizationName, $repositoryName, $number);
-        $validLines = $this->buildValidLinesMap($files);
 
         $commitSha = $item->getLatestCommitSha();
         $successCount = 0;
@@ -266,16 +262,6 @@ SYSTEM;
             $path = $comment['path'];
             $line = $comment['line'];
 
-            // Validate that the line is actually changed in the PR
-            if (!isset($validLines[$path]) || !in_array($line, $validLines[$path])) {
-                $failedComments[] = [
-                    'path' => $path,
-                    'line' => $line,
-                    'reason' => 'Line not in PR changes',
-                ];
-                continue;
-            }
-
             $payload = [
                 'body' => $comment['body'],
                 'commit_id' => $commitSha,
@@ -284,17 +270,7 @@ SYSTEM;
                 'side' => $comment['side'] ?? 'RIGHT',
             ];
 
-            $result = ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$number}/comments", 'POST', $payload);
-
-            if ($result) {
-                $successCount++;
-            } else {
-                $failedComments[] = [
-                    'path' => $path,
-                    'line' => $line,
-                    'reason' => 'GitHub API error',
-                ];
-            }
+            ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$number}/comments", 'POST', $payload);
         }
 
         return response()->json([
@@ -303,36 +279,6 @@ SYSTEM;
             'failedCount' => count($failedComments),
             'failedComments' => $failedComments,
         ]);
-    }
-
-    /**
-     * Build a map of valid line numbers for each file (only added/modified lines)
-     */
-    private function buildValidLinesMap(array $files): array
-    {
-        $validLines = [];
-
-        foreach ($files as $file) {
-            $path = $file['filename'];
-            $validLines[$path] = [];
-
-            if (empty($file['changes'])) {
-                continue;
-            }
-
-            foreach ($file['changes'] as $hunk) {
-                foreach ($hunk['rows'] as $row) {
-                    $right = $row['right'];
-
-                    // Include lines that are added or modified (have a right-side line number)
-                    if ($right && isset($right['number']) && $right['type'] !== 'del') {
-                        $validLines[$path][] = $right['number'];
-                    }
-                }
-            }
-        }
-
-        return $validLines;
     }
 
     /**
