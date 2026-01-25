@@ -4,7 +4,9 @@
   import ChangedLine from './ChangedLine.svelte';
   import ReviewPanel from './ReviewPanel.svelte';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = true } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false } = $props();
+
+  const applicableExtensionsForPreview = ['svg'];
 
   let comments = $state([]);
   let pendingReviewComments = $state([]);
@@ -38,6 +40,14 @@
   $effect(() => {
     selectedFile = files[selectedFileIndex];
   });
+
+  function isApplicableForPreview(file) {
+    if (file.status != 'added' || !applicableExtensionsForPreview.includes(file.filename.split('.').pop())) {
+      return false;
+    }
+
+    return true;
+  }
 </script>
 
 {#if !loadingFiles}
@@ -69,18 +79,24 @@
         </span>
       </button>
 
-      <div class="file-changes">
-        {#each selectedFile.changes as hunk (hunk)}
-          {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
-            <div class="changed-line-pair">
-              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
-              <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
-            </div>
-          {/each}
+      {#if !isApplicableForPreview(selectedFile) }
+        <div class="file-changes">
+          {#each selectedFile.changes as hunk (hunk)}
+            {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
+              <div class="changed-line-pair">
+                <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
+                <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
+              </div>
+            {/each}
 
-          <div class="hunk-separator"></div>
-        {/each}
-      </div>
+            <div class="hunk-separator"></div>
+          {/each}
+        </div>
+      {:else}
+        <div class="file-preview">
+          {@html selectedFile.changes.map(hunk => hunk.rows.map(row => row.right?.content || '').join('\n')).join('\n')}
+        </div>
+      {/if}
     </div>
   {/if}
 </div>

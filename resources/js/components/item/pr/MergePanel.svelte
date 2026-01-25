@@ -3,6 +3,7 @@
   import Drawer from "../../Drawer.svelte";
   import ConfirmationModal from "../../ConfirmationModal.svelte";
   import JobLogViewer from "../../JobLogViewer.svelte";
+  import CopyText from "../../CopyText.svelte";
 
   let { item } = $props();
   let number = item.number;
@@ -60,6 +61,10 @@
 
     return true;
   }
+
+  function mergeCommand () {
+    return `git checkout ${item.details?.base_branch} && git pull && git checkout ${item.details?.head_branch} && git merge ${item.details?.base_branch}`;
+  }
 </script>
 
 <div class="merge-panel">
@@ -84,6 +89,9 @@
     <div class="merge-conflicts">
       <span class="conflicts-title">Merge Conflicts</span>
       <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
+
+      <CopyText text={mergeCommand()} label="git merge {item.details?.base_branch}" />
+
       {#each item.conflicts as conflict}
         <div class="conflict-file">{conflict}</div>
       {/each}

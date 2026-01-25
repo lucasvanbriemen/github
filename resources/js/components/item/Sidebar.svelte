@@ -7,7 +7,7 @@
   import Switch from '../Switch.svelte';
   import { organization, repository } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(true), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -229,7 +229,7 @@
 <Sidebar>
   {#if !isLoading && isPR && activeTab === 'files'}
     <SidebarGroup title="Diff Settings">
-      <Switch title="Hide Whitespace Changes" description="Toggle to hide whitespace changes in the diff view." bind:input={showWhitespace}/>
+      <Switch title="Show whitespace changes" description="Toggle to hide whitespace changes in the diff view." bind:input={showWhitespace}/>
     </SidebarGroup>
 
     <SidebarGroup title="Files">
