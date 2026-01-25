@@ -33,23 +33,24 @@
     align-items: center;
     gap: 0.5rem;
     background-color: transparent;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--primary-color-dark);
     padding: 0.5rem 1rem;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: fit-content;
 
     &:hover {
-      background-color: var(--primary-color);
+      background-color: var(--primary-color-dark);
     }
 
     &.copied {
-      border-color: var(--success-color, #22c55e);
-      color: var(--success-color, #22c55e);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
 
       &:hover {
-        background-color: var(--success-color, #22c55e);
+        background-color: var(--primary-color);
       }
     }
   }
