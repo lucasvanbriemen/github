@@ -75,10 +75,6 @@
     }, 1500);
   }
 
-  function getSelectedCount() {
-    return Object.values(selectedComments).filter(Boolean).length;
-  }
-
   function getCommentLocation(comment) {
     return `${comment.path}:${comment.line}`;
   }
@@ -145,7 +141,7 @@
 
       <div class="modal-actions">
         <button class="button-primary-outline" onclick={onClose}>Cancel</button>
-        <button class="button-primary" onclick={postSelectedComments} disabled={getSelectedCount() === 0}>Post {getSelectedCount()} Comment{getSelectedCount() === 1 ? '' : 's'}</button>
+        <button class="button-primary" onclick={postSelectedComments}>Post</button>
       </div>
     {:else if state === 'success'}
       <p class="success-message">Comments posted successfully. The PR view will refresh.</p>
