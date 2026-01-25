@@ -9,7 +9,6 @@
   let comments = $state([]);
   let pendingReviewComments = $state([]);
   let reviewMenuOpen = $state(false);
-  let isPreviewing = $state(false);
 
   let totalAdditions = $derived(files.reduce((sum, file) => sum + file.additions, 0));
   let totalDeletions = $derived(files.reduce((sum, file) => sum + file.deletions, 0));
@@ -76,10 +75,6 @@
         <span class="file-status file-status-{selectedFile.status}">{selectedFile.status}</span>
         <span class="file-name">{selectedFile.filename}</span>
 
-        {#if isApplicableForPreview(selectedFile)}
-          <button class="button-primary-outline" onclick={() => isPreviewing = !isPreviewing}>{isPreviewing ? 'Hide Preview' : 'Preview'}</button>
-        {/if}
-
         <span class="file-stats">
           {#if selectedFile.additions > 0}
             <span class="additions">+{selectedFile.additions}</span>
@@ -90,7 +85,7 @@
         </span>
       </button>
 
-      {#if !isPreviewing || !isApplicableForPreview(selectedFile) }
+      {#if !isApplicableForPreview(selectedFile) }
         <div class="file-changes">
           {#each selectedFile.changes as hunk (hunk)}
             {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
