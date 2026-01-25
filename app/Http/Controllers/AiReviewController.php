@@ -26,47 +26,154 @@ class AiReviewController extends Controller
         if (empty($diffText)) {
             return response()->json([
                 'error' => 'No changes found in PR',
+                'unclearItems' => [],
+            ], 400);
+        }
+
+        // Limit diff text to reduce token usage
+        $maxDiffLength = 4000;
+        if (strlen($diffText) > $maxDiffLength) {
+            $diffText = substr($diffText, 0, $maxDiffLength) . "\n\n[... diff truncated ...]";
+        }
+
+        // Build GPT-4 prompt for identifying unclear code
+        $systemPrompt = <<<SYSTEM
+You are a code reviewer. Identify unclear or confusing code sections.
+
+Return ONLY valid JSON with no extra text:
+{"unclearItems": [{"path": "file.js", "line": 42, "code": "code snippet", "reason": "brief reason"}]}
+SYSTEM;
+
+        $userPrompt = "PR: {$item->title}";
+        if (!empty($item->body)) {
+            $userPrompt .= "\n" . substr($item->body, 0, 500);
+        }
+        if (!empty($userContext)) {
+            $userPrompt .= "\nContext: " . substr($userContext, 0, 300);
+        }
+        $userPrompt .= "\n\nChanges:\n{$diffText}";
+
+        try {
+            $client = OpenAI::client(config('services.openai.api_key'));
+
+            $response = $client->chat()->create([
+                'model' => 'gpt-4',
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => $systemPrompt,
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $userPrompt,
+                    ],
+                ],
+                'max_completion_tokens' => 2048,
+                'temperature' => 0.7,
+            ]);
+
+            $responseText = $response->choices[0]->message->content;
+
+            // Parse JSON response
+            $parsed = json_decode($responseText, true);
+
+            if (!$parsed || !isset($parsed['unclearItems'])) {
+                // Try to extract JSON if wrapped in markdown
+                if (preg_match('/```json\n(.*?)\n```/s', $responseText, $matches)) {
+                    $parsed = json_decode($matches[1], true);
+                }
+            }
+
+            if (!$parsed || !isset($parsed['unclearItems'])) {
+                return response()->json([
+                    'error' => 'Failed to parse AI response',
+                    'unclearItems' => [],
+                ], 400);
+            }
+
+            // Filter and validate unclear items
+            $validItems = array_filter(
+                $parsed['unclearItems'],
+                fn($item) => isset($item['path']) && isset($item['line']) && isset($item['code']) && isset($item['reason'])
+            );
+
+            return response()->json([
+                'success' => true,
+                'unclearItems' => array_values($validItems),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'AI analysis failed: ' . $e->getMessage(),
+                'unclearItems' => [],
+            ], 500);
+        }
+    }
+
+    public function generateComments($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $unclearItems = request()->input('unclearItems', []);
+        $clarifications = request()->input('clarifications', []);
+
+        if (empty($unclearItems)) {
+            return response()->json([
+                'error' => 'No unclear items provided',
                 'comments' => [],
             ], 400);
         }
 
-        // Build GPT-4 prompt
+        // Build the unclear items with clarifications for the prompt
+        $itemsWithClarifications = [];
+        foreach ($unclearItems as $index => $item) {
+            $clarification = $clarifications[$index] ?? null;
+            if ($clarification) {
+                $itemsWithClarifications[] = [
+                    'path' => $item['path'],
+                    'line' => $item['line'],
+                    'code' => $item['code'],
+                    'reason' => $item['reason'],
+                    'clarification' => $clarification,
+                ];
+            }
+        }
+
+        if (empty($itemsWithClarifications)) {
+            return response()->json([
+                'success' => true,
+                'comments' => [],
+            ]);
+        }
+
+        // Build the list of items for the prompt (limit length to reduce tokens)
+        $itemsList = '';
+        $charCount = 0;
+        $maxChars = 3000;
+        foreach ($itemsWithClarifications as $idx => $item) {
+            $itemText = "Item " . ($idx + 1) . ": {$item['path']}:{$item['line']}\n";
+            $itemText .= "Code: {$item['code']}\n";
+            $itemText .= "Clarification: {$item['clarification']}\n\n";
+
+            if ($charCount + strlen($itemText) > $maxChars) {
+                break;
+            }
+            $itemsList .= $itemText;
+            $charCount += strlen($itemText);
+        }
+
+        // Build GPT-4 prompt for generating comments based on clarifications
         $systemPrompt = <<<SYSTEM
-You are an expert code reviewer. Analyze the provided pull request changes for:
-- Potential bugs and edge cases
-- Performance improvements
-- Best practices and code quality
-- Security issues
-- Clarity and maintainability
+Generate helpful inline comments based on code clarifications.
 
-Return ONLY a valid JSON object (no markdown, no extra text) with this structure:
-{
-  "comments": [
-    {
-      "path": "relative/file/path.js",
-      "line": 42,
-      "side": "RIGHT",
-      "body": "Comment text here"
-    }
-  ]
-}
-
-Notes:
-- "line" is the line number in the new version of the file
-- "side" must be "RIGHT" for new code
-- Only include comments for actual code changes, not context lines
-- Each comment should be actionable and specific
-- If no issues found, return empty comments array
+Return ONLY valid JSON:
+{"comments": [{"path": "file.js", "line": 42, "side": "RIGHT", "body": "helpful comment"}]}
 SYSTEM;
 
-        $userPrompt = "PR Title: {$item->title}\n\n";
-        if (!empty($item->body)) {
-            $userPrompt .= "PR Description: {$item->body}\n\n";
-        }
-        if (!empty($userContext)) {
-            $userPrompt .= "User Context: {$userContext}\n\n";
-        }
-        $userPrompt .= "PR Changes:\n\n{$diffText}";
+        $userPrompt = "Generate comments:\n\n{$itemsList}";
 
         try {
             $client = OpenAI::client(config('services.openai.api_key'));
@@ -118,7 +225,7 @@ SYSTEM;
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'AI analysis failed: ' . $e->getMessage(),
+                'error' => 'Comment generation failed: ' . $e->getMessage(),
                 'comments' => [],
             ], 500);
         }

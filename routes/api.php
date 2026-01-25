@@ -115,6 +115,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::post('/pr/{number}/ai-review/analyze', [AiReviewController::class, 'analyze'])
             ->name('pr.ai-review.analyze');
 
+        Route::post('/pr/{number}/ai-review/generate-comments', [AiReviewController::class, 'generateComments'])
+            ->name('pr.ai-review.generate-comments');
+
         Route::post('/pr/{number}/ai-review/post-comments', [AiReviewController::class, 'postComments'])
             ->name('pr.ai-review.post-comments');
 

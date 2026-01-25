@@ -88,6 +88,100 @@
 				}
 			}
 
+			.unclear-items-list {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				border: 1px solid var(--border-color);
+				border-radius: 0.5rem;
+				padding: 1rem;
+				background-color: var(--secondary-background-color, rgba(0, 0, 0, 0.02));
+				max-height: 400px;
+				overflow-y: auto;
+
+				.unclear-item {
+					display: flex;
+					flex-direction: column;
+					gap: 0.75rem;
+					padding: 1rem;
+					background-color: var(--background-color);
+					border: 1px solid var(--border-color);
+					border-radius: 0.5rem;
+
+					.item-header {
+						display: flex;
+						align-items: flex-start;
+
+						.item-info {
+							display: flex;
+							flex-direction: column;
+							gap: 0.25rem;
+							flex: 1;
+
+							.item-location {
+								font-family: monospace;
+								font-size: 0.85rem;
+								color: var(--text-color-secondary);
+								font-weight: 500;
+							}
+
+							.item-reason {
+								font-size: 0.9rem;
+								color: var(--text-color);
+								font-style: italic;
+							}
+						}
+					}
+
+					.code-snippet {
+						background-color: var(--secondary-background-color, rgba(0, 0, 0, 0.02));
+						border: 1px solid var(--border-color);
+						border-radius: 0.375rem;
+						padding: 0.75rem;
+						overflow-x: auto;
+
+						code {
+							font-family: monospace;
+							font-size: 0.85rem;
+							color: var(--text-color-secondary);
+							white-space: pre-wrap;
+							word-break: break-word;
+						}
+					}
+
+					.clarification-input-group {
+						display: flex;
+						flex-direction: column;
+						gap: 0.5rem;
+
+						label {
+							font-weight: 500;
+							color: var(--text-color);
+							font-size: 0.9rem;
+						}
+
+						.clarification-input {
+							padding: 0.75rem;
+							border: 1px solid var(--border-color);
+							border-radius: 0.5rem;
+							background-color: var(--input-background);
+							color: var(--text-color);
+							font-family: inherit;
+							font-size: 0.95rem;
+							resize: vertical;
+							min-height: 80px;
+							max-height: 150px;
+
+							&:focus {
+								outline: none;
+								border-color: var(--primary-color);
+								box-shadow: 0 0 0 2px var(--primary-color-alpha, rgba(59, 130, 246, 0.1));
+							}
+						}
+					}
+				}
+			}
+
 			.comments-list {
 				display: flex;
 				flex-direction: column;

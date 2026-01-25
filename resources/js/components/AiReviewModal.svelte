@@ -3,8 +3,10 @@
 
   let { isOpen = false, onClose, item } = $props();
 
-  let state = $state('input'); // input | analyzing | review | posting | success | error
+  let state = $state('input'); // input | analyzing | clarifying | review | posting | success | error
   let userContext = $state('');
+  let unclearItems = $state([]);
+  let clarifications = $state({});
   let comments = $state([]);
   let errorMessage = $state('');
   let selectedComments = $state({});
@@ -21,6 +23,8 @@
   function resetModal() {
     state = 'input';
     userContext = '';
+    unclearItems = [];
+    clarifications = {};
     comments = [];
     errorMessage = '';
     selectedComments = {};
@@ -48,6 +52,42 @@
         return;
       }
 
+      unclearItems = response.unclearItems || [];
+      clarifications = {};
+
+      state = unclearItems.length > 0 ? 'clarifying' : 'error';
+      if (unclearItems.length === 0) {
+        errorMessage = 'No unclear sections found in the PR changes.';
+      }
+    } catch (e) {
+      errorMessage = e.message || 'Failed to analyze PR';
+      state = 'error';
+    }
+  }
+
+  async function submitClarifications() {
+    state = 'analyzing';
+    errorMessage = '';
+
+    try {
+      const response = await api.post(
+        route(`organizations.repositories.pr.ai-review.generate-comments`, {
+          $organization,
+          $repository,
+          number: item.number,
+        }),
+        {
+          unclearItems: unclearItems,
+          clarifications: clarifications,
+        }
+      );
+
+      if (response.error) {
+        errorMessage = response.error;
+        state = 'error';
+        return;
+      }
+
       comments = response.comments || [];
 
       // Initialize selected state - all comments selected by default
@@ -58,16 +98,23 @@
 
       state = comments.length > 0 ? 'review' : 'error';
       if (comments.length === 0) {
-        errorMessage = 'No suggestions found in the PR changes.';
+        errorMessage = 'No comments generated from the clarifications.';
       }
     } catch (e) {
-      errorMessage = e.message || 'Failed to analyze PR';
+      errorMessage = e.message || 'Failed to generate comments';
       state = 'error';
     }
   }
 
   function toggleComment(index) {
     selectedComments[index] = !selectedComments[index];
+  }
+
+  function toggleClarification(index) {
+    clarifications[index] = clarifications[index] ? '' : 'skip';
+    if (clarifications[index] === 'skip') {
+      delete clarifications[index];
+    }
   }
 
   function startEditing(index) {
@@ -130,6 +177,10 @@
     return Object.values(selectedComments).filter(Boolean).length;
   }
 
+  function getClarifiedCount() {
+    return Object.values(clarifications).filter(v => v && v !== 'skip').length;
+  }
+
   function getCommentLocation(comment) {
     return `${comment.path}:${comment.line}`;
   }
@@ -164,6 +215,46 @@
           <h3 class="modal-title">Analyzing...</h3>
           <p class="analyzing-message">GPT-4 is reviewing the PR changes...</p>
           <div class="spinner"></div>
+        </div>
+
+      {:else if state === 'clarifying'}
+        <div class="modal-content">
+          <h3 class="modal-title">Clarify Unclear Sections ({getClarifiedCount()} of {unclearItems.length})</h3>
+          <p class="modal-description">Review the sections flagged as unclear. Clarify each one to help generate better comments.</p>
+
+          <div class="unclear-items-list">
+            {#each unclearItems as item, index (index)}
+              <div class="unclear-item">
+                <div class="item-header">
+                  <div class="item-info">
+                    <span class="item-location">{item.path}:{item.line}</span>
+                    <span class="item-reason">{item.reason}</span>
+                  </div>
+                </div>
+
+                <div class="code-snippet">
+                  <code>{item.code}</code>
+                </div>
+
+                <div class="clarification-input-group">
+                  <label for="clarification-{index}">Your clarification (optional):</label>
+                  <textarea
+                    id="clarification-{index}"
+                    bind:value={clarifications[index]}
+                    placeholder="Explain the intent or context of this code..."
+                    class="clarification-input"
+                  />
+                </div>
+              </div>
+            {/each}
+          </div>
+
+          <div class="modal-actions">
+            <button class="button-primary-outline" onclick={onClose}>Cancel</button>
+            <button class="button-primary" onclick={submitClarifications}>
+              Generate Comments
+            </button>
+          </div>
         </div>
 
       {:else if state === 'review'}
@@ -241,8 +332,10 @@
 
           <div class="modal-actions">
             <button class="button-primary-outline" onclick={onClose}>Close</button>
-            {#if state === 'error' && comments.length > 0}
+            {#if comments.length > 0}
               <button class="button-primary" onclick={() => state = 'review'}>Back to Review</button>
+            {:else if unclearItems.length > 0}
+              <button class="button-primary" onclick={() => state = 'clarifying'}>Back to Clarifying</button>
             {:else}
               <button class="button-primary" onclick={() => state = 'input'}>Try Again</button>
             {/if}
