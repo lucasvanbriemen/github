@@ -53,7 +53,6 @@
   }
 
   function githubUrl(item) {
-    type = item.type == 'pull_request' ? 'pull' : 'issues';
     return `https://github.com/${$organization}/${$repository}/${type}/${item.number}`;
   }
 </script>
