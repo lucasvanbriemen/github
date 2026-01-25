@@ -6,6 +6,8 @@
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = true } = $props();
 
+  const applicableExtensionsForPreview = ['svg'];
+
   let comments = $state([]);
   let pendingReviewComments = $state([]);
   let reviewMenuOpen = $state(false);
@@ -44,9 +46,7 @@
       return false;
     }
 
-    // File extensions that are applicable for preview
-    const applicableExtensions = ['svg'];
-    if (applicableExtensions.includes(file.filename.split('.').pop())) {
+    if (applicableExtensionsForPreview.includes(file.filename.split('.').pop())) {
       return true;
     }
   }
