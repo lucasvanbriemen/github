@@ -4,7 +4,7 @@
 
   let { isOpen = false, onClose, item } = $props();
 
-  let state = $state('input'); // input | analyzing | clarifying | review | posting | success | error
+  let state = $state('input'); // input | analyzing | clarifying | review | posting | success
   let userContext = $state('');
   let unclearItems = $state([]);
   let clarifications = $state({});
@@ -32,10 +32,7 @@
     unclearItems = response.unclearItems || [];
     clarifications = {};
 
-    state = unclearItems.length > 0 ? 'clarifying' : 'error';
-    if (unclearItems.length === 0) {
-      errorMessage = 'No unclear sections found in the PR changes.';
-    }
+    state = 'clarifying';
   }
 
   async function submitClarifications() {
@@ -55,7 +52,7 @@
       selectedComments[index] = true;
     });
 
-    state = comments.length > 0 ? 'review' : 'error';
+    state = 'review';
   }
 
   function toggleComment(index) {
