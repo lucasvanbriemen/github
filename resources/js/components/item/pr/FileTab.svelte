@@ -37,10 +37,6 @@
 
   $effect(() => {
     selectedFile = files[selectedFileIndex];
-
-    untrack(() => {
-      isPreviewing = false;
-    });
   });
 
   function isApplicableForPreview(file) {

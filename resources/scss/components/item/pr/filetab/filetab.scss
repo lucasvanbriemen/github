@@ -119,5 +119,16 @@
         background-color: var(--background-color);
       }
     }
+
+    .file-preview {
+      padding: 1rem;
+      background-color: var(--background-color-one);
+      overflow: auto;
+
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
+    }
   }
 }
