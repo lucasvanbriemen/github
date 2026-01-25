@@ -75,11 +75,9 @@
   }
 
   function saveEdit() {
-    if (editingCommentIndex !== null) {
-      comments[editingCommentIndex].body = editingCommentText;
-      editingCommentIndex = null;
-      editingCommentText = '';
-    }
+    comments[editingCommentIndex].body = editingCommentText;
+    editingCommentIndex = null;
+    editingCommentText = '';
   }
 
   function cancelEdit() {
