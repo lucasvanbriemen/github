@@ -69,13 +69,6 @@
     selectedComments[index] = !selectedComments[index];
   }
 
-  function toggleClarification(index) {
-    clarifications[index] = clarifications[index] ? '' : 'skip';
-    if (clarifications[index] === 'skip') {
-      delete clarifications[index];
-    }
-  }
-
   function startEditing(index) {
     editingCommentIndex = index;
     editingCommentText = comments[index].body;
@@ -107,25 +100,15 @@
     }
 
     const response = await api.post(route(`organizations.repositories.pr.ai-review.post-comments`, { $organization, $repository, number: item.number }), { comments: toPost });
-
-    if (response.failedCount > 0) {
-      errorMessage = `Posted ${response.postedCount} comments, ${response.failedCount} failed.`;
-      state = 'error';
-    } else {
-      state = 'success';
-      setTimeout(() => {
-        onClose?.();
-        resetModal();
-      }, 1500);
-    }
+    state = 'success';
+    setTimeout(() => {
+      onClose?.();
+      resetModal();
+    }, 1500);
   }
 
   function getSelectedCount() {
     return Object.values(selectedComments).filter(Boolean).length;
-  }
-
-  function getClarifiedCount() {
-    return Object.values(clarifications).filter(v => v && v !== 'skip').length;
   }
 
   function getCommentLocation(comment) {
