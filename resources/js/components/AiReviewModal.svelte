@@ -99,7 +99,7 @@
       return;
     }
 
-    const response = await api.post(route(`organizations.repositories.pr.ai-review.post-comments`, { $organization, $repository, number: item.number }), { comments: toPost });
+    await api.post(route(`organizations.repositories.pr.ai-review.post-comments`, { $organization, $repository, number: item.number }), { comments: toPost });
     state = 'success';
     setTimeout(() => {
       onClose?.();
