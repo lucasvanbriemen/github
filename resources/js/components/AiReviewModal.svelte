@@ -14,13 +14,6 @@
   let editingCommentIndex = $state(null);
   let editingCommentText = $state('');
 
-  function handleBackdropClick(e) {
-    if (e.target === e.currentTarget) {
-      onClose?.();
-      resetModal();
-    }
-  }
-
   function resetModal() {
     state = 'input';
     userContext = '';
