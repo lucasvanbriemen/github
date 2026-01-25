@@ -91,7 +91,7 @@
       <p class="modal-description">AI will analyze this pull request for potential issues and improvements.</p>
 
       <div class="form-group">
-        <label for="context">Optional Context (What should the reviewer focus on?)</label>
+        <label for="context">Optional Context (What should the AI focus on?)</label>
         <textarea id="context" bind:value={userContext} placeholder="e.g., Focus on error handling and edge cases..." class="context-input"></textarea>
       </div>
 
