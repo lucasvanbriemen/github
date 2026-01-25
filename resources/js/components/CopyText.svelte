@@ -28,7 +28,6 @@
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 14px;
-    transition: all 0.3s ease;
     width: fit-content;
     color: var(--text-color-secondary);
     
