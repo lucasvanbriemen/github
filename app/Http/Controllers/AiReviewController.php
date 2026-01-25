@@ -21,10 +21,13 @@ class AiReviewController extends Controller
 
         // Build GPT-4 prompt for identifying unclear code
         $systemPrompt = <<<SYSTEM
-            Analyze all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
+            You are an AI helping the user to write a self-review of their own code changes in a pull request.
+            Its your task to place yourself in the position of a reviewer seeing this code for the first time.
+            Your goal is to review all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
+            Ask the user for clarification on these points to help them improve their code and explanations.
             1. Any logic changes - especially if different from old code or seems risky/wrong
             2. Anything unusual or weird - if code seems odd/unconventional, flag it
-            3. Unclear intentions - variable names, logic that's not self-evident
+            3. Unclear intentions - variable names, logic that's not self-evident without extra context
             4. Potential bugs - off-by-one, type issues, missing null checks
             5. Vague business logic - code that needs context to understand
 
@@ -148,7 +151,7 @@ class AiReviewController extends Controller
         $systemPrompt = <<<SYSTEM
             Generate concise inline comments explaining:
             - Why the logic changed this way
-            - What the code does that might be unclear
+            - What the code does that might be unclear without extra context
             - Any potential issues and why they're handled this way
 
             Comments should be brief and specific to the code snippet.

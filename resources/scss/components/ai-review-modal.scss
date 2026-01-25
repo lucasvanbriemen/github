@@ -41,24 +41,6 @@
 			color: var(--text-color);
 			font-size: 0.95rem;
 		}
-
-		.context-input {
-			padding: 0.75rem;
-			border: 1px solid var(--border-color);
-			border-radius: 0.5rem;
-			background-color: var(--input-background);
-			color: var(--text-color);
-			font-family: inherit;
-			font-size: 0.95rem;
-			resize: vertical;
-			min-height: 100px;
-			max-height: 200px;
-
-			&:focus {
-				outline: none;
-				border-color: var(--primary-color);
-			}
-		}
 	}
 
 	.unclear-items-list {
@@ -137,19 +119,8 @@
 					padding: 0.75rem;
 					border: 1px solid var(--border-color);
 					border-radius: 0.5rem;
-					background-color: var(--input-background);
-					color: var(--text-color);
-					font-family: inherit;
+					background-color: transparent;
 					font-size: 0.95rem;
-					resize: vertical;
-					min-height: 80px;
-					max-height: 150px;
-
-					&:focus {
-						outline: none;
-						border-color: var(--primary-color);
-						box-shadow: 0 0 0 2px var(--primary-color-alpha, rgba(59, 130, 246, 0.1));
-					}
 				}
 			}
 		}
@@ -222,24 +193,6 @@
 				padding: 0 0 0 1.5rem;
 			}
 
-			.comment-textarea {
-				padding: 0.75rem;
-				border: 1px solid var(--primary-color);
-				border-radius: 0.5rem;
-				background-color: var(--input-background);
-				color: var(--text-color);
-				font-family: inherit;
-				font-size: 0.95rem;
-				resize: vertical;
-				min-height: 100px;
-				margin-left: 1.5rem;
-
-				&:focus {
-					outline: none;
-					box-shadow: 0 0 0 2px var(--primary-color-alpha, rgba(59, 130, 246, 0.1));
-				}
-			}
-
 			.edit-actions {
 				display: flex;
 				justify-content: flex-end;
@@ -269,18 +222,14 @@
 		display: flex;
 		justify-content: flex-end;
 		gap: 0.75rem;
-		margin-top: 0.5rem;
+	}
 
-		button {
-			padding: 0.6rem 1.25rem;
-			font-size: 0.95rem;
-			font-weight: 500;
-
-			&:disabled {
-				opacity: 0.5;
-				cursor: not-allowed;
-			}
-		}
+	textarea {
+		padding: 0.75rem;
+		border: 1px solid var(--border-color);
+		border-radius: 0.5rem;
+		background-color: transparent;
+		font-size: 0.95rem;
 	}
 }
 
