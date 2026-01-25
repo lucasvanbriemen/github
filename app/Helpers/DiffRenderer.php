@@ -371,7 +371,7 @@ class DiffRenderer
             $delContent = (string)($delLine['content'] ?? '');
             $delNoWs = preg_replace('/\s/u', '', $delContent);
 
-            $bestScore = -1;
+            $bestDistance = PHP_INT_MAX;
             $bestNewIdx = null;
 
             foreach ($additions as $newIdx => $addLine) {
@@ -385,15 +385,19 @@ class DiffRenderer
 
                 // Perfect match ignoring whitespace
                 if ($delNoWs === $addNoWs && $delNoWs !== '') {
-                    $bestScore = 1.0;
+                    $bestDistance = 0;
                     $bestNewIdx = $newIdx;
                     break; // Take the first perfect match
                 }
 
-                // Partial similarity
-                $similarity = $this->calculateSimilarity($delNoWs, $addNoWs);
-                if ($similarity > $bestScore && $similarity > 0.7) {
-                    $bestScore = $similarity;
+                // Use Levenshtein distance for partial matching
+                $distance = levenshtein($delNoWs, $addNoWs);
+                // Normalize by average length to get a distance that favors longer similar strings
+                $avgLen = (strlen($delNoWs) + strlen($addNoWs)) / 2;
+                $normalizedDistance = $avgLen > 0 ? $distance / $avgLen : $distance;
+
+                if ($normalizedDistance < $bestDistance && $normalizedDistance < 0.3) {
+                    $bestDistance = $normalizedDistance;
                     $bestNewIdx = $newIdx;
                 }
             }
