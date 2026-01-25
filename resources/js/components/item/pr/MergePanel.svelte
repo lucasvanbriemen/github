@@ -1,7 +1,7 @@
 <script>
   import { organization, repository } from "../../stores";
   import Drawer from "../../Drawer.svelte";
-  import ConfirmationModal from "../../ConfirmationModal.svelte";
+  import Modal from "../../Modal.svelte";
   import JobLogViewer from "../../JobLogViewer.svelte";
   import CopyText from "../../CopyText.svelte";
   import AiReviewModal from "../../AiReviewModal.svelte";
@@ -123,12 +123,12 @@
   {/if}
 </div>
 
-<ConfirmationModal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" confirmText="Merge">
+<Modal isOpen={mergeConfirmOpen} onClose={() => mergeConfirmOpen = false} onConfirm={merge} title="Merge Pull Request" confirmText="Merge">
   Are you sure you want to merge this pull request? This action will merge the changes into the base branch.
-</ConfirmationModal>
-<ConfirmationModal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" confirmText="Close">
+</Modal>
+<Modal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Pull Request" confirmText="Close">
   Are you sure you want to close this pull request without merging? The pull request can be reopened later.
-</ConfirmationModal>
+</Modal>
 
 <AiReviewModal isOpen={aiReviewModalOpen} onClose={() => aiReviewModalOpen = false} {item} />
 

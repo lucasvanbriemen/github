@@ -15,7 +15,7 @@
 
 {#if isOpen}
 	<div class="modal-backdrop" onclick={handleBackdropClick}>
-		<div class="confirmation-modal">
+		<div class="modal">
 			<h3 class="modal-title">{title}</h3>
 			<slot />
 			<div class="modal-actions">
@@ -27,5 +27,5 @@
 {/if}
 
 <style lang="scss">
-	@import '../../scss/components/confirmation-modal';
+	@import '../../scss/components/modal';
 </style>
