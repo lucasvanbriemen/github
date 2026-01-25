@@ -100,11 +100,7 @@
         </div>
       {:else}
         <div class="file-preview">
-          {#if selectedFile.filename.split('.').pop() === 'svg'}
-            {@html selectedFile.changes.map(hunk => hunk.rows.map(row => row.right?.content || '').join('\n')).join('\n')}
-          {:else}
-            <p>Preview not available for this file type.</p>
-          {/if}
+          {@html selectedFile.changes.map(hunk => hunk.rows.map(row => row.right?.content || '').join('\n')).join('\n')}
         </div>
       {/if}
     </div>
