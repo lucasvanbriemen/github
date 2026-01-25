@@ -106,7 +106,10 @@
     </div>
   {/if}
 
-  <button class="button-primary-outline" onclick={() => aiReviewModalOpen = true}>AI Self-Review</button>
+  {#if item.state === 'open' || item.state === 'draft'}
+    <button class="button-primary-outline" onclick={() => aiReviewModalOpen = true}>AI Self-Review</button>
+  {/if}
+
   {#if item.state === 'open'}
     {#if !isMergeable()}
       <button class="button-primary" disabled title="This pull request cannot be merged">Merge Pull Request</button>
