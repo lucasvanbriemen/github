@@ -15,7 +15,7 @@
 
 <button onclick={handleCopy} class="copy-text-button" class:copied={isCopied}>
   <Icon name='copy' size="1rem" />
-  <span>{isCopied ? 'Copied!' : label}</span>
+  {isCopied ? 'Copied!' : label}
 </button>
 
 <style>
@@ -30,6 +30,7 @@
     font-size: 14px;
     transition: all 0.3s ease;
     width: fit-content;
+    color: var(--text-color-secondary);
     
     &:not(.copied):hover {
       cursor: pointer;
