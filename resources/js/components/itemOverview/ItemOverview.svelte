@@ -33,7 +33,7 @@
   const anyAssigneeOption = { value: 'any', label: 'Any' };
 
   async function getContributors() {
-    assignees = repositoryMetadata.assignees.map(assignee => ({
+    assignees = repositoryMetadata.assignees.filter(a => a).map(assignee => ({
       value: assignee.id,
       image: assignee.avatar_url,
       label: assignee.display_name,
@@ -43,7 +43,7 @@
   }
 
   async function getMilestones() {
-    selectableMilestones = repositoryMetadata.milestones.map(milestone => ({
+    selectableMilestones = repositoryMetadata.milestones.filter(m => m).map(milestone => ({
       value: milestone.id,
       label: milestone.title,
     }));
