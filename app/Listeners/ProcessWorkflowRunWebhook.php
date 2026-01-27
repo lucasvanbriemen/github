@@ -49,22 +49,24 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
 
         // Create notification if workflow failed on a PR where user is assigned
         if ($conclusion === 'failed' && $head_sha) {
+            $commit = Commit::find($head_sha);
+
+            // Don't create notification if commit author is the configured user
+            if ($commit && $commit->user_id === GithubConfig::USERID) {
+                return true;
+            }
+
             $prs = PullRequest::whereHas('details', function ($query) use ($head_sha) {
                 $query->where('head_sha', $head_sha);
             })->get();
 
             foreach ($prs as $pr) {
                 if ($pr->isCurrentlyAssignedToUser()) {
-                    // Don't create notification if actor is the configured user
-                    if ($payload->sender?->id === GithubConfig::USERID) {
-                        break;
-                    }
-
                     // Avoid duplicate notifications for the same PR workflow failure
                     if (Notification::where('type', 'workflow_failed')
                         ->where('related_id', $pr->id)
                         ->exists()) {
-                        break;
+                        continue;
                     }
 
                     Notification::create([
