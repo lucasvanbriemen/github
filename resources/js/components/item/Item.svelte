@@ -53,10 +53,11 @@
   }
 
   function githubUrl(item) {
+    let urltype;
     if (isPR) {
-      let urltype = 'pull';
+      urltype = 'pull';
     } else {
-      let urltype = 'issues';
+      urltype = 'issues';
     }
 
     return `https://github.com/${$organization}/${$repository}/${urltype}/${item.number}`;
