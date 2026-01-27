@@ -71,7 +71,7 @@ class GithubConfig
                 [
                     'label' => 'Deploy stack',
                     'type' => 'toggle_label',
-                    'value' => 'fbe'
+                    'value' => 'deploy-stack'
                 ],
                 [
                     'label' => 'Request UAT',
