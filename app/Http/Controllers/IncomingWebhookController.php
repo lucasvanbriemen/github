@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use App\Models\IncommingWebhook;
 use App\GithubConfig;
 
+use function Fuse\Core\config;
+
 class IncomingWebhookController extends Controller
 {
     public function index(Request $request)
@@ -81,11 +83,15 @@ class IncomingWebhookController extends Controller
                 }
                 break;
             }
+
+            if ($redirectUrl !== null) {
+                $redirectUrl = config('app.url') . '/' . ltrim($redirectUrl, '/');
+            }
         }
 
         return response()->json([
-        'redirect' => $redirectUrl !== null,
-        'URL' => $redirectUrl ?? 'https://github.lucasvanbriemen.nl/',
+            'redirect' => $redirectUrl !== null,
+            'URL' => $redirectUrl ?? 'https://github.lucasvanbriemen.nl/',
         ]);
     }
 }
