@@ -15,7 +15,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const stayParam = urlObj.searchParams.get('stay');
   if (stayParam === '1') {
     stayTabs.add(details.tabId);
-    return; // Do not process redirects when explicitly opted in
   }
   
   // If this tab is marked to stay, skip redirect logic
