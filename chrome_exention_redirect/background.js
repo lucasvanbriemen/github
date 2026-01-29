@@ -21,11 +21,10 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   }
 
   const response = await fetch("https://github.lucasvanbriemen.nl/api/check_end_point", {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    }
-  );
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url })
+  });
 
   const data = await response.json();
 
