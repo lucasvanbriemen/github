@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use App\Models\IncommingWebhook;
+use App\GithubConfig;
 
 class IncomingWebhookController extends Controller
 {
@@ -47,9 +48,44 @@ class IncomingWebhookController extends Controller
     // For the extension we want to check if the Github url maps to an exsiting GUI url
     public function checkEndPoint(Request $request)
     {
+        $url = $request->input('url'); // incoming GitHub URL
+        $path = parse_url($url, PHP_URL_PATH); // e.g., /lucasvanbriemen/github/pulls
+        $redirectUrl = null;
+
+        foreach (GithubConfig::GITHUB_ROUTE_MAPPING as $pattern => $replacement) {
+            $regex = preg_quote($pattern, '/');
+
+            // Convert placeholders to regex
+            $regex = str_replace(
+                ['\:organization', '\:repository', '\*'],
+                ['(?P<organization>[^/]+)', '(?P<repository>[^/]+)', '.*'],
+                $regex
+            );
+
+            if (preg_match('/^' . $regex . '$/', $path, $matches)) {
+                // Only allow if repo is in ALLOWED_REPOSITORIES
+                if (isset($matches['organization'], $matches['repository'])) {
+                    $fullRepo = $matches['organization'] . '/' . $matches['repository'];
+                    if (!in_array($fullRepo, GithubConfig::ALLOWED_REPOSITORIES)) {
+                        break; // not allowed, skip redirect
+                    }
+                }
+
+                // Replace placeholders in replacement URL
+                $redirectUrl = $replacement;
+                if (isset($matches['organization'])) {
+                    $redirectUrl = str_replace(':organization', $matches['organization'], $redirectUrl);
+                }
+                if (isset($matches['repository'])) {
+                    $redirectUrl = str_replace(':repository', $matches['repository'], $redirectUrl);
+                }
+                break;
+            }
+        }
+
         return response()->json([
-            'redirect' => false,
-            "URL" => "https://github.lucasvanbriemen.nl/"
+        'redirect' => $redirectUrl !== null,
+        'URL' => $redirectUrl ?? 'https://github.lucasvanbriemen.nl/',
         ]);
     }
 }
