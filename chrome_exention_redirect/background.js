@@ -13,15 +13,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   // Per-tab stay toggle via ?stay=1 / ?stay=0
   const stayParam = urlObj.searchParams.get('stay');
-  if (stayParam === '1' || stayParam === 'true') {
+  if (stayParam === '1') {
     stayTabs.add(details.tabId);
     return; // Do not process redirects when explicitly opted in
   }
-  if (stayParam === '0' || stayParam === 'false') {
-    stayTabs.delete(details.tabId);
-    // Continue processing after disabling stay
-  }
-
+  
   // If this tab is marked to stay, skip redirect logic
   if (stayTabs.has(details.tabId)) {
     return;
