@@ -20,18 +20,18 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     return;
   }
 
-    const response = await fetch("https://github.lucasvanbriemen.nl/api/check_end_point", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.redirect === true && data.URL) {
-      chrome.tabs.update(details.tabId, { url: data.URL });
+  const response = await fetch("https://github.lucasvanbriemen.nl/api/check_end_point", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
     }
+  );
+
+  const data = await response.json();
+
+  if (data.redirect === true && data.URL) {
+    chrome.tabs.update(details.tabId, { url: data.URL });
+  }
 }, {
   url: [{ hostContains: 'github.com' }]
 });
