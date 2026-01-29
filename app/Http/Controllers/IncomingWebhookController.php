@@ -50,15 +50,15 @@ class IncomingWebhookController extends Controller
     // For the extension we want to check if the Github url maps to an exsiting GUI url
     public function checkEndPoint(Request $request)
     {
-        $url = $request->input('url');
+        $url  = $request->input('url');
         $path = parse_url($url, PHP_URL_PATH) ?? '/';
         $redirectUrl = null;
 
         foreach (GithubConfig::GITHUB_ROUTE_MAPPING as $pattern => $replacement) {
-            // Build regex from pattern
+            // Convert pattern to regex, capturing tail
             $regex = str_replace(
-                ['*', ':organization', ':repository'],
-                ['.*', '(?P<organization>[^/]+)', '(?P<repository>[^/]+)'],
+                [':organization', ':repository', '*'],
+                ['(?P<organization>[^/]+)', '(?P<repository>[^/]+)', '(?P<tail>/.*)?'],
                 $pattern
             );
 
@@ -70,9 +70,9 @@ class IncomingWebhookController extends Controller
 
             // Enforce allowed repositories
             if (isset($matches['organization'], $matches['repository'])) {
-                $fullRepo = $matches['organization'] . '/' . $matches['repository'];
+                $repo = $matches['organization'] . '/' . $matches['repository'];
 
-                if (!in_array($fullRepo, GithubConfig::ALLOWED_REPOSITORIES, true)) {
+                if (!in_array($repo, GithubConfig::ALLOWED_REPOSITORIES, true)) {
                     return response()->json([
                         'redirect' => false,
                         'URL' => 'https://github.lucasvanbriemen.nl/',
@@ -80,10 +80,14 @@ class IncomingWebhookController extends Controller
                 }
             }
 
-            // Build redirect fragment
+            // Build redirect URL including trailing path
             $redirectUrl = str_replace(
-                [':organization', ':repository'],
-                [$matches['organization'] ?? '', $matches['repository'] ?? ''],
+                [':organization', ':repository', '*'],
+                [
+                    $matches['organization'] ?? '',
+                    $matches['repository'] ?? '',
+                    $matches['tail'] ?? ''
+                ],
                 $replacement
             );
 
