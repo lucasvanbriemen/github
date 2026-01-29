@@ -5,8 +5,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   const url = details.url;
   const urlObj = new URL(url);
-
   const stayParam = urlObj.searchParams.get('stay');
+
   if (stayParam === '1') {
     stayTabs.add(details.tabId);
   }
