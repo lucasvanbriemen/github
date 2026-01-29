@@ -5,7 +5,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   const url = details.url;
 
-  if (!url.startsWith('https://github.com/') && !url.startsWith('http://github.com/')) {
+  if (!url.startsWith('https://github.com/')) {
     return;
   }
 
