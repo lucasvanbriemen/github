@@ -1,76 +1,72 @@
-// URLs that should NEVER redirect for this session
-const stayUrls = new Set();
-
-// URLs that were checked and returned no redirect
+// URLs that have been checked and returned no redirect (per-session cache)
 const checkedUrls = new Set();
-
-function normalizeUrl(url) {
-  const u = new URL(url);
-  u.search = '';
-  u.hash = '';
-  return u.toString();
-}
+// Tabs that should stay on GitHub across navigations
+const stayTabs = new Set();
 
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (details.frameId !== 0) return;
 
   const url = details.url;
 
-  try { console.debug('[GH-Redirect] onBeforeNavigate', url); } catch { }
-
   if (!url.startsWith('https://github.com/') && !url.startsWith('http://github.com/')) {
     return;
   }
 
   const urlObj = new URL(url);
-  const normalizedUrl = normalizeUrl(url);
 
-  // If ?stay=1 is present, lock this page for the entire session
-  if (urlObj.searchParams.get('stay') === '1') {
-    stayUrls.add(normalizedUrl);
-    checkedUrls.add(normalizedUrl);
-    try { console.debug('[GH-Redirect] stay=1 detected. Locking page for session'); } catch { }
-    return;
+  // Per-tab stay toggle via ?stay=1 / ?stay=0
+  const stayParam = urlObj.searchParams.get('stay');
+  if (stayParam === '1' || stayParam === 'true') {
+    stayTabs.add(details.tabId);
+    checkedUrls.add(url);
+    return; // Do not process redirects when explicitly opted in
+  }
+  if (stayParam === '0' || stayParam === 'false') {
+    stayTabs.delete(details.tabId);
+    // Continue processing after disabling stay
   }
 
-  // If this page was previously locked, always skip
-  if (stayUrls.has(normalizedUrl)) {
-    try { console.debug('[GH-Redirect] Page locked by prior stay=1'); } catch { }
+  // If this tab is marked to stay, skip redirect logic
+  if (stayTabs.has(details.tabId)) {
     return;
   }
 
   // Skip if ?redirect=false
   if (urlObj.searchParams.get('redirect') === 'false') {
-    checkedUrls.add(normalizedUrl);
+    checkedUrls.add(url);
     return;
   }
 
   // Skip if already checked
-  if (checkedUrls.has(normalizedUrl)) {
+  if (checkedUrls.has(url)) {
     return;
   }
 
   try {
-    const endpoint = 'https://github.lucasvanbriemen.nl/api/check_end_point';
-    try { console.debug('[GH-Redirect] POST', endpoint, { url }); } catch { }
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
+    const response = await fetch(
+      'https://github.lucasvanbriemen.nl/api/check_end_point',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      }
+    );
 
     const data = await response.json();
 
     if (data.redirect === true && data.URL) {
-      try { console.debug('[GH-Redirect] Redirecting to', data.URL); } catch { }
       chrome.tabs.update(details.tabId, { url: data.URL });
     } else {
-      checkedUrls.add(normalizedUrl);
+      checkedUrls.add(url);
     }
   } catch (error) {
     console.error('GitHub Redirect extension error:', error);
   }
 }, {
   url: [{ hostContains: 'github.com' }]
+});
+
+// Cleanup stay flag when tab closes
+chrome.tabs.onRemoved.addListener((tabId) => {
+  stayTabs.delete(tabId);
 });
