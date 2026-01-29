@@ -65,6 +65,13 @@ class GithubConfig
         ],
     ];
 
+    public const ALLOWED_REPOSITORIES = [
+        'webinargeek/app',
+        'webinargeek/malong',
+        'lucasvanbriemen/github',
+        'lucasvanbriemen/email',
+    ];
+
     public const ORG_RULES = [
         'webinargeek' => [
             'custom_buttons' => [
