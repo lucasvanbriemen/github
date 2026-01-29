@@ -91,7 +91,7 @@ class IncomingWebhookController extends Controller
 
         return response()->json([
             'redirect' => $redirectUrl !== null,
-            'URL' => $redirectUrl ?? 'https://github.lucasvanbriemen.nl/',
+            'URL' => $redirectUrl ? $redirectUrl : 'https://github.lucasvanbriemen.nl/',
         ]);
     }
 }
