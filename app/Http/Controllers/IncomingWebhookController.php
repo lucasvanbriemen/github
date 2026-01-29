@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use App\Models\IncommingWebhook;
+use App\Models\Repository
 use App\GithubConfig;
 
 use function Fuse\Core\config;
@@ -72,7 +73,7 @@ class IncomingWebhookController extends Controller
             if (isset($matches['organization'], $matches['repository'])) {
                 $repo = $matches['organization'] . '/' . $matches['repository'];
 
-                if (!in_array($repo, GithubConfig::ALLOWED_REPOSITORIES, true)) {
+                if (Repository::where('full_name', $repo)->doesntExist()) {
                     return response()->json([
                         'redirect' => false,
                         'URL' => 'https://github.lucasvanbriemen.nl/',
