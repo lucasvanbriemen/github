@@ -10,7 +10,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (stayParam === '1') {
     stayTabs.add(details.tabId);
   }
-  
+
   if (stayTabs.has(details.tabId)) {
     return;
   }
