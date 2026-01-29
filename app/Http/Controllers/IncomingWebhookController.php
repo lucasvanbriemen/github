@@ -85,7 +85,7 @@ class IncomingWebhookController extends Controller
             }
 
             if ($redirectUrl !== null) {
-                $redirectUrl = config('app.url') . '/' . ltrim($redirectUrl, '/');
+                $redirectUrl = config('app.url') . ltrim($redirectUrl, '/');
             }
         }
 
