@@ -5,7 +5,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   const url = details.url;
   const urlObj = new URL(url);
-  const stayParam = urlObj.searchParams.get('stay');
+  const stayParam = urlObj.searchParams.get("stay");
 
   if (stayParam === '1') {
     stayTabs.add(details.tabId);
@@ -16,8 +16,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   }
 
   const response = await fetch("https://github.lucasvanbriemen.nl/api/check_end_point", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url })
   });
 
@@ -27,7 +27,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     chrome.tabs.update(details.tabId, { url: data.URL });
   }
 }, {
-  url: [{ hostContains: 'github.com' }]
+  url: [{ hostContains: "github.com" }]
 });
 
 // Cleanup stay flag when tab closes
