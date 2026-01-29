@@ -1,6 +1,3 @@
-// URLs that have been checked and returned no redirect (per-session cache)
-const checkedUrls = new Set();
-// Tabs that should stay on GitHub across navigations
 const stayTabs = new Set();
 
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
@@ -18,7 +15,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const stayParam = urlObj.searchParams.get('stay');
   if (stayParam === '1' || stayParam === 'true') {
     stayTabs.add(details.tabId);
-    checkedUrls.add(url);
     return; // Do not process redirects when explicitly opted in
   }
   if (stayParam === '0' || stayParam === 'false') {
@@ -33,12 +29,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   // Skip if ?redirect=false
   if (urlObj.searchParams.get('redirect') === 'false') {
-    checkedUrls.add(url);
-    return;
-  }
-
-  // Skip if already checked
-  if (checkedUrls.has(url)) {
     return;
   }
 
@@ -56,8 +46,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
     if (data.redirect === true && data.URL) {
       chrome.tabs.update(details.tabId, { url: data.URL });
-    } else {
-      checkedUrls.add(url);
     }
   } catch (error) {
     console.error('GitHub Redirect extension error:', error);
