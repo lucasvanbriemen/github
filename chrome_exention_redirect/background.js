@@ -4,7 +4,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (details.frameId !== 0) return;
 
   const url = details.url;
-
   const urlObj = new URL(url);
 
   const stayParam = urlObj.searchParams.get('stay');
