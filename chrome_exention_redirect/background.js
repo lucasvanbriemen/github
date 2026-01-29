@@ -7,6 +7,8 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
 
   const url = details.url;
 
+  try { console.debug('[GH-Redirect] onCompleted for', url, 'tab', details.tabId); } catch {}
+
   // Check if we're on github.com
   if (!url.startsWith('https://github.com/') && !url.startsWith('http://github.com/')) {
     return;
@@ -16,6 +18,7 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
   const urlObj = new URL(url);
   if (urlObj.searchParams.get('redirect') === 'false') {
     checkedUrls.add(url);
+    try { console.debug('[GH-Redirect] Skipping due to redirect=false'); } catch {}
     return;
   }
 
@@ -26,22 +29,27 @@ chrome.webNavigation.onCompleted.addListener(async (details) => {
 
   try {
     // Call the API
-    const response = await fetch('https://github.lucasvanbriemen.nl/api/check_end_point', {
+    const endpoint = 'https://github.lucasvanbriemen.nl/api/check_end_point';
+    try { console.debug('[GH-Redirect] POST', endpoint, { url }); } catch {}
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ url: url })
     });
-
+    try { console.debug('[GH-Redirect] Response status', response.status); } catch {}
     const data = await response.json();
+    try { console.debug('[GH-Redirect] Response JSON', data); } catch {}
 
     // If redirect is true and URL is provided, navigate to that URL
     if (data.redirect === true && data.URL) {
+      try { console.debug('[GH-Redirect] Redirecting to', data.URL); } catch {}
       chrome.tabs.update(details.tabId, { url: data.URL });
     } else {
       // Mark this URL as checked so we don't request again
       checkedUrls.add(url);
+      try { console.debug('[GH-Redirect] No redirect. Marking as checked'); } catch {}
     }
   } catch (error) {
     console.error('GitHub Redirect extension error:', error);
