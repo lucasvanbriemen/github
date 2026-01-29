@@ -100,7 +100,9 @@ class GithubConfig
     ];
 
     public const GITHUB_ROUTE_MAPPING = [
+        '' => '#/',
         '/' => '#/',
+        '/dashboard' => '#/',
         '/:organization/:repository' => '#/:organization/:repository',
         '/:organization/:repository/issues*' => '#/:organization/:repository/issues*',
         '/:organization/:repository/pulls*' => '#/:organization/:repository/prs*',
