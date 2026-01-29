@@ -5,10 +5,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
   const url = details.url;
 
-  if (!url.startsWith('https://github.com/')) {
-    return;
-  }
-
   const urlObj = new URL(url);
 
   const stayParam = urlObj.searchParams.get('stay');
