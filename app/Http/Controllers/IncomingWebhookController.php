@@ -50,48 +50,53 @@ class IncomingWebhookController extends Controller
     // For the extension we want to check if the Github url maps to an exsiting GUI url
     public function checkEndPoint(Request $request)
     {
-        $url = $request->input('url'); // incoming GitHub URL
-        $path = parse_url($url, PHP_URL_PATH); // e.g., /lucasvanbriemen/github/pulls
+        $url = $request->input('url');
+        $path = parse_url($url, PHP_URL_PATH) ?? '/';
         $redirectUrl = null;
 
         foreach (GithubConfig::GITHUB_ROUTE_MAPPING as $pattern => $replacement) {
-            $regex = preg_quote($pattern, '/');
-
-            // Convert placeholders to regex
+            // Build regex from pattern
             $regex = str_replace(
-                ['\:organization', '\:repository', '\*'],
-                ['(?P<organization>[^/]+)', '(?P<repository>[^/]+)', '.*'],
-                $regex
+                ['*', ':organization', ':repository'],
+                ['.*', '(?P<organization>[^/]+)', '(?P<repository>[^/]+)'],
+                $pattern
             );
 
-            if (preg_match('/^' . $regex . '$/', $path, $matches)) {
-                // Only allow if repo is in ALLOWED_REPOSITORIES
-                if (isset($matches['organization'], $matches['repository'])) {
-                    $fullRepo = $matches['organization'] . '/' . $matches['repository'];
-                    if (!in_array($fullRepo, GithubConfig::ALLOWED_REPOSITORIES)) {
-                        break; // not allowed, skip redirect
-                    }
-                }
+            $regex = '#^' . $regex . '$#';
 
-                // Replace placeholders in replacement URL
-                $redirectUrl = $replacement;
-                if (isset($matches['organization'])) {
-                    $redirectUrl = str_replace(':organization', $matches['organization'], $redirectUrl);
-                }
-                if (isset($matches['repository'])) {
-                    $redirectUrl = str_replace(':repository', $matches['repository'], $redirectUrl);
-                }
-                break;
+            if (!preg_match($regex, $path, $matches)) {
+                continue;
             }
 
-            if ($redirectUrl !== null) {
-                $redirectUrl = url('/') . ltrim($redirectUrl, '/');
+            // Enforce allowed repositories
+            if (isset($matches['organization'], $matches['repository'])) {
+                $fullRepo = $matches['organization'] . '/' . $matches['repository'];
+
+                if (!in_array($fullRepo, GithubConfig::ALLOWED_REPOSITORIES, true)) {
+                    return response()->json([
+                        'redirect' => false,
+                        'URL' => 'https://github.lucasvanbriemen.nl/',
+                    ]);
+                }
             }
+
+            // Build redirect fragment
+            $redirectUrl = str_replace(
+                [':organization', ':repository'],
+                [$matches['organization'] ?? '', $matches['repository'] ?? ''],
+                $replacement
+            );
+
+            break;
+        }
+
+        if ($redirectUrl !== null) {
+            $redirectUrl = 'https://github.lucasvanbriemen.nl' . $redirectUrl;
         }
 
         return response()->json([
             'redirect' => $redirectUrl !== null,
-            'URL' => $redirectUrl ? $redirectUrl : 'https://github.lucasvanbriemen.nl/',
+            'URL' => $redirectUrl ?? 'https://github.lucasvanbriemen.nl/',
         ]);
     }
 }
