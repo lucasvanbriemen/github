@@ -20,10 +20,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     return;
   }
 
-  try {
-    const response = await fetch(
-      'https://github.lucasvanbriemen.nl/api/check_end_point',
-      {
+    const response = await fetch("https://github.lucasvanbriemen.nl/api/check_end_point", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
@@ -35,9 +32,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     if (data.redirect === true && data.URL) {
       chrome.tabs.update(details.tabId, { url: data.URL });
     }
-  } catch (error) {
-    console.error('GitHub Redirect extension error:', error);
-  }
 }, {
   url: [{ hostContains: 'github.com' }]
 });
