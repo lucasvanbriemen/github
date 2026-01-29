@@ -108,5 +108,6 @@ class GithubConfig
         '/:organization/:repository/pulls*' => '#/:organization/:repository/prs*',
         '/:organization/:repository/pull*' => '#/:organization/:repository/prs*',
         '/:organization/:repository/projects*' => '#/:organization/:repository/projects*',
+        '/:organization/:repository/compare*' => '#/:organization/:repository/compare*',
     ];
 }
