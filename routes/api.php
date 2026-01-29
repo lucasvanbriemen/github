@@ -131,3 +131,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
     ->name('api.webhook');
+
+Route::post('/check_end_point', [IncomingWebhookController::class, 'checkEndPoint'])
+    ->name('api.check_end_point');

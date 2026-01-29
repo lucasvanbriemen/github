@@ -43,4 +43,13 @@ class IncomingWebhookController extends Controller
             'event'   => $eventType,
         ]);
     }
+
+    // For the extension we want to check if the Github url maps to an exsiting GUI url
+    public function checkEndPoint(Request $request)
+    {
+        return response()->json([
+            'redirect' => true,
+            "URL" => "https://github.lucasvanbriemen.nl/"
+        ]);
+    }
 }
