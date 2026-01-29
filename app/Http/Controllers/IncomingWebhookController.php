@@ -48,7 +48,7 @@ class IncomingWebhookController extends Controller
     public function checkEndPoint(Request $request)
     {
         return response()->json([
-            'redirect' => true,
+            'redirect' => false,
             "URL" => "https://github.lucasvanbriemen.nl/"
         ]);
     }
