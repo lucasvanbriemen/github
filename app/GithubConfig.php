@@ -65,6 +65,13 @@ class GithubConfig
         ],
     ];
 
+    public const ALLOWED_REPOSITORIES = [
+        'webinargeek/app',
+        'webinargeek/malong',
+        'lucasvanbriemen/github',
+        'lucasvanbriemen/email',
+    ];
+
     public const ORG_RULES = [
         'webinargeek' => [
             'custom_buttons' => [
@@ -90,5 +97,16 @@ class GithubConfig
                 ]
             ],
         ],
+    ];
+
+    public const GITHUB_ROUTE_MAPPING = [
+        '' => '#/',
+        '/' => '#/',
+        '/dashboard' => '#/',
+        '/:organization/:repository' => '#/:organization/:repository',
+        '/:organization/:repository/issues*' => '#/:organization/:repository/issues*',
+        '/:organization/:repository/pulls*' => '#/:organization/:repository/prs*',
+        '/:organization/:repository/pull*' => '#/:organization/:repository/prs*',
+        '/:organization/:repository/projects*' => '#/:organization/:repository/projects*',
     ];
 }

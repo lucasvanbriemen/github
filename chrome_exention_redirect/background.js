@@ -1,69 +1,33 @@
-// URLs that have been checked and returned no redirect (per-session cache)
-const checkedUrls = new Set();
-// Tabs that should stay on GitHub across navigations
 const stayTabs = new Set();
 
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (details.frameId !== 0) return;
 
   const url = details.url;
-
-  if (!url.startsWith('https://github.com/') && !url.startsWith('http://github.com/')) {
-    return;
-  }
-
   const urlObj = new URL(url);
+  const stayParam = urlObj.searchParams.get("stay");
 
-  // Per-tab stay toggle via ?stay=1 / ?stay=0
-  const stayParam = urlObj.searchParams.get('stay');
-  if (stayParam === '1' || stayParam === 'true') {
+  if (stayParam === "1") {
     stayTabs.add(details.tabId);
-    checkedUrls.add(url);
-    return; // Do not process redirects when explicitly opted in
-  }
-  if (stayParam === '0' || stayParam === 'false') {
-    stayTabs.delete(details.tabId);
-    // Continue processing after disabling stay
   }
 
-  // If this tab is marked to stay, skip redirect logic
   if (stayTabs.has(details.tabId)) {
     return;
   }
 
-  // Skip if ?redirect=false
-  if (urlObj.searchParams.get('redirect') === 'false') {
-    checkedUrls.add(url);
-    return;
-  }
+  const response = await fetch("https://github.lucasvanbriemen.nl/api/check_end_point", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url })
+  });
 
-  // Skip if already checked
-  if (checkedUrls.has(url)) {
-    return;
-  }
+  const data = await response.json();
 
-  try {
-    const response = await fetch(
-      'https://github.lucasvanbriemen.nl/api/check_end_point',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.redirect === true && data.URL) {
-      chrome.tabs.update(details.tabId, { url: data.URL });
-    } else {
-      checkedUrls.add(url);
-    }
-  } catch (error) {
-    console.error('GitHub Redirect extension error:', error);
+  if (data.redirect === true && data.URL) {
+    chrome.tabs.update(details.tabId, { url: data.URL });
   }
 }, {
-  url: [{ hostContains: 'github.com' }]
+  url: [{ hostContains: "github.com" }]
 });
 
 // Cleanup stay flag when tab closes
