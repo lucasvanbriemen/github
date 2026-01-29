@@ -22,11 +22,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     return;
   }
 
-  // Skip if ?redirect=false
-  if (urlObj.searchParams.get('redirect') === 'false') {
-    return;
-  }
-
   try {
     const response = await fetch(
       'https://github.lucasvanbriemen.nl/api/check_end_point',
