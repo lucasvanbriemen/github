@@ -98,4 +98,13 @@ class GithubConfig
             ],
         ],
     ];
+
+    public const GITHUB_ROUTE_MAPPING = [
+        '/' => '#/',
+        '/:organization/:repository' => '#/:organization/:repository',
+        '/:organization/:repository/issues*' => '#/:organization/:repository/issues*',
+        '/:organization/:repository/pulls*' => '#/:organization/:repository/prs*',
+        '/:organization/:repository/pull*' => '#/:organization/:repository/prs*',
+        '/:organization/:repository/projects*' => '#/:organization/:repository/projects*',
+    ];
 }
