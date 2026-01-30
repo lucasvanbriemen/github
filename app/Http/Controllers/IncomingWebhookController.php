@@ -6,10 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use App\Models\IncommingWebhook;
-use App\Models\Repository
+use App\Models\Repository;
 use App\GithubConfig;
-
-use function Fuse\Core\config;
 
 class IncomingWebhookController extends Controller
 {
