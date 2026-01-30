@@ -8,7 +8,7 @@ class GithubConfig
     public const USERNAME = "lukaas-007";
     public const USER_EMAIL = "contact@lucasvanbriemen.nl";
 
-    // Run php artisan items:recalculate-scores when changing config
+    // Run php artisan items:recalculate-scores when changing array
     public const IMPORTANCE_SCORING = [
         'filters' => [
             'assigned_to_user' => true,
