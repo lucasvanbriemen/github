@@ -17,10 +17,6 @@
     );
   });
 
-  $effect(() => {
-    console.log('[MentionAutocomplete] Users prop updated:', users.length, 'valid users');
-  });
-
   function findMentionStart(text, cursorPos) {
     // Find the last @ before cursor position
     const atIndex = text.lastIndexOf('@', cursorPos - 1);
@@ -69,24 +65,10 @@
     const charWidth = 8; // Approximate for monospace
     const left = rect.left + paddingLeft + currentLine.length * charWidth;
 
-    console.log('[MentionAutocomplete] Position calculated:', {
-      textareaTop: rect.top,
-      textareaLeft: rect.left,
-      lineNumber,
-      lineHeight,
-      paddingTop,
-      paddingLeft,
-      top,
-      left,
-      viewportHeight: window.innerHeight,
-      viewportWidth: window.innerWidth
-    });
-
     return { top, left };
   }
 
   function insertMention(user) {
-    console.log('[MentionAutocomplete] Inserting mention:', user.login);
     const textarea_elem = textarea;
     const cursorPos = textarea_elem.selectionStart;
     const text = textarea_elem.value;
@@ -94,7 +76,6 @@
     // Find the @ position
     const mention = findMentionStart(text, cursorPos);
     if (!mention) {
-      console.log('[MentionAutocomplete] Could not find mention start position');
       return;
     }
 
@@ -106,8 +87,6 @@
     const newValue = before + insertText + after;
     textarea_elem.value = newValue;
     textarea_elem.selectionStart = textarea_elem.selectionEnd = before.length + insertText.length;
-
-    console.log('[MentionAutocomplete] Mention inserted:', { before: before.length, insertText, after: after.length });
 
     // Trigger input event for Svelte binding
     textarea_elem.dispatchEvent(new Event('input', { bubbles: true }));
@@ -126,12 +105,10 @@
     const mention = findMentionStart(text, cursorPos);
 
     if (mention) {
-      console.log('[MentionAutocomplete] @ found:', { query: mention.query, position: mention.start });
       query = mention.query;
       triggerPosition = calculateDropdownPosition(textarea, mention.start);
       isOpen = true;
       selectedIndex = 0;
-      console.log('[MentionAutocomplete] Dropdown opened, filtered users:', filteredUsers.length, 'isOpen:', isOpen, 'triggerPosition:', triggerPosition);
     } else {
       isOpen = false;
       query = '';
@@ -170,11 +147,9 @@
 
   onMount(() => {
     if (!textarea) {
-      console.log('[MentionAutocomplete] No textarea provided');
       return;
     }
 
-    console.log('[MentionAutocomplete] Mounted, users available:', users.length);
     textarea.addEventListener('input', handleTextareaInput);
     textarea.addEventListener('keydown', handleKeyDown);
     document.addEventListener('click', handleClickOutside);

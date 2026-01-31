@@ -247,16 +247,13 @@
     // Fetch users for mention autocomplete
     try {
       const endpoint = `/api/${$organization}/${$repository}/metadata`;
-      console.log('[Markdown] Fetching users from:', endpoint);
       const response = await fetch(endpoint, {
         credentials: 'same-origin',
       });
       const data = await response.json();
       const allAssignees = data.assignees || [];
       users = allAssignees.filter(user => user != null);
-      console.log('[Markdown] Users fetched:', { total: allAssignees.length, valid: users.length, users: users.map(u => u.login) });
     } catch (error) {
-      console.error('[Markdown] Failed to fetch users for mention autocomplete:', error);
     }
   });
 
