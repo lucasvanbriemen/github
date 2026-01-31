@@ -16,6 +16,10 @@ class BranchTreeService
     {
         $repository = Repository::findOrFail($repositoryId);
 
+        // Debug logging
+        error_log('[BranchTreeService] Building tree for repo: ' . $repository->full_name);
+        error_log('[BranchTreeService] master_branch: ' . ($repository->master_branch ?? 'NULL'));
+
         // Get all branches with their latest commit in one query
         $branches = $repository->branches()
             ->select('branches.id', 'branches.name', 'branches.created_at')
@@ -32,15 +36,22 @@ class BranchTreeService
             return [];
         }
 
+        error_log('[BranchTreeService] Total branches loaded: ' . $branches->count());
+
         // Load all PR data upfront
         $prsByBranch = $this->getPRsByBranch($repositoryId);
 
         // Build branch data with parent relationships
         $branchData = [];
         $branchMap = [];
+        $defaultBranchFound = false;
 
         foreach ($branches as $branch) {
             $isDefault = $branch->name === $repository->master_branch;
+            if ($isDefault) {
+                $defaultBranchFound = true;
+                error_log('[BranchTreeService] Found default branch: ' . $branch->name);
+            }
             $branchMap[$branch->name] = [
                 'id' => $branch->id,
                 'is_default' => $isDefault,
@@ -86,6 +97,11 @@ class BranchTreeService
             }
             unset($data['latest_commit']);
         }
+
+        // Debug: count default branches in result
+        $defaultCount = count(array_filter($branchData, fn($b) => $b['is_default']));
+        $nullParentCount = count(array_filter($branchData, fn($b) => $b['parent_id'] === null));
+        error_log('[BranchTreeService] Result stats - Default branches: ' . $defaultCount . ', Null parent: ' . $nullParentCount);
 
         return $branchData;
     }

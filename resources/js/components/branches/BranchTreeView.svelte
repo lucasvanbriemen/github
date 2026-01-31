@@ -150,12 +150,12 @@
         <p>{error}</p>
         <button onclick={getBranchTree} class="retry-button">Try Again</button>
       </div>
-    {:else if filteredBranches.length === 0}
+    {:else if branches.length === 0}
       <div class="empty">
         <p>No branches found</p>
       </div>
     {:else}
-      <BranchTree branches={filteredBranches} onNodeClick={handleNodeClick} />
+      <BranchTree branches={branches} onNodeClick={handleNodeClick} />
     {/if}
   </div>
 </div>
