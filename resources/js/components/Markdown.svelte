@@ -2,6 +2,7 @@
   import { onMount, untrack } from 'svelte';
   import { marked } from 'marked';
   import { organization, repository } from './stores';
+  import MentionAutocomplete from './MentionAutocomplete.svelte';
   import 'github-markdown-css/github-markdown-dark.css';
 
   let { content = $bindable(''), canEdit = true, isEditing = false, change } = $props();
@@ -9,6 +10,7 @@
 
   let editor = $state(null);
   let isImproving = $state(false);
+  let users = $state([]);
 
   const shortcutMap = {
     heading: {
@@ -225,7 +227,7 @@
     isImproving = false;
   }
 
-  onMount(() => {
+  onMount(async () => {
     renderer.checkbox = function (data) {
       const isChecked = data.checked;
       const currentIndex = checkboxRenderIndex;
@@ -237,6 +239,9 @@
     marked.setOptions({renderer, gfm: true, breaks: false});
 
     rendered = convertToMarkdown();
+
+    const response = await api.get(route('organizations.repositories.metadata', { organization: $organization, repository: $repository }));
+    users = response.assignees.filter(user => user != null);
   });
 
   $effect(() => {
@@ -274,15 +279,18 @@
   {/if}
 
   {#if isEditing && canEdit}
-    <textarea
-      class="markdown-editor"
-      placeholder="Markdown content"
-      bind:value={content}
-      oninput={autoSize}
-      onpaste={handlePaste}
-      onkeydown={handleKeyDown}
-      bind:this={editor}
-    ></textarea>
+    <div style="position: relative;">
+      <textarea
+        class="markdown-editor"
+        placeholder="Markdown content"
+        bind:value={content}
+        oninput={autoSize}
+        onpaste={handlePaste}
+        onkeydown={handleKeyDown}
+        bind:this={editor}
+      ></textarea>
+      <MentionAutocomplete textarea={editor} {users} />
+    </div>
   {:else}
     <div class="markdown-body" onclick={handleCheckboxClick}>
       {#if content}
