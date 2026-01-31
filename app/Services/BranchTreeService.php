@@ -3,66 +3,72 @@
 namespace App\Services;
 
 use App\Models\Branch;
-use App\Models\Commit;
 use App\Models\Repository;
 use App\Models\Item;
-use Illuminate\Support\Facades\Cache;
 
 class BranchTreeService
 {
     /**
      * Build a tree structure of branches with parent-child relationships
-     * based on Git commit ancestry
+     * Optimized to avoid N+1 queries and timeout issues
      */
     public function buildTree(int $repositoryId): array
     {
         $repository = Repository::findOrFail($repositoryId);
 
-        // Get all branches with their latest commits
+        // Get all branches with their latest commit in one query
         $branches = $repository->branches()
-            ->with('commits')
+            ->select('branches.id', 'branches.name', 'branches.created_at')
+            ->with([
+                'commits' => function ($query) {
+                    $query->select('sha', 'branch_id', 'created_at')
+                        ->orderBy('created_at', 'desc')
+                        ->limit(1);
+                }
+            ])
             ->get();
 
         if ($branches->isEmpty()) {
             return [];
         }
 
-        // Create a map of branch names to branch objects
-        $branchMap = $branches->keyBy('name');
+        // Load all PR data upfront
+        $prsByBranch = $this->getPRsByBranch($repositoryId);
 
-        // For each branch, determine its parent
+        // Build branch data with parent relationships
         $branchData = [];
+        $branchMap = [];
+
         foreach ($branches as $branch) {
-            $parentName = $this->determineBranchParent($branch, $branchMap, $repository);
+            $isDefault = $branch->name === $repository->master_branch;
+            $branchMap[$branch->name] = [
+                'id' => $branch->id,
+                'is_default' => $isDefault,
+            ];
 
             $branchData[] = [
                 'id' => $branch->id,
                 'name' => $branch->name,
                 'parent_id' => null,
-                'parent_name' => $parentName,
-                'is_default' => $branch->name === $repository->default_branch,
+                'is_default' => $isDefault,
                 'latest_commit' => $branch->commits->first(),
+                'pull_request' => $prsByBranch[$branch->name] ?? null,
             ];
         }
 
-        // Now resolve parent_ids
-        $branchDataById = [];
+        // Determine parent relationships based on PR data first (most reliable)
         foreach ($branchData as &$data) {
-            $branchDataById[$data['id']] = $data;
-
-            if ($data['parent_name']) {
-                // Find the parent branch
-                foreach ($branchData as $potentialParent) {
-                    if ($potentialParent['name'] === $data['parent_name']) {
-                        $data['parent_id'] = $potentialParent['id'];
-                        break;
-                    }
+            // If branch has a PR, the base_branch of that PR is the parent
+            if ($data['pull_request']) {
+                $baseBranch = $data['pull_request']['base_branch'] ?? null;
+                if ($baseBranch && isset($branchMap[$baseBranch])) {
+                    $data['parent_id'] = $branchMap[$baseBranch]['id'];
                 }
             }
 
-            // If still no parent found and not default, try to find a parent
+            // If still no parent and not default, default to master/main
             if (!$data['parent_id'] && !$data['is_default']) {
-                // Default to the main/master branch as parent
+                // Find the default branch and use it as parent
                 foreach ($branchData as $potentialParent) {
                     if ($potentialParent['is_default']) {
                         $data['parent_id'] = $potentialParent['id'];
@@ -72,98 +78,48 @@ class BranchTreeService
             }
         }
 
-        // Enrich with PR data
-        $enriched = $this->enrichWithPRData($branchData, $repositoryId);
-
-        return $enriched;
-    }
-
-    /**
-     * Determine the parent branch for a given branch
-     * by checking commit ancestry
-     */
-    private function determineBranchParent(Branch $branch, $branchMap, Repository $repository): ?string
-    {
-        // Get the first/oldest commit of this branch
-        $commits = $branch->commits()
-            ->orderBy('created_at', 'asc')
-            ->limit(1)
-            ->get();
-
-        if ($commits->isEmpty()) {
-            // No commits, default to main/master
-            return $this->getDefaultBranchName($repository);
+        // Clean up temporary data
+        foreach ($branchData as &$data) {
+            if ($data['latest_commit']) {
+                $data['last_commit_sha'] = $data['latest_commit']->sha;
+                $data['last_commit_date'] = $data['latest_commit']->created_at?->toIso8601String();
+            }
+            unset($data['latest_commit']);
         }
 
-        $firstCommit = $commits->first();
-
-        // Check which other branch contains this commit
-        foreach ($branchMap as $otherBranch) {
-            if ($otherBranch->id === $branch->id) {
-                continue;
-            }
-
-            $hasCommit = $otherBranch->commits()
-                ->where('sha', $firstCommit->sha)
-                ->exists();
-
-            if ($hasCommit) {
-                // This branch likely spawned from otherBranch
-                return $otherBranch->name;
-            }
-        }
-
-        // No parent found, default to main/master
-        return $this->getDefaultBranchName($repository);
+        return $branchData;
     }
 
     /**
-     * Get the default branch name (main or master)
+     * Get all PRs mapped by their head_branch
+     * Load all PR data in a single efficient query
      */
-    private function getDefaultBranchName(Repository $repository): ?string
+    private function getPRsByBranch(int $repositoryId): array
     {
-        return $repository->master_branch ?? 'master';
-    }
-
-    /**
-     * Enrich branch data with PR information
-     */
-    private function enrichWithPRData(array $branchData, int $repositoryId): array
-    {
-        // Get all PRs for this repository
         $prs = Item::where('repository_id', $repositoryId)
             ->where('type', 'pull_request')
-            ->with('details')
+            ->select('id', 'number', 'title', 'state')
+            ->with([
+                'details' => function ($query) {
+                    $query->select('id', 'head_branch', 'base_branch');
+                }
+            ])
             ->get();
 
-        // Create a map of head_branch to PR
         $prsByBranch = [];
         foreach ($prs as $pr) {
-            $headBranch = $pr->details->head_branch ?? null;
+            $headBranch = $pr->details?->head_branch;
             if ($headBranch) {
                 $prsByBranch[$headBranch] = [
                     'number' => $pr->number,
                     'title' => $pr->title,
                     'state' => $pr->state,
+                    'base_branch' => $pr->details?->base_branch,
                     'pr_id' => $pr->id,
                 ];
             }
         }
 
-        // Enrich branch data with PR info
-        foreach ($branchData as &$data) {
-            $data['pull_request'] = $prsByBranch[$data['name']] ?? null;
-
-            if ($data['latest_commit']) {
-                $data['last_commit_sha'] = $data['latest_commit']->sha;
-                $data['last_commit_date'] = $data['latest_commit']->created_at?->toIso8601String();
-            }
-
-            // Remove temporary fields
-            unset($data['parent_name']);
-            unset($data['latest_commit']);
-        }
-
-        return $branchData;
+        return $prsByBranch;
     }
 }
