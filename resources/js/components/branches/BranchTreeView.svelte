@@ -59,11 +59,13 @@
       console.log('[BranchTreeView] API response:', json);
       branches = json.branches || [];
       console.log('[BranchTreeView] Branches set to:', branches);
+      console.log('[BranchTreeView] isLoading will be set to false');
     } catch (err) {
       error = 'Failed to load branch tree. Please try again.';
       console.error('[BranchTreeView] Error loading branch tree:', err);
     } finally {
       isLoading = false;
+      console.log('[BranchTreeView] isLoading is now:', isLoading);
     }
   }
 
