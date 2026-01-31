@@ -99,6 +99,7 @@ class GithubConfig
         '/:organization/:repository' => '#/:organization/:repository',
         '/:organization/:repository/issues*' => '#/:organization/:repository/issues*',
         '/:organization/:repository/pulls*' => '#/:organization/:repository/prs*',
+        '/:organization/:repository/pull/new*' => '#/:organization/:repository/new/pr*',
         '/:organization/:repository/pull*' => '#/:organization/:repository/prs*',
         '/:organization/:repository/projects*' => '#/:organization/:repository/projects*',
         '/:organization/:repository/compare*' => '#/:organization/:repository/new/pr*',
