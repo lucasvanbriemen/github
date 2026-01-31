@@ -1,346 +1,351 @@
 <script>
-  import { hierarchy, tree } from 'd3-hierarchy';
-  import { select } from 'd3-selection';
   import { onMount } from 'svelte';
 
   let { branches = [], onNodeClick = () => {} } = $props();
 
-  let svgElement = $state(null);
-  let containerElement = $state(null);
-  let svgWidth = $state(800);
-  let svgHeight = $state(600);
+  let branchesByDepth = $state([]);
+  let branchesMap = $state(new Map());
+  let expandedBranches = $state(new Set());
 
-  const CARD_WIDTH = 160;
-  const CARD_HEIGHT = 70;
-  const CARD_SPACING_HORIZONTAL = 280; // Space between cards at same level
-  const CARD_SPACING_VERTICAL = 120; // Space between parent and child
+  const CARD_WIDTH = 180;
+  const CARD_HEIGHT = 75;
+  const LANE_HEIGHT = 180;
+  const CARD_GAP = 16;
 
-  function getCardColor(node) {
-    if (node.is_default) return '#1f6feb'; // Blue for default
-    if (!node.pull_request) return '#6e7681'; // Gray for no PR
-
-    const state = node.pull_request.state;
-    if (state === 'open') return '#3fb950'; // Green for open
-    if (state === 'merged') return '#a371f7'; // Purple for merged
-    if (state === 'draft') return '#6e7681'; // Gray for draft
-    if (state === 'closed') return '#da3633'; // Red for closed
-    return '#6e7681'; // Default gray
+  function getCardColor(branch) {
+    if (branch.is_default) return '#1f6feb'; // Blue
+    if (!branch.pull_request) return '#6e7681'; // Gray
+    const state = branch.pull_request.state;
+    if (state === 'open') return '#3fb950'; // Green
+    if (state === 'merged') return '#a371f7'; // Purple
+    if (state === 'draft') return '#6e7681'; // Gray
+    if (state === 'closed') return '#da3633'; // Red
+    return '#6e7681';
   }
 
-  /**
-   * Create a custom curved link path using Bezier curves
-   * This routes the link horizontally then down to avoid crossing cards
-   */
-  function customLinkPath(d) {
-    const sourceX = d.source.x;
-    const sourceY = d.source.y;
-    const targetX = d.target.x;
-    const targetY = d.target.y;
-
-    // Horizontal routing: go out from source, curve, then down to target
-    // This prevents lines from going directly behind other cards
-    const midX = (sourceX + targetX) / 2;
-    const controlDistance = Math.abs(targetY - sourceY) * 0.4;
-
-    // Create a Bezier curve that routes around cards
-    // Start from source center
-    // Curve out horizontally first, then down to target
-    const path = [
-      `M ${sourceX} ${sourceY}`,
-      // Horizontal bezier to middle point
-      `C ${sourceX + 60} ${sourceY}, ${midX - 60} ${sourceY + controlDistance}, ${midX} ${sourceY + controlDistance}`,
-      // Vertical bezier down to target
-      `C ${midX + 60} ${targetY - controlDistance}, ${targetX - 60} ${targetY}, ${targetX} ${targetY}`
-    ].join(' ');
-
-    return path;
+  function getStateLabel(branch) {
+    if (branch.is_default) return '●';
+    if (!branch.pull_request) return '○';
+    const state = branch.pull_request.state;
+    if (state === 'open') return '● OPEN';
+    if (state === 'merged') return '✓ MERGED';
+    if (state === 'draft') return '◐ DRAFT';
+    if (state === 'closed') return '✕ CLOSED';
+    return '●';
   }
 
-  function buildHierarchy(flatBranches) {
-    if (!flatBranches || flatBranches.length === 0) {
-      return null;
-    }
-
-    console.log('[BranchTree] Building hierarchy from branches:', {
-      total: flatBranches.length,
-    });
-
-    const defaults = flatBranches.filter(b => b.is_default);
-    console.log('[BranchTree] Default branches:', defaults.length);
-
-    const rootBranch = flatBranches.find(b => !b.parent_id || b.is_default);
-    console.log('[BranchTree] Root branch found:', rootBranch?.name);
-
-    if (!rootBranch) {
-      console.log('[BranchTree] ERROR: No root branch found!');
-      return null;
-    }
-
-    function addChildren(branch) {
-      const children = flatBranches.filter(b => b.parent_id === branch.id);
-      return {
-        ...branch,
-        children: children.length > 0 ? children.map(addChildren) : [],
-      };
-    }
-
-    return addChildren(rootBranch);
+  function calculateBranchDepth(branch) {
+    if (!branch.parent_id) return 0;
+    const parent = branchesMap.get(branch.parent_id);
+    if (!parent) return 1;
+    return calculateBranchDepth(parent) + 1;
   }
 
-  function renderTree() {
-    console.log('[BranchTree] renderTree called');
-
-    if (!svgElement || !branches || branches.length === 0) {
-      console.log('[BranchTree] renderTree aborted: missing svgElement or branches');
+  function organizeBranchesByDepth() {
+    if (!branches || branches.length === 0) {
+      branchesByDepth = [];
       return;
     }
 
-    const hierarchyData = buildHierarchy(branches);
-    if (!hierarchyData) {
-      console.log('[BranchTree] renderTree aborted: no hierarchy data');
-      return;
-    }
+    // Create map of branches by ID
+    branchesMap = new Map(branches.map(b => [b.id, b]));
 
-    // Get width from container
-    let containerWidth = svgWidth;
-    if (containerElement?.clientWidth) {
-      containerWidth = containerElement.clientWidth;
-    }
+    // Calculate depth for each branch
+    const branchesWithDepth = branches.map(b => ({
+      ...b,
+      depth: calculateBranchDepth(b)
+    }));
 
-    // Calculate dimensions based on tree structure
-    const root = hierarchy(hierarchyData);
-    const treeDepth = root.height + 1; // Depth of the tree
-    const treeWidth = root.descendants().filter(d => !d.children || d.children.length === 0).length; // Count leaf nodes
+    // Group by depth
+    const maxDepth = Math.max(...branchesWithDepth.map(b => b.depth), 0);
+    const grouped = Array.from({ length: maxDepth + 1 }, () => []);
 
-    // Width: ensure enough space for all siblings at widest level
-    const calculatedWidth = Math.max(
-      containerWidth - 120,
-      treeWidth * CARD_SPACING_HORIZONTAL + 200
-    );
-
-    // Height: much more compact - only space for depth
-    const estimatedHeight = Math.max(600, treeDepth * CARD_SPACING_VERTICAL + 200);
-    svgHeight = estimatedHeight;
-
-    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
-    const width = calculatedWidth - margin.left - margin.right;
-    const height = estimatedHeight - margin.top - margin.bottom;
-
-    console.log('[BranchTree] Dimensions:', {
-      width,
-      height,
-      treeDepth,
-      treeWidth,
-      estimatedHeight
+    branchesWithDepth.forEach(branch => {
+      grouped[branch.depth].push(branch);
     });
 
-    // Apply layout with proper spacing
-    const treeLayout = tree().size([width, height]);
-    treeLayout(root);
+    // Sort each group by name
+    grouped.forEach(group => {
+      group.sort((a, b) => a.name.localeCompare(b.name));
+    });
 
-    select(svgElement).selectAll('*').remove();
+    branchesByDepth = grouped;
+    console.log('[BranchTree] Organized branches by depth:', grouped.map(g => g.length));
+  }
 
-    const svg = select(svgElement)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', estimatedHeight);
+  function toggleExpand(branchId) {
+    if (expandedBranches.has(branchId)) {
+      expandedBranches.delete(branchId);
+    } else {
+      expandedBranches.add(branchId);
+    }
+    expandedBranches = expandedBranches;
+  }
 
-    const g = svg.append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+  function getChildBranches(parentId) {
+    return branches.filter(b => b.parent_id === parentId);
+  }
 
-    // Draw link shadows first (for depth)
-    g.selectAll('.link-shadow')
-      .data(root.links())
-      .enter()
-      .append('path')
-      .attr('class', 'link-shadow')
-      .attr('d', customLinkPath)
-      .attr('stroke', 'rgba(0, 0, 0, 0.08)')
-      .attr('stroke-width', 4)
-      .attr('fill', 'none')
-      .attr('stroke-linecap', 'round');
-
-    // Draw main links
-    g.selectAll('.link')
-      .data(root.links())
-      .enter()
-      .append('path')
-      .attr('class', 'branch-link')
-      .attr('d', customLinkPath)
-      .attr('stroke', '#a371f7')
-      .attr('stroke-width', 2.5)
-      .attr('fill', 'none')
-      .attr('stroke-linecap', 'round')
-      .attr('stroke-linejoin', 'round');
-
-    // Draw card nodes
-    const descendants = root.descendants();
-    console.log('[BranchTree] Drawing nodes:', descendants.length);
-
-    const nodes = g.selectAll('.node')
-      .data(descendants)
-      .enter()
-      .append('g')
-      .attr('class', 'branch-node')
-      .attr('transform', d => `translate(${d.x - CARD_WIDTH / 2},${d.y - CARD_HEIGHT / 2})`);
-
-    // Draw card background
-    nodes.append('rect')
-      .attr('class', 'card-bg')
-      .attr('width', CARD_WIDTH)
-      .attr('height', CARD_HEIGHT)
-      .attr('rx', 6)
-      .attr('ry', 6)
-      .style('fill', '#ffffff')
-      .style('stroke', d => getCardColor(d.data))
-      .style('stroke-width', 3)
-      .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
-
-    // Draw branch name (bold, centered at top)
-    nodes.append('text')
-      .attr('class', 'card-title')
-      .attr('x', CARD_WIDTH / 2)
-      .attr('y', 16)
-      .style('font-size', '11px')
-      .style('font-weight', 'bold')
-      .style('fill', '#24292f')
-      .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
-      .style('pointer-events', 'none')
-      .style('text-anchor', 'middle')
-      .style('dominant-baseline', 'middle')
-      .text(d => {
-        // Truncate long branch names
-        const name = d.data.name;
-        return name.length > 16 ? name.substring(0, 13) + '...' : name;
-      });
-
-    // Draw PR info or status
-    nodes.append('text')
-      .attr('class', 'card-info')
-      .attr('x', CARD_WIDTH / 2)
-      .attr('y', 35)
-      .style('font-size', '9px')
-      .style('fill', '#57606a')
-      .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
-      .style('pointer-events', 'none')
-      .style('text-anchor', 'middle')
-      .style('dominant-baseline', 'middle')
-      .text(d => {
-        if (d.data.is_default) return '(default)';
-        if (!d.data.pull_request) return '(no PR)';
-        return `#${d.data.pull_request.number}`;
-      });
-
-    // Draw PR state badge
-    nodes.append('text')
-      .attr('class', 'card-state')
-      .attr('x', CARD_WIDTH / 2)
-      .attr('y', 52)
-      .style('font-size', '9px')
-      .style('fill', d => getCardColor(d.data))
-      .style('font-weight', 'bold')
-      .style('font-family', 'monospace')
-      .style('pointer-events', 'none')
-      .style('text-anchor', 'middle')
-      .style('dominant-baseline', 'middle')
-      .text(d => {
-        if (d.data.is_default) return '●';
-        if (!d.data.pull_request) return '○';
-        const state = d.data.pull_request.state;
-        if (state === 'open') return '● OPEN';
-        if (state === 'merged') return '✓ MERGED';
-        if (state === 'draft') return '◐ DRAFT';
-        if (state === 'closed') return '✕ CLOSED';
-        return '●';
-      });
-
-    // Make cards clickable if they have a PR
-    nodes.style('cursor', d => d.data.pull_request ? 'pointer' : 'default')
-      .on('click', (event, d) => {
-        if (d.data.pull_request) {
-          onNodeClick(d.data);
-        }
-      });
+  function handleCardClick(branch) {
+    if (branch.pull_request) {
+      onNodeClick(branch);
+    }
   }
 
   onMount(() => {
-    console.log('[BranchTree] onMount called');
-    if (containerElement?.clientWidth) {
-      svgWidth = containerElement.clientWidth;
-    }
-
-    renderTree();
-
-    const handleResize = () => {
-      if (containerElement?.clientWidth) {
-        svgWidth = containerElement.clientWidth;
-      }
-      renderTree();
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    console.log('[BranchTree] Component mounted with', branches?.length, 'branches');
+    organizeBranchesByDepth();
   });
 
   $effect(() => {
-    console.log('[BranchTree] Effect triggered with branches:', branches?.length);
     if (branches.length > 0) {
-      renderTree();
+      console.log('[BranchTree] Branches changed, reorganizing');
+      organizeBranchesByDepth();
     }
   });
 </script>
 
-<div class="branch-tree-wrapper" bind:this={containerElement}>
-  <svg bind:this={svgElement} class="branch-tree-container" width={svgWidth} height={svgHeight}></svg>
+<div class="swimlane-container">
+  {#each branchesByDepth as lane, depthIndex (depthIndex)}
+    <div class="swimlane" style="--depth: {depthIndex}">
+      <div class="swimlane-header">
+        <span class="depth-label">Level {depthIndex}</span>
+        <span class="count-badge">{lane.length} branch{lane.length !== 1 ? 'es' : ''}</span>
+      </div>
+
+      <div class="swimlane-content">
+        {#each lane as branch (branch.id)}
+          <div class="branch-card-wrapper">
+            <div
+              class="branch-card"
+              style="border-color: {getCardColor(branch)}"
+              on:click={() => handleCardClick(branch)}
+              role="button"
+              tabindex="0"
+            >
+              <div class="card-header">
+                <span class="branch-name" title={branch.name}>
+                  {branch.name.length > 20 ? branch.name.substring(0, 17) + '...' : branch.name}
+                </span>
+                {#if getChildBranches(branch.id).length > 0}
+                  <button
+                    class="expand-btn"
+                    on:click={(e) => {
+                      e.stopPropagation();
+                      toggleExpand(branch.id);
+                    }}
+                    title={expandedBranches.has(branch.id) ? 'Collapse' : 'Expand'}
+                  >
+                    {expandedBranches.has(branch.id) ? '▼' : '▶'}
+                  </button>
+                {/if}
+              </div>
+
+              <div class="card-info">
+                {#if branch.is_default}
+                  <span class="info-label">(default)</span>
+                {:else if !branch.pull_request}
+                  <span class="info-label">(no PR)</span>
+                {:else}
+                  <span class="info-label">#{branch.pull_request.number}</span>
+                {/if}
+              </div>
+
+              <div class="card-state" style="color: {getCardColor(branch)}">
+                {getStateLabel(branch)}
+              </div>
+            </div>
+
+            {#if expandedBranches.has(branch.id) && getChildBranches(branch.id).length > 0}
+              <div class="children-preview">
+                {#each getChildBranches(branch.id) as child (child.id)}
+                  <div class="child-item">
+                    <span class="child-name">{child.name}</span>
+                    <span class="child-state" style="color: {getCardColor(child)}">
+                      {getStateLabel(child)}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/each}
 </div>
 
 <style>
-  :global(.branch-tree-wrapper) {
+  :global(.swimlane-container) {
     width: 100%;
     height: 100%;
     overflow: auto;
     background-color: #f6f8fa;
     display: flex;
     flex-direction: column;
+    gap: 0;
   }
 
-  :global(.branch-tree-container) {
-    display: block;
-    width: 100%;
-    height: auto;
-    min-height: 600px;
+  :global(.swimlane) {
+    min-height: 220px;
+    border-bottom: 2px solid #e1e4e8;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.swimlane-header) {
+    padding: 16px 20px;
     background-color: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #24292f;
   }
 
-  :global(.link-shadow) {
-    pointer-events: none;
+  :global(.depth-label) {
+    display: flex;
+    align-items: center;
   }
 
-  :global(.branch-link) {
-    fill: none;
-    stroke: #a371f7;
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    transition: stroke-width 0.2s ease, stroke 0.2s ease;
-    pointer-events: stroke;
+  :global(.count-badge) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 20px;
+    padding: 0 6px;
+    background-color: #eaeef2;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #57606a;
   }
 
-  :global(.branch-link:hover) {
-    stroke-width: 4;
-    stroke: #8957d9;
-    filter: drop-shadow(0 0 4px rgba(163, 113, 247, 0.4));
+  :global(.swimlane-content) {
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-content: flex-start;
   }
 
-  :global(.branch-node:hover .card-bg) {
+  :global(.branch-card-wrapper) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.branch-card) {
+    width: 180px;
+    padding: 12px;
+    background-color: #ffffff;
+    border: 2px solid #d1d5da;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :global(.branch-card:hover) {
     filter: brightness(0.98);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
 
-  :global(.branch-node:hover .card-title) {
-    font-weight: bold;
+  :global(.card-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
   }
 
-  :global(.branch-node:hover ~ .branch-link) {
-    opacity: 0.3;
+  :global(.branch-name) {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    color: #24292f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :global(.expand-btn) {
+    padding: 2px 4px;
+    background: none;
+    border: none;
+    color: #57606a;
+    cursor: pointer;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  :global(.expand-btn:hover) {
+    color: #24292f;
+  }
+
+  :global(.card-info) {
+    font-size: 9px;
+    color: #57606a;
+    text-align: center;
+  }
+
+  :global(.info-label) {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+
+  :global(.card-state) {
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    font-family: monospace;
+  }
+
+  :global(.children-preview) {
+    margin-top: 8px;
+    padding: 8px;
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    border-left: 3px solid #a371f7;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  :global(.child-item) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    padding: 4px 0;
+    border-bottom: 1px solid #e1e4e8;
+  }
+
+  :global(.child-item:last-child) {
+    border-bottom: none;
+  }
+
+  :global(.child-name) {
+    color: #57606a;
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  :global(.child-state) {
+    flex-shrink: 0;
+    margin-left: 4px;
+    font-weight: 600;
   }
 </style>
