@@ -16,9 +16,25 @@
       return null;
     }
 
+    console.log('[BranchTree] Building hierarchy from branches:', {
+      total: flatBranches.length,
+      sample: flatBranches.slice(0, 3),
+    });
+
+    // Check for branches with no parent
+    const noParent = flatBranches.filter(b => !b.parent_id);
+    console.log('[BranchTree] Branches with no parent_id:', noParent.length, noParent.slice(0, 3));
+
+    // Check for default branches
+    const defaults = flatBranches.filter(b => b.is_default);
+    console.log('[BranchTree] Default branches:', defaults.length, defaults);
+
     // Find the root branch (no parent or default branch)
     const rootBranch = flatBranches.find(b => !b.parent_id || b.is_default);
+    console.log('[BranchTree] Root branch found:', rootBranch);
+
     if (!rootBranch) {
+      console.log('[BranchTree] ERROR: No root branch found! First few branches:', flatBranches.slice(0, 5));
       return null;
     }
 
