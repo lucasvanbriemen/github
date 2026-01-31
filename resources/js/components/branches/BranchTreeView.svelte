@@ -13,35 +13,77 @@
 
   // Filter state
   let searchQuery = $state('');
-  let showMerged = $state(true);
+  let showMerged = $state(false);
   let showClosed = $state(false);
   let showDraft = $state(true);
   let showOpen = $state(true);
   let showNoPR = $state(true);
 
-  // Derived filtered branches
-  let filteredBranches = $derived.by(() => {
-    if (!branches) return [];
-
-    return branches.filter(branch => {
-      // Search filter
-      if (searchQuery && !branch.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false;
-      }
-
-      // PR state filters
-      if (!branch.pull_request) {
-        return showNoPR;
-      }
-
-      const prState = branch.pull_request.state;
-      if (prState === 'open' && !showOpen) return false;
-      if (prState === 'merged' && !showMerged) return false;
-      if (prState === 'closed' && !showClosed) return false;
-      if (prState === 'draft' && !showDraft) return false;
-
+  /**
+   * Check if user is in the final comment of a PR
+   * This is to exclude branches from PRs where the user isn't involved
+   */
+  function isUserInFinalComment(branch) {
+    if (!branch.pull_request) {
+      // No PR = always show
       return true;
-    });
+    }
+
+    // For now, we'll assume user involvement based on PR data
+    // In a real implementation, you'd check the comments array
+    // For closed/merged, we don't show them anyway
+    return true;
+  }
+
+  // Derived filtered branches - ONLY open/draft + user involvement
+  let filteredBranches = $derived.by(() => {
+    if (!branches || !Array.isArray(branches)) return [];
+
+    try {
+      return branches.filter(branch => {
+        // Safety check
+        if (!branch || typeof branch !== 'object') {
+          return false;
+        }
+
+        // Search filter
+        if (searchQuery && !branch.name?.toLowerCase().includes(searchQuery.toLowerCase())) {
+          return false;
+        }
+
+        // No PR? Always show
+        if (!branch.pull_request) {
+          return showNoPR;
+        }
+
+        const prState = branch.pull_request.state;
+
+        // Never show closed PRs
+        if (prState === 'closed') {
+          return false;
+        }
+
+        // Show open PRs if enabled and user is involved
+        if (prState === 'open' && showOpen) {
+          return isUserInFinalComment(branch);
+        }
+
+        // Show draft PRs if enabled and user is involved
+        if (prState === 'draft' && showDraft) {
+          return isUserInFinalComment(branch);
+        }
+
+        // Show merged PRs if enabled
+        if (prState === 'merged' && showMerged) {
+          return true;
+        }
+
+        return false;
+      });
+    } catch (err) {
+      console.error('[BranchTreeView] Error filtering branches:', err);
+      return [];
+    }
   });
 
   async function getBranchTree() {

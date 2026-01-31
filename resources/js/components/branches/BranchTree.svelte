@@ -34,11 +34,20 @@
     return '●';
   }
 
-  function calculateBranchDepth(branch) {
+  function calculateBranchDepth(branch, visited = new Set(), maxDepth = 100) {
+    // Prevent infinite recursion with circular references
+    if (visited.has(branch.id) || visited.size > maxDepth) {
+      console.warn('[BranchTree] Circular reference detected or max depth exceeded for branch:', branch.name);
+      return 0;
+    }
+
     if (!branch.parent_id) return 0;
+
+    visited.add(branch.id);
     const parent = branchesMap.get(branch.parent_id);
     if (!parent) return 1;
-    return calculateBranchDepth(parent) + 1;
+
+    return calculateBranchDepth(parent, visited, maxDepth) + 1;
   }
 
   function organizeBranchesByDepth() {
@@ -47,30 +56,61 @@
       return;
     }
 
-    // Create map of branches by ID
-    branchesMap = new Map(branches.map(b => [b.id, b]));
+    try {
+      // Create map of branches by ID with safety checks
+      branchesMap = new Map(
+        branches
+          .filter(b => b && typeof b === 'object' && b.id)
+          .map(b => [b.id, b])
+      );
 
-    // Calculate depth for each branch
-    const branchesWithDepth = branches.map(b => ({
-      ...b,
-      depth: calculateBranchDepth(b)
-    }));
+      console.log('[BranchTree] Processing', branches.length, 'branches');
 
-    // Group by depth
-    const maxDepth = Math.max(...branchesWithDepth.map(b => b.depth), 0);
-    const grouped = Array.from({ length: maxDepth + 1 }, () => []);
+      // Calculate depth for each branch with error handling
+      const branchesWithDepth = branches
+        .filter(b => b && typeof b === 'object' && b.id)
+        .map(b => {
+          try {
+            return {
+              ...b,
+              depth: calculateBranchDepth(b)
+            };
+          } catch (err) {
+            console.warn('[BranchTree] Error calculating depth for branch:', b.name, err);
+            return { ...b, depth: 0 };
+          }
+        });
 
-    branchesWithDepth.forEach(branch => {
-      grouped[branch.depth].push(branch);
-    });
+      // Group by depth
+      const depths = branchesWithDepth.map(b => b.depth);
+      const maxDepth = Math.max(...depths, 0);
 
-    // Sort each group by name
-    grouped.forEach(group => {
-      group.sort((a, b) => a.name.localeCompare(b.name));
-    });
+      if (maxDepth > 1000) {
+        console.warn('[BranchTree] Unusual depth detected:', maxDepth);
+      }
 
-    branchesByDepth = grouped;
-    console.log('[BranchTree] Organized branches by depth:', grouped.map(g => g.length));
+      const grouped = Array.from({ length: Math.min(maxDepth + 1, 1000) }, () => []);
+
+      branchesWithDepth.forEach(branch => {
+        const depth = Math.min(branch.depth, grouped.length - 1);
+        grouped[depth].push(branch);
+      });
+
+      // Sort each group by name
+      grouped.forEach(group => {
+        try {
+          group.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        } catch (err) {
+          console.warn('[BranchTree] Error sorting group:', err);
+        }
+      });
+
+      branchesByDepth = grouped;
+      console.log('[BranchTree] Organized branches by depth:', grouped.map(g => g.length));
+    } catch (err) {
+      console.error('[BranchTree] Error organizing branches:', err);
+      branchesByDepth = [];
+    }
   }
 
   function toggleExpand(branchId) {
@@ -83,24 +123,43 @@
   }
 
   function getChildBranches(parentId) {
-    return branches.filter(b => b.parent_id === parentId);
+    try {
+      return branches
+        .filter(b => b && typeof b === 'object' && b.parent_id === parentId)
+        .slice(0, 100); // Limit to prevent rendering too many children
+    } catch (err) {
+      console.warn('[BranchTree] Error getting child branches:', err);
+      return [];
+    }
   }
 
   function handleCardClick(branch) {
-    if (branch.pull_request) {
-      onNodeClick(branch);
+    try {
+      if (branch && branch.pull_request) {
+        onNodeClick(branch);
+      }
+    } catch (err) {
+      console.error('[BranchTree] Error handling card click:', err);
     }
   }
 
   onMount(() => {
-    console.log('[BranchTree] Component mounted with', branches?.length, 'branches');
-    organizeBranchesByDepth();
+    try {
+      console.log('[BranchTree] Component mounted with', branches?.length, 'branches');
+      organizeBranchesByDepth();
+    } catch (err) {
+      console.error('[BranchTree] Error in onMount:', err);
+    }
   });
 
   $effect(() => {
-    if (branches.length > 0) {
-      console.log('[BranchTree] Branches changed, reorganizing');
-      organizeBranchesByDepth();
+    try {
+      if (branches && branches.length > 0) {
+        console.log('[BranchTree] Branches changed, reorganizing');
+        organizeBranchesByDepth();
+      }
+    } catch (err) {
+      console.error('[BranchTree] Error in effect:', err);
     }
   });
 </script>
