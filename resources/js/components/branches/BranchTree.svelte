@@ -11,6 +11,21 @@
   let svgWidth = $state(800);
   let svgHeight = $state(600);
 
+  const CARD_WIDTH = 200;
+  const CARD_HEIGHT = 80;
+
+  function getCardColor(node) {
+    if (node.is_default) return '#1f6feb'; // Blue for default
+    if (!node.pull_request) return '#6e7681'; // Gray for no PR
+
+    const state = node.pull_request.state;
+    if (state === 'open') return '#3fb950'; // Green for open
+    if (state === 'merged') return '#a371f7'; // Purple for merged
+    if (state === 'draft') return '#6e7681'; // Gray for draft
+    if (state === 'closed') return '#da3633'; // Red for closed
+    return '#6e7681'; // Default gray
+  }
+
   function buildHierarchy(flatBranches) {
     if (!flatBranches || flatBranches.length === 0) {
       return null;
@@ -18,27 +33,19 @@
 
     console.log('[BranchTree] Building hierarchy from branches:', {
       total: flatBranches.length,
-      sample: flatBranches.slice(0, 3),
     });
 
-    // Check for branches with no parent
-    const noParent = flatBranches.filter(b => !b.parent_id);
-    console.log('[BranchTree] Branches with no parent_id:', noParent.length, noParent.slice(0, 3));
-
-    // Check for default branches
     const defaults = flatBranches.filter(b => b.is_default);
-    console.log('[BranchTree] Default branches:', defaults.length, defaults);
+    console.log('[BranchTree] Default branches:', defaults.length);
 
-    // Find the root branch (no parent or default branch)
     const rootBranch = flatBranches.find(b => !b.parent_id || b.is_default);
-    console.log('[BranchTree] Root branch found:', rootBranch);
+    console.log('[BranchTree] Root branch found:', rootBranch?.name);
 
     if (!rootBranch) {
-      console.log('[BranchTree] ERROR: No root branch found! First few branches:', flatBranches.slice(0, 5));
+      console.log('[BranchTree] ERROR: No root branch found!');
       return null;
     }
 
-    // Build children recursively
     function addChildren(branch) {
       const children = flatBranches.filter(b => b.parent_id === branch.id);
       return {
@@ -51,11 +58,7 @@
   }
 
   function renderTree() {
-    console.log('[BranchTree] renderTree called with:', {
-      svgElement: !!svgElement,
-      branches: branches?.length,
-      containerElement: !!containerElement,
-    });
+    console.log('[BranchTree] renderTree called');
 
     if (!svgElement || !branches || branches.length === 0) {
       console.log('[BranchTree] renderTree aborted: missing svgElement or branches');
@@ -63,65 +66,50 @@
     }
 
     const hierarchyData = buildHierarchy(branches);
-    console.log('[BranchTree] Hierarchy data:', hierarchyData);
     if (!hierarchyData) {
       console.log('[BranchTree] renderTree aborted: no hierarchy data');
       return;
     }
 
-    // Get width from container if available
+    // Get width from container
     let containerWidth = svgWidth;
     if (containerElement?.clientWidth) {
       containerWidth = containerElement.clientWidth;
-      console.log('[BranchTree] Container width:', containerWidth);
     }
 
-    // Calculate height based on branch count
-    const estimatedHeight = Math.max(600, branches.length * 120);
+    // Much larger height for vertical spacing, much larger width for horizontal spread
+    const estimatedHeight = Math.max(800, branches.length * 150);
     svgHeight = estimatedHeight;
 
-    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
-    const width = containerWidth - margin.left - margin.right;
+    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
+    // Make width much larger relative to height for horizontal spread
+    const width = Math.max(containerWidth - margin.left - margin.right, 2000);
     const height = estimatedHeight - margin.top - margin.bottom;
 
-    console.log('[BranchTree] Dimensions:', {
-      containerWidth,
-      estimatedHeight,
-      width,
-      height,
-    });
+    console.log('[BranchTree] Dimensions:', { width, height });
 
-    // Create D3 hierarchy
     const root = hierarchy(hierarchyData);
-    const treeLayout = tree().size([width, height]);
+    // Use much larger width for horizontal spread, smaller height for vertical compression
+    const treeLayout = tree().size([width, height * 0.6]);
     treeLayout(root);
-    console.log('[BranchTree] D3 root created with descendants:', root.descendants().length);
 
-    // Clear previous content
     select(svgElement).selectAll('*').remove();
-
-    // Set SVG dimensions
     svgWidth = containerWidth;
 
     const svg = select(svgElement)
-      .attr('width', containerWidth)
+      .attr('width', width + margin.left + margin.right)
       .attr('height', estimatedHeight);
-
-    console.log('[BranchTree] SVG element:', { containerWidth, estimatedHeight });
 
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Draw links (branch relationships)
+    // Draw links with curve
     const linkGenerator = linkVertical()
       .x(d => d.x)
-      .y(d => d.y);
-
-    const links = root.links();
-    console.log('[BranchTree] Drawing links:', links.length);
+      .y(d => d.y * (height / (height * 0.6)));
 
     g.selectAll('.link')
-      .data(links)
+      .data(root.links())
       .enter()
       .append('path')
       .attr('class', 'branch-link')
@@ -130,7 +118,7 @@
       .attr('stroke-width', 2)
       .attr('fill', 'none');
 
-    // Draw nodes
+    // Draw card nodes
     const descendants = root.descendants();
     console.log('[BranchTree] Drawing nodes:', descendants.length);
 
@@ -139,66 +127,98 @@
       .enter()
       .append('g')
       .attr('class', 'branch-node')
-      .attr('transform', d => `translate(${d.x},${d.y})`);
+      .attr('transform', d => {
+        const yAdjusted = d.y * (height / (height * 0.6));
+        return `translate(${d.x - CARD_WIDTH / 2},${yAdjusted - CARD_HEIGHT / 2})`;
+      });
 
-    // Add circles for nodes
-    nodes.append('circle')
-      .attr('r', 6)
-      .attr('fill', d => {
-        if (d.data.is_default) return '#1f6feb';
-        if (!d.data.pull_request) return '#6e7681';
+    // Draw card background
+    nodes.append('rect')
+      .attr('class', 'card-bg')
+      .attr('width', CARD_WIDTH)
+      .attr('height', CARD_HEIGHT)
+      .attr('rx', 6)
+      .attr('ry', 6)
+      .style('fill', '#ffffff')
+      .style('stroke', d => getCardColor(d.data))
+      .style('stroke-width', 3)
+      .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+
+    // Draw branch name (bold, centered at top)
+    nodes.append('text')
+      .attr('class', 'card-title')
+      .attr('x', CARD_WIDTH / 2)
+      .attr('y', 20)
+      .style('font-size', '13px')
+      .style('font-weight', 'bold')
+      .style('fill', '#24292f')
+      .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
+      .style('pointer-events', 'none')
+      .style('text-anchor', 'middle')
+      .style('dominant-baseline', 'middle')
+      .text(d => {
+        // Truncate long branch names
+        const name = d.data.name;
+        return name.length > 20 ? name.substring(0, 17) + '...' : name;
+      });
+
+    // Draw PR info or status
+    nodes.append('text')
+      .attr('class', 'card-info')
+      .attr('x', CARD_WIDTH / 2)
+      .attr('y', 45)
+      .style('font-size', '11px')
+      .style('fill', '#57606a')
+      .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
+      .style('pointer-events', 'none')
+      .style('text-anchor', 'middle')
+      .style('dominant-baseline', 'middle')
+      .text(d => {
+        if (d.data.is_default) return '(default)';
+        if (!d.data.pull_request) return '(no PR)';
+        return `#${d.data.pull_request.number}`;
+      });
+
+    // Draw PR state badge
+    nodes.append('text')
+      .attr('class', 'card-state')
+      .attr('x', CARD_WIDTH / 2)
+      .attr('y', 65)
+      .style('font-size', '10px')
+      .style('fill', d => getCardColor(d.data))
+      .style('font-weight', 'bold')
+      .style('font-family', 'monospace')
+      .style('pointer-events', 'none')
+      .style('text-anchor', 'middle')
+      .style('dominant-baseline', 'middle')
+      .text(d => {
+        if (d.data.is_default) return '●';
+        if (!d.data.pull_request) return '○';
         const state = d.data.pull_request.state;
-        if (state === 'open') return '#3fb950';
-        if (state === 'merged') return '#a371f7';
-        if (state === 'draft') return '#6e7681';
-        if (state === 'closed') return '#da3633';
-        return '#6e7681';
-      })
-      .style('cursor', d => d.data.pull_request ? 'pointer' : 'default')
-      .style('stroke', '#ffffff')
-      .style('stroke-width', 2)
+        if (state === 'open') return '● OPEN';
+        if (state === 'merged') return '✓ MERGED';
+        if (state === 'draft') return '◐ DRAFT';
+        if (state === 'closed') return '✕ CLOSED';
+        return '●';
+      });
+
+    // Make cards clickable if they have a PR
+    nodes.style('cursor', d => d.data.pull_request ? 'pointer' : 'default')
       .on('click', (event, d) => {
         if (d.data.pull_request) {
           onNodeClick(d.data);
         }
       });
-
-    // Add branch name labels
-    nodes.append('text')
-      .attr('x', 12)
-      .attr('y', 0)
-      .attr('dy', '0.31em')
-      .style('font-size', '12px')
-      .style('fill', '#24292f')
-      .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
-      .style('pointer-events', 'none')
-      .text(d => d.data.name);
-
-    // Add PR badge if exists
-    nodes.filter(d => d.data.pull_request)
-      .append('text')
-      .attr('x', 12)
-      .attr('y', 16)
-      .style('font-size', '10px')
-      .style('fill', '#57606a')
-      .style('font-family', 'monospace')
-      .style('pointer-events', 'none')
-      .text(d => `#${d.data.pull_request.number}`);
   }
 
   onMount(() => {
     console.log('[BranchTree] onMount called');
-    // Set initial width from container
     if (containerElement?.clientWidth) {
       svgWidth = containerElement.clientWidth;
-      console.log('[BranchTree] Set svgWidth from container:', svgWidth);
-    } else {
-      console.log('[BranchTree] Container not available on mount');
     }
 
     renderTree();
 
-    // Re-render on window resize
     const handleResize = () => {
       if (containerElement?.clientWidth) {
         svgWidth = containerElement.clientWidth;
@@ -210,7 +230,6 @@
     return () => window.removeEventListener('resize', handleResize);
   });
 
-  // Re-render when branches change
   $effect(() => {
     console.log('[BranchTree] Effect triggered with branches:', branches?.length);
     if (branches.length > 0) {
@@ -228,7 +247,7 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: #ffffff;
+    background-color: #f6f8fa;
     display: flex;
     flex-direction: column;
   }
@@ -238,5 +257,21 @@
     width: 100%;
     height: auto;
     min-height: 600px;
+    background-color: #f6f8fa;
+  }
+
+  :global(.branch-link) {
+    fill: none;
+    stroke: #d1d5da;
+    stroke-width: 2;
+  }
+
+  :global(.branch-node:hover .card-bg) {
+    filter: brightness(0.98);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  :global(.branch-node:hover .card-title) {
+    font-weight: bold;
   }
 </style>
