@@ -1,7 +1,6 @@
 <script>
   import { hierarchy, tree } from 'd3-hierarchy';
   import { select } from 'd3-selection';
-  import { linkVertical } from 'd3-shape';
   import { onMount } from 'svelte';
 
   let { branches = [], onNodeClick = () => {} } = $props();
@@ -26,6 +25,35 @@
     if (state === 'draft') return '#6e7681'; // Gray for draft
     if (state === 'closed') return '#da3633'; // Red for closed
     return '#6e7681'; // Default gray
+  }
+
+  /**
+   * Create a custom curved link path using Bezier curves
+   * This routes the link horizontally then down to avoid crossing cards
+   */
+  function customLinkPath(d) {
+    const sourceX = d.source.x;
+    const sourceY = d.source.y;
+    const targetX = d.target.x;
+    const targetY = d.target.y;
+
+    // Horizontal routing: go out from source, curve, then down to target
+    // This prevents lines from going directly behind other cards
+    const midX = (sourceX + targetX) / 2;
+    const controlDistance = Math.abs(targetY - sourceY) * 0.4;
+
+    // Create a Bezier curve that routes around cards
+    // Start from source center
+    // Curve out horizontally first, then down to target
+    const path = [
+      `M ${sourceX} ${sourceY}`,
+      // Horizontal bezier to middle point
+      `C ${sourceX + 60} ${sourceY}, ${midX - 60} ${sourceY + controlDistance}, ${midX} ${sourceY + controlDistance}`,
+      // Vertical bezier down to target
+      `C ${midX + 60} ${targetY - controlDistance}, ${targetX - 60} ${targetY}, ${targetX} ${targetY}`
+    ].join(' ');
+
+    return path;
   }
 
   function buildHierarchy(flatBranches) {
@@ -119,20 +147,30 @@
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Draw links with curve
-    const linkGenerator = linkVertical()
-      .x(d => d.x)
-      .y(d => d.y);
+    // Draw link shadows first (for depth)
+    g.selectAll('.link-shadow')
+      .data(root.links())
+      .enter()
+      .append('path')
+      .attr('class', 'link-shadow')
+      .attr('d', customLinkPath)
+      .attr('stroke', 'rgba(0, 0, 0, 0.08)')
+      .attr('stroke-width', 4)
+      .attr('fill', 'none')
+      .attr('stroke-linecap', 'round');
 
+    // Draw main links
     g.selectAll('.link')
       .data(root.links())
       .enter()
       .append('path')
       .attr('class', 'branch-link')
-      .attr('d', linkGenerator)
-      .attr('stroke', '#d1d5da')
-      .attr('stroke-width', 2)
-      .attr('fill', 'none');
+      .attr('d', customLinkPath)
+      .attr('stroke', '#a371f7')
+      .attr('stroke-width', 2.5)
+      .attr('fill', 'none')
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-linejoin', 'round');
 
     // Draw card nodes
     const descendants = root.descendants();
@@ -273,10 +311,24 @@
     background-color: #f6f8fa;
   }
 
+  :global(.link-shadow) {
+    pointer-events: none;
+  }
+
   :global(.branch-link) {
     fill: none;
-    stroke: #d1d5da;
-    stroke-width: 2;
+    stroke: #a371f7;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke-width 0.2s ease, stroke 0.2s ease;
+    pointer-events: stroke;
+  }
+
+  :global(.branch-link:hover) {
+    stroke-width: 4;
+    stroke: #8957d9;
+    filter: drop-shadow(0 0 4px rgba(163, 113, 247, 0.4));
   }
 
   :global(.branch-node:hover .card-bg) {
@@ -286,5 +338,9 @@
 
   :global(.branch-node:hover .card-title) {
     font-weight: bold;
+  }
+
+  :global(.branch-node:hover ~ .branch-link) {
+    opacity: 0.3;
   }
 </style>
