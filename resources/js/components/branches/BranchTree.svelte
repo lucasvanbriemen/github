@@ -6,6 +6,9 @@
   let branchesByDepth = $state([]);
   let branchesMap = $state(new Map());
   let expandedBranches = $state(new Set());
+  let renderError = $state(null);
+
+  const MAX_BRANCHES = 500; // Hard limit to prevent crashes
 
   const CARD_WIDTH = 180;
   const CARD_HEIGHT = 75;
@@ -53,62 +56,90 @@
   function organizeBranchesByDepth() {
     if (!branches || branches.length === 0) {
       branchesByDepth = [];
+      renderError = null;
       return;
     }
 
-    try {
-      // Create map of branches by ID with safety checks
-      branchesMap = new Map(
-        branches
-          .filter(b => b && typeof b === 'object' && b.id)
-          .map(b => [b.id, b])
-      );
+    renderError = null;
 
+    try {
       console.log('[BranchTree] Processing', branches.length, 'branches');
 
+      // Cap branches to prevent crashes
+      let branchesToProcess = branches;
+      if (branches.length > MAX_BRANCHES) {
+        console.warn('[BranchTree] Capping branches from', branches.length, 'to', MAX_BRANCHES);
+        branchesToProcess = branches.slice(0, MAX_BRANCHES);
+      }
+
+      // Create map of branches by ID with safety checks
+      branchesMap = new Map();
+      const validBranches = [];
+
+      for (let i = 0; i < branchesToProcess.length; i++) {
+        const b = branchesToProcess[i];
+        if (b && typeof b === 'object' && b.id) {
+          branchesMap.set(b.id, b);
+          validBranches.push(b);
+        }
+      }
+
+      console.log('[BranchTree] Valid branches:', validBranches.length);
+
+      if (validBranches.length === 0) {
+        branchesByDepth = [];
+        return;
+      }
+
       // Calculate depth for each branch with error handling
-      const branchesWithDepth = branches
-        .filter(b => b && typeof b === 'object' && b.id)
-        .map(b => {
-          try {
-            return {
-              ...b,
-              depth: calculateBranchDepth(b)
-            };
-          } catch (err) {
-            console.warn('[BranchTree] Error calculating depth for branch:', b.name, err);
-            return { ...b, depth: 0 };
-          }
-        });
+      const branchesWithDepth = [];
+      for (let i = 0; i < validBranches.length; i++) {
+        const b = validBranches[i];
+        try {
+          branchesWithDepth.push({
+            ...b,
+            depth: calculateBranchDepth(b)
+          });
+        } catch (err) {
+          console.warn('[BranchTree] Error calculating depth for branch:', b.name, err);
+          branchesWithDepth.push({ ...b, depth: 0 });
+        }
+      }
 
       // Group by depth
-      const depths = branchesWithDepth.map(b => b.depth);
-      const maxDepth = Math.max(...depths, 0);
+      const maxDepth = Math.max(...branchesWithDepth.map(b => b.depth), 0);
 
-      if (maxDepth > 1000) {
+      if (maxDepth > 100) {
         console.warn('[BranchTree] Unusual depth detected:', maxDepth);
       }
 
-      const grouped = Array.from({ length: Math.min(maxDepth + 1, 1000) }, () => []);
+      const grouped = Array.from({ length: Math.min(maxDepth + 1, 100) }, () => []);
 
-      branchesWithDepth.forEach(branch => {
+      for (let i = 0; i < branchesWithDepth.length; i++) {
+        const branch = branchesWithDepth[i];
         const depth = Math.min(branch.depth, grouped.length - 1);
         grouped[depth].push(branch);
-      });
+      }
 
       // Sort each group by name
-      grouped.forEach(group => {
+      for (let i = 0; i < grouped.length; i++) {
+        const group = grouped[i];
         try {
-          group.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+          group.sort((a, b) => {
+            const nameA = (a && a.name) || '';
+            const nameB = (b && b.name) || '';
+            return nameA.localeCompare(nameB);
+          });
         } catch (err) {
-          console.warn('[BranchTree] Error sorting group:', err);
+          console.warn('[BranchTree] Error sorting group', i, ':', err);
         }
-      });
+      }
 
       branchesByDepth = grouped;
-      console.log('[BranchTree] Organized branches by depth:', grouped.map(g => g.length));
+      console.log('[BranchTree] Organized branches by depth:', grouped.map(g => g.length).join(', '));
     } catch (err) {
-      console.error('[BranchTree] Error organizing branches:', err);
+      console.error('[BranchTree] Fatal error organizing branches:', err);
+      renderError = 'Failed to organize branches. Please refresh the page.';
       branchesByDepth = [];
     }
   }
@@ -165,6 +196,22 @@
 </script>
 
 <div class="swimlane-container">
+  {#if renderError}
+    <div class="render-error">
+      <p>⚠️ {renderError}</p>
+      <p style="font-size: 12px; color: #57606a;">
+        Showing branches capped at {MAX_BRANCHES} to prevent performance issues.
+        Try using search or filters to narrow down results.
+      </p>
+    </div>
+  {/if}
+
+  {#if branchesByDepth.length === 0 && !renderError}
+    <div class="empty-state">
+      <p>No branches to display</p>
+    </div>
+  {/if}
+
   {#each branchesByDepth as lane, depthIndex (depthIndex)}
     <div class="swimlane" style="--depth: {depthIndex}">
       <div class="swimlane-header">
@@ -243,6 +290,30 @@
     display: flex;
     flex-direction: column;
     gap: 0;
+  }
+
+  :global(.render-error) {
+    padding: 16px 20px;
+    background-color: #fff8c5;
+    border-left: 4px solid #d29922;
+    color: #6f42c1;
+  }
+
+  :global(.render-error p) {
+    margin: 8px 0;
+  }
+
+  :global(.render-error p:first-child) {
+    margin-top: 0;
+  }
+
+  :global(.empty-state) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: #57606a;
+    font-size: 14px;
   }
 
   :global(.swimlane) {
