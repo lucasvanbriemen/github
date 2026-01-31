@@ -8,13 +8,9 @@
   let selectedIndex = $state(0);
   let triggerPosition = $state(null);
   let filteredUsers = $derived.by(() => {
-    const validUsers = users.filter(user => user != null);
-    if (!query) return validUsers;
+    if (!query) return users;
     const lowerQuery = query.toLowerCase();
-    return validUsers.filter(user =>
-      user.login.toLowerCase().includes(lowerQuery) ||
-      (user.display_name && user.display_name.toLowerCase().includes(lowerQuery))
-    );
+    return users.filter(user => user.display_name.toLowerCase().includes(lowerQuery));
   });
 
   function findMentionStart(text, cursorPos) {
@@ -146,10 +142,6 @@
   }
 
   onMount(() => {
-    if (!textarea) {
-      return;
-    }
-
     textarea.addEventListener('input', handleTextareaInput);
     textarea.addEventListener('keydown', handleKeyDown);
     document.addEventListener('click', handleClickOutside);
