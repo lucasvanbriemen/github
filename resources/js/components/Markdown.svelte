@@ -2,6 +2,7 @@
   import { onMount, untrack } from 'svelte';
   import { marked } from 'marked';
   import { organization, repository } from './stores';
+  import MentionAutocomplete from './MentionAutocomplete.svelte';
   import 'github-markdown-css/github-markdown-dark.css';
 
   let { content = $bindable(''), canEdit = true, isEditing = false, change } = $props();
@@ -9,6 +10,7 @@
 
   let editor = $state(null);
   let isImproving = $state(false);
+  let users = $state([]);
 
   const shortcutMap = {
     heading: {
@@ -176,6 +178,11 @@
     }
   }
 
+  function toggleEditing() {
+    isEditing = !isEditing;
+    console.log('[Markdown] Editing mode:', isEditing);
+  }
+
   function convertToMarkdown() {
     if (!content) {
       return '';
@@ -225,7 +232,7 @@
     isImproving = false;
   }
 
-  onMount(() => {
+  onMount(async () => {
     renderer.checkbox = function (data) {
       const isChecked = data.checked;
       const currentIndex = checkboxRenderIndex;
@@ -237,6 +244,21 @@
     marked.setOptions({renderer, gfm: true, breaks: false});
 
     rendered = convertToMarkdown();
+
+    // Fetch users for mention autocomplete
+    try {
+      const endpoint = `/api/${$organization}/${$repository}/metadata`;
+      console.log('[Markdown] Fetching users from:', endpoint);
+      const response = await fetch(endpoint, {
+        credentials: 'same-origin',
+      });
+      const data = await response.json();
+      const allAssignees = data.assignees || [];
+      users = allAssignees.filter(user => user != null);
+      console.log('[Markdown] Users fetched:', { total: allAssignees.length, valid: users.length, users: users.map(u => u.login) });
+    } catch (error) {
+      console.error('[Markdown] Failed to fetch users for mention autocomplete:', error);
+    }
   });
 
   $effect(() => {
@@ -258,8 +280,8 @@
   {#if canEdit}
     <header>
       <nav class="markdown-nav">
-        <button class="preview-button button-primary-outline" onclick={() => { isEditing = false; saveChange(); }}>Preview</button>
-        <button class="edit-button button-primary-outline" onclick={() => isEditing = true}>Edit</button>
+        <button class="preview-button button-primary-outline" onclick={() => { isEditing = false; saveChange(); console.log('[Markdown] Switched to preview'); }}>Preview</button>
+        <button class="edit-button button-primary-outline" onclick={toggleEditing}>Edit</button>
       </nav>
 
       {#if isEditing}
@@ -274,15 +296,18 @@
   {/if}
 
   {#if isEditing && canEdit}
-    <textarea
-      class="markdown-editor"
-      placeholder="Markdown content"
-      bind:value={content}
-      oninput={autoSize}
-      onpaste={handlePaste}
-      onkeydown={handleKeyDown}
-      bind:this={editor}
-    ></textarea>
+    <div style="position: relative;">
+      <textarea
+        class="markdown-editor"
+        placeholder="Markdown content"
+        bind:value={content}
+        oninput={autoSize}
+        onpaste={handlePaste}
+        onkeydown={handleKeyDown}
+        bind:this={editor}
+      ></textarea>
+      <MentionAutocomplete textarea={editor} {users} />
+    </div>
   {:else}
     <div class="markdown-body" onclick={handleCheckboxClick}>
       {#if content}
