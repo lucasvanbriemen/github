@@ -180,7 +180,6 @@
 
   function toggleEditing() {
     isEditing = !isEditing;
-    console.log('[Markdown] Editing mode:', isEditing);
   }
 
   function convertToMarkdown() {
