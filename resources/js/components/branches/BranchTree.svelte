@@ -3,26 +3,18 @@
 
   let { branches = [], onNodeClick = () => {} } = $props();
 
-  let branchesByDepth = $state([]);
+  let searchQuery = $state('');
+  let selectedBranchId = $state(null);
   let branchesMap = $state(new Map());
-  let expandedBranches = $state(new Set());
-  let renderError = $state(null);
-
-  const MAX_BRANCHES = 500; // Hard limit to prevent crashes
-
-  const CARD_WIDTH = 180;
-  const CARD_HEIGHT = 75;
-  const LANE_HEIGHT = 180;
-  const CARD_GAP = 16;
 
   function getCardColor(branch) {
-    if (branch.is_default) return '#1f6feb'; // Blue
-    if (!branch.pull_request) return '#6e7681'; // Gray
+    if (branch.is_default) return '#1f6feb';
+    if (!branch.pull_request) return '#6e7681';
     const state = branch.pull_request.state;
-    if (state === 'open') return '#3fb950'; // Green
-    if (state === 'merged') return '#a371f7'; // Purple
-    if (state === 'draft') return '#6e7681'; // Gray
-    if (state === 'closed') return '#da3633'; // Red
+    if (state === 'open') return '#3fb950';
+    if (state === 'merged') return '#a371f7';
+    if (state === 'draft') return '#6e7681';
+    if (state === 'closed') return '#da3633';
     return '#6e7681';
   }
 
@@ -37,445 +29,492 @@
     return '●';
   }
 
-  function calculateBranchDepth(branch, visited = new Set(), maxDepth = 100) {
-    // Prevent infinite recursion with circular references
-    if (visited.has(branch.id) || visited.size > maxDepth) {
-      console.warn('[BranchTree] Circular reference detected or max depth exceeded for branch:', branch.name);
-      return 0;
-    }
-
-    if (!branch.parent_id) return 0;
-
-    visited.add(branch.id);
-    const parent = branchesMap.get(branch.parent_id);
-    if (!parent) return 1;
-
-    return calculateBranchDepth(parent, visited, maxDepth) + 1;
+  // Get filtered search results
+  function getSearchResults() {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return branches
+      .filter(b => b && b.name && b.name.toLowerCase().includes(query))
+      .slice(0, 20); // Limit to 20 results
   }
 
-  function organizeBranchesByDepth() {
-    if (!branches || branches.length === 0) {
-      branchesByDepth = [];
-      renderError = null;
-      return;
+  // Get ancestors of a branch (path up to root)
+  function getAncestors(branchId) {
+    const ancestors = [];
+    let current = branchesMap.get(branchId);
+
+    while (current && !current.is_default) {
+      ancestors.unshift(current);
+      if (!current.parent_id) break;
+      current = branchesMap.get(current.parent_id);
     }
 
-    renderError = null;
-
-    try {
-      console.log('[BranchTree] Processing', branches.length, 'branches');
-
-      // Cap branches to prevent crashes
-      let branchesToProcess = branches;
-      if (branches.length > MAX_BRANCHES) {
-        console.warn('[BranchTree] Capping branches from', branches.length, 'to', MAX_BRANCHES);
-        branchesToProcess = branches.slice(0, MAX_BRANCHES);
-      }
-
-      // Create map of branches by ID with safety checks
-      branchesMap = new Map();
-      const validBranches = [];
-
-      for (let i = 0; i < branchesToProcess.length; i++) {
-        const b = branchesToProcess[i];
-        if (b && typeof b === 'object' && b.id) {
-          branchesMap.set(b.id, b);
-          validBranches.push(b);
-        }
-      }
-
-      console.log('[BranchTree] Valid branches:', validBranches.length);
-
-      if (validBranches.length === 0) {
-        branchesByDepth = [];
-        return;
-      }
-
-      // Calculate depth for each branch with error handling
-      const branchesWithDepth = [];
-      for (let i = 0; i < validBranches.length; i++) {
-        const b = validBranches[i];
-        try {
-          branchesWithDepth.push({
-            ...b,
-            depth: calculateBranchDepth(b)
-          });
-        } catch (err) {
-          console.warn('[BranchTree] Error calculating depth for branch:', b.name, err);
-          branchesWithDepth.push({ ...b, depth: 0 });
-        }
-      }
-
-      // Group by depth
-      const maxDepth = Math.max(...branchesWithDepth.map(b => b.depth), 0);
-
-      if (maxDepth > 100) {
-        console.warn('[BranchTree] Unusual depth detected:', maxDepth);
-      }
-
-      const grouped = Array.from({ length: Math.min(maxDepth + 1, 100) }, () => []);
-
-      for (let i = 0; i < branchesWithDepth.length; i++) {
-        const branch = branchesWithDepth[i];
-        const depth = Math.min(branch.depth, grouped.length - 1);
-        grouped[depth].push(branch);
-      }
-
-      // Sort each group by name
-      for (let i = 0; i < grouped.length; i++) {
-        const group = grouped[i];
-        try {
-          group.sort((a, b) => {
-            const nameA = (a && a.name) || '';
-            const nameB = (b && b.name) || '';
-            return nameA.localeCompare(nameB);
-          });
-        } catch (err) {
-          console.warn('[BranchTree] Error sorting group', i, ':', err);
-        }
-      }
-
-      branchesByDepth = grouped;
-      console.log('[BranchTree] Organized branches by depth:', grouped.map(g => g.length).join(', '));
-    } catch (err) {
-      console.error('[BranchTree] Fatal error organizing branches:', err);
-      renderError = 'Failed to organize branches. Please refresh the page.';
-      branchesByDepth = [];
+    // Add the root/default branch at the end
+    const root = Array.from(branchesMap.values()).find(b => b.is_default);
+    if (root) {
+      ancestors.push(root);
     }
+
+    return ancestors;
   }
 
-  function toggleExpand(branchId) {
-    if (expandedBranches.has(branchId)) {
-      expandedBranches.delete(branchId);
-    } else {
-      expandedBranches.add(branchId);
+  // Get all descendants of a branch
+  function getDescendants(branchId, visited = new Set()) {
+    if (visited.has(branchId)) return [];
+    visited.add(branchId);
+
+    const children = branches.filter(b => b && b.parent_id === branchId);
+    const allDescendants = [...children];
+
+    for (const child of children) {
+      allDescendants.push(...getDescendants(child.id, visited));
     }
-    expandedBranches = expandedBranches;
+
+    return allDescendants;
   }
 
-  function getChildBranches(parentId) {
-    try {
-      return branches
-        .filter(b => b && typeof b === 'object' && b.parent_id === parentId)
-        .slice(0, 100); // Limit to prevent rendering too many children
-    } catch (err) {
-      console.warn('[BranchTree] Error getting child branches:', err);
-      return [];
-    }
+  // Get the branch hierarchy for selected branch
+  function getSelectedBranchHierarchy() {
+    if (!selectedBranchId) return null;
+
+    const selected = branchesMap.get(selectedBranchId);
+    if (!selected) return null;
+
+    return {
+      ancestors: getAncestors(selectedBranchId),
+      selected: selected,
+      descendants: getDescendants(selectedBranchId)
+    };
+  }
+
+  function handleSelectBranch(branchId) {
+    selectedBranchId = branchId;
+    searchQuery = '';
   }
 
   function handleCardClick(branch) {
-    try {
-      if (branch && branch.pull_request) {
-        onNodeClick(branch);
-      }
-    } catch (err) {
-      console.error('[BranchTree] Error handling card click:', err);
+    if (branch && branch.pull_request) {
+      onNodeClick(branch);
     }
   }
 
   onMount(() => {
     try {
-      console.log('[BranchTree] Component mounted with', branches?.length, 'branches');
-      organizeBranchesByDepth();
+      if (branches && Array.isArray(branches)) {
+        branchesMap = new Map(branches.map(b => [b.id, b]));
+        console.log('[BranchTree] Initialized with', branches.length, 'branches');
+      }
     } catch (err) {
-      console.error('[BranchTree] Error in onMount:', err);
+      console.error('[BranchTree] Error initializing:', err);
     }
   });
 
   $effect(() => {
-    try {
-      if (branches && branches.length > 0) {
-        console.log('[BranchTree] Branches changed, reorganizing');
-        organizeBranchesByDepth();
-      }
-    } catch (err) {
-      console.error('[BranchTree] Error in effect:', err);
+    if (branches && Array.isArray(branches)) {
+      branchesMap = new Map(branches.map(b => [b.id, b]));
     }
   });
+
+  const searchResults = $derived(getSearchResults());
+  const hierarchy = $derived(getSelectedBranchHierarchy());
 </script>
 
-<div class="swimlane-container">
-  {#if renderError}
-    <div class="render-error">
-      <p>⚠️ {renderError}</p>
-      <p style="font-size: 12px; color: #57606a;">
-        Showing branches capped at {MAX_BRANCHES} to prevent performance issues.
-        Try using search or filters to narrow down results.
-      </p>
+<div class="branch-view">
+  <!-- Search Section -->
+  <div class="search-section">
+    <input
+      type="text"
+      placeholder="Search branches..."
+      bind:value={searchQuery}
+      class="search-input"
+    />
+    {#if searchQuery && searchResults.length === 0}
+      <div class="no-results">No branches found</div>
+    {/if}
+  </div>
+
+  <!-- Search Results List -->
+  {#if searchQuery && searchResults.length > 0}
+    <div class="results-list">
+      {#each searchResults as branch (branch.id)}
+        <button
+          class="result-item"
+          on:click={() => handleSelectBranch(branch.id)}
+          style="border-left-color: {getCardColor(branch)}"
+        >
+          <span class="result-name">{branch.name}</span>
+          <span class="result-state" style="color: {getCardColor(branch)}">
+            {getStateLabel(branch)}
+          </span>
+        </button>
+      {/each}
     </div>
   {/if}
 
-  {#if branchesByDepth.length === 0 && !renderError}
-    <div class="empty-state">
-      <p>No branches to display</p>
-    </div>
-  {/if}
-
-  {#each branchesByDepth as lane, depthIndex (depthIndex)}
-    <div class="swimlane" style="--depth: {depthIndex}">
-      <div class="swimlane-header">
-        <span class="depth-label">Level {depthIndex}</span>
-        <span class="count-badge">{lane.length} branch{lane.length !== 1 ? 'es' : ''}</span>
-      </div>
-
-      <div class="swimlane-content">
-        {#each lane as branch (branch.id)}
-          <div class="branch-card-wrapper">
+  <!-- Branch Hierarchy View -->
+  {#if hierarchy}
+    <div class="hierarchy-view">
+      <!-- Ancestors (path to root) -->
+      <div class="path-section">
+        <div class="path-label">Path to Root</div>
+        {#each hierarchy.ancestors as ancestor, idx (ancestor.id)}
+          <div class="path-item" style="--level: {idx}">
+            <div class="path-connector"></div>
             <div
-              class="branch-card"
-              style="border-color: {getCardColor(branch)}"
-              on:click={() => handleCardClick(branch)}
-              role="button"
-              tabindex="0"
+              class="path-card"
+              style="border-color: {getCardColor(ancestor)}"
             >
-              <div class="card-header">
-                <span class="branch-name" title={branch.name}>
-                  {branch.name.length > 20 ? branch.name.substring(0, 17) + '...' : branch.name}
-                </span>
-                {#if getChildBranches(branch.id).length > 0}
-                  <button
-                    class="expand-btn"
-                    on:click={(e) => {
-                      e.stopPropagation();
-                      toggleExpand(branch.id);
-                    }}
-                    title={expandedBranches.has(branch.id) ? 'Collapse' : 'Expand'}
-                  >
-                    {expandedBranches.has(branch.id) ? '▼' : '▶'}
-                  </button>
-                {/if}
-              </div>
-
-              <div class="card-info">
-                {#if branch.is_default}
-                  <span class="info-label">(default)</span>
-                {:else if !branch.pull_request}
-                  <span class="info-label">(no PR)</span>
-                {:else}
-                  <span class="info-label">#{branch.pull_request.number}</span>
-                {/if}
-              </div>
-
-              <div class="card-state" style="color: {getCardColor(branch)}">
-                {getStateLabel(branch)}
+              <div class="card-name">{ancestor.name}</div>
+              <div class="card-state" style="color: {getCardColor(ancestor)}">
+                {getStateLabel(ancestor)}
               </div>
             </div>
-
-            {#if expandedBranches.has(branch.id) && getChildBranches(branch.id).length > 0}
-              <div class="children-preview">
-                {#each getChildBranches(branch.id) as child (child.id)}
-                  <div class="child-item">
-                    <span class="child-name">{child.name}</span>
-                    <span class="child-state" style="color: {getCardColor(child)}">
-                      {getStateLabel(child)}
-                    </span>
-                  </div>
-                {/each}
-              </div>
-            {/if}
           </div>
         {/each}
       </div>
+
+      <!-- Selected Branch -->
+      <div class="selected-section">
+        <div class="selected-card" style="border-color: {getCardColor(hierarchy.selected)}">
+          <div class="selected-name">{hierarchy.selected.name}</div>
+          <div class="selected-state" style="color: {getCardColor(hierarchy.selected)}">
+            {getStateLabel(hierarchy.selected)}
+          </div>
+          <div class="pr-info">
+            {#if hierarchy.selected.is_default}
+              <span>(default branch)</span>
+            {:else if !hierarchy.selected.pull_request}
+              <span>(no PR)</span>
+            {:else}
+              <span>#{hierarchy.selected.pull_request.number}</span>
+            {/if}
+          </div>
+          {#if hierarchy.selected.pull_request && hierarchy.selected.pull_request.state !== 'closed'}
+            <button
+              class="view-pr-btn"
+              on:click={() => handleCardClick(hierarchy.selected)}
+            >
+              View PR
+            </button>
+          {/if}
+        </div>
+      </div>
+
+      <!-- Descendants (children) -->
+      {#if hierarchy.descendants.length > 0}
+        <div class="children-section">
+          <div class="children-label">
+            Child Branches ({hierarchy.descendants.length})
+          </div>
+          <div class="children-list">
+            {#each hierarchy.descendants as child (child.id)}
+              <div
+                class="child-card"
+                style="border-left-color: {getCardColor(child)}"
+                on:click={() => handleSelectBranch(child.id)}
+                role="button"
+                tabindex="0"
+              >
+                <div class="child-name">{child.name}</div>
+                <div class="child-state" style="color: {getCardColor(child)}">
+                  {getStateLabel(child)}
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      <button class="close-btn" on:click={() => (selectedBranchId = null)}>
+        ← Back to Search
+      </button>
     </div>
-  {/each}
+  {/if}
+
+  <!-- Empty State -->
+  {#if !searchQuery && !hierarchy}
+    <div class="empty-state">
+      <p>Search for a branch to get started</p>
+      <p style="font-size: 12px; color: #57606a;">
+        Use the search box above to find a branch and view its hierarchy
+      </p>
+    </div>
+  {/if}
 </div>
 
 <style>
-  :global(.swimlane-container) {
+  :global(.branch-view) {
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: #f6f8fa;
     display: flex;
     flex-direction: column;
-    gap: 0;
-  }
-
-  :global(.render-error) {
-    padding: 16px 20px;
-    background-color: #fff8c5;
-    border-left: 4px solid #d29922;
-    color: #6f42c1;
-  }
-
-  :global(.render-error p) {
-    margin: 8px 0;
-  }
-
-  :global(.render-error p:first-child) {
-    margin-top: 0;
-  }
-
-  :global(.empty-state) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    color: #57606a;
-    font-size: 14px;
-  }
-
-  :global(.swimlane) {
-    min-height: 220px;
-    border-bottom: 2px solid #e1e4e8;
     background-color: #ffffff;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
   }
 
-  :global(.swimlane-header) {
+  :global(.search-section) {
     padding: 16px 20px;
-    background-color: #f6f8fa;
     border-bottom: 1px solid #e1e4e8;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 600;
+    background-color: #f6f8fa;
+    flex-shrink: 0;
+  }
+
+  :global(.search-input) {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+      sans-serif;
+  }
+
+  :global(.search-input:focus) {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+  }
+
+  :global(.no-results) {
+    margin-top: 12px;
+    padding: 12px;
+    text-align: center;
     font-size: 13px;
-    color: #24292f;
-  }
-
-  :global(.depth-label) {
-    display: flex;
-    align-items: center;
-  }
-
-  :global(.count-badge) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 20px;
-    padding: 0 6px;
-    background-color: #eaeef2;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 500;
     color: #57606a;
   }
 
-  :global(.swimlane-content) {
+  :global(.results-list) {
     flex: 1;
-    padding: 16px 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-content: flex-start;
+    overflow-y: auto;
+    border-bottom: 1px solid #e1e4e8;
   }
 
-  :global(.branch-card-wrapper) {
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global(.branch-card) {
-    width: 180px;
-    padding: 12px;
-    background-color: #ffffff;
-    border: 2px solid #d1d5da;
-    border-radius: 8px;
+  :global(.result-item) {
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    border-left: 3px solid #d1d5da;
+    background: none;
+    text-align: left;
     cursor: pointer;
-    transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  :global(.branch-card:hover) {
-    filter: brightness(0.98);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
-  }
-
-  :global(.card-header) {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 4px;
+    align-items: center;
+    font-size: 13px;
+    transition: background-color 0.2s;
   }
 
-  :global(.branch-name) {
+  :global(.result-item:hover) {
+    background-color: #f6f8fa;
+  }
+
+  :global(.result-name) {
     flex: 1;
-    font-size: 12px;
-    font-weight: 600;
     color: #24292f;
-    white-space: nowrap;
+    font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  :global(.expand-btn) {
-    padding: 2px 4px;
-    background: none;
-    border: none;
-    color: #57606a;
-    cursor: pointer;
-    font-size: 10px;
+  :global(.result-state) {
     flex-shrink: 0;
+    margin-left: 8px;
+    font-weight: 600;
+    font-size: 11px;
   }
 
-  :global(.expand-btn:hover) {
-    color: #24292f;
+  :global(.hierarchy-view) {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
 
-  :global(.card-info) {
-    font-size: 9px;
+  :global(.path-section) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  :global(.path-label) {
+    font-size: 12px;
+    font-weight: 600;
     color: #57606a;
-    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  :global(.info-label) {
-    display: inline-block;
-    padding: 2px 6px;
+  :global(.path-item) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    margin-left: calc(var(--level) * 16px);
+  }
+
+  :global(.path-connector) {
+    width: 2px;
+    height: 20px;
+    background-color: #d1d5da;
+    margin-left: 4px;
+  }
+
+  :global(.path-item:first-child .path-connector) {
+    display: none;
+  }
+
+  :global(.path-card) {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #d1d5da;
+    border-radius: 6px;
+    font-size: 12px;
     background-color: #f6f8fa;
-    border-radius: 3px;
-    font-family: monospace;
+  }
+
+  :global(.card-name) {
+    font-weight: 600;
+    color: #24292f;
   }
 
   :global(.card-state) {
     font-size: 10px;
     font-weight: 600;
-    text-align: center;
-    font-family: monospace;
   }
 
-  :global(.children-preview) {
-    margin-top: 8px;
-    padding: 8px;
-    background-color: #f6f8fa;
+  :global(.selected-section) {
+    display: flex;
+    justify-content: center;
+  }
+
+  :global(.selected-card) {
+    width: 220px;
+    padding: 16px;
+    border: 3px solid #0969da;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  :global(.selected-name) {
+    font-size: 14px;
+    font-weight: 700;
+    color: #24292f;
+    margin-bottom: 8px;
+  }
+
+  :global(.selected-state) {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  :global(.pr-info) {
+    font-size: 11px;
+    color: #57606a;
+    margin-bottom: 12px;
+  }
+
+  :global(.view-pr-btn) {
+    width: 100%;
+    padding: 6px 12px;
+    background-color: #0969da;
+    color: #ffffff;
+    border: none;
     border-radius: 6px;
-    border-left: 3px solid #a371f7;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  :global(.view-pr-btn:hover) {
+    background-color: #0860ca;
+  }
+
+  :global(.children-section) {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
   }
 
-  :global(.child-item) {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 9px;
-    padding: 4px 0;
-    border-bottom: 1px solid #e1e4e8;
+  :global(.children-label) {
+    font-size: 12px;
+    font-weight: 600;
+    color: #57606a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  :global(.child-item:last-child) {
-    border-bottom: none;
+  :global(.children-list) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  :global(.child-card) {
+    padding: 12px;
+    border-left: 3px solid #d1d5da;
+    border-radius: 6px;
+    background-color: #f6f8fa;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  :global(.child-card:hover) {
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   :global(.child-name) {
-    color: #57606a;
-    font-weight: 500;
-    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    color: #24292f;
+    margin-bottom: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   :global(.child-state) {
-    flex-shrink: 0;
-    margin-left: 4px;
+    font-size: 10px;
     font-weight: 600;
+  }
+
+  :global(.close-btn) {
+    align-self: flex-start;
+    padding: 8px 12px;
+    background-color: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  :global(.close-btn:hover) {
+    background-color: #e5e7eb;
+  }
+
+  :global(.empty-state) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #57606a;
+  }
+
+  :global(.empty-state p) {
+    margin: 8px 0;
+  }
+
+  :global(.empty-state p:first-child) {
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 500;
   }
 </style>
