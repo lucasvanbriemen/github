@@ -8,6 +8,7 @@ $routes = collect(Route::getRoutes())->map(function ($route) {
 })->values();
 
 $userID = \App\GithubConfig::USERID;
+$username = \App\GithubConfig::USERNAME;
 $orgRules = \App\GithubConfig::ORG_RULES;
 
 @endphp
@@ -24,6 +25,7 @@ $orgRules = \App\GithubConfig::ORG_RULES;
     <script>
         const API_ROUTES = @json($routes);
         window.USER_ID = "{{ $userID }}";
+        window.CURRENT_USER_LOGIN = "{{ $username }}";
         window.ORG_RULES = @json($orgRules);
 
         function route(name, params = {}) {

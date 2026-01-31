@@ -11,6 +11,7 @@
   let editor = $state(null);
   let isImproving = $state(false);
   let users = $state([]);
+  let userLoginMap = $state({});
 
   const shortcutMap = {
     heading: {
@@ -178,13 +179,36 @@
     }
   }
 
+  function processMentions(html) {
+    if (!html) return html;
+
+    // Replace @login mentions with @display_name and highlight current user mentions
+    let processed = html;
+
+    // Match @username mentions in the HTML
+    // We need to be careful to only match mentions, not other @ symbols
+    processed = processed.replace(/@([a-zA-Z0-9_-]+)/g, (match, login) => {
+      const displayName = userLoginMap[login] || login;
+      const isCurrent = window.CURRENT_USER_LOGIN === login;
+
+      if (isCurrent) {
+        return `<span class="mention-highlight">@${displayName}</span>`;
+      } else {
+        return `<span class="mention-user">@${displayName}</span>`;
+      }
+    });
+
+    return processed;
+  }
+
   function convertToMarkdown() {
     if (!content) {
       return '';
     }
 
     checkboxRenderIndex = 0;
-    return marked.parse(content);
+    const html = marked.parse(content);
+    return processMentions(html);
   }
 
   function insertShortcut(type) {
@@ -238,10 +262,18 @@
 
     marked.setOptions({renderer, gfm: true, breaks: false});
 
-    rendered = convertToMarkdown();
-
     const response = await api.get(route('organizations.repositories.metadata', { organization: $organization, repository: $repository }));
     users = response.assignees.filter(user => user != null);
+
+    // Build a map of login -> display_name for quick lookup
+    userLoginMap = {};
+    users.forEach(user => {
+      if (user.login && user.display_name) {
+        userLoginMap[user.login] = user.display_name;
+      }
+    });
+
+    rendered = convertToMarkdown();
   });
 
   $effect(() => {
