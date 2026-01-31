@@ -5,12 +5,13 @@ namespace App\Services;
 use App\Models\Branch;
 use App\Models\Repository;
 use App\Models\Item;
+use App\GithubConfig;
 
 class BranchTreeService
 {
     /**
-     * Build a tree structure of branches with parent-child relationships
-     * Optimized to avoid N+1 queries and timeout issues
+     * Build a nested tree structure of all branches with parent-child relationships
+     * Returns all branches in the repository organized hierarchically
      */
     public function buildTree(int $repositoryId): array
     {
@@ -25,9 +26,8 @@ class BranchTreeService
             ->select('branches.id', 'branches.name', 'branches.created_at')
             ->with([
                 'commits' => function ($query) {
-                    $query->select('sha', 'branch_id', 'created_at')
-                        ->orderBy('created_at', 'desc')
-                        ->limit(1);
+                    $query->select('sha', 'branch_id', 'created_at', 'user_id')
+                        ->orderBy('created_at', 'desc');
                 }
             ])
             ->get();
@@ -62,7 +62,7 @@ class BranchTreeService
                 'name' => $branch->name,
                 'parent_id' => null,
                 'is_default' => $isDefault,
-                'latest_commit' => $branch->commits->first(),
+                'commits' => $branch->commits,
                 'pull_request' => $prsByBranch[$branch->name] ?? null,
             ];
         }
@@ -94,21 +94,71 @@ class BranchTreeService
             }
         }
 
-        // Clean up temporary data
-        foreach ($branchData as &$data) {
-            if ($data['latest_commit']) {
-                $data['last_commit_sha'] = $data['latest_commit']->sha;
-                $data['last_commit_date'] = $data['latest_commit']->created_at?->toIso8601String();
-            }
-            unset($data['latest_commit']);
+        // Build nested tree structure with all branches (no filtering)
+        $treeStructure = $this->buildNestedTreeStructure($branchData);
+
+        // Debug: log total branches
+        error_log('[BranchTreeService] Result - Total branches: ' . count($branchData));
+
+        return $treeStructure;
+    }
+
+/**
+     * Build nested tree structure with children arrays
+     */
+    private function buildNestedTreeStructure(array $branchData): array
+    {
+        // Clean all branch data and add children array
+        $cleanedBranches = [];
+        $branchesById = [];
+
+        foreach ($branchData as $data) {
+            $cleaned = $this->cleanBranchData($data);
+            $cleaned['children'] = [];
+            $cleanedBranches[] = $cleaned;
+            $branchesById[$cleaned['id']] = &$cleanedBranches[count($cleanedBranches) - 1];
         }
 
-        // Debug: count default branches in result
-        $defaultCount = count(array_filter($branchData, fn($b) => $b['is_default']));
-        $nullParentCount = count(array_filter($branchData, fn($b) => $b['parent_id'] === null));
-        error_log('[BranchTreeService] Result stats - Default branches: ' . $defaultCount . ', Null parent: ' . $nullParentCount);
+        // Build parent-child relationships
+        $roots = [];
+        foreach ($cleanedBranches as &$branch) {
+            if ($branch['parent_id'] && isset($branchesById[$branch['parent_id']])) {
+                // Add this branch as a child of its parent
+                $branchesById[$branch['parent_id']]['children'][] = &$branch;
+            } else {
+                // This is a root branch
+                $roots[] = &$branch;
+            }
+        }
 
-        return $branchData;
+        return $roots;
+    }
+
+    /**
+     * Clean up branch data for response
+     */
+    private function cleanBranchData(array $data): array
+    {
+        // Extract last commit info if exists
+        $latestCommit = null;
+        if (!empty($data['commits'])) {
+            $latestCommit = $data['commits']->first();
+        }
+
+        $cleaned = [
+            'id' => $data['id'],
+            'name' => $data['name'],
+            'parent_id' => $data['parent_id'],
+            'is_default' => $data['is_default'],
+            'pull_request' => $data['pull_request'],
+        ];
+
+        if ($latestCommit) {
+            $cleaned['last_commit_sha'] = $latestCommit->sha;
+            $cleaned['last_commit_date'] = $latestCommit->created_at?->toIso8601String();
+        }
+
+        return $cleaned;
     }
 
     /**
