@@ -11,8 +11,10 @@
   let svgWidth = $state(800);
   let svgHeight = $state(600);
 
-  const CARD_WIDTH = 200;
-  const CARD_HEIGHT = 80;
+  const CARD_WIDTH = 160;
+  const CARD_HEIGHT = 70;
+  const CARD_SPACING_HORIZONTAL = 280; // Space between cards at same level
+  const CARD_SPACING_VERTICAL = 120; // Space between parent and child
 
   function getCardColor(node) {
     if (node.is_default) return '#1f6feb'; // Blue for default
@@ -77,24 +79,38 @@
       containerWidth = containerElement.clientWidth;
     }
 
-    // Much larger height for vertical spacing, much larger width for horizontal spread
-    const estimatedHeight = Math.max(800, branches.length * 150);
+    // Calculate dimensions based on tree structure
+    const root = hierarchy(hierarchyData);
+    const treeDepth = root.height + 1; // Depth of the tree
+    const treeWidth = root.descendants().filter(d => !d.children || d.children.length === 0).length; // Count leaf nodes
+
+    // Width: ensure enough space for all siblings at widest level
+    const calculatedWidth = Math.max(
+      containerWidth - 120,
+      treeWidth * CARD_SPACING_HORIZONTAL + 200
+    );
+
+    // Height: much more compact - only space for depth
+    const estimatedHeight = Math.max(600, treeDepth * CARD_SPACING_VERTICAL + 200);
     svgHeight = estimatedHeight;
 
-    const margin = { top: 60, right: 60, bottom: 60, left: 60 };
-    // Make width much larger relative to height for horizontal spread
-    const width = Math.max(containerWidth - margin.left - margin.right, 2000);
+    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
+    const width = calculatedWidth - margin.left - margin.right;
     const height = estimatedHeight - margin.top - margin.bottom;
 
-    console.log('[BranchTree] Dimensions:', { width, height });
+    console.log('[BranchTree] Dimensions:', {
+      width,
+      height,
+      treeDepth,
+      treeWidth,
+      estimatedHeight
+    });
 
-    const root = hierarchy(hierarchyData);
-    // Use much larger width for horizontal spread, smaller height for vertical compression
-    const treeLayout = tree().size([width, height * 0.6]);
+    // Apply layout with proper spacing
+    const treeLayout = tree().size([width, height]);
     treeLayout(root);
 
     select(svgElement).selectAll('*').remove();
-    svgWidth = containerWidth;
 
     const svg = select(svgElement)
       .attr('width', width + margin.left + margin.right)
@@ -106,7 +122,7 @@
     // Draw links with curve
     const linkGenerator = linkVertical()
       .x(d => d.x)
-      .y(d => d.y * (height / (height * 0.6)));
+      .y(d => d.y);
 
     g.selectAll('.link')
       .data(root.links())
@@ -127,10 +143,7 @@
       .enter()
       .append('g')
       .attr('class', 'branch-node')
-      .attr('transform', d => {
-        const yAdjusted = d.y * (height / (height * 0.6));
-        return `translate(${d.x - CARD_WIDTH / 2},${yAdjusted - CARD_HEIGHT / 2})`;
-      });
+      .attr('transform', d => `translate(${d.x - CARD_WIDTH / 2},${d.y - CARD_HEIGHT / 2})`);
 
     // Draw card background
     nodes.append('rect')
@@ -148,8 +161,8 @@
     nodes.append('text')
       .attr('class', 'card-title')
       .attr('x', CARD_WIDTH / 2)
-      .attr('y', 20)
-      .style('font-size', '13px')
+      .attr('y', 16)
+      .style('font-size', '11px')
       .style('font-weight', 'bold')
       .style('fill', '#24292f')
       .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
@@ -159,15 +172,15 @@
       .text(d => {
         // Truncate long branch names
         const name = d.data.name;
-        return name.length > 20 ? name.substring(0, 17) + '...' : name;
+        return name.length > 16 ? name.substring(0, 13) + '...' : name;
       });
 
     // Draw PR info or status
     nodes.append('text')
       .attr('class', 'card-info')
       .attr('x', CARD_WIDTH / 2)
-      .attr('y', 45)
-      .style('font-size', '11px')
+      .attr('y', 35)
+      .style('font-size', '9px')
       .style('fill', '#57606a')
       .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
       .style('pointer-events', 'none')
@@ -183,8 +196,8 @@
     nodes.append('text')
       .attr('class', 'card-state')
       .attr('x', CARD_WIDTH / 2)
-      .attr('y', 65)
-      .style('font-size', '10px')
+      .attr('y', 52)
+      .style('font-size', '9px')
       .style('fill', d => getCardColor(d.data))
       .style('font-weight', 'bold')
       .style('font-family', 'monospace')
