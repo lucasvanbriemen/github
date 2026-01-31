@@ -7,7 +7,9 @@
   let { branches = [], onNodeClick = () => {} } = $props();
 
   let svgElement = $state(null);
-  let dimensions = $state({ width: 800, height: 600 });
+  let containerElement = $state(null);
+  let svgWidth = $state(800);
+  let svgHeight = $state(600);
 
   function buildHierarchy(flatBranches) {
     if (!flatBranches || flatBranches.length === 0) {
@@ -19,9 +21,6 @@
     if (!rootBranch) {
       return null;
     }
-
-    // Create a map for quick lookup
-    const branchMap = new Map(flatBranches.map(b => [b.id, b]));
 
     // Build children recursively
     function addChildren(branch) {
@@ -45,13 +44,19 @@
       return;
     }
 
-    // Calculate dimensions based on branch count
-    const estimatedHeight = Math.max(600, branches.length * 100);
-    dimensions.height = estimatedHeight;
+    // Get width from container if available
+    let containerWidth = svgWidth;
+    if (containerElement?.clientWidth) {
+      containerWidth = containerElement.clientWidth;
+    }
 
-    const margin = { top: 40, right: 20, bottom: 40, left: 20 };
-    const width = dimensions.width - margin.left - margin.right;
-    const height = dimensions.height - margin.top - margin.bottom;
+    // Calculate height based on branch count
+    const estimatedHeight = Math.max(600, branches.length * 120);
+    svgHeight = estimatedHeight;
+
+    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
+    const width = containerWidth - margin.left - margin.right;
+    const height = estimatedHeight - margin.top - margin.bottom;
 
     // Create D3 hierarchy
     const root = hierarchy(hierarchyData);
@@ -61,10 +66,12 @@
     // Clear previous content
     select(svgElement).selectAll('*').remove();
 
+    // Set SVG dimensions
+    svgWidth = containerWidth;
+
     const svg = select(svgElement)
-      .attr('width', dimensions.width)
-      .attr('height', dimensions.height)
-      .attr('viewBox', [0, 0, dimensions.width, dimensions.height]);
+      .attr('width', containerWidth)
+      .attr('height', estimatedHeight);
 
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -95,25 +102,19 @@
     // Add circles for nodes
     nodes.append('circle')
       .attr('r', 6)
-      .attr('class', d => {
-        if (d.data.is_default) return 'node-default';
-        if (!d.data.pull_request) return 'node-no-pr';
-        if (d.data.pull_request.state === 'open') return 'node-open';
-        if (d.data.pull_request.state === 'merged') return 'node-merged';
-        if (d.data.pull_request.state === 'draft') return 'node-draft';
-        if (d.data.pull_request.state === 'closed') return 'node-closed';
-        return 'node-default';
-      })
       .attr('fill', d => {
         if (d.data.is_default) return '#1f6feb';
         if (!d.data.pull_request) return '#6e7681';
-        if (d.data.pull_request.state === 'open') return '#3fb950';
-        if (d.data.pull_request.state === 'merged') return '#a371f7';
-        if (d.data.pull_request.state === 'draft') return '#6e7681';
-        if (d.data.pull_request.state === 'closed') return '#da3633';
+        const state = d.data.pull_request.state;
+        if (state === 'open') return '#3fb950';
+        if (state === 'merged') return '#a371f7';
+        if (state === 'draft') return '#6e7681';
+        if (state === 'closed') return '#da3633';
         return '#6e7681';
       })
       .style('cursor', d => d.data.pull_request ? 'pointer' : 'default')
+      .style('stroke', '#ffffff')
+      .style('stroke-width', 2)
       .on('click', (event, d) => {
         if (d.data.pull_request) {
           onNodeClick(d.data);
@@ -122,31 +123,40 @@
 
     // Add branch name labels
     nodes.append('text')
-      .attr('class', 'branch-label')
       .attr('x', 12)
       .attr('y', 0)
       .attr('dy', '0.31em')
-      .attr('font-size', '12px')
-      .attr('fill', '#24292f')
+      .style('font-size', '12px')
+      .style('fill', '#24292f')
+      .style('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif')
+      .style('pointer-events', 'none')
       .text(d => d.data.name);
 
     // Add PR badge if exists
     nodes.filter(d => d.data.pull_request)
       .append('text')
-      .attr('class', 'pr-badge')
       .attr('x', 12)
       .attr('y', 16)
-      .attr('font-size', '10px')
-      .attr('fill', '#57606a')
+      .style('font-size', '10px')
+      .style('fill', '#57606a')
+      .style('font-family', 'monospace')
+      .style('pointer-events', 'none')
       .text(d => `#${d.data.pull_request.number}`);
   }
 
   onMount(() => {
+    // Set initial width from container
+    if (containerElement?.clientWidth) {
+      svgWidth = containerElement.clientWidth;
+    }
+
     renderTree();
 
     // Re-render on window resize
     const handleResize = () => {
-      dimensions.width = svgElement?.parentElement?.clientWidth || 800;
+      if (containerElement?.clientWidth) {
+        svgWidth = containerElement.clientWidth;
+      }
       renderTree();
     };
 
@@ -154,15 +164,16 @@
     return () => window.removeEventListener('resize', handleResize);
   });
 
+  // Re-render when branches change
   $effect(() => {
-    if (branches && svgElement) {
+    if (branches.length > 0) {
       renderTree();
     }
   });
 </script>
 
-<div class="branch-tree-wrapper">
-  <svg bind:this={svgElement} class="branch-tree-container"></svg>
+<div class="branch-tree-wrapper" bind:this={containerElement}>
+  <svg bind:this={svgElement} class="branch-tree-container" width={svgWidth} height={svgHeight}></svg>
 </div>
 
 <style>
@@ -171,63 +182,14 @@
     height: 100%;
     overflow: auto;
     background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
   }
 
   :global(.branch-tree-container) {
     display: block;
-    margin: 0 auto;
-  }
-
-  :global(.branch-link) {
-    fill: none;
-    stroke: #d1d5da;
-    stroke-width: 2;
-  }
-
-  :global(.branch-node circle) {
-    stroke: #ffffff;
-    stroke-width: 2;
-  }
-
-  :global(.branch-node circle:hover) {
-    filter: brightness(1.1);
-  }
-
-  :global(.node-default) {
-    fill: #1f6feb;
-  }
-
-  :global(.node-open) {
-    fill: #3fb950;
-  }
-
-  :global(.node-merged) {
-    fill: #a371f7;
-  }
-
-  :global(.node-draft) {
-    fill: #6e7681;
-  }
-
-  :global(.node-closed) {
-    fill: #da3633;
-  }
-
-  :global(.node-no-pr) {
-    fill: #6e7681;
-  }
-
-  :global(.branch-label) {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    fill: #24292f;
-    pointer-events: none;
-  }
-
-  :global(.pr-badge) {
-    font-family: monospace;
-    font-size: 10px;
-    fill: #57606a;
-    pointer-events: none;
+    width: 100%;
+    height: auto;
+    min-height: 600px;
   }
 </style>
