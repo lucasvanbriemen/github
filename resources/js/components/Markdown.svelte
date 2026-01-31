@@ -240,17 +240,8 @@
 
     rendered = convertToMarkdown();
 
-    // Fetch users for mention autocomplete
-    try {
-      const endpoint = `/api/${$organization}/${$repository}/metadata`;
-      const response = await fetch(endpoint, {
-        credentials: 'same-origin',
-      });
-      const data = await response.json();
-      const allAssignees = data.assignees || [];
-      users = allAssignees.filter(user => user != null);
-    } catch (error) {
-    }
+    const response = await api.get(route('organizations.repositories.metadata', { organization: $organization, repository: $repository }));
+    users = response.assignees.filter(user => user != null);
   });
 
   $effect(() => {
