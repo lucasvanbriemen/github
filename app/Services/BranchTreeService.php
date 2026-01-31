@@ -67,8 +67,14 @@ class BranchTreeService
             ];
         }
 
-        // Determine parent relationships based on PR data first (most reliable)
+        // Determine parent relationships based on PR data
         foreach ($branchData as &$data) {
+            // Default branch should NEVER have a parent
+            if ($data['is_default']) {
+                $data['parent_id'] = null;
+                continue;
+            }
+
             // If branch has a PR, the base_branch of that PR is the parent
             if ($data['pull_request']) {
                 $baseBranch = $data['pull_request']['base_branch'] ?? null;
@@ -77,9 +83,8 @@ class BranchTreeService
                 }
             }
 
-            // If still no parent and not default, default to master/main
-            if (!$data['parent_id'] && !$data['is_default']) {
-                // Find the default branch and use it as parent
+            // If still no parent, default to the main/master branch
+            if (!$data['parent_id']) {
                 foreach ($branchData as $potentialParent) {
                     if ($potentialParent['is_default']) {
                         $data['parent_id'] = $potentialParent['id'];
