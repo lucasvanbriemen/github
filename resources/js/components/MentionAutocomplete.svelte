@@ -163,25 +163,15 @@
 </script>
 
 {#if isOpen && triggerPosition && filteredUsers.length > 0}
-  <div
-    class="mention-dropdown"
-    style="top: {triggerPosition.top}px; left: {triggerPosition.left}px;"
-  >
+  <div class="mention-dropdown" style="top: {triggerPosition.top}px; left: {triggerPosition.left}px;">
     {#each filteredUsers as user, index}
-      {#if user != null}
-        <button
-          class="mention-item"
-          class:selected={index === selectedIndex}
-          onclick={() => insertMention(user)}
-          type="button"
-        >
-          <img src={user.avatar_url} alt={user.login} class="mention-avatar" />
-          <div class="mention-content">
-            <div class="mention-name">{user.display_name || user.login}</div>
-            <div class="mention-login">@{user.login}</div>
-          </div>
-        </button>
-      {/if}
+      <button class="mention-item" class:selected={index === selectedIndex} onclick={() => insertMention(user)} type="button">
+        <img src={user.avatar_url} alt={user.login} class="mention-avatar" />
+        <div class="mention-content">
+          <div class="mention-name">{user.display_name || user.login}</div>
+          <div class="mention-login">@{user.login}</div>
+        </div>
+      </button>
     {/each}
   </div>
 {/if}
