@@ -179,8 +179,11 @@
     const ancestors = getAncestors(selectedBranchId);
     const descendantTree = buildDescendantTree(selectedBranchId);
 
+    // Reverse ancestors so root (default branch) appears first at the top
+    const ancestorPath = [...ancestors].reverse();
+
     // Calculate SVG dimensions
-    const ancestorHeight = ancestors.length * VERTICAL_SPACING;
+    const ancestorHeight = ancestorPath.length * VERTICAL_SPACING;
     const descendantResult = descendantTree
       ? calculateTreePositions(descendantTree, 0, 0)
       : { nodes: [], lines: [] };
@@ -199,8 +202,8 @@
     const nodes = [];
     const lines = [];
 
-    // Add ancestors
-    ancestors.forEach((ancestor, idx) => {
+    // Add ancestors (from root down to parent of selected)
+    ancestorPath.forEach((ancestor, idx) => {
       const y = ancestorOffset + idx * VERTICAL_SPACING;
       nodes.push({
         branch: ancestor,
@@ -210,7 +213,7 @@
       });
 
       // Line from ancestor to next
-      if (idx < ancestors.length - 1) {
+      if (idx < ancestorPath.length - 1) {
         lines.push({
           x1: totalWidth / 2,
           y1: y + CARD_HEIGHT / 2,
@@ -446,7 +449,7 @@
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
-    overflow: hidden;
+    overflow: auto;
   }
 
   :global(.search-section) {
