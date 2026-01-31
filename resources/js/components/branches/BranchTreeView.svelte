@@ -54,11 +54,14 @@
         repository: $repository,
       });
 
+      console.log('[BranchTreeView] Fetching branches from URL:', url);
       const json = await window.api.get(url);
+      console.log('[BranchTreeView] API response:', json);
       branches = json.branches || [];
+      console.log('[BranchTreeView] Branches set to:', branches);
     } catch (err) {
       error = 'Failed to load branch tree. Please try again.';
-      console.error('Error loading branch tree:', err);
+      console.error('[BranchTreeView] Error loading branch tree:', err);
     } finally {
       isLoading = false;
     }

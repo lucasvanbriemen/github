@@ -35,12 +35,21 @@
   }
 
   function renderTree() {
+    console.log('[BranchTree] renderTree called with:', {
+      svgElement: !!svgElement,
+      branches: branches?.length,
+      containerElement: !!containerElement,
+    });
+
     if (!svgElement || !branches || branches.length === 0) {
+      console.log('[BranchTree] renderTree aborted: missing svgElement or branches');
       return;
     }
 
     const hierarchyData = buildHierarchy(branches);
+    console.log('[BranchTree] Hierarchy data:', hierarchyData);
     if (!hierarchyData) {
+      console.log('[BranchTree] renderTree aborted: no hierarchy data');
       return;
     }
 
@@ -48,6 +57,7 @@
     let containerWidth = svgWidth;
     if (containerElement?.clientWidth) {
       containerWidth = containerElement.clientWidth;
+      console.log('[BranchTree] Container width:', containerWidth);
     }
 
     // Calculate height based on branch count
@@ -58,10 +68,18 @@
     const width = containerWidth - margin.left - margin.right;
     const height = estimatedHeight - margin.top - margin.bottom;
 
+    console.log('[BranchTree] Dimensions:', {
+      containerWidth,
+      estimatedHeight,
+      width,
+      height,
+    });
+
     // Create D3 hierarchy
     const root = hierarchy(hierarchyData);
     const treeLayout = tree().size([width, height]);
     treeLayout(root);
+    console.log('[BranchTree] D3 root created with descendants:', root.descendants().length);
 
     // Clear previous content
     select(svgElement).selectAll('*').remove();
@@ -73,6 +91,8 @@
       .attr('width', containerWidth)
       .attr('height', estimatedHeight);
 
+    console.log('[BranchTree] SVG element:', { containerWidth, estimatedHeight });
+
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -81,8 +101,11 @@
       .x(d => d.x)
       .y(d => d.y);
 
+    const links = root.links();
+    console.log('[BranchTree] Drawing links:', links.length);
+
     g.selectAll('.link')
-      .data(root.links())
+      .data(links)
       .enter()
       .append('path')
       .attr('class', 'branch-link')
@@ -92,8 +115,11 @@
       .attr('fill', 'none');
 
     // Draw nodes
+    const descendants = root.descendants();
+    console.log('[BranchTree] Drawing nodes:', descendants.length);
+
     const nodes = g.selectAll('.node')
-      .data(root.descendants())
+      .data(descendants)
       .enter()
       .append('g')
       .attr('class', 'branch-node')
@@ -145,9 +171,13 @@
   }
 
   onMount(() => {
+    console.log('[BranchTree] onMount called');
     // Set initial width from container
     if (containerElement?.clientWidth) {
       svgWidth = containerElement.clientWidth;
+      console.log('[BranchTree] Set svgWidth from container:', svgWidth);
+    } else {
+      console.log('[BranchTree] Container not available on mount');
     }
 
     renderTree();
@@ -166,6 +196,7 @@
 
   // Re-render when branches change
   $effect(() => {
+    console.log('[BranchTree] Effect triggered with branches:', branches?.length);
     if (branches.length > 0) {
       renderTree();
     }
