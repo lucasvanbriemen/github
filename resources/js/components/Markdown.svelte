@@ -178,10 +178,6 @@
     }
   }
 
-  function toggleEditing() {
-    isEditing = !isEditing;
-  }
-
   function convertToMarkdown() {
     if (!content) {
       return '';
@@ -276,8 +272,8 @@
   {#if canEdit}
     <header>
       <nav class="markdown-nav">
-        <button class="preview-button button-primary-outline" onclick={() => { isEditing = false; saveChange(); console.log('[Markdown] Switched to preview'); }}>Preview</button>
-        <button class="edit-button button-primary-outline" onclick={toggleEditing}>Edit</button>
+        <button class="preview-button button-primary-outline" onclick={() => { isEditing = false; saveChange(); }}>Preview</button>
+        <button class="edit-button button-primary-outline" onclick={() => { isEditing = true; }}>Edit</button>
       </nav>
 
       {#if isEditing}
