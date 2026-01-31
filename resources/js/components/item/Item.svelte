@@ -60,7 +60,7 @@
       urltype = 'issues';
     }
 
-    return `https://github.com/${$organization}/${$repository}/${urltype}/${item.number}`;
+    return `https://github.com/${$organization}/${$repository}/${urltype}/${item.number}?stay=1`;
   }
 </script>
 
