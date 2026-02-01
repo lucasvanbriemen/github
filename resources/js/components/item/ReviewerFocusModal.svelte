@@ -18,8 +18,11 @@
   let currentComment = $derived.by(() => {
     const comment = reviewerComments[currentIndex];
     if (comment && comment.in_reply_to_id) {
-      // Attach parent comment reference for display
-      comment.parent_comment = getParentComment(comment, allComments);
+      // Return comment with parent reference (without mutating)
+      return {
+        ...comment,
+        parent_comment: getParentComment(comment, allComments)
+      };
     }
     return comment;
   });
