@@ -63,10 +63,6 @@
       currentIndex = Math.max(0, reviewerComments.length - 1);
     }
   }
-
-  function closeModal() {
-    isOpen = false;
-  }
 </script>
 
 <Modal isOpen={isOpen} onClose={onClose} title="{reviewer?.user?.display_name}'s unresloved feedback:" showButtons={false}>
