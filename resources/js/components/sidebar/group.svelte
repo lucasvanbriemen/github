@@ -1,4 +1,6 @@
 <script>
+  import Icon from "../Icon.svelte";
+
   let { title, children } = $props();
   let isOpen = $state(false);
 
@@ -18,7 +20,10 @@
 </script>
 
 <div class="group" class:open={isOpen}>
-  <span class="group-title" on:click={toggleOpen}>{title}</span>
+  <button class="group-title" onclick={toggleOpen}>
+    {title}
+    <Icon name="gear" className="icon gear" onclick={toggleOpen} />
+  </button>
   
   <div class="body" bind:this={body}>{@render children?.() }</div>
 </div>
