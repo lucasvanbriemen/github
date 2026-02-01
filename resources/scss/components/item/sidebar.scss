@@ -48,29 +48,47 @@
     border-radius: 50%;
   }
 
-  :global(.icon) {
+  > :global(.icon) {
     position: absolute;
     right: 0;
   }
 }
 
 .reviewer {
-  :global(.icon.review) {
-    display: block;
-  }
+  .reviewer-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: absolute;
+    right: 0;
 
-  :global(.icon.sync) {
-    display: none;
-    cursor: pointer;
-  }
-
-  &:hover {
-    :global(.icon.sync) {
+    :global(.icon.review) {
       display: block;
     }
 
-    :global(.icon.review) {
+    :global(.icon.sync) {
       display: none;
+      cursor: pointer;
+    }
+
+    :global(.icon) {
+      cursor: pointer;
+    }
+  }
+
+  &:hover {
+    .reviewer-actions {
+      :global(.icon.sync) {
+        display: block;
+      }
+
+      :global(.icon.review) {
+        display: none;
+      }
+
+      .focus-button {
+        display: flex;
+      }
     }
   }
 }
