@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { organization, repository } from '../stores.js';
   import { filterCommentsByReviewer, getParentComment } from '../../lib/commentUtils.js';
+  import Modal from '../Modal.svelte';
   import Comment from '../Comment.svelte';
 
   let { isOpen = false, onClose, reviewer, allComments = [], params = {} } = $props();
@@ -123,22 +124,7 @@
   });
 </script>
 
-{#if isOpen}
-  <div class="reviewer-focus-modal-backdrop" class:closing={isClosing} onclick={handleBackdropClick}>
-    <div class="reviewer-focus-modal" class:closing={isClosing}>
-      <!-- Header -->
-      <div class="modal-header">
-        <div class="reviewer-info">
-          {#if reviewer?.user?.avatar_url}
-            <img src={reviewer.user.avatar_url} alt={reviewer.user.name} class="reviewer-avatar" />
-          {/if}
-          <div class="reviewer-details">
-            <h2 class="reviewer-name">{reviewer?.user?.display_name}</h2>
-            <p class="reviewer-state">{reviewer?.state}</p>
-          </div>
-        </div>
-      </div>
-
+<Modal isOpen={isOpen} onClose={onClose} title="{reviewer?.user?.display_name}'s unresloved feedback:" showButtons={false}>
       <!-- Comment Display Area -->
       <div class="comment-area">
         {#if hasComments && currentComment}
@@ -203,9 +189,8 @@
           </button>
         </div>
       {/if}
-    </div>
-  </div>
-{/if}
+</Modal>
+
 
 <style lang="scss">
   @import '../../../scss/components/item/reviewer-focus-modal.scss';
