@@ -14,10 +14,19 @@
     overflow: hidden;
     transition: max-height 0.2s ease-in-out;
     max-height: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   &:not(.open) {
     gap: 0;
+
+    .body {
+      padding-bottom: 0;
+    }
   }
 
   .group-title {
