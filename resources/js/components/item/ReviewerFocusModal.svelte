@@ -8,14 +8,12 @@
 
   let currentIndex = $state(0);
 
-  // Reactive: filter comments by reviewer (excludes resolved)
   let reviewerComments = $derived(filterCommentsByReviewer(allComments, reviewer?.user?.id, false));
   let currentComment = $derived.by(() => {return reviewerComments[currentIndex];});
 
   let totalComments = $derived(reviewerComments.length);
   let hasComments = $derived(totalComments > 0);
 
-  // Reset index when modal opens
   $effect(() => {
     if (isOpen) {
       currentIndex = 0;

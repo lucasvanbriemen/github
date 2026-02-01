@@ -15,6 +15,11 @@ export function filterCommentsByReviewer(allComments, reviewerUserId, includeRes
     if (comment.author?.id === reviewerUserId) {
       filtered.push(comment);
     }
+
+    // Recursively process child comments
+    if (comment.child_comments?.length > 0) {
+      comment.child_comments.forEach(processComment);
+    }
   };
 
   allComments.forEach(processComment);
