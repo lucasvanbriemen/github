@@ -3,25 +3,24 @@
   import Markdown from './Markdown.svelte';
   import DiffHunk from './DiffHunk.svelte';
   import Self from './Comment.svelte';
+  import { organization, repository } from './stores.js';
 
   let { comment, params = {} } = $props();
 
-  let organization = $state('');
-  let repository = $state('');
   let number = $state('');
+  let isExpandedReplyForm = $state(false);
+  let replyBody = $state('');
 
   onMount(async () => {
-    organization = params.organization;
-    repository = params.repository;
     number = params.number;
   });
 
   function commentHeaderText() {
     if (comment.type === 'issue' || comment.type === 'code') {
-      return comment.author.display_name + ' commented  ' + comment.created_at_human;
+      return comment.author?.display_name + ' commented  ' + comment.created_at_human;
     }
 
-    return comment.author.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
+    return comment.author?.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
   }
 
   // If the body is empty and there are no child comments, we don't want to show the comment
@@ -30,21 +29,48 @@
     showComment = false;
   }
 
-  // Toggle functions for different comment types
   function toggleItemComment(comment) {
     comment.resolved = !comment.resolved;
 
-    api.post(route(`organizations.repositories.item.comment`, { organization, repository, number, comment_id: comment.id }), {
+    api.post(route(`organizations.repositories.item.comment`, { $organization, $repository, number, comment_id: comment.id }), {
       resolved: comment.resolved,
     });
   }
 
+  function expandReplyForm() {
+    isExpandedReplyForm = true;
+  }
+
+  function closeReplyForm() {
+    isExpandedReplyForm = false;
+  }
+
+  async function submitReply() {
+    await api.post(
+      route(`organizations.repositories.item.review.comments.create`, { $organization, $repository, number }),
+      {
+        body: replyBody,
+        in_reply_to_id: comment.id
+      }
+    );
+
+    replyBody = '';
+    closeReplyForm();
+  }
 </script>
 
 {#if showComment}
   <div class="item-comment" class:item-comment-resolved={comment.resolved}>
     <button class="item-comment-header" onclick={() => toggleItemComment(comment)}>
-      <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+
+      {#if comment.details?.badge}
+        <span class="badge">{comment.details?.badge}</span>
+      {/if}
+
+      {#if comment.author?.avatar_url}
+        <img src={comment.author?.avatar_url} alt={comment.author?.name} />
+      {/if}
+
       <span>{commentHeaderText()}</span>
     </button>
 
@@ -61,6 +87,20 @@
         {/if}
 
         <Markdown content={comment.body} canEdit={false} />
+
+        {#if comment.type === 'code'}
+          <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
+            {#if !isExpandedReplyForm}
+              <input type="text" onclick={expandReplyForm} placeholder="Add a reply..." class="reply-input-compact" readonly/>
+            {:else}
+              <Markdown bind:content={replyBody} canEdit={true} isEditing={true}/>
+              <div class="reply-form-actions">
+                <button class="button-primary" onclick={submitReply}>Reply</button>
+                <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
+              </div>
+            {/if}
+          </div>
+        {/if}
 
         {#if comment.child_comments}
           <div class="item-comment-replies">

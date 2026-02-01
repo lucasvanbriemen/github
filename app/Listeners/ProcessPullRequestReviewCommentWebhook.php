@@ -9,6 +9,7 @@ use App\Models\PullRequestComment;
 use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Services\ImportanceScoreService;
 
 class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 {
@@ -74,6 +75,8 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         if ($payload->action === 'deleted') {
             PullRequestComment::where('id', $commentData->id)->delete();
         }
+
+        ImportanceScoreService::updateItemScore($pr);
 
         return true;
     }

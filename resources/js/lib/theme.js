@@ -9,7 +9,12 @@ export default {
       name: "merged-color",
       light: "#9d46e0",
       dark: "#8a19e0",
-    }
+    },
+    {
+      name: "draft-color",
+      light: "#e0e0e0",
+      dark: "#e0e0e0",
+    },
   ],
 
   getTheme() {

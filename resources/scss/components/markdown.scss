@@ -22,6 +22,11 @@
 
       .markdown-shortcut {
         border: 2px solid var(--primary-color-dark);
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       }
     }
   }
@@ -77,6 +82,13 @@
       border-radius: 1rem;
       max-width: 50% !important;
       height: fit-content !important;
+    }
+
+    :global(.mention-highlight) {
+      background-color: var(--modal-background-color);
+      color: var(--primary-color);
+      padding: 2px 4px;
+      border-radius: 2px;
     }
   }
 

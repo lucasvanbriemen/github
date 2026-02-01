@@ -1,18 +1,13 @@
-/* Ensure div-based rows align like table cells */
+.pr-header {
+  position: relative;
+}
+
 .pr-files {
+  width: 99%;
   .loading {
     padding: 2rem;
     text-align: center;
     color: var(--text-color-secondary);
-  }
-
-  .diff-empty {
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-color-secondary);
-    background-color: var(--background-color-one);
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
   }
 
   .file {
@@ -66,12 +61,28 @@
       .file-name {
         font-size: 0.875rem;
       }
+
+      .file-stats { 
+        margin-left: auto;
+        font-size: 0.75rem;
+        font-weight: 500;
+        
+        .additions {
+          color: var(--success-color);
+          margin-right: 0.5rem;
+        }
+
+        .deletions {
+          color: var(--error-color);
+          margin-right: 0.5rem;
+        }
+
+      }
     }
 
     .file-changes {
       width: 100%;
       border-collapse: collapse;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 0.8125rem;
       line-height: 1.5;
       background-color: var(--background-color-one);
@@ -108,76 +119,16 @@
         background-color: var(--background-color);
       }
     }
-  }
 
-  .line-number {
-    padding: 0.125rem 0.5rem;
-    text-align: right;
-    vertical-align: top;
-    user-select: none;
-    color: var(--text-color-secondary);
-    background-color: var(--background-color-two);
-    border-right: 1px solid var(--border-color);
-    min-width: 50px;
-    width: 1%;
-    white-space: nowrap;
-    text-align: right;
-  }
+    .file-preview {
+      padding: 1rem;
+      background-color: var(--background-color-one);
+      overflow: auto;
 
-  .diff-line-content {
-    padding: 0.125rem 0.5rem;
-    vertical-align: top;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    color: var(--text-color);
-    flex: 1;
-    background-color: var(--background-color-one);
-
-    .prefix {
-      user-select: none;
-      margin-right: 0.5rem;
-      opacity: 0.5;
-    }
-
-    .code {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-  }
-
-
-  .diff-line-empty {
-    background-color: var(--background-color);
-    opacity: 0.3;
-  }
-
-  .diff-line-add {
-    background-color: rgba(34, 197, 94, 0.1);
-
-    &.diff-line-number {
-      background-color: rgba(34, 197, 94, 0.15);
-      border-right-color: rgba(34, 197, 94, 0.3);
-    }
-
-    .prefix {
-      color: #22c55e;
-      opacity: 1;
-      font-weight: 700;
-    }
-  }
-
-  .diff-line-del {
-    background-color: rgba(239, 68, 68, 0.1);
-
-    &.diff-line-number {
-      background-color: rgba(239, 68, 68, 0.15);
-      border-right-color: rgba(239, 68, 68, 0.3);
-    }
-
-    .prefix {
-      color: #ef4444;
-      opacity: 1;
-      font-weight: 700;
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
     }
   }
 }

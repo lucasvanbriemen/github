@@ -8,11 +8,15 @@ use App\Models\Issue;
 use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Models\Notification;
+use App\Models\Item;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
+use App\GithubConfig;
+use App\Services\ImportanceScoreService;
 
-class ProcessIssueCommentWebhook implements ShouldQueue
+class ProcessIssueCommentWebhook //implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -67,7 +71,7 @@ class ProcessIssueCommentWebhook implements ShouldQueue
 
         GithubUser::updateFromWebhook($userData);
 
-        BaseComment::updateOrCreate(
+        $comment = BaseComment::updateOrCreate(
             ['comment_id' => $commentData->id, 'type' => 'issue'],
             [
                 'comment_id' => $commentData->id,
@@ -77,6 +81,30 @@ class ProcessIssueCommentWebhook implements ShouldQueue
                 'type' => 'issue',
             ]
         );
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $issueData->number)
+            ->first();
+
+        if ($item->isCurrentlyAssignedToUser()) {
+            // Don't create notification if actor is the configured user
+            if ($userData->id === GithubConfig::USERID) {
+                return true;
+            }
+
+            // Avoid duplicate notifications for the same comment
+            if (Notification::where('type', 'item_comment')->where('related_id', $comment->id)->exists()) {
+                return true;
+            }
+
+            Notification::create([
+                'type' => 'item_comment',
+                'related_id' => $comment->id,
+                'triggered_by_id' => $userData->id,
+            ]);
+        }
+
+        ImportanceScoreService::updateItemScore($item);
 
         return true;
     }

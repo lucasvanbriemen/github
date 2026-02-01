@@ -1,6 +1,6 @@
 <script>
-  // Make activeTab bindable from parent (Svelte runes)
-  let { activeTab = $bindable('conversation'), organization, repository, type, number } = $props();
+  import { organization, repository } from "../stores";
+  let { activeTab = $bindable('conversation'),  type, number } = $props();
 
   const TABS = [
     { value: "conversation", label: "Conversation" },
@@ -15,7 +15,7 @@
       class="tab-button"
       class:active={activeTab === tab.value}
       onclick={() => activeTab = tab.value}
-      href={`#/${organization}/${repository}/${type}/${number}/${tab.value}`}
+      href={`#/${$organization}/${$repository}/${type}/${number}/${tab.value}`}
     >
       {tab.label}
     </a>

@@ -37,6 +37,15 @@
     }
   }
 
+  :global(.item-draft) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--draft-color);
+      fill: var(--draft-color);
+    }
+  }
+
   .content {
     display: flex;
     flex-direction: column;
