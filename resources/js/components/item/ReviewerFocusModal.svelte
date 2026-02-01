@@ -106,32 +106,11 @@
       {#if hasComments}
         <div class="modal-controls">
           <div class="navigation-buttons">
-            <button
-              class="nav-button prev"
-              onclick={goToPrevious}
-              disabled={currentIndex === 0}
-              title="Previous comment (← or j)"
-            >
-              Previous
-            </button>
-            <button
-              class="nav-button next"
-              onclick={goToNext}
-              disabled={currentIndex === totalComments - 1}
-              title="Next comment (→ or k)"
-            >
-              Next
-            </button>
+            <button class="nav-button prev" onclick={goToPrevious} disabled={currentIndex === 0}> Previous</button>
+            <button class="nav-button next" onclick={goToNext} disabled={currentIndex === totalComments - 1}>Next</button>
           </div>
 
-          <button
-            class="action-button"
-            class:resolved={currentComment?.resolved}
-            onclick={toggleResolve}
-            title="Mark as complete / Unresolve (r)"
-          >
-            {currentComment?.resolved ? 'Unresolve' : 'Mark as Complete'}
-          </button>
+          <button class="action-button" class:resolved={currentComment?.resolved} onclick={toggleResolve}>{currentComment?.resolved ? 'Unresolve' : 'Mark as Complete'}</button>
         </div>
       {/if}
 </Modal>
