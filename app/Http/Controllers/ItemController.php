@@ -337,20 +337,23 @@ class ItemController extends Controller
     private static function formatComments($comment)
     {
         if ($comment->type === 'review') {
+            $comment->can_reply = false;
             $comment->details = $comment->reviewDetails;
         }
 
         if ($comment->type === 'code') {
+            $comment->can_reply = true;
             $comment->details = $comment->commentDetails;
         }
 
         if ($comment->type === 'issue') {
+            $comment->can_reply = false;
             return;
         }
 
         $comment->child_comments = $comment->details->childComments ?? [];
 
-        self::formatChildComments($comment);
+        self::formatChildComments($comment, true);
 
         unset($comment->reviewDetails);
         unset($comment->commentDetails);
@@ -365,7 +368,7 @@ class ItemController extends Controller
         }
     }
 
-    private static function formatChildComments($parentComment)
+    private static function formatChildComments($parentComment, $canReply = false)
     {
         $childComments = $parentComment->child_comments ?? $parentComment->childComments ?? [];
 
@@ -374,6 +377,8 @@ class ItemController extends Controller
         }
 
         foreach ($childComments as $childComment) {
+            $childComment->can_reply = $canReply;
+
             // Child comments get author and body from baseComment
             if ($childComment->baseComment) {
                 unset($childComment->author);
@@ -396,7 +401,7 @@ class ItemController extends Controller
             unset($childComment->details);
 
             // Recursively format grandchild comments
-            self::formatChildComments($childComment);
+            self::formatChildComments($childComment, false);
         }
     }
 
