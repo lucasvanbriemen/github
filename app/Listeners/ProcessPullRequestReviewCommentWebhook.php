@@ -75,7 +75,6 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         if ($payload->action === 'deleted') {
             PullRequestComment::where('id', $commentData->id)->delete();
         } else {
-            // Auto-unresolve parent comment if it's resolved and this is a reply
             $prComment->unresolveParentIfResolved();
         }
 
