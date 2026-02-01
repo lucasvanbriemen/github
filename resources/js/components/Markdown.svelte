@@ -1,7 +1,7 @@
 <script>
   import { onMount, untrack } from 'svelte';
   import { marked } from 'marked';
-  import { organization, repository } from './stores';
+  import { organization, repository, repoMetadata } from './stores';
   import MentionAutocomplete from './MentionAutocomplete.svelte';
   import 'github-markdown-css/github-markdown-dark.css';
 
@@ -262,8 +262,7 @@
 
     marked.setOptions({renderer, gfm: true, breaks: false});
 
-    const response = await api.get(route('organizations.repositories.metadata', { organization: $organization, repository: $repository }));
-    users = response.assignees.filter(user => user != null);
+    users = $repoMetadata?.assignees.filter(user => user != null) ?? [];
 
     // Build a map of login -> display_name for quick lookup
     userLoginMap = {};

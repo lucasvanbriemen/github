@@ -7,7 +7,7 @@
   import ListItemSkeleton from '../ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
-  import { organization, repository } from '../stores.js';
+  import { organization, repository, repoMetadata } from '../stores.js';
 
   let { params = {} } = $props();
   let type = $derived(params.type);
@@ -17,7 +17,6 @@
   let currentPage = $state(1);
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
-  let repositoryMetadata = $state({});
   let selectableMilestones = $state([]);
 
   const isPR = $derived(type === 'prs');
@@ -33,7 +32,7 @@
   const anyAssigneeOption = { value: 'any', label: 'Any' };
 
   async function getContributors() {
-    assignees = repositoryMetadata.assignees.filter(a => a).map(assignee => ({
+    assignees = $repoMetadata.assignees.filter(a => a).map(assignee => ({
       value: assignee.id,
       image: assignee.avatar_url,
       label: assignee.display_name,
@@ -43,7 +42,7 @@
   }
 
   async function getMilestones() {
-    selectableMilestones = repositoryMetadata.milestones.filter(m => m).map(milestone => ({
+    selectableMilestones = $repoMetadata.milestones.filter(m => m).map(milestone => ({
       value: milestone.id,
       label: milestone.title,
     }));
@@ -94,7 +93,6 @@
   }
 
   onMount(async () => {
-    repositoryMetadata = await api.get(route('organizations.repositories.metadata', { $organization, $repository }));
     getContributors();
     getMilestones();
     getItems(currentPage);
