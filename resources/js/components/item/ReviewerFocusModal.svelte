@@ -143,16 +143,6 @@
         </button>
       </div>
 
-      <!-- Progress Indicator -->
-      {#if hasComments}
-        <div class="progress-indicator">
-          <span class="progress-text">{currentIndex + 1} of {totalComments}</span>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: {((currentIndex + 1) / totalComments) * 100}%"></div>
-          </div>
-        </div>
-      {/if}
-
       <!-- Comment Display Area -->
       <div class="comment-area">
         {#if hasComments && currentComment}
