@@ -2,12 +2,14 @@
   let { diffHunk = '', path = '', startLine = null, endLine = null } = $props();
 
   // Parse the diff hunk and extract the relevant lines
+  // Matches GitHub's behavior: minimal context (1 line before/after) around the comment range
   function parseDiffHunk(diff, start, end) {
     if (!diff) return [];
 
     const lines = diff.split('\n');
     const hunkLines = [];
     let currentLine = 0;
+    const contextLines = 1; // GitHub shows only 1 line of context before/after
 
     for (const line of lines) {
       // Match hunk header: @@ -1,2 +3,4 @@
@@ -17,35 +19,25 @@
         continue;
       }
 
-      // Determine line type
       let type = 'context';
-      let codeContent = line.slice(1); // Strip the diff marker (first character)
+      const codeContent = line.slice(1); // Strip the diff marker (first character)
+      const shouldShowLine = end === null; // Show all lines if not a comment-specific diff
 
       if (line.startsWith('+')) {
         type = 'added';
-        // Only include lines within the range if specified
-        if (end !== null) {
-          const effectiveStart = start ?? end - 3; // Default to 3 lines before end if start not provided
-          if (currentLine >= effectiveStart && currentLine <= end) {
-            hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
-          }
-        } else {
+        if (shouldShowLine || (currentLine >= (start ?? end) - contextLines && currentLine <= end + contextLines)) {
           hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
         }
         currentLine++;
       } else if (line.startsWith('-')) {
         type = 'removed';
-        hunkLines.push({ type, content: codeContent, lineNumber: null });
-        // Removed lines don't increment currentLine
+        // Only show removed lines for full diffs, not for comment-specific diffs
+        if (shouldShowLine) {
+          hunkLines.push({ type, content: codeContent, lineNumber: null });
+        }
       } else if (line.trim() !== '') {
-        // Context line
-        if (end !== null) {
-          const effectiveStart = start ?? end - 3; // Default to 3 lines before end if start not provided
-          // Include some context around the target lines
-          if (currentLine >= effectiveStart - 3 && currentLine <= end + 3) {
-            hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
-          }
-        } else {
+        type = 'context';
+        if (shouldShowLine || (currentLine >= (start ?? end) - contextLines && currentLine <= end + contextLines)) {
           hunkLines.push({ type, content: codeContent, lineNumber: currentLine });
         }
         currentLine++;
