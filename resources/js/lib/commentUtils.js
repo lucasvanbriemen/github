@@ -1,10 +1,3 @@
-/**
- * Filter comments by reviewer - returns flat list of all comments by reviewer
- * @param {Array} allComments - All comments from the item
- * @param {number|string} reviewerUserId - The user ID of the reviewer
- * @param {boolean} includeResolved - Whether to include resolved comments (default: false)
- * @returns {Array} Flat list of all comments by the specified reviewer
- */
 export function filterCommentsByReviewer(allComments, reviewerUserId, includeResolved = false) {
   if (!allComments || !reviewerUserId) {
     return [];
