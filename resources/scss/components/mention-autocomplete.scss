@@ -1,0 +1,56 @@
+.mention-dropdown {
+  position: fixed;
+  background: var(--background-color-one);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  max-height: 10rem;
+  overflow-y: auto;
+  z-index: 1000;
+  min-width: 15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+
+  .mention-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.25rem;
+    background-color: transparent;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--background-color-two);
+    }
+
+    &.selected {
+      background-color: var(--primary-color-dark);
+    }
+
+    .mention-avatar {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+    }
+
+    .mention-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      text-align: left;
+
+      .mention-name {
+        color: var(--text-color);
+        font-size: 0.875rem;
+      }
+
+      .mention-login {
+        font-size: 0.6rem;
+        color: var(--text-color-secondary);
+      }
+    }
+  }
+}

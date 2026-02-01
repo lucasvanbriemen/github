@@ -6,10 +6,12 @@ use App\Events\PullRequestReviewCommentWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\PullRequest;
 use App\Models\PullRequestComment;
+use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Services\ImportanceScoreService;
 
-class ProcessPullRequestReviewCommentWebhook
+class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -41,14 +43,23 @@ class ProcessPullRequestReviewCommentWebhook
 
         GithubUser::updateFromWebhook($userData);
 
+        $baseComment = BaseComment::updateOrCreate(
+            ['comment_id' => $commentData->id],
+            [
+                'issue_id' => $prData->id,
+                'user_id' => $userData->id,
+                'body' => $commentData->body ?? '',
+                'type' => 'code',
+            ]
+        );
+
         $sideValue = $commentData->side ?? 'RIGHT';
 
         PullRequestComment::updateOrCreate(
             ['id' => $commentData->id],
             [
                 'pull_request_id' => $prData->id,
-                'user_id' => $userData->id,
-                'body' => $commentData->body ?? '',
+                'base_comment_id' => $baseComment->id,
                 'in_reply_to_id' => $commentData->in_reply_to_id ?? null,
                 'diff_hunk' => $commentData->diff_hunk ?? '',
                 'line_start' => $commentData->start_line ?? null,
@@ -59,6 +70,13 @@ class ProcessPullRequestReviewCommentWebhook
                 'pull_request_review_id' => $commentData->pull_request_review_id ?? null,
             ]
         );
+
+        // If action is deleted, we just delete the comment
+        if ($payload->action === 'deleted') {
+            PullRequestComment::where('id', $commentData->id)->delete();
+        }
+
+        ImportanceScoreService::updateItemScore($pr);
 
         return true;
     }

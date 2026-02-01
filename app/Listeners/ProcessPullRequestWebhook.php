@@ -8,7 +8,10 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\GithubConfig;
+use App\Models\Notification;
 use App\Helpers\ApiHelper;
+use App\Services\ImportanceScoreService;
 use RuntimeException;
 use Carbon\Carbon;
 
@@ -29,12 +32,6 @@ class ProcessPullRequestWebhook //implements ShouldQueue
     {
         $payload = $event->payload;
 
-
-        if (!isset($payload->pull_request, $payload->repository)) {
-            \Log::warning('Malformed pull_request payload', ['payload' => $payload]);
-            return false;
-        }
-
         $prData = $payload->pull_request;
         $repositoryData = $payload->repository;
 
@@ -47,6 +44,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         GithubUser::updateFromWebhook($userData);
 
         $state = $prData->state;
+        if ($prData->draft == true) {
+            $state = 'draft';
+        }
+        
         if ($state === 'closed' && isset($prData->merged_at) && $prData->merged_at !== null) {
             $state = 'merged';
         }
@@ -61,18 +62,31 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         // We need to get the diff between the merge base and the head commit, so we store the sha of both to compare instead of the base and head branch names
         $mergeBaseSha = null;
         $headSha = $prData->head->sha ?? null;
+        $baseSha = $prData->base->sha ?? null;
 
-        if ($headSha && isset($prData->base->ref)) {
-            $ownerName = $repositoryData->owner->login ?? null;
-            $repoName = $repositoryData->name ?? null;
+        $ownerName = $repositoryData->owner->login ?? null;
+        $repoName = $repositoryData->name ?? null;
 
-            if ($ownerName && $repoName) {
+        if ($ownerName && $repoName) {
+            // Prefer comparing by SHAs to avoid failures after merges or branch deletions
+            if ($baseSha && $headSha) {
+                $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$baseSha}...{$headSha}");
+            } elseif (isset($prData->base->ref, $prData->head->ref)) {
                 $compareData = ApiHelper::githubApi("/repos/{$ownerName}/{$repoName}/compare/{$prData->base->ref}...{$prData->head->ref}");
-
-                if ($compareData && isset($compareData->merge_base_commit->sha)) {
-                    $mergeBaseSha = $compareData->merge_base_commit->sha;
-                }
+            } else {
+                $compareData = null;
             }
+
+            if ($compareData && isset($compareData->merge_base_commit->sha)) {
+                $mergeBaseSha = $compareData->merge_base_commit->sha;
+            }
+        }
+
+        $pr = PullRequest::where('id', $prData->id)->first();
+        if (!$pr) {
+            $preHookAssigned = false;
+        } else {
+            $preHookAssigned = $pr->isCurrentlyAssignedToUser();
         }
 
         // Update base fields in items table
@@ -118,10 +132,54 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             $pr->assignees()->sync($assigneeGithubIds);
         }
 
+        ImportanceScoreService::updateItemScore($pr);
+
+        $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
+        if ($currentlyAssigned && !$preHookAssigned) {
+            $senderData = $payload->sender ?? null;
+            if ($senderData) {
+                GithubUser::updateFromWebhook($senderData);
+            }
+
+            // Don't create notification if actor is the configured user
+            if ($senderData?->id === GithubConfig::USERID) {
+                // Continue processing but skip notification
+            } elseif (!Notification::where('type', 'item_assigned')
+                ->where('related_id', $pr->id)
+                ->exists()) {
+                Notification::create([
+                    'type' => 'item_assigned',
+                    'related_id' => $pr->id,
+                    'triggered_by_id' => $senderData?->id
+                ]);
+            }
+        }
+
         if ($payload->action === 'review_requested') {
             // Create/update the requested reviewer in github_users table
             $reviewerData = $payload->requested_reviewer ?? null;
             GithubUser::updateFromWebhook($reviewerData);
+
+            // create a notification if im being asked for a review
+            if ($reviewerData && $reviewerData->id === GithubConfig::USERID) {
+                $senderData = $payload->sender ?? null;
+                if ($senderData) {
+                    GithubUser::updateFromWebhook($senderData);
+                }
+
+                // Don't create notification if actor is the configured user
+                if ($senderData?->id === GithubConfig::USERID) {
+                    // Continue processing but skip notification
+                } elseif (!Notification::where('type', 'review_requested')
+                    ->where('related_id', $prData->id)
+                    ->exists()) {
+                    Notification::create([
+                        'type' => 'review_requested',
+                        'related_id' => $prData->id,
+                        'triggered_by_id' => $senderData?->id
+                    ]);
+                }
+            }
 
             RequestedReviewer::updateOrCreate(
                 [
@@ -130,10 +188,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 ],
                 [
                     'pull_request_id' => $prData->id,
-                    'user_id' => $reviewerData->id
+                    'user_id' => $reviewerData->id,
+                    'state' => 'pending'
                 ]
             );
-           
         }
 
         return true;

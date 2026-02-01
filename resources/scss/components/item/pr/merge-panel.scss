@@ -1,0 +1,111 @@
+.merge-panel {
+  background-color: var(--background-color-one);
+  padding: 1rem;
+  border-radius: 2rem;
+
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 0.5rem;
+
+  &:not(:has(*)) {
+    display: none;
+  }
+
+  .workflow, .merge-conflicts, .merge-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+
+    background-color: var(--background-color);
+    border-radius: 1rem;
+    padding: 1rem;
+
+    max-height: 5rem;
+    overflow: auto;
+    
+    border: 2px solid var(--starred-color);
+
+    .workflow-name, .conflicts-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      line-height: 0rem;
+      color: var(--text-color-secondary);
+      padding-bottom: 1rem;
+    }
+
+    .job, .conflict-file {
+      border: 1px solid var(--starred-color);
+      color: var(--text-color-secondary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      width: 50%;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--background-color-one);
+      }
+    }
+
+    .complete-title {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .complete-metadata {
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .success {
+    border-color: var(--success-color) !important;
+  }
+    
+  .failure {
+    border-color: var(--error-color) !important;
+  }
+    
+  .neutral {
+    border-color: var(--text-color-secondary) !important;
+  }
+
+  .skipped {
+    border-color: var(--text-color-secondary) !important;
+  }
+
+  .merge-conflicts {
+    border: 2px solid var(--error-color);
+
+    .conflicts-title {
+      margin-top: 1rem;
+      color: var(--error-color);
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    .conflicts-message {
+      color: var(--text-color-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .conflict-file {
+      font-family: monospace;
+      color: var(--text-color);
+      font-size: 1rem;
+      border: 1px solid var(--error-color);
+      padding: 0.75rem !important;
+    }
+  }
+
+  .merge-status {
+    border: 2px solid var(--error-color);
+
+    .status-message {
+      color: var(--error-color);
+      font-size: 0.9rem;
+    }
+  }
+}

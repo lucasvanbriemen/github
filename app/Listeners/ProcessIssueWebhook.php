@@ -6,7 +6,9 @@ use App\Events\IssuesWebhookReceived;
 use App\Models\GithubUser;
 use App\Models\Issue;
 use App\Models\Repository;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\Notification;
+use App\GithubConfig;
+use App\Services\ImportanceScoreService;
 
 class ProcessIssueWebhook
 {
@@ -54,6 +56,14 @@ class ProcessIssueWebhook
             return true;
         }
 
+        // check if the issue already exists
+        $issue = Issue::where('id', $issueData->id)->first();
+        if (!$issue) {
+            $preHookAssigned = false;
+        } else {
+            $preHookAssigned = $issue->isCurrentlyAssignedToUser();
+        }
+
         $issue = Issue::updateOrCreate(
             ['id' => $issueData->id],
             [
@@ -62,12 +72,37 @@ class ProcessIssueWebhook
                 'number' => $issueData->number,
                 'title' => $issueData->title,
                 'body' => $issueData->body ?? '',
+                'milestone_id' => $issueData->milestone->id ?? null,
                 'state' => $issueData->state,
                 'labels' => json_encode($issueData->labels ?? []),
-            ]);
+            ]
+        );
 
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);
+
+        ImportanceScoreService::updateItemScore($issue);
+
+        $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
+        if ($currentlyAssigned && !$preHookAssigned) {
+            $senderData = $payload->sender ?? null;
+            if ($senderData) {
+                GithubUser::updateFromWebhook($senderData);
+            }
+
+            // Don't create notification if actor is the configured user
+            if ($senderData?->id === GithubConfig::USERID) {
+                // Continue processing but skip notification
+            } elseif (!Notification::where('type', 'item_assigned')
+                ->where('related_id', $issue->id)
+                ->exists()) {
+                Notification::create([
+                    'type' => 'item_assigned',
+                    'related_id' => $issue->id,
+                    'triggered_by_id' => $senderData?->id
+                ]);
+            }
+        }
 
         return true;
     }

@@ -1,75 +1,77 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import Sidebar from '../sidebar/Sidebar.svelte';
   import SidebarGroup from '../sidebar/group.svelte';
   import Pagination from '../Pagination.svelte';
-  import ListItem from './ListItem.svelte';
-  import ListItemSkeleton from './ListItemSkeleton.svelte';
+  import ListItem from '../ListItem.svelte';
+  import ListItemSkeleton from '../ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
+  import { organization, repository } from '../stores.js';
 
   let { params = {} } = $props();
-  let organization = $derived(params.organization || '');
-  let repository = $derived(params.repository || '');
-  let issues = $state([]);
+  let type = $derived(params.type);
+
+  let items = $state([]);
   let paginationLinks = $state([]);
   let currentPage = $state(1);
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
+  let repositoryMetadata = $state({});
+  let selectableMilestones = $state([]);
 
+  const isPR = $derived(type === 'prs');
 
-  const path = window.location.hash;
-  const type = $derived(path.includes('/prs') ? 'pr' : 'issue');
-  const isPR= $derived(type === 'pr');
-  const selectedDropdownSection = $derived(isPR ? 'Pull Requests' : 'Issues');
-
-  const stateOptions = [
-    { value: 'open', label: 'Open' },
-    { value: 'closed', label: 'Closed' },
-    { value: 'all', label: 'All' }
-  ];
+  let stateOptions = $state([]);
 
   let state = $state('open');
   let assignees = $state([]);
   let selectedAssignee = $state(window.USER_ID);
+  let searchQuery = $state('');
+  let selectedMilestone = $state(null);
+
+  const anyAssigneeOption = { value: 'any', label: 'Any' };
 
   async function getContributors() {
-    const res = await fetch(`${route('organizations.repositories.contributors.get', {organization, repository})}`);
-    assignees = await res.json();
-
-    // We have to format it into the {value, label} format for Select component
-    assignees = assignees.map(assignee => ({
+    assignees = repositoryMetadata.assignees.filter(a => a).map(assignee => ({
       value: assignee.id,
+      image: assignee.avatar_url,
       label: assignee.display_name,
     }));
 
-    const currentUserId = Number(window.USER_ID);
-    if (currentUserId && assignees.some(a => a.value === currentUserId)) {
-      selectedAssignee = currentUserId;
-    }
+    assignees.unshift(anyAssigneeOption);
   }
 
+  async function getMilestones() {
+    selectableMilestones = repositoryMetadata.milestones.filter(m => m).map(milestone => ({
+      value: milestone.id,
+      label: milestone.title,
+    }));
+  }
 
-  async function getItems(pageNr = 1, isInitialLoad = false) {
+  async function getItems(pageNr = 1) {
     isLoading = true;
     currentPage = pageNr;
 
-    let url = `${route('organizations.repositories.items.get', {organization, repository, type})}?page=${pageNr}&state=${state}`;
+    let url = `${route('organizations.repositories.items', {$organization, $repository, type})}?page=${pageNr}&state=${state}`;
     url += `&assignee=${selectedAssignee}`;
+    url += `&search=${searchQuery}`;
+    if (selectedMilestone) {
+      url += `&milestone=${selectedMilestone}`;
+    }
 
-    const res = await fetch(url);
-    let json = await res.json();
-    issues = json.data;
-
-    for (let i = 0; i < issues.length; i++) {
+    const json = await api.get(url)
+    items = json.data
+    paginationLinks = json.links
+    
+    for (let i = 0; i < items.length; i++) {
       try {
-        issues[i].labels = JSON.parse(issues[i].labels);
+        items[i].labels = JSON.parse(items[i].labels);
       } catch (e) {
-        issues[i].labels = [];
+        items[i].labels = [];
       }
     }
 
-    paginationLinks = json.links;
     isLoading = false;
 
     if (isPR) {
@@ -79,8 +81,11 @@
   }
 
   async function getBranchesForNotices() {
-    const res = await fetch(route('organizations.repositories.branches.pr.notices', {organization, repository}));
-    branchesForNotice = await res.json();
+    branchesForNotice = await api.get(route('organizations.repositories.branches.pr.notices', {$organization, $repository}));
+  }
+
+  function linkToNewItem(type) {
+    window.location.hash = `#/${$organization}/${$repository}/new/${type}`;
   }
 
   function filterItem() {
@@ -89,35 +94,75 @@
   }
 
   onMount(async () => {
+    repositoryMetadata = await api.get(route('organizations.repositories.metadata', { $organization, $repository }));
     getContributors();
-    getItems(currentPage, true);
+    getMilestones();
+    getItems(currentPage);
+  });
+
+  $effect(() => {
+    void type;
+    void $organization;
+    void $repository;
+
+    untrack(() => {
+      currentPage = 1;
+      branchesForNotice = [];
+      getItems(currentPage);
+
+      if (type === 'prs') {
+        stateOptions = [
+          { value: 'open', label: 'Open' },
+          { value: 'closed', label: 'Closed' },
+          { value: 'merged', label: 'Merged' },
+          { value: 'draft', label: 'Draft' },
+          { value: 'all', label: 'All' }
+        ]
+      } else {
+        stateOptions = [
+          { value: 'open', label: 'Open' },
+          { value: 'closed', label: 'Closed' },
+          { value: 'all', label: 'All' }
+        ];
+      }
+    });
   });
 
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar {params} selectedDropdownSection={selectedDropdownSection}>
+  <Sidebar>
+    <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
+
     <SidebarGroup title="State">
-      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }}/>
+      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
+    </SidebarGroup>
+
+    <SidebarGroup title="Milestone">
+      <Select name="milestone" selectableItems={selectableMilestones} bind:selectedValue={selectedMilestone} onChange={() => { filterItem() }} searchable={false} />
     </SidebarGroup>
 
     <SidebarGroup title="Assignees">
-      <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} searchable={true} />
+      <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} />
     </SidebarGroup>
   </Sidebar>
 
   <div class="repo-main">
+    <input type="text" class="search" placeholder="Search" bind:value={searchQuery} onblur={() => { filterItem() }} />
+
     {#if isLoading}
-      <ListItemSkeleton />
+      {#each Array(3) as _}
+        <ListItemSkeleton />
+      {/each}
     {:else}
 
       {#each branchesForNotice as branch}
-        <PrNotice item={branch} {params} />
+        <PrNotice item={branch} />
       {/each}
 
 
-      {#each issues as item}
-        <ListItem {item} itemType="issue" />
+      {#each items as item}
+        <ListItem {item} />
       {/each}
 
       {#if paginationLinks.length > 3}

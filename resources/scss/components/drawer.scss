@@ -1,0 +1,64 @@
+.drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+
+  .drawer {
+    width: 40vw;
+    height: 100%;
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.3s ease-in-out;
+
+    @media (max-width: 1200px) {
+      width: 50vw;
+    }
+
+    .drawer-header {
+      padding: 1.5rem 1.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .drawer-title {
+        font-size: 1.25rem;
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-color-secondary);
+      }
+    }
+
+    .drawer-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 1.5rem;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

@@ -10,14 +10,39 @@
   align-items: center;
   gap: 1rem;
 
-  .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+  :global(.item-open) {
     margin-top: 0.25rem;
-    fill: var(--success-color);
+    
+    :global(svg) {
+      stroke: var(--success-color);
+      fill: var(--success-color);
+    }
+  }
 
-    &.closed {
+  :global(.item-closed) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--error-color);
       fill: var(--error-color);
+    }
+  }
+
+  :global(.item-merged) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--merged-color);
+      fill: var(--merged-color);
+    }
+  }
+
+  :global(.item-draft) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--draft-color);
+      fill: var(--draft-color);
     }
   }
 

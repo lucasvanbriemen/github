@@ -3,47 +3,134 @@
 use App\Http\Controllers\IncomingWebhookController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PullRequestController;
-use App\Http\Controllers\ItemCommentController;
+use App\Http\Controllers\BaseCommentController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\WorkflowJobController;
+use App\Http\Controllers\AiReviewController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
-    Route::get('/org', [OrganizationController::class, 'getOrganizations'])
-        ->name('organizations.get');
+    Route::get('/organizations', [OrganizationController::class, 'index'])
+        ->name('organizations');
 
-    Route::get('/org/{organization}/repo/{repository}/items/{type}', [ItemController::class, 'index'])
-        ->name('organizations.repositories.items.get');
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications');
 
-    Route::get('/org/{organization}/repo/{repository}/contributors', [RepositoryController::class, 'getContributors'])
-        ->name('organizations.repositories.contributors.get');
+    Route::get('/next-to-work-on', [ItemController::class, 'nextToWorkOn'])
+        ->name('items.next-to-work-on');
 
-    Route::get('/org/{organization}/repo/{repository}/item/{number}', [ItemController::class, 'show'])
-        ->name('organizations.repositories.item.show');
+    Route::get('/notification/{id}', [NotificationController::class, 'show'])
+        ->name('notification.show');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/comment/{comment_id}', [ItemCommentController::class, 'updateItem'])
-        ->name('organizations.repositories.item.comment');
+    Route::post('/notifications/{id}/complete', [NotificationController::class, 'complete'])
+        ->name('notifications.complete');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/{review_id}', [ItemCommentController::class, 'updateReview'])
-        ->name('organizations.repositories.item.review');
+    Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
+        Route::get('/projects', [ProjectController::class, 'index'])
+            ->name('projects');
 
-    Route::post('/org/{organization}/repo/{repository}/item/{number}/review/comment/{comment_id}', [ItemCommentController::class, 'updateReviewComment'])
-        ->name('organizations.repositories.item.review.comment');
+        Route::get('/projects/{number}', [ProjectController::class, 'show'])
+            ->name('project.show');
 
-    Route::get('/org/{organization}/repo/{repository}/item/{number}/files', [ItemController::class, 'getFiles'])
-        ->name('organizations.repositories.item.files');
-    
-    Route::get('/org/{organization}/repo/{repository}/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
-        ->name('organizations.repositories.branches.pr.notices');
+        Route::post('/item/add-to-project', [ProjectController::class, 'addItemToProject'])
+            ->name('project.item.add');
 
-    Route::get('/org/{organization}/repo/{repository}/pr/metadata', [PullRequestController::class, 'metadata'])
-        ->name('organizations.repositories.pr.metadata');
+        Route::post('/item/update-project-status', [ProjectController::class, 'updateItemProjectStatus'])
+            ->name('project.item.update');
 
-    Route::post('/org/{organization}/repo/{repository}/pr/create', [PullRequestController::class, 'create'])
-        ->name('organizations.repositories.pr.create');
+        Route::post('/item/remove-from-project', [ProjectController::class, 'removeItemFromProject'])
+            ->name('project.item.remove');
 
+        Route::get('/metadata', [RepositoryController::class, 'metadata'])
+            ->name('metadata');
+
+        Route::get('/items/{type}', [ItemController::class, 'index'])
+            ->name('items');
+
+        Route::post('/item/{number}/update-labels', [ItemController::class, 'updateLabels'])
+            ->name('item.label.update');
+
+        Route::post('/item/{number}/update-assignees', [ItemController::class, 'updateAssignees'])
+            ->name('item.assignees.update');
+
+        Route::post('/item/{number}', [ItemController::class, 'update'])
+            ->name('item.update');
+
+        Route::get('/item/{number}', [ItemController::class, 'show'])
+            ->name('item.show');
+
+        Route::get('/item/{number}/linked', [ItemController::class, 'getLinkedItems'])
+            ->name('item.linked.get');
+
+        Route::get('/item/{number}/linkable', [ItemController::class, 'searchLinkableItems'])
+            ->name('item.linkable.search');
+
+        Route::post('/item/{number}/link/bulk', [ItemController::class, 'createBulkLinks'])
+            ->name('item.link.bulk.create');
+
+        Route::post('/item/{number}/link/bulk/remove', [ItemController::class, 'removeBulkLinks'])
+            ->name('item.link.bulk.remove');
+
+        Route::post('/item/{number}/comment/{comment_id}', [BaseCommentController::class, 'updateItem'])
+            ->name('item.comment');
+
+        Route::post('item/{number}/comment', [BaseCommentController::class, 'createItemComment'])
+            ->name('item.comment.create');
+
+        Route::post('/comment/improve', [BaseCommentController::class, 'improveComment'])
+            ->name('comment.improve');
+
+        Route::post('/item/{number}/review/comments', [BaseCommentController::class, 'createPRComment'])
+            ->name('item.review.comments.create');
+
+        Route::get('/pr/{number}/files', [PullRequestController::class, 'getFiles'])
+            ->name('pr.files');
+
+        Route::get('/workflow-job/{jobId}/logs', [WorkflowJobController::class, 'getLogs'])
+            ->name('workflow-job.logs');
+
+        Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
+            ->name('branches.pr.notices');
+
+        Route::post('/pr/create', [PullRequestController::class, 'create'])
+            ->name('pr.create');
+
+        Route::post('/pr/{number}', [PullRequestController::class, 'update'])
+            ->name('pr.update');
+
+        Route::post('/pr/{number}/merge', [PullRequestController::class, 'merge'])
+            ->name('pr.merge');
+
+        Route::post('/pr/{number}/reviewers', [PullRequestController::class, 'requestReviewers'])
+            ->name('pr.add.reviewers');
+
+        Route::post('/pr/{number}/review', [PullRequestController::class, 'submitReview'])
+            ->name('pr.review.submit');
+
+        Route::post('/pr/{number}/ai-review/analyze', [AiReviewController::class, 'analyze'])
+            ->name('pr.ai-review.analyze');
+
+        Route::post('/pr/{number}/ai-review/generate-comments', [AiReviewController::class, 'generateComments'])
+            ->name('pr.ai-review.generate-comments');
+
+        Route::post('/pr/{number}/ai-review/post-comments', [AiReviewController::class, 'postComments'])
+            ->name('pr.ai-review.post-comments');
+
+        Route::post('/issue/create', [ItemController::class, 'create'])
+            ->name('issues.create');
+    });
+
+    // Media uploads (images/videos) from markdown editor
+    Route::post('/uploads', [UploadController::class, 'store'])->name('uploads.store');
 });
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
     ->name('api.webhook');
+
+Route::post('/check_end_point', [IncomingWebhookController::class, 'checkEndPoint'])
+    ->name('api.check_end_point');

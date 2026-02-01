@@ -11,11 +11,11 @@ class OrganizationController extends Controller
     {
         foreach (GitHub::me()->organizations() as $organization) {
             Organization::updateOrCreate(
-                ['id' => $organization->id],
+                ['id' => $organization['id']],
                 [
-                    'name' => $organization->login,
-                    'description' => $organization->description,
-                    'avatar_url' => $organization->avatar_url,
+                    'name' => $organization['login'],
+                    'description' => $organization['description'],
+                    'avatar_url' => $organization['avatar_url'],
                 ]
             );
         }
@@ -23,7 +23,7 @@ class OrganizationController extends Controller
         return response()->json(['message' => 'Organizations updated successfully'], 200);
     }
 
-    public static function getOrganizations()
+    public static function index()
     {
         $organizations = Organization::with('repositories')->get();
         return response()->json($organizations);

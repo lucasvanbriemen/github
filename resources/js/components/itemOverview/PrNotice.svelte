@@ -1,8 +1,7 @@
 <script>
-  let { item, params } = $props();
+  import { organization, repository } from "../stores";
 
-  const org = params.organization;
-  const repo = params.repository;
+  let { item } = $props();
 </script>
 
 <div class="pr-notice">
@@ -14,7 +13,7 @@
     {/if}
   </div>
 
-  <a href="#/{org}/{repo}/new/pr/{item.name}" class="create-pr button-primary">Create PR</a>
+  <a href="#/{$organization}/{$repository}/new/pr/{item.name}" class="create-pr button-primary">Create PR</a>
 </div>
 
 <style lang="scss">

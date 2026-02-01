@@ -2,27 +2,34 @@
   import { onMount } from 'svelte';
   import ItemSkeleton from './ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
-  import FileTab from './FileTab.svelte';
+  import FileTab from './pr/FileTab.svelte';
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
+  import { organization, repository } from '../stores';
+  import CopyText from '../CopyText.svelte';
 
   let { params = {} } = $props();
-  let organization = $derived(params.organization || '');
-  let repository = $derived(params.repository || '');
-  let number = $derived(params.number || '');
+  let number = $derived(params.number);
+  let activeTab = $derived(params.tab || 'conversation');
+  let type = $derived(params.type);
+  organization.set(params.organization);
+  repository.set(params.repository);
+  let metadata = $state({});
+
+  let files = $state([]);
+  let loadingFiles = $state(true);
+  let selectedFileIndex = $state(0);
+  let selectedFile = $state(null);
 
   let item = $state({});
-  let isPR = $state(false);
-  let files = $state([]);
-  let loadingFiles = $state(false);
-  let activeTab = $state('conversation');
+  let isPR = type == 'prs';
   let isLoading = $state(true);
+  let showWhitespace = $state(false);
 
   onMount(async () => {
     isLoading = true;
-    const res = await fetch(route(`organizations.repositories.item.show`, { organization, repository, number }));
-    item = await res.json();
+    item = await api.get(route(`organizations.repositories.item.show`, { $organization, $repository, number }));
 
     try {
       item.labels = JSON.parse(item.labels);
@@ -30,59 +37,72 @@
       item.labels = [];
     }
 
-    isPR = item.type === 'pull_request';
+    isLoading = false;
 
-    // If it's a PR, load the file diffs
     if (isPR) {
       loadFiles();
     }
 
-    isLoading = false;
+    metadata = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
   });
 
   async function loadFiles() {
-    loadingFiles = true;
-    const res = await fetch(route(`organizations.repositories.item.files`, { organization, repository, number }));
-    const data = await res.json();
-    files = data || [];
+    files = await api.get(route(`organizations.repositories.pr.files`, { $organization, $repository, number }));
+    selectedFile = files[selectedFileIndex];
     loadingFiles = false;
+  }
+
+  function githubUrl(item) {
+    let urltype;
+    if (isPR) {
+      urltype = 'pull';
+    } else {
+      urltype = 'issues';
+    }
+
+    return `https://github.com/${$organization}/${$repository}/${urltype}/${item.number}?stay=1`;
   }
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {params} />
+  <Sidebar {item} {isPR} {isLoading} {metadata} {params} {activeTab} {files} bind:showWhitespace bind:selectedFile bind:selectedFileIndex />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
-  <div class="item-main">
+  <div class="item-main {activeTab}" class:is-pr={isPR}>
     {#if isLoading}
       <ItemSkeleton />
     {:else}
-      <ItemHeader {item} />
 
-    <!-- PR Header: Branch Information (PR only) -->
-    {#if isPR}
       {#if activeTab === 'conversation'}
-        <div class="item-header-pr">
-          <span class="item-header-pr-title">
-            <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
-            {item.opened_by?.display_name} wants to merge
-            {item.details.head_branch} into {item.details.base_branch}
-          </span>
-        </div>
+        <CopyText text={githubUrl(item)} label="GitHub URL" />
       {/if}
 
-      <Navigation bind:activeTab />
-    {/if}
+      <ItemHeader {item} />
 
-    <!-- Conversation Tab Content -->
-    {#if !isPR || activeTab === 'conversation'}
-      <Conversation {item} {params} />
-    {/if}
+      <!-- PR Header: Branch Information (PR only) -->
+      {#if isPR}
+        {#if activeTab === 'conversation'}
+          <div class="item-header-pr">
+            <span class="item-header-pr-title">
+              <img src={item.opened_by?.avatar_url} alt={item.opened_by?.name} />
+              {item.opened_by?.display_name} wants to merge
+              {item.details?.head_branch} into {item.details?.base_branch}
+            </span>
+          </div>
+        {/if}
 
-    <!-- Files Changed Tab Content (PR only) -->
-    {#if isPR && activeTab === 'files'}
-      <FileTab {params} files={files} loadingFiles={loadingFiles} />
-    {/if}
+        <Navigation bind:activeTab {type} {number} />
+      {/if}
+
+      <!-- Conversation Tab Content -->
+      {#if !isPR || activeTab === 'conversation'}
+        <Conversation {item} {params} />
+      {/if}
+
+      <!-- Files Changed Tab Content (PR only) -->
+      {#if isPR && activeTab === 'files'}
+        <FileTab {item} {files} {loadingFiles} bind:selectedFile bind:selectedFileIndex {params} {showWhitespace} />
+      {/if}
     {/if}
   </div>
 </div>
