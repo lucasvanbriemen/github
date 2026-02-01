@@ -349,7 +349,7 @@
             <div class="reviewer-actions">
               <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
               <Icon name="sync" className="icon sync" onclick={() => requestReviewer({selectedValue: reviewer.user.login})} />
-              <button class="focus-button" onclick={() => openFocusMode(reviewer)} title="Focus on this reviewer's comments">
+              <button class="focus-button" onclick={() => openFocusMode(reviewer)}>
                 <Icon name="listing" className="icon" />
               </button>
             </div>
