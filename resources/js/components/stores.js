@@ -15,8 +15,7 @@ function syncFromUrl() {
   repository.set(repo ?? null);
 
   if (org && repo && get(repoMetadata) === null) {
-    api.get(route('organizations.repositories.metadata', { organization: org, repository: repo }))
-      .then(data => repoMetadata.set(data));
+    api.get(route('organizations.repositories.metadata', { organization: org, repository: repo })).then(data => repoMetadata.set(data));
   } else {
     repoMetadata.set(null);
   }
