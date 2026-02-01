@@ -88,7 +88,7 @@
 
         <Markdown content={comment.body} canEdit={false} />
 
-        {#if comment.type === 'code'}
+        {#if comment.can_reply}
           <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
             {#if !isExpandedReplyForm}
               <input type="text" onclick={expandReplyForm} placeholder="Add a reply..." class="reply-input-compact" readonly/>
