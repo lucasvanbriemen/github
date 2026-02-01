@@ -46,4 +46,16 @@ class PullRequestComment extends BaseComment
     }
 
     protected $fillable = ['id', 'base_comment_id', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line', 'pull_request_review_id'];
+
+    public function unresolveParentIfResolved(): void
+    {
+        if ($this->in_reply_to_id) {
+            $parentComment = self::find($this->in_reply_to_id);
+            if ($parentComment) {
+                $parentComment->baseComment->resolved = false;
+                $parentComment->baseComment->save();
+                $parentComment->unresolveParentIfResolved();
+            }
+        }
+    }
 }
