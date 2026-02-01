@@ -7,7 +7,6 @@
   flex-direction: column;
   flex-wrap: wrap;
   gap: 0.5rem;
-  position: relative;
 
   .body {
     overflow: hidden;
@@ -25,6 +24,14 @@
 
     .body {
       padding-bottom: 0;
+    }
+  }
+
+  &.open {
+    border: 1px solid var(--background-color-two);
+    .group-title {
+      font-size: 0.75rem;
+      margin: -0.25rem 0 0rem -.25rem;
     }
   }
 
