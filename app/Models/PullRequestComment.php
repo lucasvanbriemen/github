@@ -52,12 +52,8 @@ class PullRequestComment extends BaseComment
         if ($this->in_reply_to_id) {
             $parentComment = self::find($this->in_reply_to_id);
             if ($parentComment) {
-                // Unresolve this parent if it's resolved
-                if ($parentComment->baseComment?->resolved) {
-                    $parentComment->baseComment->resolved = false;
-                    $parentComment->baseComment->save();
-                }
-                // Recursively unresolve all ancestors
+                $parentComment->baseComment->resolved = false;
+                $parentComment->baseComment->save();
                 $parentComment->unresolveParentIfResolved();
             }
         }
