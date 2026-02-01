@@ -31,42 +31,6 @@
       .navigation-buttons {
         display: flex;
         gap: 0.75rem;
-
-        .nav-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          padding: 0.625rem 1rem;
-          background-color: var(--background-color-two);
-          border: 1px solid var(--background-color-two);
-          border-radius: 0.5rem;
-          cursor: pointer;
-          font-size: 0.85rem;
-          font-weight: 500;
-          color: var(--text-color);
-          transition: all 0.2s;
-
-          :global(.icon) {
-            width: 1rem;
-            height: 1rem;
-          }
-
-          &:hover:not(:disabled) {
-            background-color: var(--primary-color-dark);
-            border-color: var(--primary-color);
-            color: var(--background-color);
-          }
-
-          &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-
-          &.prev {
-            flex-direction: row-reverse;
-          }
-        }
       }
 
       .action-button {
