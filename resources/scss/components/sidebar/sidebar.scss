@@ -1,19 +1,10 @@
 .sidebar {
   width: 15vw;
-  background-color: var(--background-color-one);
-  border-right: 1px solid var(--color-border);
-  position: relative;
   height: 100%;
   position: sticky;
   top: 0;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -1rem;
-    height: 1rem;
-    width: 1rem;
-    background: radial-gradient(circle at bottom right, transparent 1rem, var(--background-color-one) 1rem);
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.5rem 0 0.5rem;
 }
