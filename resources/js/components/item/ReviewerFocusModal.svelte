@@ -70,37 +70,15 @@
 </script>
 
 <Modal isOpen={isOpen} onClose={onClose} title="{reviewer?.user?.display_name}'s unresloved feedback:" showButtons={false}>
-      <!-- Comment Display Area -->
-      <div class="comment-area">
-        {#if hasComments && currentComment}
-          <!-- Parent context if reply -->
-          {#if currentComment.in_reply_to_id}
-            <div class="parent-context">
-              <p class="parent-label">In reply to:</p>
-              {#if currentComment.parent_comment}
-                <div class="parent-comment-display">
-                  <img src={currentComment.parent_comment.author?.avatar_url} alt={currentComment.parent_comment.author?.name} class="parent-avatar" />
-                  <div class="parent-content">
-                    <strong>{currentComment.parent_comment.author?.display_name}</strong>
-                    {#if currentComment.parent_comment.body}
-                      <p class="parent-body">{currentComment.parent_comment.body.substring(0, 100)}...</p>
-                    {/if}
-                  </div>
-                </div>
-              {/if}
-            </div>
-          {/if}
-
-          <!-- Main Comment -->
-          <div class="main-comment">
-            <Comment comment={currentComment} {params} />
-          </div>
-        {:else}
-          <div class="no-comments">
-            <p>No comments from this reviewer.</p>
-          </div>
-        {/if}
-      </div>
+      {#if hasComments && currentComment}
+        <div class="main-comment">
+          <Comment comment={currentComment} {params} />
+        </div>
+      {:else}
+        <div class="no-comments">
+          <p>No comments from this reviewer.</p>
+        </div>
+      {/if}
 
       <!-- Navigation and Actions -->
       {#if hasComments}
