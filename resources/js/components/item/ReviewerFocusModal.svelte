@@ -29,15 +29,6 @@
   let totalComments = $derived(reviewerComments.length);
   let hasComments = $derived(totalComments > 0);
 
-  // Auto-close when all comments resolved
-  $effect(() => {
-    if (isOpen && hasComments === false && reviewerComments.length === 0) {
-      setTimeout(() => {
-        closeModal();
-      }, 300);
-    }
-  });
-
   // Reset index when modal opens
   $effect(() => {
     if (isOpen) {
