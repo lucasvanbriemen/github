@@ -47,11 +47,6 @@ class PullRequestComment extends BaseComment
 
     protected $fillable = ['id', 'base_comment_id', 'diff_hunk', 'path', 'line_start', 'line_end', 'in_reply_to_id', 'resolved', 'side', 'original_line', 'pull_request_review_id'];
 
-    /**
-     * Unresolve the parent comment if it exists and is currently resolved.
-     * This is called automatically when a reply is posted to a resolved comment.
-     * Recursively unresolves all ancestors in the comment chain.
-     */
     public function unresolveParentIfResolved(): void
     {
         if ($this->in_reply_to_id) {
