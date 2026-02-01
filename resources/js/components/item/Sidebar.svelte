@@ -5,12 +5,15 @@
   import Icon from '../Icon.svelte';
   import Select from '../Select.svelte';
   import Switch from '../Switch.svelte';
+  import ReviewerFocusModal from './ReviewerFocusModal.svelte';
   import { organization, repository } from '../stores';
 
   let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
+  let focusedReviewer = $state(null);
+  let showFocusModal = $state(false);
 
   let linkedItems = $state([]);
   let projects = $state([]);
@@ -213,6 +216,16 @@
     updateLabels({ selectedValue: newLabels });
   }
 
+  function openFocusMode(reviewer) {
+    focusedReviewer = reviewer;
+    showFocusModal = true;
+  }
+
+  function closeFocusMode() {
+    showFocusModal = false;
+    focusedReviewer = null;
+  }
+
 
   $effect(() => {
     void isLoading;
@@ -334,13 +347,26 @@
           <div class="reviewer">
             <img src={reviewer.user.avatar_url} alt={reviewer.user.name} />
             <span>{reviewer.user.display_name}</span>
-            <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
-            <Icon name="sync" className="icon sync" onclick={() => requestReviewer({selectedValue: reviewer.user.login})} />
+            <div class="reviewer-actions">
+              <Icon name={reviewer.state} className={`icon review ${reviewer.state}`} />
+              <Icon name="sync" className="icon sync" onclick={() => requestReviewer({selectedValue: reviewer.user.login})} />
+              <button class="focus-button" onclick={() => openFocusMode(reviewer)} title="Focus on this reviewer's comments">
+                <Icon name="target" className="icon" />
+              </button>
+            </div>
           </div>
         {/each}
 
         <Select name="reviewer" selectableItems={contributors} onChange={requestReviewer} multiple={true} />
       </SidebarGroup>
+
+      <ReviewerFocusModal
+        isOpen={showFocusModal}
+        onClose={closeFocusMode}
+        reviewer={focusedReviewer}
+        allComments={item.comments}
+        {params}
+      />
     {/if}
   {/if}
 </Sidebar>
