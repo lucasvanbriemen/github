@@ -20,10 +20,7 @@
 </script>
 
 <div class="group" class:open={isOpen}>
-  <button class="group-title" onclick={toggleOpen}>
-    {title}
-    <Icon name="gear" className="icon gear" onclick={toggleOpen} />
-  </button>
+  <button class="group-title" onclick={toggleOpen}>{title}</button>
   
   <div class="body" bind:this={body}>{@render children?.() }</div>
 </div>

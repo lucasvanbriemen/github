@@ -6,6 +6,7 @@
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  border: 1px solid var(--background-color-one);
 
   .body {
     overflow: hidden;
@@ -18,8 +19,15 @@
     padding-bottom: 0.5rem;
   }
 
-  &:not(.open) .body {
-    padding-bottom: 0;
+  &:not(.open) {
+    &:hover {
+      cursor: pointer;
+      border: 1px solid var(--primary-color);
+    }
+
+    .body {
+      padding-bottom: 0;
+    }
   }
 
   &.open {
@@ -41,6 +49,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
   }
 
   :global(.gear) {
