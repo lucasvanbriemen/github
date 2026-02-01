@@ -47,26 +47,6 @@
     }
   });
 
-  // Keyboard shortcuts
-  function handleKeydown(e) {
-    if (!isOpen) return;
-
-    if (e.key === 'Escape') {
-      closeModal();
-    } else if (e.key === 'ArrowLeft' || e.key === 'j') {
-      e.preventDefault();
-      goToPrevious();
-    } else if (e.key === 'ArrowRight' || e.key === 'k') {
-      e.preventDefault();
-      goToNext();
-    } else if (e.key === 'r') {
-      e.preventDefault();
-      if (currentComment) {
-        toggleResolve();
-      }
-    }
-  }
-
   function goToPrevious() {
     if (currentIndex > 0) {
       currentIndex--;
@@ -115,13 +95,6 @@
       closeModal();
     }
   }
-
-  onMount(() => {
-    document.addEventListener('keydown', handleKeydown);
-    return () => {
-      document.removeEventListener('keydown', handleKeydown);
-    };
-  });
 </script>
 
 <Modal isOpen={isOpen} onClose={onClose} title="{reviewer?.user?.display_name}'s unresloved feedback:" showButtons={false}>
