@@ -1,7 +1,6 @@
 <script>
-  import { onMount } from 'svelte';
   import { organization, repository } from '../stores.js';
-  import { filterCommentsByReviewer, getParentComment } from '../../lib/commentUtils.js';
+  import { filterCommentsByReviewer } from '../../lib/commentUtils.js';
   import Modal from '../Modal.svelte';
   import Comment from '../Comment.svelte';
 
@@ -15,15 +14,7 @@
   );
 
   let currentComment = $derived.by(() => {
-    const comment = reviewerComments[currentIndex];
-    if (comment && comment.in_reply_to_id) {
-      // Return comment with parent reference (without mutating)
-      return {
-        ...comment,
-        parent_comment: getParentComment(comment, allComments)
-      };
-    }
-    return comment;
+    return reviewerComments[currentIndex];
   });
 
   let totalComments = $derived(reviewerComments.length);
@@ -74,7 +65,6 @@
     </div>
   {/if}
 
-  <!-- Navigation and Actions -->
   {#if hasComments}
     <div class="modal-controls">
       <div class="navigation-buttons">
