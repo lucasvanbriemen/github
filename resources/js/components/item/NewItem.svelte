@@ -6,7 +6,7 @@
   import Select from '../Select.svelte';
   import Input from '../Input.svelte';
   import Markdown from '../Markdown.svelte';
-  import { organization, repository, repoMetadata } from '../stores';
+  import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
   let { params = {} } = $props();
 
@@ -29,14 +29,15 @@
   }
   
   onMount(async () => {
+    const metadata = await waitForMetadata();
     // Ensure options are in { value, label } shape expected by <Select>
-    possibleBranches = [...new Set($repoMetadata.branches || [])].map(b => ({ value: b, label: b }));    
-    possibleAssignees = ($repoMetadata.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
+    possibleBranches = [...new Set(metadata.branches || [])].map(b => ({ value: b, label: b }));
+    possibleAssignees = (metadata.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
 
-    assignee = $repoMetadata.default_assignee;
-    base_branch = $repoMetadata.master_branch;
+    assignee = metadata.default_assignee;
+    base_branch = metadata.master_branch;
 
-    templates = $repoMetadata.templates.filter(t => t.type === type);
+    templates = metadata.templates.filter(t => t.type === type);
 
     // Set the first template as the default selected template
     selectTemplate(templates[0]);
