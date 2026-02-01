@@ -88,6 +88,14 @@
 
         <Markdown content={comment.body} canEdit={false} />
 
+        {#if comment.child_comments}
+          <div class="item-comment-replies">
+            {#each comment.child_comments as comment}
+              <Self {comment} {params} />
+            {/each}
+          </div>
+        {/if}
+
         {#if comment.can_reply}
           <div class="reply-form-container" class:expanded={isExpandedReplyForm}>
             {#if !isExpandedReplyForm}
@@ -99,14 +107,6 @@
                 <button class="button-primary-outline" onclick={closeReplyForm}>Cancel</button>
               </div>
             {/if}
-          </div>
-        {/if}
-
-        {#if comment.child_comments}
-          <div class="item-comment-replies">
-            {#each comment.child_comments as comment}
-              <Self {comment} {params} />
-            {/each}
           </div>
         {/if}
       </div>
