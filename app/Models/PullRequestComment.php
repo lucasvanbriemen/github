@@ -50,14 +50,20 @@ class PullRequestComment extends BaseComment
     /**
      * Unresolve the parent comment if it exists and is currently resolved.
      * This is called automatically when a reply is posted to a resolved comment.
+     * Recursively unresolves all ancestors in the comment chain.
      */
     public function unresolveParentIfResolved(): void
     {
         if ($this->in_reply_to_id) {
             $parentComment = self::find($this->in_reply_to_id);
-            if ($parentComment && $parentComment->baseComment?->resolved) {
-                $parentComment->baseComment->resolved = false;
-                $parentComment->baseComment->save();
+            if ($parentComment) {
+                // Unresolve this parent if it's resolved
+                if ($parentComment->baseComment?->resolved) {
+                    $parentComment->baseComment->resolved = false;
+                    $parentComment->baseComment->save();
+                }
+                // Recursively unresolve all ancestors
+                $parentComment->unresolveParentIfResolved();
             }
         }
     }
