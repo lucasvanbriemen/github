@@ -4,6 +4,27 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+DROP TABLE IF EXISTS `base_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `base_comments` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `comment_id` bigint(20) unsigned NOT NULL,
+  `issue_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `body` text DEFAULT NULL,
+  `resolved` tinyint(1) NOT NULL DEFAULT 0,
+  `type` enum('issue','code','review') NOT NULL DEFAULT 'issue',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `issue_comments_github_id_unique` (`comment_id`),
+  KEY `issue_comments_user_id_foreign` (`user_id`),
+  KEY `issue_comments_issue_id_foreign` (`issue_id`),
+  CONSTRAINT `issue_comments_issue_id_foreign` FOREIGN KEY (`issue_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `issue_comments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `branches`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -49,12 +70,15 @@ CREATE TABLE `commits` (
   `branch_id` bigint(20) unsigned NOT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   `message` text NOT NULL,
+  `workflow_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`sha`),
   KEY `commits_branch_id_foreign` (`branch_id`),
   KEY `commits_repository_id_foreign` (`repository_id`),
   KEY `commits_user_id_foreign` (`user_id`),
+  KEY `commits_workflow_id_foreign` (`workflow_id`),
   CONSTRAINT `commits_repository_id_foreign` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `commits_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE
+  CONSTRAINT `commits_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `commits_workflow_id_foreign` FOREIGN KEY (`workflow_id`) REFERENCES `workflows` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `failed_jobs`;
@@ -115,23 +139,20 @@ CREATE TABLE `issue_assignees` (
   CONSTRAINT `issue_assignees_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `item_comments`;
+DROP TABLE IF EXISTS `item_labels`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `item_comments` (
+CREATE TABLE `item_labels` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `item_id` bigint(20) unsigned NOT NULL,
+  `label_id` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `id` bigint(20) unsigned NOT NULL,
-  `issue_id` bigint(20) unsigned NOT NULL,
-  `user_id` bigint(20) unsigned NOT NULL,
-  `body` text DEFAULT NULL,
-  `resolved` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `issue_comments_github_id_unique` (`id`),
-  KEY `issue_comments_user_id_foreign` (`user_id`),
-  KEY `issue_comments_issue_id_foreign` (`issue_id`),
-  CONSTRAINT `issue_comments_issue_id_foreign` FOREIGN KEY (`issue_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `issue_comments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE
+  KEY `item_labels_item_id_foreign` (`item_id`),
+  KEY `item_labels_label_id_foreign` (`label_id`),
+  CONSTRAINT `item_labels_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `item_labels_label_id_foreign` FOREIGN KEY (`label_id`) REFERENCES `labels` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `items`;
@@ -149,9 +170,13 @@ CREATE TABLE `items` (
   `labels` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '[]' CHECK (json_valid(`labels`)),
   `opened_by_id` bigint(20) unsigned DEFAULT NULL,
   `type` enum('issue','pull_request') NOT NULL,
+  `milestone_id` bigint(20) DEFAULT NULL,
+  `importance_score` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `items_repository_id_number_index` (`repository_id`,`number`),
   KEY `items_opened_by_id_foreign` (`opened_by_id`),
+  KEY `items_milestone_id_foreign` (`milestone_id`),
+  CONSTRAINT `items_milestone_id_foreign` FOREIGN KEY (`milestone_id`) REFERENCES `milestones` (`id`) ON DELETE SET NULL,
   CONSTRAINT `items_opened_by_id_foreign` FOREIGN KEY (`opened_by_id`) REFERENCES `github_users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `items_repository_id_foreign` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -188,6 +213,23 @@ CREATE TABLE `jobs` (
   KEY `jobs_queue_index` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `labels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `labels` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `github_id` bigint(20) unsigned NOT NULL,
+  `repository_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `color` varchar(6) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `labels_repository_id_name_unique` (`repository_id`,`name`),
+  CONSTRAINT `labels_repository_id_foreign` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `migrations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -195,6 +237,37 @@ CREATE TABLE `migrations` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `migration` varchar(255) NOT NULL,
   `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `milestones`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `milestones` (
+  `id` bigint(20) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `repository_id` bigint(20) unsigned NOT NULL,
+  `state` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `due_on` datetime DEFAULT NULL,
+  `number` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `milestones_repository_id_foreign` (`repository_id`),
+  CONSTRAINT `milestones_repository_id_foreign` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `notifications` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `type` varchar(255) NOT NULL,
+  `related_id` varchar(255) NOT NULL,
+  `completed` tinyint(1) NOT NULL DEFAULT 0,
+  `triggered_by_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -249,10 +322,6 @@ CREATE TABLE `pull_request_comments` (
   `id` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `pull_request_id` bigint(20) unsigned NOT NULL,
-  `user_id` bigint(20) unsigned NOT NULL,
-  `body` longtext DEFAULT NULL,
-  `resolved` tinyint(1) NOT NULL DEFAULT 0,
   `in_reply_to_id` bigint(20) unsigned DEFAULT NULL,
   `diff_hunk` longtext DEFAULT NULL,
   `line_start` int(11) DEFAULT NULL,
@@ -261,11 +330,8 @@ CREATE TABLE `pull_request_comments` (
   `path` varchar(255) DEFAULT NULL,
   `side` varchar(255) DEFAULT NULL,
   `pull_request_review_id` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `pull_request_comments_pull_request_id_foreign` (`pull_request_id`),
-  KEY `pull_request_comments_user_id_foreign` (`user_id`),
-  CONSTRAINT `pull_request_comments_pull_request_id_foreign` FOREIGN KEY (`pull_request_id`) REFERENCES `pull_requests` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `pull_request_comments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE
+  `base_comment_id` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pull_request_reviews`;
@@ -273,18 +339,13 @@ DROP TABLE IF EXISTS `pull_request_reviews`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pull_request_reviews` (
   `id` bigint(20) unsigned NOT NULL,
+  `base_comment_id` bigint(20) unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `pull_request_id` bigint(20) unsigned NOT NULL,
-  `user_id` bigint(20) unsigned NOT NULL,
-  `body` longtext DEFAULT NULL,
-  `resolved` tinyint(1) NOT NULL DEFAULT 0,
   `state` enum('approved','changes_requested','commented') NOT NULL DEFAULT 'commented',
   PRIMARY KEY (`id`),
-  KEY `pull_request_reviews_pull_request_id_foreign` (`pull_request_id`),
-  KEY `pull_request_reviews_user_id_foreign` (`user_id`),
-  CONSTRAINT `pull_request_reviews_pull_request_id_foreign` FOREIGN KEY (`pull_request_id`) REFERENCES `pull_requests` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `pull_request_reviews_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `github_users` (`id`) ON DELETE CASCADE
+  KEY `pull_request_reviews_base_comment_id_foreign` (`base_comment_id`),
+  CONSTRAINT `pull_request_reviews_base_comment_id_foreign` FOREIGN KEY (`base_comment_id`) REFERENCES `base_comments` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pull_requests`;
@@ -348,6 +409,7 @@ CREATE TABLE `requested_reviewers` (
   `pull_request_id` bigint(20) unsigned NOT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   `state` enum('pending','approved','changes_requested','commented') NOT NULL DEFAULT 'pending',
+  `last_state_before_dismiss` enum('approved','changes_requested','commented') DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `requested_reviewers_pull_request_id_foreign` (`pull_request_id`),
   KEY `requested_reviewers_user_id_foreign` (`user_id`),
@@ -382,8 +444,39 @@ CREATE TABLE `users` (
   `remember_token` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `github_username` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `workflow_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflow_jobs` (
+  `id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `workflow_id` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `steps` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`steps`)),
+  `state` varchar(255) NOT NULL DEFAULT 'queued',
+  `conclusion` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `workflow_jobs_workflow_id_foreign` (`workflow_id`),
+  CONSTRAINT `workflow_jobs_workflow_id_foreign` FOREIGN KEY (`workflow_id`) REFERENCES `workflows` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `workflows`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workflows` (
+  `id` bigint(20) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `state` varchar(255) NOT NULL DEFAULT 'queued',
+  `conclusion` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -460,3 +553,25 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (77,'2025_11_17_173
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (78,'2025_11_23_144255_add_draft_as_enum_to_items',37);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (79,'2025_11_29_115010_remove_console_table',38);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (82,'2025_11_29_115153_remove_viewed_files',39);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (84,'2025_11_29_130842_merge_pr_comments_in_item_comments_pr1',40);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (85,'2025_11_29_132010_merge_pr_comments_in_item_comments_pr2',41);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (86,'2025_11_29_133216_merge_pr_comments_in_item_comments_pr3',42);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (87,'2025_11_29_134020_merge_pr_comments_in_item_comments_pr4',43);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (88,'2025_11_29_135232_merge_pr_comments_in_item_comments_pr5',44);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (89,'2025_11_30_154020_merge_pr_reviewes_in_item_comments_pr1',45);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (90,'2025_11_30_160114_merge_pr_reviewes_in_item_comments_pr2',46);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (91,'2025_11_30_183115_merge_pr_reviewes_in_item_comments_pr3',47);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (92,'2025_12_03_000000_fix_null_base_comment_ids_in_reviews',48);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (93,'2025_12_20_000000_add_last_state_before_dismiss_to_requested_reviewers',49);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (96,'2025_12_20_155819_create_workflow_table',50);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (97,'2025_12_21_200213_add_github_username_to_users_table',51);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (98,'2025_12_27_123938_create_notification_table',52);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (101,'2025_12_30_create_labels_table',53);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (102,'2025_12_30_203554_extract_labels',54);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (106,'2025_12_31_181705_backfill_labels',55);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (107,'2026_01_03_191811_add_triggered_by_id_to_notifications',56);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (108,'2026_01_10_162933_create_milestone_table',57);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (110,'2026_01_10_171342_update_items_table',58);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (111,'2026_01_10_192821_add_number_to_milestone',59);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (112,'2026_01_17_create_priority_scores_table',60);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (114,'2026_01_17_000000_add_score_to_items',61);

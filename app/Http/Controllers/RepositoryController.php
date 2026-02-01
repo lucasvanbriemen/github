@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
+use App\Services\BranchTreeService;
 use App\Models\Repository;
 use App\Models\Label;
 use App\GithubConfig;
@@ -80,5 +81,15 @@ class RepositoryController extends Controller
             'labels' => $labels,
             'milestones' => $milestones,
         ]);
+    }
+
+    public function getBranchTree($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $service = new BranchTreeService();
+        $branches = $service->buildTree($repository->id);
+
+        return response()->json(['branches' => $branches]);
     }
 }

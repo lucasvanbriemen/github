@@ -10,6 +10,7 @@
   import Project from './Project.svelte';
   import Item from './item/Item.svelte';
   import NewItem from './item/NewItem.svelte';
+  import BranchTreeView from './branches/BranchTreeView.svelte';
   import theme from '../lib/theme.js';
   import api from '../lib/api.js';
 
@@ -20,6 +21,8 @@
 
     '/:organization/:repository/projects': ProjectsOverview,
     '/:organization/:repository/projects/:number': Project,
+
+    '/:organization/:repository/branches': BranchTreeView,
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,

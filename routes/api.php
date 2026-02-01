@@ -97,6 +97,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/branches/pr/notices', [RepositoryController::class, 'getBranchesForPRNotices'])
             ->name('branches.pr.notices');
 
+        Route::get('/branches/tree', [RepositoryController::class, 'getBranchTree'])
+            ->name('branches.tree');
+
         Route::post('/pr/create', [PullRequestController::class, 'create'])
             ->name('pr.create');
 
