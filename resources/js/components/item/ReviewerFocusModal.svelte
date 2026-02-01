@@ -185,7 +185,6 @@
               disabled={currentIndex === 0}
               title="Previous comment (← or j)"
             >
-              <Icon name="chevron-left" className="icon" />
               Previous
             </button>
             <button
@@ -195,7 +194,6 @@
               title="Next comment (→ or k)"
             >
               Next
-              <Icon name="chevron-right" className="icon" />
             </button>
           </div>
 
