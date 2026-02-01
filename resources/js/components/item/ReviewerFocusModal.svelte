@@ -70,27 +70,27 @@
 </script>
 
 <Modal isOpen={isOpen} onClose={onClose} title="{reviewer?.user?.display_name}'s unresloved feedback:" showButtons={false}>
-      {#if hasComments && currentComment}
-        <div class="main-comment">
-          <Comment comment={currentComment} {params} />
-        </div>
-      {:else}
-        <div class="no-comments">
-          <p>No comments from this reviewer.</p>
-        </div>
-      {/if}
+  {#if hasComments && currentComment}
+    <div class="main-comment">
+      <Comment comment={currentComment} {params} />
+    </div>
+  {:else}
+    <div class="no-comments">
+      <p>No comments from this reviewer.</p>
+    </div>
+  {/if}
 
-      <!-- Navigation and Actions -->
-      {#if hasComments}
-        <div class="modal-controls">
-          <div class="navigation-buttons">
-            <button class="nav-button prev" onclick={goToPrevious} disabled={currentIndex === 0}> Previous</button>
-            <button class="nav-button next" onclick={goToNext} disabled={currentIndex === totalComments - 1}>Next</button>
-          </div>
+  <!-- Navigation and Actions -->
+  {#if hasComments}
+    <div class="modal-controls">
+      <div class="navigation-buttons">
+        <button class="nav-button prev" onclick={goToPrevious} disabled={currentIndex === 0}> Previous</button>
+        <button class="nav-button next" onclick={goToNext} disabled={currentIndex === totalComments - 1}>Next</button>
+      </div>
 
-          <button class="action-button" class:resolved={currentComment?.resolved} onclick={toggleResolve}>{currentComment?.resolved ? 'Unresolve' : 'Mark as Complete'}</button>
-        </div>
-      {/if}
+      <button class="action-button" class:resolved={currentComment?.resolved} onclick={toggleResolve}>{currentComment?.resolved ? 'Unresolve' : 'Mark as Complete'}</button>
+    </div>
+  {/if}
 </Modal>
 
 
