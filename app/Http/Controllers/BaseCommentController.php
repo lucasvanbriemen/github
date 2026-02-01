@@ -98,12 +98,6 @@ class BaseCommentController extends Controller
                 ]
             );
 
-            // Auto-unresolve parent comment if it's resolved
-            if ($parentComment->resolved) {
-                $parentComment->resolved = false;
-                $parentComment->save();
-            }
-
             return response()->json(['success' => true]);
         }
 
