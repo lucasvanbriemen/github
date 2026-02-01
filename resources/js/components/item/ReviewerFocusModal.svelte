@@ -71,9 +71,7 @@
 
 <Modal isOpen={isOpen} onClose={onClose} title="{reviewer?.user?.display_name}'s unresloved feedback:" showButtons={false}>
   {#if hasComments && currentComment}
-    <div class="main-comment">
-      <Comment comment={currentComment} {params} />
-    </div>
+    <Comment comment={currentComment} {params} />
   {:else}
     <div class="no-comments">
       <p>No comments from this reviewer.</p>
