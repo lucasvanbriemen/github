@@ -1,6 +1,4 @@
 <script>
-  import Icon from "../Icon.svelte";
-
   let { title, children } = $props();
   let isOpen = $state(false);
 
