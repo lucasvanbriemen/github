@@ -82,7 +82,7 @@
         <button class="next button-primary-outline" onclick={goToNext} disabled={currentIndex === totalComments - 1}>Next</button>
       </div>
 
-      <button class="action-button" class:resolved={currentComment?.resolved} onclick={toggleResolve}>{currentComment?.resolved ? 'Unresolve' : 'Mark as Complete'}</button>
+      <button class="button-primary" class:resolved={currentComment?.resolved} onclick={toggleResolve}>{currentComment?.resolved ? 'Unresolve' : 'Mark as Complete'}</button>
     </div>
   {/if}
 </Modal>
