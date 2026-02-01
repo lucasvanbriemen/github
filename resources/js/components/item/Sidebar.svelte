@@ -6,7 +6,7 @@
   import Select from '../Select.svelte';
   import Switch from '../Switch.svelte';
   import ReviewerFocusModal from './ReviewerFocusModal.svelte';
-  import { organization, repository, repoMetadata } from '../stores';
+  import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
   let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
 
@@ -41,8 +41,9 @@
     updateLinkedItems();
     projects =  await api.get(route('organizations.repositories.projects', { $organization, $repository }));
 
-    possibleAssignees = ($repoMetadata.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
-    possibleMilestones = ($repoMetadata.milestones || []).filter(m => m).map((m) => ({ value: m.number, label: m.title }));
+    const metadata = await waitForMetadata();
+    possibleAssignees = (metadata.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
+    possibleMilestones = (metadata.milestones || []).filter(m => m).map((m) => ({ value: m.number, label: m.title }));
 
     possibleAssignees.forEach(assignee => {
       item.assignees.forEach(itemAssignee => {

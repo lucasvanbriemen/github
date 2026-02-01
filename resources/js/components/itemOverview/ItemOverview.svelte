@@ -7,7 +7,7 @@
   import ListItemSkeleton from '../ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
-  import { organization, repository, repoMetadata } from '../stores.js';
+  import { organization, repository, repoMetadata, waitForMetadata } from '../stores.js';
 
   let { params = {} } = $props();
   let type = $derived(params.type);
@@ -32,7 +32,8 @@
   const anyAssigneeOption = { value: 'any', label: 'Any' };
 
   async function getContributors() {
-    assignees = $repoMetadata.assignees.filter(a => a).map(assignee => ({
+    const metadata = await waitForMetadata();
+    assignees = metadata.assignees.filter(a => a).map(assignee => ({
       value: assignee.id,
       image: assignee.avatar_url,
       label: assignee.display_name,
@@ -42,7 +43,8 @@
   }
 
   async function getMilestones() {
-    selectableMilestones = $repoMetadata.milestones.filter(m => m).map(milestone => ({
+    const metadata = await waitForMetadata();
+    selectableMilestones = metadata.milestones.filter(m => m).map(milestone => ({
       value: milestone.id,
       label: milestone.title,
     }));
