@@ -359,13 +359,7 @@
         <Select name="reviewer" selectableItems={contributors} onChange={requestReviewer} multiple={true} />
       </SidebarGroup>
 
-      <ReviewerFocusModal
-        isOpen={showFocusModal}
-        onClose={closeFocusMode}
-        reviewer={focusedReviewer}
-        allComments={item.comments}
-        {params}
-      />
+      <ReviewerFocusModal isOpen={showFocusModal} onClose={closeFocusMode} reviewer={focusedReviewer} allComments={item.comments} {params} />
     {/if}
   {/if}
 </Sidebar>
