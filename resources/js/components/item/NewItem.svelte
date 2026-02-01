@@ -6,7 +6,7 @@
   import Select from '../Select.svelte';
   import Input from '../Input.svelte';
   import Markdown from '../Markdown.svelte';
-  import { organization, repository } from '../stores';
+  import { organization, repository, repoMetadata } from '../stores';
 
   let { params = {} } = $props();
 
@@ -29,16 +29,14 @@
   }
   
   onMount(async () => {
-    const data = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
-    
     // Ensure options are in { value, label } shape expected by <Select>
-    possibleBranches = [...new Set(data.branches || [])].map(b => ({ value: b, label: b }));    
-    possibleAssignees = (data.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
+    possibleBranches = [...new Set($repoMetadata.branches || [])].map(b => ({ value: b, label: b }));    
+    possibleAssignees = ($repoMetadata.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
 
-    assignee = data.default_assignee;
-    base_branch = data.master_branch;
+    assignee = $repoMetadata.default_assignee;
+    base_branch = $repoMetadata.master_branch;
 
-    templates = data.templates.filter(t => t.type === type);
+    templates = $repoMetadata.templates.filter(t => t.type === type);
 
     // Set the first template as the default selected template
     selectTemplate(templates[0]);

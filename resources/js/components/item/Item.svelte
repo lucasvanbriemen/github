@@ -6,7 +6,7 @@
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
-  import { organization, repository } from '../stores';
+  import { organization, repository, repoMetadata } from '../stores';
   import CopyText from '../CopyText.svelte';
 
   let { params = {} } = $props();
@@ -15,7 +15,6 @@
   let type = $derived(params.type);
   organization.set(params.organization);
   repository.set(params.repository);
-  let metadata = $state({});
 
   let files = $state([]);
   let loadingFiles = $state(true);
@@ -42,8 +41,6 @@
     if (isPR) {
       loadFiles();
     }
-
-    metadata = await api.get(route(`organizations.repositories.metadata`, { $organization, $repository }));
   });
 
   async function loadFiles() {
@@ -65,7 +62,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} {metadata} {params} {activeTab} {files} bind:showWhitespace bind:selectedFile bind:selectedFileIndex />
+  <Sidebar {item} {isPR} {isLoading} metadata={$repoMetadata} {params} {activeTab} {files} {showWhitespace} {selectedFileIndex} {selectedFile} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main {activeTab}" class:is-pr={isPR}>
