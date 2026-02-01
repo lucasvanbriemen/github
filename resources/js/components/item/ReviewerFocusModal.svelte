@@ -8,7 +8,6 @@
   let { isOpen = false, onClose, reviewer, allComments = [], params = {} } = $props();
 
   let currentIndex = $state(0);
-  let isClosing = $state(false);
 
   // Reactive: filter comments by reviewer (excludes resolved)
   let reviewerComments = $derived(
@@ -43,7 +42,6 @@
   $effect(() => {
     if (isOpen) {
       currentIndex = 0;
-      isClosing = false;
     }
   });
 
@@ -64,17 +62,9 @@
 
     currentComment.resolved = !currentComment.resolved;
 
-    await api.post(
-      route(`organizations.repositories.item.comment`, {
-        $organization,
-        $repository,
-        number: params.number,
-        comment_id: currentComment.id
-      }),
-      {
-        resolved: currentComment.resolved
-      }
-    );
+    await api.post(route(`organizations.repositories.item.comment`, { $organization, $repository, number: params.number, comment_id: currentComment.id }), {
+      resolved: currentComment.resolved
+    });
 
     // After resolving, the filtered list will automatically update via $derived
     // If we're at the end and list shrinks, adjust index
@@ -84,16 +74,7 @@
   }
 
   function closeModal() {
-    isClosing = true;
-    setTimeout(() => {
-      onClose?.();
-    }, 200);
-  }
-
-  function handleBackdropClick(e) {
-    if (e.target === e.currentTarget) {
-      closeModal();
-    }
+    isOpen = false;
   }
 </script>
 
