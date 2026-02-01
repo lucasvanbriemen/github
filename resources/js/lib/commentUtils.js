@@ -25,24 +25,3 @@ export function filterCommentsByReviewer(allComments, reviewerUserId, includeRes
   allComments.forEach(processComment);
   return filtered;
 }
-
-export function getParentComment(comment, allComments) {
-  if (!comment.in_reply_to_id || !allComments) {
-    return null;
-  }
-
-  const findParent = (comments) => {
-    for (const c of comments) {
-      if (c.id === comment.in_reply_to_id) {
-        return c;
-      }
-      if (c.child_comments?.length > 0) {
-        const found = findParent(c.child_comments);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  return findParent(allComments);
-}
