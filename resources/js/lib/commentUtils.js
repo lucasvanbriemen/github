@@ -26,13 +26,6 @@ export function filterCommentsByReviewer(allComments, reviewerUserId, includeRes
   return filtered;
 }
 
-
-/**
- * Get parent comment reference if this is a reply
- * @param {Object} comment - The comment
- * @param {Array} allComments - All comments to search in
- * @returns {Object|null} Parent comment or null
- */
 export function getParentComment(comment, allComments) {
   if (!comment.in_reply_to_id || !allComments) {
     return null;
