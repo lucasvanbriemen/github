@@ -3,7 +3,6 @@
   import { organization, repository } from '../stores.js';
   import { filterCommentsByReviewer, getParentComment } from '../../lib/commentUtils.js';
   import Comment from '../Comment.svelte';
-  import Icon from '../Icon.svelte';
 
   let { isOpen = false, onClose, reviewer, allComments = [], params = {} } = $props();
 
@@ -138,9 +137,6 @@
             <p class="reviewer-state">{reviewer?.state}</p>
           </div>
         </div>
-        <button class="close-button" onclick={closeModal} title="Close (Esc)">
-          <Icon name="x" className="icon" />
-        </button>
       </div>
 
       <!-- Comment Display Area -->
