@@ -55,7 +55,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 
         $sideValue = $commentData->side ?? 'RIGHT';
 
-        PullRequestComment::updateOrCreate(
+        $prComment = PullRequestComment::updateOrCreate(
             ['id' => $commentData->id],
             [
                 'pull_request_id' => $prData->id,
@@ -74,6 +74,9 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         // If action is deleted, we just delete the comment
         if ($payload->action === 'deleted') {
             PullRequestComment::where('id', $commentData->id)->delete();
+        } else {
+            // Auto-unresolve parent comment if it's resolved and this is a reply
+            $prComment->unresolveParentIfResolved();
         }
 
         ImportanceScoreService::updateItemScore($pr);
