@@ -1,10 +1,26 @@
 <script>
   let { title, children } = $props();
+  let isOpen = $state(false);
+
+  let maxHeight = $state(0);
+  let body;
+
+  function toggleOpen() {
+    isOpen = !isOpen;
+
+    if (isOpen) {
+      maxHeight = body.scrollHeight;
+      body.style.maxHeight = maxHeight + 'px';
+    } else {
+      body.style.maxHeight = 0;
+    }
+  }
 </script>
 
-<div class="group">
-  <span class="group-title">{title}</span>
-  {@render children?.() }
+<div class="group" class:open={isOpen}>
+  <span class="group-title" on:click={toggleOpen}>{title}</span>
+  
+  <div class="body" bind:this={body}>{@render children?.() }</div>
 </div>
 
 <style lang="scss">

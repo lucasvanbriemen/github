@@ -1,6 +1,5 @@
 .group {
-  border: 1px solid var(--border-color);
-  background-color: var(--background-color);
+  background-color: var(--background-color-one);
   border-radius: 0.5rem;
   width: calc(95% - 1rem);
   margin: 1rem auto -0.5rem auto;
@@ -11,9 +10,20 @@
   gap: 0.5rem;
   position: relative;
 
+  .body {
+    overflow: hidden;
+    transition: max-height 0.2s ease-in-out;
+    max-height: 0;
+  }
+
+  &:not(.open) {
+    gap: 0;
+  }
+
   .group-title {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: var(--text-color-secondary);
+    cursor: pointer;
   }
 
   :global(>.icon.gear) {
