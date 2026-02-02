@@ -119,10 +119,12 @@ class NotificationAutoResolver
      */
     public static function isEnabledForType(string $notificationType): bool
     {
-        if (!config('notification_auto_resolve.enabled', true)) {
+        $config = \App\GithubConfig::NOTIFICATION_AUTO_RESOLVE;
+
+        if (!($config['enabled'] ?? true)) {
             return false;
         }
 
-        return config("notification_auto_resolve.types.{$notificationType}.enabled", false);
+        return $config['types'][$notificationType]['enabled'] ?? false;
     }
 }
