@@ -106,14 +106,12 @@ class GithubConfig
     ];
 
     public const NOTIFICATION_AUTO_RESOLVE = [
-        'triggers' => [
-            'item_closed' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
-            'item_merged' => ['item_assigned', 'item_comment', 'comment_mention', 'review_requested', 'pr_review'],
-            'item_unassigned' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
-            'user_commented' => ['item_comment', 'comment_mention'],
-            'review_submitted' => ['review_requested'],
-            'review_dismissed' => ['pr_review'],
-            'new_commit_pushed' => ['workflow_failed'],
-        ],
+        'item_closed' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
+        'item_merged' => ['item_assigned', 'item_comment', 'comment_mention', 'review_requested', 'pr_review'],
+        'item_unassigned' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
+        'user_commented' => ['item_comment', 'comment_mention'],
+        'review_submitted' => ['review_requested'],
+        'review_dismissed' => ['pr_review'],
+        'new_commit_pushed' => ['workflow_failed'],
     ];
 }
