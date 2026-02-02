@@ -42,10 +42,6 @@ class NotificationAutoResolver
         int $itemId,
         array $notificationTypes
     ): int {
-        if (!self::isAutoResolveEnabled()) {
-            return 0;
-        }
-
         if (empty($notificationTypes)) {
             return 0;
         }
@@ -54,15 +50,6 @@ class NotificationAutoResolver
             ->where('related_id', $itemId)
             ->where('completed', false)
             ->update(['completed' => true]);
-    }
-
-    /**
-     * Check if auto-resolution is globally enabled
-     */
-    public static function isAutoResolveEnabled(): bool
-    {
-        $config = \App\GithubConfig::NOTIFICATION_AUTO_RESOLVE;
-        return $config['enabled'] ?? false;
     }
 
     /**

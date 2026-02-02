@@ -106,8 +106,6 @@ class GithubConfig
     ];
 
     public const NOTIFICATION_AUTO_RESOLVE = [
-        'enabled' => true,
-
         'triggers' => [
             'item_closed' => [
                 'enabled' => true,
