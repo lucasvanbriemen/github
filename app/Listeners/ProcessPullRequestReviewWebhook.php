@@ -13,6 +13,7 @@ use App\Models\RequestedReviewer;
 use App\GithubConfig;
 use App\Models\BaseComment;
 use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -136,6 +137,16 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         );
 
         ImportanceScoreService::updateItemScore($pr);
+
+        // Auto-resolve review_requested when configured user submits a review
+        if ($userData->id === GithubConfig::USERID && $incomingState !== 'commented') {
+            NotificationAutoResolver::resolveOnReviewSubmitted($prData->id, GithubConfig::USERID);
+        }
+
+        // Auto-resolve pr_review when review is dismissed
+        if ($incomingState === 'dismissed') {
+            NotificationAutoResolver::resolveOnReviewDismissed($prData->id);
+        }
 
         // Create notification if user is assigned OR is the author of the PR
         if ($pr->isCurrentlyAssignedToUser() || $pr->opened_by_id === GithubConfig::USERID) {

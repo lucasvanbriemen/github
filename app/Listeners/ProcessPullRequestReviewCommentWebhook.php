@@ -10,6 +10,8 @@ use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
+use App\GithubConfig;
 
 class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 {
@@ -76,6 +78,15 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
             PullRequestComment::where('id', $commentData->id)->delete();
         } else {
             $prComment->unresolveParentIfResolved();
+
+            // Auto-resolve notifications when configured user comments
+            if ($userData->id === GithubConfig::USERID) {
+                NotificationAutoResolver::resolveOnUserCommented(
+                    'pull_request',
+                    $prData->id,
+                    $userData->id
+                );
+            }
         }
 
         ImportanceScoreService::updateItemScore($pr);

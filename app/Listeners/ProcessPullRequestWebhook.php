@@ -12,6 +12,7 @@ use App\GithubConfig;
 use App\Models\Notification;
 use App\Helpers\ApiHelper;
 use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
 use RuntimeException;
 use Carbon\Carbon;
 
@@ -134,6 +135,19 @@ class ProcessPullRequestWebhook //implements ShouldQueue
 
         ImportanceScoreService::updateItemScore($pr);
 
+        // Auto-resolve notifications based on PR state
+        if ($state === 'closed' || $state === 'merged') {
+            NotificationAutoResolver::resolveOnItemClosed('pull_request', $pr->id, $state);
+            if ($state === 'merged') {
+                NotificationAutoResolver::resolveOnPrMerged($pr->id);
+            }
+        }
+
+        // Auto-resolve workflow_failed when new commits are pushed to PR
+        if ($payload->action === 'synchronize') {
+            NotificationAutoResolver::resolveOnNewCommit($pr->id);
+        }
+
         $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {
             $senderData = $payload->sender ?? null;
@@ -153,6 +167,9 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                     'triggered_by_id' => $senderData?->id
                 ]);
             }
+        } elseif (!$currentlyAssigned && $preHookAssigned) {
+            // PR was unassigned from user - resolve notifications
+            NotificationAutoResolver::resolveOnUnassigned($pr->id, GithubConfig::USERID);
         }
 
         if ($payload->action === 'review_requested') {
