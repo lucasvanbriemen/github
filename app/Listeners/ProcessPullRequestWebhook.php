@@ -136,16 +136,15 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         ImportanceScoreService::updateItemScore($pr);
 
         // Auto-resolve notifications based on PR state
-        if ($state === 'closed' || $state === 'merged') {
-            NotificationAutoResolver::resolveOnItemClosed('pull_request', $pr->id, $state);
-            if ($state === 'merged') {
-                NotificationAutoResolver::resolveOnPrMerged($pr->id);
-            }
+        if ($state === 'merged') {
+            NotificationAutoResolver::resolveTrigger('item_merged', $pr->id);
+        } elseif ($state === 'closed') {
+            NotificationAutoResolver::resolveTrigger('item_closed', $pr->id);
         }
 
         // Auto-resolve workflow_failed when new commits are pushed to PR
         if ($payload->action === 'synchronize') {
-            NotificationAutoResolver::resolveOnNewCommit($pr->id);
+            NotificationAutoResolver::resolveTrigger('new_commit_pushed', $pr->id);
         }
 
         $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
@@ -169,7 +168,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             }
         } elseif (!$currentlyAssigned && $preHookAssigned) {
             // PR was unassigned from user - resolve notifications
-            NotificationAutoResolver::resolveOnUnassigned($pr->id, GithubConfig::USERID);
+            NotificationAutoResolver::resolveTrigger('item_unassigned', $pr->id);
         }
 
         if ($payload->action === 'review_requested') {

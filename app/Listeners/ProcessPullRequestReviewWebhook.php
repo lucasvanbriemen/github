@@ -140,12 +140,12 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
 
         // Auto-resolve review_requested when configured user submits a review
         if ($userData->id === GithubConfig::USERID && $incomingState !== 'commented') {
-            NotificationAutoResolver::resolveOnReviewSubmitted($prData->id, GithubConfig::USERID);
+            NotificationAutoResolver::resolveTrigger('review_submitted', $prData->id);
         }
 
         // Auto-resolve pr_review when review is dismissed
         if ($incomingState === 'dismissed') {
-            NotificationAutoResolver::resolveOnReviewDismissed($prData->id);
+            NotificationAutoResolver::resolveTrigger('review_dismissed', $prData->id);
         }
 
         // Create notification if user is assigned OR is the author of the PR

@@ -108,131 +108,47 @@ class GithubConfig
     public const NOTIFICATION_AUTO_RESOLVE = [
         'enabled' => true,
 
-        'types' => [
-            'item_assigned' => [
+        'triggers' => [
+            'item_closed' => [
                 'enabled' => true,
-                'description' => 'Auto-resolve when issue/PR is closed, merged, or unassigned',
-                'triggers' => [
-                    'item_closed' => [
-                        'enabled' => true,
-                        'description' => 'Item (issue/PR) is closed',
-                        'event' => 'issues|pull_request',
-                        'action' => 'closed',
-                    ],
-                    'item_merged' => [
-                        'enabled' => true,
-                        'description' => 'Pull request is merged',
-                        'event' => 'pull_request',
-                        'action' => 'closed',
-                    ],
-                    'unassigned' => [
-                        'enabled' => true,
-                        'description' => 'Item is unassigned from user',
-                        'event' => 'issues|pull_request',
-                        'action' => 'unassigned',
-                    ],
-                ],
+                'description' => 'Item (issue/PR) is closed',
+                'resolves' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
             ],
 
-            'item_comment' => [
+            'item_merged' => [
                 'enabled' => true,
-                'description' => 'Auto-resolve when item is closed/merged or you comment',
-                'triggers' => [
-                    'item_closed' => [
-                        'enabled' => true,
-                        'description' => 'Item (issue/PR) is closed',
-                        'event' => 'issues|pull_request',
-                        'action' => 'closed',
-                    ],
-                    'item_merged' => [
-                        'enabled' => true,
-                        'description' => 'Pull request is merged',
-                        'event' => 'pull_request',
-                        'action' => 'closed',
-                    ],
-                    'user_commented' => [
-                        'enabled' => true,
-                        'description' => 'You add a comment to the item',
-                        'event' => 'issue_comment',
-                        'action' => 'created|edited',
-                    ],
-                ],
+                'description' => 'Pull request is merged',
+                'resolves' => ['item_assigned', 'item_comment', 'comment_mention', 'review_requested', 'pr_review'],
             ],
 
-            'review_requested' => [
+            'item_unassigned' => [
                 'enabled' => true,
-                'description' => 'Auto-resolve when you submit a review or PR is merged',
-                'triggers' => [
-                    'review_submitted' => [
-                        'enabled' => true,
-                        'description' => 'You submit a review (approval, changes, or comment)',
-                        'event' => 'pull_request_review',
-                        'action' => 'submitted',
-                    ],
-                    'pr_merged' => [
-                        'enabled' => true,
-                        'description' => 'Pull request is merged',
-                        'event' => 'pull_request',
-                        'action' => 'closed',
-                    ],
-                ],
+                'description' => 'Item is unassigned from user',
+                'resolves' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
             ],
 
-            'pr_review' => [
+            'user_commented' => [
                 'enabled' => true,
-                'description' => 'Auto-resolve when PR is merged or review is dismissed',
-                'triggers' => [
-                    'pr_merged' => [
-                        'enabled' => true,
-                        'description' => 'Pull request is merged',
-                        'event' => 'pull_request',
-                        'action' => 'closed',
-                    ],
-                    'review_dismissed' => [
-                        'enabled' => true,
-                        'description' => 'Review is dismissed by PR author',
-                        'event' => 'pull_request_review',
-                        'action' => 'dismissed',
-                    ],
-                ],
+                'description' => 'You add a comment to the item or PR',
+                'resolves' => ['item_comment', 'comment_mention'],
             ],
 
-            'workflow_failed' => [
+            'review_submitted' => [
                 'enabled' => true,
-                'description' => 'Auto-resolve when new commit is pushed (workflow re-runs)',
-                'triggers' => [
-                    'new_commit_pushed' => [
-                        'enabled' => true,
-                        'description' => 'New commit is pushed to the PR',
-                        'event' => 'push|pull_request',
-                        'action' => 'synchronize|push',
-                    ],
-                ],
+                'description' => 'You submit a review (approval, changes, or comment)',
+                'resolves' => ['review_requested'],
             ],
 
-            'comment_mention' => [
+            'review_dismissed' => [
                 'enabled' => true,
-                'description' => 'Auto-resolve when item is closed/merged or you comment',
-                'triggers' => [
-                    'item_closed' => [
-                        'enabled' => true,
-                        'description' => 'Item (issue/PR) is closed',
-                        'event' => 'issues|pull_request',
-                        'action' => 'closed',
-                    ],
-                    'item_merged' => [
-                        'enabled' => true,
-                        'description' => 'Pull request is merged',
-                        'event' => 'pull_request',
-                        'action' => 'closed',
-                    ],
-                    'user_commented' => [
-                        'enabled' => true,
-                        'description' => 'You reply in the comment thread',
-                        'event' => 'issue_comment|pull_request_review_comment',
-                        'action' => 'created|edited',
-                    ],
-                ],
+                'description' => 'Review is dismissed by PR author',
+                'resolves' => ['pr_review'],
+            ],
+
+            'new_commit_pushed' => [
+                'enabled' => true,
+                'description' => 'New commit is pushed to the PR',
+                'resolves' => ['workflow_failed'],
             ],
         ],
     ];

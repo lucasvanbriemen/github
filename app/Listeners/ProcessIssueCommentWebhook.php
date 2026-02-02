@@ -90,11 +90,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
         if ($item->isCurrentlyAssignedToUser()) {
             // Auto-resolve notifications when configured user comments
             if ($userData->id === GithubConfig::USERID) {
-                NotificationAutoResolver::resolveOnUserCommented(
-                    isset($issueData->pull_request) ? 'pull_request' : 'issue',
-                    $issueData->id,
-                    $userData->id
-                );
+                NotificationAutoResolver::resolveTrigger('user_commented', $issueData->id);
                 return true;
             }
 

@@ -81,11 +81,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 
             // Auto-resolve notifications when configured user comments
             if ($userData->id === GithubConfig::USERID) {
-                NotificationAutoResolver::resolveOnUserCommented(
-                    'pull_request',
-                    $prData->id,
-                    $userData->id
-                );
+                NotificationAutoResolver::resolveTrigger('user_commented', $prData->id);
             }
         }
 

@@ -86,7 +86,7 @@ class ProcessIssueWebhook
 
         // Auto-resolve notifications based on issue state
         if ($issue->state === 'closed') {
-            NotificationAutoResolver::resolveOnItemClosed('issue', $issue->id, $issue->state);
+            NotificationAutoResolver::resolveTrigger('item_closed', $issue->id);
         }
 
         $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
@@ -110,7 +110,7 @@ class ProcessIssueWebhook
             }
         } elseif (!$currentlyAssigned && $preHookAssigned) {
             // Issue was unassigned from user - resolve notifications
-            NotificationAutoResolver::resolveOnUnassigned($issue->id, GithubConfig::USERID);
+            NotificationAutoResolver::resolveTrigger('item_unassigned', $issue->id);
         }
 
         return true;
