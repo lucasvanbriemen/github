@@ -17,7 +17,7 @@ class NotificationAutoResolver
 
         $triggerConfig = $config['triggers'][$trigger] ?? null;
 
-        $notificationTypes = $triggerConfig['resolves'] ?? [];
+        $notificationTypes = $triggerConfig ?? [];
         if (empty($notificationTypes)) {
             return 0;
         }
