@@ -108,44 +108,30 @@ class GithubConfig
     public const NOTIFICATION_AUTO_RESOLVE = [
         'triggers' => [
             'item_closed' => [
-                'enabled' => true,
-                'description' => 'Item (issue/PR) is closed',
                 'resolves' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
             ],
 
             'item_merged' => [
-                'enabled' => true,
-                'description' => 'Pull request is merged',
                 'resolves' => ['item_assigned', 'item_comment', 'comment_mention', 'review_requested', 'pr_review'],
             ],
 
             'item_unassigned' => [
-                'enabled' => true,
-                'description' => 'Item is unassigned from user',
                 'resolves' => ['item_assigned', 'item_comment', 'comment_mention', 'pr_review'],
             ],
 
             'user_commented' => [
-                'enabled' => true,
-                'description' => 'You add a comment to the item or PR',
                 'resolves' => ['item_comment', 'comment_mention'],
             ],
 
             'review_submitted' => [
-                'enabled' => true,
-                'description' => 'You submit a review (approval, changes, or comment)',
                 'resolves' => ['review_requested'],
             ],
 
             'review_dismissed' => [
-                'enabled' => true,
-                'description' => 'Review is dismissed by PR author',
                 'resolves' => ['pr_review'],
             ],
 
             'new_commit_pushed' => [
-                'enabled' => true,
-                'description' => 'New commit is pushed to the PR',
                 'resolves' => ['workflow_failed'],
             ],
         ],

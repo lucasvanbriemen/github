@@ -15,14 +15,7 @@ class NotificationAutoResolver
     {
         $config = \App\GithubConfig::NOTIFICATION_AUTO_RESOLVE;
 
-        if (!($config['enabled'] ?? false)) {
-            return 0;
-        }
-
         $triggerConfig = $config['triggers'][$trigger] ?? null;
-        if (!$triggerConfig || !($triggerConfig['enabled'] ?? false)) {
-            return 0;
-        }
 
         $notificationTypes = $triggerConfig['resolves'] ?? [];
         if (empty($notificationTypes)) {
@@ -50,14 +43,5 @@ class NotificationAutoResolver
             ->where('related_id', $itemId)
             ->where('completed', false)
             ->update(['completed' => true]);
-    }
-
-    /**
-     * Check if a trigger is enabled
-     */
-    public static function isTriggerEnabled(string $trigger): bool
-    {
-        $config = \App\GithubConfig::NOTIFICATION_AUTO_RESOLVE;
-        return $config['triggers'][$trigger]['enabled'] ?? false;
     }
 }
