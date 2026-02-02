@@ -15,6 +15,7 @@ use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
 use App\GithubConfig;
 use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
 
 class ProcessIssueCommentWebhook //implements ShouldQueue
 {
@@ -87,8 +88,9 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
             ->first();
 
         if ($item->isCurrentlyAssignedToUser()) {
-            // Don't create notification if actor is the configured user
+            // Auto-resolve notifications when configured user comments
             if ($userData->id === GithubConfig::USERID) {
+                NotificationAutoResolver::resolveTrigger('user_commented', $issueData->id);
                 return true;
             }
 

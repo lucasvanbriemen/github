@@ -9,6 +9,7 @@ use App\Models\Repository;
 use App\Models\Notification;
 use App\GithubConfig;
 use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
 
 class ProcessIssueWebhook
 {
@@ -83,6 +84,11 @@ class ProcessIssueWebhook
 
         ImportanceScoreService::updateItemScore($issue);
 
+        // Auto-resolve notifications based on issue state
+        if ($issue->state === 'closed') {
+            NotificationAutoResolver::resolveTrigger('item_closed', $issue->id);
+        }
+
         $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
         if ($currentlyAssigned && !$preHookAssigned) {
             $senderData = $payload->sender ?? null;
@@ -102,6 +108,9 @@ class ProcessIssueWebhook
                     'triggered_by_id' => $senderData?->id
                 ]);
             }
+        } elseif (!$currentlyAssigned && $preHookAssigned) {
+            // Issue was unassigned from user - resolve notifications
+            NotificationAutoResolver::resolveTrigger('item_unassigned', $issue->id);
         }
 
         return true;
