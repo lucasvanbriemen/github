@@ -16,11 +16,11 @@
   let totalDeletions = $derived(files.reduce((sum, file) => sum + file.deletions, 0));
 
   onMount(async () => {
-    const raw = item.comments.filter(c => c.type === 'review');
+    const raw = (item.comments || []).filter(c => c.type === 'review');
 
     raw.forEach(comment => {
       // We get the child comments for each review comment and add them to the comments array
-      comment.child_comments.forEach(childComment => {
+      (comment.child_comments || []).forEach(childComment => {
         comments.push(childComment);
       });
     });

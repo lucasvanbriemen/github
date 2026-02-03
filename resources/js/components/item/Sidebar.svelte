@@ -46,7 +46,7 @@
     possibleMilestones = (metadata.milestones || []).filter(m => m).map((m) => ({ value: m.number, label: m.title }));
 
     possibleAssignees.forEach(assignee => {
-      item.assignees.forEach(itemAssignee => {
+      (item.assignees || []).forEach(itemAssignee => {
         if (itemAssignee.login == assignee.value) {
           assignee.selected = true;
         }

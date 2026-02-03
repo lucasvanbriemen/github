@@ -29,7 +29,9 @@
       body: issueComment,
     }).then((newComment) => {
       untrack(() => {
-        item.comments.push(newComment);
+        if (item.comments) {
+          item.comments.push(newComment);
+        }
         issueComment = '';
       });
     });
