@@ -84,8 +84,13 @@
           {#each selectedFile.changes as hunk (hunk)}
             {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
               <div class="changed-line-pair">
-                <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
-                <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
+                {#if selectedFile.status !== 'added'}
+                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
+                {/if}
+
+                {#if selectedFile.status !== 'removed'}
+                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
+                {/if}
               </div>
             {/each}
 
