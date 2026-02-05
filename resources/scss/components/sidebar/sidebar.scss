@@ -21,20 +21,8 @@
     border-bottom: 1px solid var(--border-color);
   }
 
-  /* Mobile: Stack vertically, initially hidden */
+  /* Mobile: Hidden by default, shown only in modal */
   @media screen and (max-width: 768px) {
-    flex-direction: column;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    gap: 0.5rem;
-    border-bottom: none;
-    padding: 0;
-
-    &.mobile-filters-open {
-      max-height: 500px;
-      padding: 0.5rem;
-      border-bottom: 1px solid var(--border-color);
-    }
+    display: none;
   }
 }
