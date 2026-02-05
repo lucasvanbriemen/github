@@ -56,6 +56,19 @@
     text-align: right;
     position: relative;
 
+    /* Tablet: Reduce line number width */
+    @media screen and (max-width: 1200px) {
+      min-width: 40px;
+      font-size: 0.75rem;
+    }
+
+    /* Mobile: Further reduce line number width */
+    @media screen and (max-width: 768px) {
+      min-width: 35px;
+      padding: 0.125rem 0.25rem;
+      font-size: 0.7rem;
+    }
+
     .add-comment-button {
       position: absolute;
       top: 0;
@@ -68,12 +81,20 @@
       border: 1px solid var(--border-color);
       aspect-ratio: 1/1;
       width: 1.5rem;
+      min-height: 24px;
 
       opacity: 0;
       pointer-events: none;
 
       &:hover {
         background-color: var(--primary-color);
+      }
+
+      /* Mobile: Make comment button more accessible */
+      @media screen and (max-width: 768px) {
+        width: 1.25rem;
+        min-height: 20px;
+        padding: 0.1rem;
       }
     }
   }
