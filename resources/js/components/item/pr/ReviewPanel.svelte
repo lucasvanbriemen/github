@@ -3,7 +3,7 @@
   import Comment from '../../Comment.svelte';
   import { organization, repository } from '../../stores';
 
-  let { params = {}, pendingReviewComments = [], reviewMenuOpen = $bindable(false) } = $props();
+  let { params = {}, pendingReviewComments = [], reviewMenuOpen = $bindable(false), item = {} } = $props();
 
   let reviewBody = $state('');
 
@@ -16,7 +16,7 @@
       let lineInfo = comment;
 
       lineInfo.line = comment.line_end;
-      
+
       // Unset some properties that are not needed for the API
       delete lineInfo.id;
       delete lineInfo.line_end;
@@ -39,9 +39,20 @@
     pendingReviewComments = [];
     reviewMenuOpen = false;
   }
+
+  function handleBackdropClick() {
+    reviewMenuOpen = false;
+  }
 </script>
 
+<!-- Mobile backdrop overlay -->
+{#if reviewMenuOpen}
+  <div class="review-panel-backdrop" onclick={handleBackdropClick}></div>
+{/if}
+
 <div class="review-panel">
+  <button class="close-button" type="button" onclick={handleBackdropClick} aria-label="Close review panel">✕</button>
+
   {#each pendingReviewComments as comment (comment.id)}
     <Comment {comment} {params} />
   {/each}
