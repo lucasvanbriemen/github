@@ -70,16 +70,19 @@
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       title = `${notification.comment?.author?.display_name} mentioned you in #${notification.comment?.item?.number}`;
       body = notification.comment?.body;
+      type = 'markdown';
     }
 
     if (notification.type === 'item_assigned' || notification.type === 'review_requested') {
       title = `${notification.item?.title} was assigned to you`;
       body = notification.item?.body;
+      type = 'markdown';
     }
 
     if (notification.type === 'pr_review') {
       title = `${notification.review?.base_comment?.author?.display_name} ${notification.review?.state} your review on #${notification.review?.base_comment?.item?.number}`;
       body = notification.review?.base_comment?.body;
+      type = 'markdown';
     }
 
     return { title, body, type };
@@ -108,13 +111,11 @@
       <h2>{textDetails().title}</h2>
 
       {#if textDetails().body != ""}
-        <div class="content">
-          {#if textDetails().type === "markdown"}
-            <Markdown content={textDetails().body} />
-          {:else}
-            <p>{textDetails().body}</p>
-          {/if}
-        </div>
+        {#if textDetails().type === "markdown"}
+          <Markdown content={textDetails().body} />
+        {:else}
+          <div class="content"><p>{textDetails().body}</p></div>
+        {/if}
       {/if}
     </div>
 
