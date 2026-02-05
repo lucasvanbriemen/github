@@ -5,6 +5,12 @@
   display: flex;
   gap: 1rem;
   overflow: auto;
+  flex-direction: column;
+
+  /* Tablet and desktop: side-by-side layout */
+  @media screen and (min-width: 1201px) {
+    flex-direction: row;
+  }
 
   .repo-main {
     width: calc(85vw - 3rem);
@@ -19,6 +25,8 @@
       border-radius: 1rem;
       font-size: 1rem;
       background-color: var(--background-color-two);
+      /* Prevent iOS Safari zoom on input focus */
+      font-size: 16px;
     }
   }
 
@@ -26,5 +34,67 @@
     width: calc(95%);
     margin-left: 2.5%;
     margin-top: 1rem;
+    min-height: 44px;
+  }
+
+  /* Tablet: Stack layout */
+  @media screen and (max-width: 1200px) {
+    .repo-main {
+      width: 100%;
+      margin-top: 0;
+    }
+
+    .mobile-filter-toggle {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      background-color: var(--background-color-two);
+      cursor: pointer;
+      min-height: 44px;
+      gap: 0.5rem;
+
+      &:hover {
+        background-color: var(--background-color);
+      }
+
+      .toggle-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  /* Mobile: Hide toggle on desktop, show on mobile */
+  @media screen and (min-width: 1201px) {
+    .mobile-filter-toggle {
+      display: none;
+    }
+  }
+
+  /* Mobile: Full-width layout */
+  @media screen and (max-width: 768px) {
+    gap: 0;
+    padding: 1rem;
+
+    .repo-main {
+      width: 100%;
+      margin-top: 0;
+      gap: 0.75rem;
+
+      .search {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .button-primary {
+      width: 100%;
+      margin-left: 0;
+      margin-top: 0.5rem;
+    }
   }
 }

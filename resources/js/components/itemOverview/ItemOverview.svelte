@@ -18,6 +18,7 @@
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
+  let mobileFiltersOpen = $state(false);
 
   const isPR = $derived(type === 'prs');
 
@@ -131,7 +132,12 @@
 </script>
 
 <div class="repo-dashboard">
-  <Sidebar>
+  <button class="mobile-filter-toggle" type="button" onclick={() => mobileFiltersOpen = !mobileFiltersOpen}>
+    <span class="toggle-icon">⚙️</span>
+    {mobileFiltersOpen ? 'Hide' : 'Show'} Filters
+  </button>
+
+  <Sidebar class:{'mobile-filters-open': mobileFiltersOpen}>
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">

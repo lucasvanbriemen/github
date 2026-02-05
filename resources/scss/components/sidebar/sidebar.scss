@@ -7,4 +7,34 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.5rem 0.5rem 0 0.5rem;
+
+  /* Tablet: Convert to horizontal bar below content */
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    padding: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* Mobile: Stack vertically, initially hidden */
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    gap: 0.5rem;
+    border-bottom: none;
+    padding: 0;
+
+    &.mobile-filters-open {
+      max-height: 500px;
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
 }
