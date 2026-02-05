@@ -137,7 +137,7 @@
     {mobileFiltersOpen ? 'Hide' : 'Show'} Filters
   </button>
 
-  <Sidebar class:mobile-filters-open={mobileFiltersOpen}>
+  <Sidebar class={mobileFiltersOpen ? 'mobile-filters-open' : ''}>
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">
