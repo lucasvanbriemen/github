@@ -1,6 +1,7 @@
 .pr-navigation {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 99%;
   gap: 1rem;
 
@@ -44,6 +45,16 @@
     @media screen and (max-width: 768px) {
       width: 100%;
       justify-content: flex-start;
+    }
+  }
+
+  /* Ensure all buttons are responsive */
+  .button-primary {
+    min-height: 44px;
+
+    /* Mobile: Full width */
+    @media screen and (max-width: 768px) {
+      width: 100%;
     }
   }
 }

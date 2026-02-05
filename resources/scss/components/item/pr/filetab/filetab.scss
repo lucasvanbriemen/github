@@ -4,6 +4,14 @@
 
 .pr-files {
   width: 99%;
+  overflow-x: hidden;
+
+  /* Mobile: Full width */
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    padding: 0;
+  }
+
   .loading {
     padding: 2rem;
     text-align: center;
@@ -16,6 +24,15 @@
     margin-bottom: 1rem;
     background-color: var(--background-color-one);
     overflow: hidden;
+    box-sizing: border-box;
+
+    /* Mobile: Adjust margins and sizing */
+    @media screen and (max-width: 768px) {
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom: 0.75rem;
+      border-radius: 0.5rem;
+    }
 
     .header {
       display: flex;
