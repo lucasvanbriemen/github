@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import ItemSkeleton from './item/ItemSkeleton.svelte';
+  import Markdown from './Markdown.svelte';
 
   let { params = {} } = $props();
 
@@ -64,6 +65,7 @@
   function textDetails() {
     let title = '';
     let body = '';
+    let type = 'text';
 
     if (notification.type === 'comment_mention' || notification.type === 'item_comment') {
       title = `${notification.comment?.author?.display_name} mentioned you in #${notification.comment?.item?.number}`;
@@ -80,7 +82,7 @@
       body = notification.review?.base_comment?.body;
     }
 
-    return { title, body };
+    return { title, body, type };
   }
 </script>
 
@@ -106,7 +108,13 @@
       <h2>{textDetails().title}</h2>
 
       {#if textDetails().body != ""}
-        <div class="content">{textDetails().body}</div>
+        <div class="content">
+          {#if textDetails().type === "markdown"}
+            <Markdown content={textDetails().body} />
+          {:else}
+            <p>{textDetails().body}</p>
+          {/if}
+        </div>
       {/if}
     </div>
 
