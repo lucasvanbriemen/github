@@ -12,6 +12,7 @@
   let isImproving = $state(false);
   let users = $state([]);
   let userLoginMap = $state({});
+  let showShortcuts = $state(false);
 
   const shortcutMap = {
     heading: {
@@ -299,11 +300,19 @@
       </nav>
 
       {#if isEditing}
-        <div class="markdown-shortcuts">
-          {#each Object.entries(shortcutMap) as [key, shortcut]}
-            <button class="markdown-shortcut button-primary-outline" onclick={() => insertShortcut(shortcut.key)}>{shortcut.title}</button>
-          {/each}
-          <button class="markdown-shortcut button-primary-outline" onclick={improveComment} disabled={isImproving || !content.trim()} >{isImproving ? '✨ Improving...' : '✨ Improve'}</button>
+        <div class="markdown-shortcuts-container">
+          <button class="shortcuts-toggle button-primary-outline" onclick={() => showShortcuts = !showShortcuts}>
+            ⌘ Formatting {showShortcuts ? '✕' : '▼'}
+          </button>
+
+          {#if showShortcuts}
+            <div class="shortcuts-dropdown">
+              {#each Object.entries(shortcutMap) as [key, shortcut]}
+                <button class="markdown-shortcut button-primary-outline" onclick={() => { insertShortcut(shortcut.key); showShortcuts = false; }}>{shortcut.title}</button>
+              {/each}
+              <button class="markdown-shortcut button-primary-outline" onclick={() => { improveComment(); showShortcuts = false; }} disabled={isImproving || !content.trim()} >{isImproving ? '✨ Improving...' : '✨ Improve'}</button>
+            </div>
+          {/if}
         </div>
       {/if}
     </header>

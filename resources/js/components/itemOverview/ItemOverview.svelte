@@ -18,6 +18,7 @@
   let isLoading = $state(true);
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
+  let showFiltersModal = $state(false);
 
   const isPR = $derived(type === 'prs');
 
@@ -130,7 +131,42 @@
 
 </script>
 
+<!-- Mobile filters modal backdrop -->
+{#if showFiltersModal}
+  <div class="modal-backdrop" onclick={() => showFiltersModal = false}></div>
+{/if}
+
+<!-- Mobile filters modal -->
+{#if showFiltersModal}
+  <div class="filters-modal">
+    <div class="modal-header">
+      <span>Filters</span>
+      <button class="modal-close" type="button" onclick={() => showFiltersModal = false}>✕</button>
+    </div>
+
+    <div class="modal-content filters-content">
+      <div class="filter-group">
+        <h3>State</h3>
+        <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
+      </div>
+
+      <div class="filter-group">
+        <h3>Milestone</h3>
+        <Select name="milestone" selectableItems={selectableMilestones} bind:selectedValue={selectedMilestone} onChange={() => { filterItem() }} searchable={false} />
+      </div>
+
+      <div class="filter-group">
+        <h3>Assignees</h3>
+        <Select name="assignee" selectableItems={assignees} bind:selectedValue={selectedAssignee} onChange={() => { filterItem() }} />
+      </div>
+    </div>
+  </div>
+{/if}
+
 <div class="repo-dashboard">
+  <!-- Mobile filter icon button -->
+  <button class="filter-icon-button" type="button" onclick={() => showFiltersModal = true} title="Open filters">⚙️</button>
+
   <Sidebar>
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 

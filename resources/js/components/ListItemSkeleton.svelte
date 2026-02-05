@@ -62,6 +62,12 @@
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
       border-radius: 4px;
+      flex-shrink: 0;
+
+      @media screen and (max-width: 768px) {
+        width: 100%;
+        max-width: 150px;
+      }
     }
 
     .skeleton-assignees {

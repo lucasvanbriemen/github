@@ -8,7 +8,7 @@
   import ReviewerFocusModal from './ReviewerFocusModal.svelte';
   import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), isMobileModal = false } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);

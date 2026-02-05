@@ -7,4 +7,22 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.5rem 0.5rem 0 0.5rem;
+
+  /* Tablet: Convert to horizontal bar below content */
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    padding: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* Mobile: Hidden by default, shown only in modal */
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 }

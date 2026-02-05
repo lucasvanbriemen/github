@@ -25,6 +25,7 @@
   let isPR = type == 'prs';
   let isLoading = $state(true);
   let showWhitespace = $state(false);
+  let showDetailsModal = $state(false);
 
   onMount(async () => {
     isLoading = true;
@@ -61,7 +62,28 @@
   }
 </script>
 
+<!-- Mobile backdrop for details modal -->
+{#if showDetailsModal}
+  <div class="modal-backdrop" onclick={() => showDetailsModal = false}></div>
+{/if}
+
+<!-- Mobile details modal -->
+{#if showDetailsModal}
+  <div class="item-details-modal">
+    <div class="modal-header">
+      <span>Details</span>
+      <button class="modal-close" type="button" onclick={() => showDetailsModal = false}>✕</button>
+    </div>
+    <div class="modal-content">
+      <Sidebar {item} {isPR} {isLoading} metadata={$repoMetadata} {params} {activeTab} {files} {showWhitespace} {selectedFileIndex} {selectedFile} isMobileModal={true} />
+    </div>
+  </div>
+{/if}
+
 <div class="item-overview">
+  <!-- Mobile details icon button -->
+  <button class="details-icon-button" type="button" onclick={() => showDetailsModal = true} title="View details">ℹ️</button>
+
   <Sidebar {item} {isPR} {isLoading} metadata={$repoMetadata} {params} {activeTab} {files} {showWhitespace} {selectedFileIndex} {selectedFile} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->

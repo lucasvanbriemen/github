@@ -1,6 +1,12 @@
 .side-wrapper {
   display: flex;
   flex: 1;
+  min-width: 0;
+
+  /* Mobile: Full width for unified diff */
+  @media screen and (max-width: 768px) {
+    width: 100%;
+  }
 
   .side {
     width: 100%;
@@ -24,9 +30,22 @@
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem 0;
-    
+
     width: calc(100% - 50px);
     margin-left: 50px;
+
+    /* Tablet: Adjust for reduced line number width */
+    @media screen and (max-width: 1200px) {
+      width: calc(100% - 40px);
+      margin-left: 40px;
+    }
+
+    /* Mobile: Adjust for further reduced line number width */
+    @media screen and (max-width: 768px) {
+      width: calc(100% - 35px);
+      margin-left: 35px;
+      padding: 0.75rem 0;
+    }
   }
 
   :global(:has(.item-comment)) {
@@ -56,6 +75,19 @@
     text-align: right;
     position: relative;
 
+    /* Tablet: Reduce line number width */
+    @media screen and (max-width: 1200px) {
+      min-width: 40px;
+      font-size: 0.75rem;
+    }
+
+    /* Mobile: Further reduce line number width */
+    @media screen and (max-width: 768px) {
+      min-width: 35px;
+      padding: 0.125rem 0.25rem;
+      font-size: 0.7rem;
+    }
+
     .add-comment-button {
       position: absolute;
       top: 0;
@@ -68,12 +100,20 @@
       border: 1px solid var(--border-color);
       aspect-ratio: 1/1;
       width: 1.5rem;
+      min-height: 24px;
 
       opacity: 0;
       pointer-events: none;
 
       &:hover {
         background-color: var(--primary-color);
+      }
+
+      /* Mobile: Make comment button more accessible */
+      @media screen and (max-width: 768px) {
+        width: 1.25rem;
+        min-height: 20px;
+        padding: 0.1rem;
       }
     }
   }
@@ -86,11 +126,23 @@
     color: var(--text-color);
     flex: 1;
     background-color: var(--background-color-one);
+    min-width: 0;
+    overflow-x: auto;
+
+    /* Mobile: Adjust padding and font */
+    @media screen and (max-width: 768px) {
+      padding: 0.125rem 0.25rem;
+      font-size: 0.75rem;
+    }
 
     .prefix {
       user-select: none;
       margin-right: 0.5rem;
       opacity: 0.5;
+
+      @media screen and (max-width: 768px) {
+        margin-right: 0.25rem;
+      }
     }
 
     .code {

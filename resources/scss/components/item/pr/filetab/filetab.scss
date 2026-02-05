@@ -4,6 +4,14 @@
 
 .pr-files {
   width: 99%;
+  overflow-x: hidden;
+
+  /* Mobile: Full width */
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    padding: 0;
+  }
+
   .loading {
     padding: 2rem;
     text-align: center;
@@ -16,6 +24,15 @@
     margin-bottom: 1rem;
     background-color: var(--background-color-one);
     overflow: hidden;
+    box-sizing: border-box;
+
+    /* Mobile: Adjust margins and sizing */
+    @media screen and (max-width: 768px) {
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom: 0.75rem;
+      border-radius: 0.5rem;
+    }
 
     .header {
       display: flex;
@@ -27,6 +44,13 @@
       border: none;
       border-bottom: 2px solid var(--border-color);
       text-align: left;
+
+      /* Mobile: Allow header to wrap */
+      @media screen and (max-width: 768px) {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0.75rem;
+      }
 
       .file-status {
         padding: 0.25rem 0.5rem;
@@ -60,13 +84,20 @@
 
       .file-name {
         font-size: 0.875rem;
+
+        /* Mobile: Reduce file name font */
+        @media screen and (max-width: 768px) {
+          font-size: 0.8rem;
+          flex: 1;
+          word-break: break-word;
+        }
       }
 
-      .file-stats { 
+      .file-stats {
         margin-left: auto;
         font-size: 0.75rem;
         font-weight: 500;
-        
+
         .additions {
           color: var(--success-color);
           margin-right: 0.5rem;
@@ -77,6 +108,12 @@
           margin-right: 0.5rem;
         }
 
+        /* Mobile: Stats on separate line if needed */
+        @media screen and (max-width: 768px) {
+          margin-left: 0;
+          width: 100%;
+          justify-content: flex-start;
+        }
       }
     }
 
@@ -89,6 +126,17 @@
 
       .changed-line-pair {
         display: flex;
+
+        /* Mobile: Unified diff view */
+        @media screen and (max-width: 768px) {
+          flex-direction: column;
+
+          .side-wrapper {
+            &:last-child {
+              border-top: 1px solid var(--border-color);
+            }
+          }
+        }
 
         .side-wrapper {
           display: flex;
@@ -111,7 +159,7 @@
               margin-top: 1rem;
             }
           }
-        } 
+        }
       }
 
       .hunk-separator:not(:last-child) {
