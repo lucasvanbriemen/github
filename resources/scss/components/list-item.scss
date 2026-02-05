@@ -86,6 +86,8 @@
     margin-left: auto;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
+    min-width: 0;
 
     img {
       height: 2rem;
@@ -99,10 +101,43 @@
         margin-left: 0.25rem;
       }
     }
+
+    /* Mobile: Show assignees properly */
+    @media screen and (max-width: 768px) {
+      img {
+        height: 1.75rem;
+        width: 1.75rem;
+        margin-left: -0.875rem;
+
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+
+      /* Show only 2 assignees on mobile, hide overflow */
+      overflow: hidden;
+      max-width: 4rem;
+
+      &:hover {
+        img {
+          margin-left: -0.5rem;
+        }
+      }
+    }
   }
 
   &:hover {
     cursor: pointer;
     border: 2px solid var(--primary-color-dark);
+  }
+
+  /* Mobile: Adjust content flex to allow assignees to show */
+  @media screen and (max-width: 768px) {
+    gap: 0.75rem;
+
+    .content {
+      flex: 1;
+      min-width: 0;
+    }
   }
 }
