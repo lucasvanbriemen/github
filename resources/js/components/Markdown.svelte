@@ -300,20 +300,32 @@
       </nav>
 
       {#if isEditing}
-        <div class="markdown-shortcuts-container">
-          <button class="shortcuts-toggle button-primary-outline" onclick={() => showShortcuts = !showShortcuts}>
-            ⌘ Formatting {showShortcuts ? '✕' : '▼'}
-          </button>
+        <!-- Shortcuts menu backdrop -->
+        {#if showShortcuts}
+          <div class="shortcuts-menu-backdrop" onclick={() => showShortcuts = false}></div>
+        {/if}
 
-          {#if showShortcuts}
-            <div class="shortcuts-dropdown">
-              {#each Object.entries(shortcutMap) as [key, shortcut]}
-                <button class="markdown-shortcut button-primary-outline" onclick={() => { insertShortcut(shortcut.key); showShortcuts = false; }}>{shortcut.title}</button>
-              {/each}
-              <button class="markdown-shortcut button-primary-outline" onclick={() => { improveComment(); showShortcuts = false; }} disabled={isImproving || !content.trim()} >{isImproving ? '✨ Improving...' : '✨ Improve'}</button>
+        <!-- Shortcuts menu button -->
+        <button class="shortcuts-menu-button button-primary-outline" onclick={() => showShortcuts = !showShortcuts} title="Formatting options">
+          ☰
+        </button>
+
+        <!-- Shortcuts menu modal -->
+        {#if showShortcuts}
+          <div class="shortcuts-menu-modal">
+            <div class="menu-header">
+              <span>Formatting</span>
+              <button class="menu-close" type="button" onclick={() => showShortcuts = false}>✕</button>
             </div>
-          {/if}
-        </div>
+
+            <div class="menu-content">
+              {#each Object.entries(shortcutMap) as [key, shortcut]}
+                <button class="markdown-shortcut" onclick={() => { insertShortcut(shortcut.key); showShortcuts = false; }}>{shortcut.title}</button>
+              {/each}
+              <button class="markdown-shortcut" onclick={() => { improveComment(); showShortcuts = false; }} disabled={isImproving || !content.trim()} >{isImproving ? '✨ Improving...' : '✨ Improve'}</button>
+            </div>
+          </div>
+        {/if}
       {/if}
     </header>
   {/if}
