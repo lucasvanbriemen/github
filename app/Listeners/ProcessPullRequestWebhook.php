@@ -48,7 +48,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         if ($prData->draft == true) {
             $state = 'draft';
         }
-        
+
         if ($state === 'closed' && isset($prData->merged_at) && $prData->merged_at !== null) {
             $state = 'merged';
         }
