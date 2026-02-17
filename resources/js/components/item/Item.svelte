@@ -22,7 +22,7 @@
   let selectedFile = $state(null);
 
   let item = $state({});
-  let isPR = type == 'prs';
+  let isPR = $state(type == 'prs');
   let isLoading = $state(true);
   let showWhitespace = $state(false);
 
@@ -35,6 +35,9 @@
     } catch (e) {
       item.labels = [];
     }
+
+    // Derive isPR from loaded data so PRs linked via issues/ URL still work
+    isPR = item.type === 'pull_request';
 
     isLoading = false;
 

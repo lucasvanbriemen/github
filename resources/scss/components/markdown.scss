@@ -90,6 +90,15 @@
       padding: 2px 4px;
       border-radius: 2px;
     }
+
+    :global(.issue-reference) {
+      color: var(--primary-color);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   .markdown-editor {
