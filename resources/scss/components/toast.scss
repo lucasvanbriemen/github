@@ -13,19 +13,18 @@
   pointer-events: auto;
   background-color: var(--background-color-one);
   border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 1.75rem 1rem;
   min-width: 250px;
   max-width: 380px;
-  border-left: 4px solid var(--primary-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   animation: toast-in 0.3s ease forwards;
 
   &.success {
-    border-left-color: #2ea043;
+    background-color: var(--success-color);
   }
 
   &.error {
-    border-left-color: var(--error-color);
+    background-color: var(--error-color);
   }
 
   &.removing {
