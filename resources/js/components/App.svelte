@@ -12,6 +12,7 @@
   import NewItem from './item/NewItem.svelte';
   import theme from '../lib/theme.js';
   import api from '../lib/api.js';
+  import Toast from './Toast.svelte';
 
   const routes = {
     '/': Dashboard,
@@ -36,3 +37,4 @@
 
 <Header />
 <Router {routes} />
+<Toast />

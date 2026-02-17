@@ -64,8 +64,36 @@
           border-radius: 50%;
         }
 
-        .icon {
+        :global(.icon) {
           flex-shrink: 0;
+        }
+
+        :global(.open) {
+          :global(svg) {
+            stroke: var(--success-color);
+            fill: var(--success-color);
+          }
+        }
+
+        :global(.closed) {
+          :global(svg) {
+            stroke: var(--error-color);
+            fill: var(--error-color);
+          }
+        }
+
+        :global(.merged) {
+          :global(svg) {
+            stroke: var(--merged-color);
+            fill: var(--merged-color);
+          }
+        }
+
+        :global(.draft) {
+          :global(svg) {
+            stroke: var(--draft-color);
+            fill: var(--draft-color);
+          }
         }
 
         span {

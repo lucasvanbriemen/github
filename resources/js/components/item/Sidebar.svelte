@@ -42,7 +42,7 @@
     projects =  await api.get(route('organizations.repositories.projects', { $organization, $repository }));
 
     const metadata = await waitForMetadata();
-    possibleAssignees = (metadata.assignees || []).filter(a => a).map((a) => ({ value: a.login, label: a.display_name, image: a.avatar_url }));
+    possibleAssignees = [...new Map((metadata.assignees || []).filter(a => a).map((a) => [a.login, { value: a.login, label: a.display_name, image: a.avatar_url }])).values()];
     possibleMilestones = (metadata.milestones || []).filter(m => m).map((m) => ({ value: m.number, label: m.title }));
 
     possibleAssignees.forEach(assignee => {
@@ -241,8 +241,7 @@
         selected: itemLabelNames.includes(label.name)
       }));
 
-      contributors = (metadata?.assignees || []).filter(a => a);
-      contributors = contributors.map(assignee => ({value: assignee.login, label: assignee.display_name, image: assignee.avatar_url}));
+      contributors = [...new Map((metadata?.assignees || []).filter(a => a).map(a => [a.login, {value: a.login, label: a.display_name, image: a.avatar_url}])).values()];
       contributors.forEach(contributor => {
         item?.requested_reviewers?.forEach(requestedReviewer => {
           if (requestedReviewer.user.login == contributor.value && requestedReviewer.state === 'pending') {
