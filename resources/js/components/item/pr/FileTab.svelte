@@ -1,8 +1,9 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import FileNavigation from './FileNavigation.svelte';
   import ChangedLine from './ChangedLine.svelte';
   import ReviewPanel from './ReviewPanel.svelte';
+  import { tokenizeAllLines, detectLanguage } from '../../../utils/syntaxHighlighter.js';
 
   let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false } = $props();
 
@@ -14,6 +15,54 @@
 
   let totalAdditions = $derived(files.reduce((sum, file) => sum + file.additions, 0));
   let totalDeletions = $derived(files.reduce((sum, file) => sum + file.deletions, 0));
+
+  // Pre-computed syntax tokens for the selected file (keyed by line number per side)
+  let precomputedTokens = $state({ left: new Map(), right: new Map() });
+  setContext('precomputedTokens', () => precomputedTokens);
+
+  function detectTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'github-dark' : 'github-light';
+  }
+
+  async function precomputeHighlighting(file) {
+    const language = detectLanguage(file.filename);
+    const theme = detectTheme();
+
+    const leftLines = [];
+    const leftNumbers = [];
+    const rightLines = [];
+    const rightNumbers = [];
+
+    for (const hunk of file.changes) {
+      for (const row of (hunk.rows || [])) {
+        if (row.left && row.left.type !== 'empty') {
+          leftLines.push(row.left.content || '');
+          leftNumbers.push(row.left.number);
+        }
+        if (row.right && row.right.type !== 'empty') {
+          rightLines.push(row.right.content || '');
+          rightNumbers.push(row.right.number);
+        }
+      }
+    }
+
+    const [leftTokens, rightTokens] = await Promise.all([
+      tokenizeAllLines(leftLines, language, theme),
+      tokenizeAllLines(rightLines, language, theme),
+    ]);
+
+    const leftMap = new Map();
+    const rightMap = new Map();
+
+    if (leftTokens) {
+      leftTokens.forEach((tokens, i) => leftMap.set(leftNumbers[i], tokens));
+    }
+    if (rightTokens) {
+      rightTokens.forEach((tokens, i) => rightMap.set(rightNumbers[i], tokens));
+    }
+
+    precomputedTokens = { left: leftMap, right: rightMap };
+  }
 
   onMount(async () => {
     const raw = (item.comments || []).filter(c => c.type === 'review');
@@ -39,6 +88,12 @@
 
   $effect(() => {
     selectedFile = files[selectedFileIndex];
+  });
+
+  $effect(() => {
+    if (selectedFile && !loadingFiles) {
+      precomputeHighlighting(selectedFile);
+    }
   });
 
   function isApplicableForPreview(file) {

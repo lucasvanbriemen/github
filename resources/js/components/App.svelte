@@ -12,6 +12,7 @@
   import NewItem from './item/NewItem.svelte';
   import theme from '../lib/theme.js';
   import api from '../lib/api.js';
+  import { toast } from '../lib/toast.js';
   import Toast from './Toast.svelte';
 
   const routes = {
@@ -33,6 +34,7 @@
   });
 
   window.api = api;
+  window.toast = toast;
 </script>
 
 <Header />

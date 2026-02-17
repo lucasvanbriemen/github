@@ -1,5 +1,3 @@
-import { toast } from './toast.js';
-
 export default {
   defaultHeaders: {
     "Content-Type": "application/json",
@@ -45,13 +43,15 @@ export default {
           return response.text();
         })
         .then((data) => {
-          if (method !== 'GET') {
-            toast('Updated successfully.');
+          if (method !== 'GET' && window.toast) {
+            window.toast('Updated successfully.');
           }
           return data;
         })
         .catch((error) => {
-          toast('Something went wrong.', 'error');
+          if (window.toast) {
+            window.toast('Something went wrong.', 'error');
+          }
           throw error;
         });
   },

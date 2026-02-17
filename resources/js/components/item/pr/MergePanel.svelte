@@ -1,16 +1,12 @@
 <script>
   import { organization, repository } from "../../stores";
-  import Drawer from "../../Drawer.svelte";
   import Modal from "../../Modal.svelte";
-  import JobLogViewer from "../../JobLogViewer.svelte";
   import CopyText from "../../CopyText.svelte";
   import AiReviewModal from "../../AiReviewModal.svelte";
 
   let { item } = $props();
   let number = item.number;
 
-  let selectedJob = $state(null);
-  let drawerOpen = $state(false);
   let mergeConfirmOpen = $state(false);
   let closeConfirmOpen = $state(false);
   let aiReviewModalOpen = $state(false);
@@ -33,12 +29,6 @@
     });
 
     item.state = 'open';
-  }
-
-  function openJobLog(job) {
-    selectedJobId = job.id;
-    selectedJob = job;
-    drawerOpen = true;
   }
 
   function canMergeOnWorkflowFailure() {
@@ -75,7 +65,7 @@
       <div class="workflow {item.latest_commit.workflow.conclusion}">
         <span class="workflow-name">{item.latest_commit.workflow.name}</span>
         {#each item.latest_commit.workflow.jobs as job}
-          <button class="job {job.conclusion}" onclick={() => openJobLog(job)}>{job.name}</button>
+          <a class="job {job.conclusion}" href="https://github.com/{$organization}/{$repository}/actions/runs/{job.workflow_id}/job/{job.id}?stay=1" target="_blank">{job.name}</a>
         {/each}
       </div>
     {:else}
@@ -134,12 +124,6 @@
 </Modal>
 
 <AiReviewModal isOpen={aiReviewModalOpen} onClose={() => aiReviewModalOpen = false} {item} />
-
-{#if drawerOpen && selectedJob}
-  <Drawer isOpen={drawerOpen} onClose={() => drawerOpen = false} title={selectedJob.name}>
-    <JobLogViewer job={selectedJob} />
-  </Drawer>
-{/if}
 
 <style lang="scss">
   @import '../../../../scss/components/item/pr/merge-panel';

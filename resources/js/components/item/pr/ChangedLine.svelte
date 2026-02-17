@@ -84,6 +84,8 @@
           language={detectLanguage(selectedFile.filename)}
           segments={displayLine.segments}
           lineType={displayLine.type}
+          lineNumber={displayLine.number}
+          {side}
           {showWhitespace}
         />
       {/if}

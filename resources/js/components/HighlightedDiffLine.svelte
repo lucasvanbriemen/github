@@ -1,11 +1,13 @@
 <script>
-  import { onMount } from 'svelte';
-  import { highlightCodeInline } from '../utils/syntaxHighlighter.js';
+  import { getContext } from 'svelte';
+  import { highlightCodeInline, buildLineHtmlFromTokens } from '../utils/syntaxHighlighter.js';
 
-  let { code = '', language = 'text', segments = null, lineType = 'normal', showWhitespace = true } = $props();
+  let { code = '', language = 'text', segments = null, lineType = 'normal', showWhitespace = true, lineNumber = null, side = null } = $props();
 
   let highlightedHtml = $state('');
   let currentTheme = $state('github-light');
+
+  const getPrecomputedTokens = getContext('precomputedTokens') ?? null;
 
   // Detect theme from document attribute
   function detectTheme() {
@@ -16,11 +18,22 @@
   async function highlight() {
     currentTheme = detectTheme();
 
-    // If segments exist (intra-line diff), render them with highlighting
+    // Try pre-computed tokens first (correct cross-line grammar state)
+    if (getPrecomputedTokens && lineNumber != null && side) {
+      const tokenData = getPrecomputedTokens();
+      const sideKey = side.toLowerCase();
+      const tokens = tokenData[sideKey]?.get(lineNumber);
+
+      if (tokens) {
+        highlightedHtml = buildLineHtmlFromTokens(tokens, segments, lineType, showWhitespace);
+        return;
+      }
+    }
+
+    // Fallback: individual per-segment highlighting
     if (segments && Array.isArray(segments) && segments.length > 0) {
       highlightedHtml = await renderSegments(segments);
     } else {
-      // Fall back to full-line syntax highlighting
       highlightedHtml = await highlightCodeInline(code, language, currentTheme);
     }
   }
@@ -32,22 +45,18 @@
       const highlighted = await highlightCodeInline(seg.text, language, currentTheme);
 
       if (seg.type === 'change') {
-        // Check if this change segment is whitespace-only
         const isWhitespaceOnly = /^\s*$/.test(seg.text);
 
-        // Skip rendering whitespace-only highlights if hiding whitespace
         if (isWhitespaceOnly && !showWhitespace) {
           html += highlighted;
           continue;
         }
 
-        // Wrap changed segments in a span with special highlighting
         const isAdd = lineType === 'add';
         const isDel = lineType === 'del';
         const bgColor = isAdd ? 'rgba(34, 197, 94, 0.25)' : isDel ? 'rgba(239, 68, 68, 0.25)' : 'rgba(234, 179, 8, 0.25)';
         html += `<span class="segment-change" style="background-color: ${bgColor}; border-radius: 0.25rem;">${highlighted}</span>`;
       } else {
-        // Equal segments render normally
         html += highlighted;
       }
     }
@@ -55,13 +64,12 @@
     return html;
   }
 
-  onMount(() => {
-    highlight();
-  });
-
-  // Re-highlight when showWhitespace changes
+  // Re-highlight when showWhitespace changes or pre-computed tokens arrive
   $effect(() => {
     void showWhitespace;
+    if (getPrecomputedTokens) {
+      void getPrecomputedTokens();
+    }
     highlight();
   });
 </script>

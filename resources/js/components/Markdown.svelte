@@ -262,6 +262,12 @@
   }
 
   onMount(async () => {
+    renderer.link = function ({ href, title, tokens }) {
+      const text = this.parser.parseInline(tokens);
+      const titleAttr = title ? ` title="${title}"` : '';
+      return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    };
+
     renderer.checkbox = function (data) {
       const isChecked = data.checked;
       const currentIndex = checkboxRenderIndex;
