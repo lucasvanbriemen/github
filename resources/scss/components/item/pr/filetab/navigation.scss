@@ -1,7 +1,148 @@
+/* File details modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  cursor: pointer;
+}
+
+/* File details modal */
+.file-details-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95%;
+  max-width: 450px;
+  background-color: var(--background-color-two);
+  border-radius: 1rem;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+
+    span {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-color);
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: var(--background-color-one);
+      border-radius: 0.5rem;
+
+      .detail-label {
+        font-weight: 500;
+        color: var(--text-color-secondary);
+      }
+
+      .detail-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text-color);
+
+        &.additions {
+          color: var(--success-color);
+        }
+
+        &.deletions {
+          color: var(--error-color);
+        }
+      }
+    }
+
+    .detail-navigation {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+
+      .nav-button {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color-one);
+        border-radius: 0.5rem;
+        cursor: pointer;
+        min-height: 44px;
+
+        &:hover:not(:disabled) {
+          background-color: var(--primary-color-dark);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      .file-counter {
+        flex: 0;
+        text-align: center;
+        font-weight: 500;
+        color: var(--text-color-secondary);
+        min-width: 50px;
+      }
+    }
+  }
+}
+
 .pr-navigation {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 99%;
+  gap: 1rem;
+
+  /* Tablet: Allow wrapping */
+  @media screen and (max-width: 1200px) {
+    flex-wrap: wrap;
+  }
+
+  /* Mobile: Stack vertically */
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
 
   .pr-stats-summary {
     padding: 0 1rem;
@@ -13,6 +154,7 @@
     align-items: center;
     font-size: 0.875rem;
     font-weight: 500;
+    min-height: 44px;
 
     .stats-label {
       color: var(--text-color-secondary);
@@ -24,6 +166,55 @@
 
     .stats-deletions {
       color: var(--error-color);
+    }
+
+    /* Mobile: Full width */
+    @media screen and (max-width: 768px) {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+
+  /* Ensure all buttons are responsive */
+  .button-primary {
+    min-height: 44px;
+
+    /* Mobile: Full width */
+    @media screen and (max-width: 768px) {
+      width: 100%;
+    }
+  }
+
+  /* Details icon button - only visible on mobile */
+  .details-icon-button {
+    display: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--background-color-two);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 1.25rem;
+    min-height: 44px;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: var(--background-color);
+    }
+
+    /* Mobile: Show icon button, hide other elements */
+    @media screen and (max-width: 768px) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  /* Mobile: Hide desktop navigation on mobile */
+  @media screen and (max-width: 768px) {
+    .tab-navigation,
+    .pr-stats-summary {
+      display: none;
     }
   }
 }

@@ -9,6 +9,7 @@
   let { item, params = {} } = $props();
   let body = $state(item.body);
   let issueComment = $state('');
+  let showCommentForm = $state(false);
 
   let number = params.number;
 
@@ -50,5 +51,20 @@
   <ClosedPanel {item} />
 {/if}
 
-<Markdown bind:content={issueComment} isEditing={true} />
-<button class="button-primary-outline" onclick={post_comment}>Post Comment</button>
+<!-- Mobile collapsible comment form -->
+<div class="comment-form-container" class:expanded={showCommentForm}>
+  <button class="comment-form-toggle" type="button" onclick={() => showCommentForm = !showCommentForm}>
+    {showCommentForm ? '✕ Hide' : '✏️ Write a comment'}
+  </button>
+
+  {#if showCommentForm}
+    <div class="comment-form-content">
+      <Markdown bind:content={issueComment} isEditing={true} />
+      <button class="button-primary-outline" onclick={post_comment}>Post Comment</button>
+    </div>
+  {/if}
+</div>
+
+<style lang="scss">
+  @import '../../../scss/components/item/conversation';
+</style>
