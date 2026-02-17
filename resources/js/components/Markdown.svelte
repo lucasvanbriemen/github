@@ -201,6 +201,16 @@
     return processed;
   }
 
+  function processReferences(html) {
+    if (!html) return html;
+
+    // Replace #123 patterns with clickable links to the referenced item
+    // Negative lookbehind avoids HTML entities (&#123;), word chars, forward slashes, and hash signs
+    return html.replace(/(?<![&\w\/#])#(\d+)\b/g, (match, number) => {
+      return `<a class="issue-reference" href="/#/${$organization}/${$repository}/issues/${number}">#${number}</a>`;
+    });
+  }
+
   function convertToMarkdown() {
     if (!content) {
       return '';
@@ -208,7 +218,7 @@
 
     checkboxRenderIndex = 0;
     const html = marked.parse(content);
-    return processMentions(html);
+    return processReferences(processMentions(html));
   }
 
   function insertShortcut(type) {

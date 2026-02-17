@@ -65,7 +65,7 @@
     <div class="loading">Loading files...</div>
   {:else}
     <div class="file">
-      <button class="header" type="button">
+      <div class="header">
         <span class="file-status file-status-{selectedFile.status}">{selectedFile.status}</span>
         <span class="file-name">{selectedFile.filename}</span>
 
@@ -77,7 +77,7 @@
             <span class="deletions">-{selectedFile.deletions}</span>
           {/if}
         </span>
-      </button>
+      </div>
 
       {#if !isApplicableForPreview(selectedFile) }
         <div class="file-changes">
