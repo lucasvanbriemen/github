@@ -45,6 +45,10 @@
     <div class="meta">
       {subTitle()}
 
+      <span class="devider" />
+
+      approved
+
       {#if item.labels?.length > 0}
         <div class="labels">
           {#each item.labels as label}
