@@ -110,21 +110,12 @@
       branchesForNotice = [];
       getItems(currentPage);
 
-      if (type === 'prs') {
-        stateOptions = [
-          { value: 'open', label: 'Open' },
-          { value: 'closed', label: 'Closed' },
-          { value: 'merged', label: 'Merged' },
-          { value: 'draft', label: 'Draft' },
-          { value: 'all', label: 'All' }
-        ]
-      } else {
-        stateOptions = [
-          { value: 'open', label: 'Open' },
-          { value: 'closed', label: 'Closed' },
-          { value: 'all', label: 'All' }
-        ];
-      }
+     
+      stateOptions = [
+        { value: 'open', label: 'Open' },
+        { value: 'closed', label: 'Closed' },
+        { value: 'all', label: 'All' }
+      ];
     });
   });
 
