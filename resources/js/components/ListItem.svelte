@@ -4,6 +4,8 @@
 
   let { item } = $props();
 
+  let isIssueOrPR = $derived(item.type === 'issue' || item.type === 'pull_request');
+
   function itemUrl(number) {
     const base = window.location.origin;
 
@@ -45,11 +47,15 @@
     <div class="meta">
       {subTitle()}
 
-      <span class="devider" />
-
-      approved
-
+      {#if isIssueOrPR}
+        <span class="devider"></span>
+        
+        approved
+      {/if}
+      
       {#if item.labels?.length > 0}
+        <span class="devider"></span>
+
         <div class="labels">
           {#each item.labels as label}
             <span class="label" style="background-color: #{label.color}4D; color: #{label.color}; border: 1px solid #{label.color};">{label.name}</span>
