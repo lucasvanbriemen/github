@@ -21,7 +21,11 @@
 
   const isPR = $derived(type === 'prs');
 
-  let stateOptions = $state([]);
+  const POSSABLE_ITEM_STATES = [
+    { value: 'open', label: 'Open' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'all', label: 'All' }
+  ];
 
   let state = $state('open');
   let assignees = $state([]);
@@ -109,13 +113,6 @@
       currentPage = 1;
       branchesForNotice = [];
       getItems(currentPage);
-
-     
-      stateOptions = [
-        { value: 'open', label: 'Open' },
-        { value: 'closed', label: 'Closed' },
-        { value: 'all', label: 'All' }
-      ];
     });
   });
 
@@ -126,7 +123,7 @@
     <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
 
     <SidebarGroup title="State">
-      <Select name="state" selectableItems={stateOptions} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
+      <Select name="state" selectableItems={POSSABLE_ITEM_STATES} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
     </SidebarGroup>
 
     <SidebarGroup title="Milestone">
