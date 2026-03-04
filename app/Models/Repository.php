@@ -68,8 +68,13 @@ class Repository extends Model
         $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy');
 
+        $stateMap = [
+            'open' => ['open', 'draft'],
+            'closed' => ['closed', 'merged'],
+        ];
+
         if ($state !== 'all') {
-            $query->where('state', $state);
+            $query->whereIn('state', $stateMap[$state]);
         }
 
         if ($search) {
