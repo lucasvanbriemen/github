@@ -78,7 +78,6 @@
 
     <div class="diff-line-content diff-line-{displayLine.type}">
       {#if displayLine.type !== 'empty'}
-        <span class="prefix">{prefix(displayLine.type)}</span>
         <HighlightedDiffLine
           code={displayLine.content}
           language={detectLanguage(selectedFile.filename)}
