@@ -43,20 +43,6 @@
     color: var(--text-color-secondary);
   }
 
-  .complete-btn {
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    color: var(--text-color-secondary);
-
-    &:hover {
-      color: var(--primary-color);
-    }
-  }
-
   .linked-section {
     border-top: 1px solid var(--background-color-two);
 

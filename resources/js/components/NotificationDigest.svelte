@@ -61,11 +61,6 @@
           <div class="notification-row" class:completed={notification.completed}>
             <span class="notification-text">{notification.subject}</span>
             <span class="notification-time">{notification.created_at_human}</span>
-            {#if !notification.completed}
-              <button class="complete-btn" onclick={() => completeNotification(notification)}>
-                <Icon name="approved" size="1rem" />
-              </button>
-            {/if}
           </div>
         {/each}
 
@@ -80,11 +75,6 @@
               <div class="notification-row linked" class:completed={notification.completed}>
                 <span class="notification-text">{notification.subject}</span>
                 <span class="notification-time">{notification.created_at_human}</span>
-                {#if !notification.completed}
-                  <button class="complete-btn" onclick={() => completeNotification(notification)}>
-                    <Icon name="approved" size="1rem" />
-                  </button>
-                {/if}
               </div>
             {/each}
           </div>
@@ -102,11 +92,6 @@
             <span class="dot {notification.type}"></span>
             <span class="notification-text">{notification.subject}</span>
             <span class="notification-time">{notification.created_at_human}</span>
-            {#if !notification.completed}
-              <button class="complete-btn" onclick={() => completeNotification(notification)}>
-                <Icon name="approved" size="1rem" />
-              </button>
-            {/if}
           </div>
         {/each}
       </div>
