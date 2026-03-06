@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\Notification;
-use App\Mail\NotificationDigest;
+use App\Mail\NotificationOverview;
 use App\GithubConfig;
 use Illuminate\Support\Facades\Mail;
 
@@ -174,6 +174,6 @@ class NotificationController extends Controller
 
         Notification::whereIn('id', $ids)->update(['emailed_at' => $today]);
 
-        Mail::to(GithubConfig::USER_EMAIL)->send(new NotificationDigest($today));
+        Mail::to(GithubConfig::USER_EMAIL)->send(new NotificationOverview($today));
     }
 }

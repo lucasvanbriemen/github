@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotificationDigest extends Mailable
+class NotificationOverview extends Mailable
 {
     use Queueable, SerializesModels;
 
