@@ -21,11 +21,6 @@
     return `#/${item.repository.full_name}/${type}/${item.number}`;
   }
 
-  async function completeNotification(notification) {
-    notification.completed = true;
-    await api.post(route('notifications.complete', { id: notification.id }));
-  }
-
   async function completeAll() {
     const ids = [];
     for (const group of groups) {
