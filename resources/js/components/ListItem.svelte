@@ -4,7 +4,8 @@
 
   let { item } = $props();
 
-  let isIssueOrPR = $derived(item.type === 'issue' || item.type === 'pull_request');
+  // let isIssueOrPR = $derived(item.type === 'issue' || item.type === 'pull_request');
+  let isIssueOrPR = false;
 
   function itemUrl(number) {
     const base = window.location.origin;
@@ -33,13 +34,6 @@
     }
   }
 
-  // We have the PR state but also a working state, this is when a PR is approved but not yet merged
-  // When there is requested changes, its working state is for me to pick up
-  // Aka this is a quick overview if i can work on it or not
-  function workingState() {
-    return 'approved';
-  }
-
   function isCurrentUserAssigned() {
     const currentUserId = window.USER_ID;
     return item.assignees?.some(assignee => assignee.id == currentUserId);
@@ -57,7 +51,7 @@
       {#if isIssueOrPR}
         <span class="devider"></span>
         
-        {workingState()}
+        {item.working_state}
       {/if}
       
       {#if item.labels?.length > 0}
