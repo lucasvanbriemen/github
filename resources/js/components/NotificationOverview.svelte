@@ -58,7 +58,7 @@
         {/if}
 
         {#each group.notifications as notification}
-          <div class="notification-row" class:completed={notification.completed}>
+          <div class="notification-row">
             <span class="notification-text">{notification.subject}</span>
             <span class="notification-time">{notification.created_at_human}</span>
           </div>
