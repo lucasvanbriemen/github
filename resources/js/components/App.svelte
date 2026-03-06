@@ -19,7 +19,7 @@
   const routes = {
     '/': Dashboard,
     '/notification/:id': EmailNotification,
-    '/notifications/digest/:date': NotificationDigest,
+    '/notifications/:date': NotificationDigest,
     '/:organization/:repository': RepositoryDashboard,
 
     '/:organization/:repository/projects': ProjectsOverview,
