@@ -82,7 +82,6 @@
 
             {#each linked.notifications as notification}
               <div class="notification-row linked" class:completed={notification.completed}>
-                <span class="dot {notification.type}"></span>
                 <span class="notification-text">{notification.subject}</span>
                 <span class="notification-time">{notification.created_at_human}</span>
                 {#if !notification.completed}
