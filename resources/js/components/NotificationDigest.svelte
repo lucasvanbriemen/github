@@ -55,11 +55,6 @@
   {#if loading}
     <ItemSkeleton />
   {:else}
-    <div class="digest-header">
-      <h1>Notification Digest</h1>
-      <button class="button-primary" onclick={completeAll}>Complete All</button>
-    </div>
-
     {#each groups as group}
       <div class="item-group">
         {#if group.item}
@@ -139,6 +134,8 @@
         {/each}
       </div>
     {/if}
+
+    <button class="button-primary" onclick={completeAll}>Complete All</button>
   {/if}
 </div>
 
