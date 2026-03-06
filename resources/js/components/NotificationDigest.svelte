@@ -54,11 +54,6 @@
 <div class="notification-digest">
   {#if loading}
     <ItemSkeleton />
-  {:else if groups.length === 0 && orphaned.length === 0}
-    <div class="empty-state">
-      <Icon name="approved" size="3rem" />
-      <p>No pending notifications</p>
-    </div>
   {:else}
     <div class="digest-header">
       <h1>Notification Digest</h1>
