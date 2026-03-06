@@ -86,18 +86,16 @@
       warnings.push(`${unchecked} unchecked checkbox${unchecked === 1 ? '' : 'es'} in the PR body`);
     }
 
-    if (!linkedItems || linkedItems.length === 0) {
-      warnings.push('PR is not linked to any issue');
-    }
-
-    if (!item.projects || item.projects.length === 0) {
-      warnings.push('PR is not on a project board');
+    const hasLinkedIssue = linkedItems && linkedItems.length > 0;
+    const hasProject = item.projects && item.projects.length > 0;
+    if (!hasLinkedIssue && !hasProject) {
+      warnings.push('PR is not linked to an issue or on a project board');
     }
 
     return warnings;
   }
 
-  let reviewerWarnings = $state([]);
+  let reviewerWarnings = $state(getReviewerWarnings());
 
   function requestReviewer({selectedValue}) {
     if (typeof selectedValue === 'string') {
