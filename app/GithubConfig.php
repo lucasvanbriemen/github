@@ -114,4 +114,20 @@ class GithubConfig
         'review_dismissed' => ['pr_review'],
         'new_commit_pushed' => ['workflow_failed'],
     ];
+
+    private const START_WORKING_HOURS = [
+        'home' => '8:30',
+        'office' => '7:00',
+        'weekend' => '9:00',
+    ];
+
+    public const NOTIFICATION_DIGEST_TIMES = [
+        'monday' => self::START_WORKING_HOURS['home'],
+        'tuesday' => self::START_WORKING_HOURS['home'],
+        'wednesday' => self::START_WORKING_HOURS['office'],
+        'thursday' => self::START_WORKING_HOURS['home'],
+        'friday' => self::START_WORKING_HOURS['office'],
+        'saturday' => self::START_WORKING_HOURS['weekend'],
+        'sunday' => self::START_WORKING_HOURS['weekend'],
+    ];
 }
