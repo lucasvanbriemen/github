@@ -1,5 +1,5 @@
 .notification-overview {
-  width: min(110ch, 100%);
+  width: min(110ch, 90%);
   margin: 1rem auto;
   display: flex;
   flex-direction: column;
@@ -64,22 +64,6 @@
       font-size: 0.875rem;
       font-weight: 600;
       word-break: break-word;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .notification-overview {
-    .item-group {
-      border-radius: 0;
-    }
-
-    .notification-time {
-      display: none;
-    }
-
-    .notification-row.linked {
-      padding-left: 1.25rem;
     }
   }
 }
