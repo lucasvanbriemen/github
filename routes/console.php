@@ -34,5 +34,6 @@ Artisan::command('notifications:digest', function () {
     NotificationController::sendDigest();
 })->purpose('Send daily digest email of unread notifications');
 
-// Schedule the digest email at 17:00 on weekdays
-Schedule::command('notifications:digest')->dailyAt(GithubConfig::NOTIFICATION_DIGEST_TIMES[date('l')]);
+// Schedule the digest email at start of working days
+$time = GithubConfig::NOTIFICATION_DIGEST_TIMES[strtolower(date('l'))];
+Schedule::command('notifications:digest')->dailyAt($time);
