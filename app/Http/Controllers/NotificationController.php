@@ -50,10 +50,7 @@ class NotificationController extends Controller
 
     public function digest(Request $request, $date)
     {
-        $result = self::buildDigest(
-            Notification::where('emailed_at', $date)
-        );
-
+        $result = self::buildDigest(Notification::where('emailed_at', $date));
         return response()->json($result);
     }
 
