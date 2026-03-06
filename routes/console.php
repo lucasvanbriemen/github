@@ -3,6 +3,7 @@
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryUserController;
 use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -27,3 +28,10 @@ Schedule::command('repository_users:update')->dailyAt('1:00');
 
 // Schedule the command to run daily at 1 AM to update labels
 Schedule::command('labels:update')->dailyAt('01:00');
+
+Artisan::command('notifications:digest', function () {
+    NotificationController::sendDigest();
+})->purpose('Send daily digest email of unread notifications');
+
+// Schedule the digest email at 17:00 on weekdays
+Schedule::command('notifications:digest')->weekdays()->dailyAt('17:00');

@@ -72,16 +72,36 @@ class Notification extends Model
     public function loadRelatedData()
     {
         if ($this->type === 'comment_mention' || $this->type === 'item_comment') {
-            $this->load('comment.item.repository');
+            $this->load('comment.item.repository.organization');
         }
 
         if ($this->type === 'item_assigned' || $this->type === 'review_requested') {
-            $this->load('item.repository');
+            $this->load('item.repository.organization');
         }
 
         if ($this->type === 'pr_review') {
-            $this->load('review.baseComment.item.repository');
+            $this->load('review.baseComment.item.repository.organization');
         }
+    }
+
+    /**
+     * Resolve the parent Item this notification belongs to.
+     */
+    public function resolveItem(): ?Item
+    {
+        if ($this->type === 'item_assigned' || $this->type === 'review_requested') {
+            return $this->item;
+        }
+
+        if ($this->type === 'item_comment' || $this->type === 'comment_mention') {
+            return $this->comment?->item;
+        }
+
+        if ($this->type === 'pr_review') {
+            return $this->review?->baseComment?->item;
+        }
+
+        return null;
     }
 
     protected $fillable = [

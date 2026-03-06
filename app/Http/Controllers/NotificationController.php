@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Item;
 use App\Models\Notification;
+use App\Mail\NotificationDigest;
+use App\GithubConfig;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationController extends Controller
 {
@@ -42,5 +46,116 @@ class NotificationController extends Controller
         $notification->save();
 
         return response()->json(['sucess' => true]);
+    }
+
+    public static function sendDigest()
+    {
+        $notifications = Notification::where('emailed', false)
+            ->where('completed', false)
+            ->get();
+
+        if ($notifications->isEmpty()) {
+            return;
+        }
+
+        foreach ($notifications as $notification) {
+            $notification->loadRelatedData();
+        }
+
+        // Group notifications by their parent item
+        $itemGroups = [];
+        $orphaned = [];
+
+        foreach ($notifications as $notification) {
+            $item = $notification->resolveItem();
+            if ($item) {
+                $itemGroups[$item->id][] = $notification;
+            } else {
+                $orphaned[] = $notification;
+            }
+        }
+
+        // Link PRs with their closing-keyword-referenced issues
+        $closingKeywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
+        $linkedGroups = [];
+        $prToIssueMap = [];
+
+        foreach ($itemGroups as $itemId => $group) {
+            $item = $group[0]->resolveItem();
+            if ($item && $item->isPullRequest() && $item->body) {
+                foreach ($closingKeywords as $keyword) {
+                    if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $item->getRawOriginal('body'), $matches)) {
+                        foreach ($matches[1] as $issueNumber) {
+                            $issue = Item::where('number', $issueNumber)
+                                ->where('repository_id', $item->repository_id)
+                                ->first();
+                            if ($issue) {
+                                $prToIssueMap[$itemId] = $issue->id;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Build final grouped structure: issue → own notifications + linked PR notifications
+        $processed = [];
+        foreach ($itemGroups as $itemId => $group) {
+            if (isset($prToIssueMap[$itemId])) {
+                continue;
+            }
+
+            $item = $group[0]->resolveItem();
+            $entry = [
+                'item' => $item,
+                'notifications' => $group,
+                'linked' => [],
+            ];
+
+            foreach ($prToIssueMap as $prItemId => $issueId) {
+                if ($issueId === $itemId && isset($itemGroups[$prItemId])) {
+                    $prItem = $itemGroups[$prItemId][0]->resolveItem();
+                    $entry['linked'][] = [
+                        'item' => $prItem,
+                        'notifications' => $itemGroups[$prItemId],
+                    ];
+                    $processed[] = $prItemId;
+                }
+            }
+
+            $linkedGroups[] = $entry;
+            $processed[] = $itemId;
+        }
+
+        // PRs that link to issues not in our notification set
+        foreach ($prToIssueMap as $prItemId => $issueId) {
+            if (!in_array($prItemId, $processed)) {
+                $issue = Item::with('repository.organization')->find($issueId);
+                $linkedGroups[] = [
+                    'item' => $issue,
+                    'notifications' => [],
+                    'linked' => [[
+                        'item' => $itemGroups[$prItemId][0]->resolveItem(),
+                        'notifications' => $itemGroups[$prItemId],
+                    ]],
+                ];
+            }
+        }
+
+        // Remaining ungrouped item groups (PRs without issue links)
+        foreach ($itemGroups as $itemId => $group) {
+            if (!in_array($itemId, $processed) && !isset($prToIssueMap[$itemId])) {
+                $linkedGroups[] = [
+                    'item' => $group[0]->resolveItem(),
+                    'notifications' => $group,
+                    'linked' => [],
+                ];
+            }
+        }
+
+        Mail::to(GithubConfig::USER_EMAIL)->send(new NotificationDigest($linkedGroups, $orphaned));
+
+        Notification::whereIn('id', $notifications->pluck('id'))->update(['emailed' => true]);
     }
 }
