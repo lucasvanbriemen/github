@@ -160,7 +160,7 @@ class NotificationController extends Controller
         ];
     }
 
-    public static function sendDigest()
+    public static function sendOverview()
     {
         $today = now()->toDateString();
 

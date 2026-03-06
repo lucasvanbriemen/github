@@ -30,10 +30,10 @@ Schedule::command('repository_users:update')->dailyAt('1:00');
 // Schedule the command to run daily at 1 AM to update labels
 Schedule::command('labels:update')->dailyAt('01:00');
 
-Artisan::command('notifications:digest', function () {
-    NotificationController::sendDigest();
-})->purpose('Send daily digest email of unread notifications');
+Artisan::command('notifications:overview', function () {
+    NotificationController::sendOverview();
+})->purpose('Send daily overview email of unread notifications');
 
-// Schedule the digest email at start of working days
+// Schedule the overview email at start of working days
 $time = GithubConfig::NOTIFICATION_DIGEST_TIMES[strtolower(date('l'))];
-Schedule::command('notifications:digest')->dailyAt($time);
+Schedule::command('notifications:overview')->dailyAt($time);
