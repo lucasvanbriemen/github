@@ -54,15 +54,11 @@
     {#each groups as group}
       <div class="item-group">
         {#if group.item}
-          <a href={getItemUrl(group.item)} class="item-header">
-            <Icon name={group.item.type === 'pull_request' ? 'pull_request' : 'issue'} size="1.25rem" />
-            <span class="item-title">{group.item.title}</span>
-          </a>
+          <a href={getItemUrl(group.item)} class="item-title">{group.item.title}</a>
         {/if}
 
         {#each group.notifications as notification}
           <div class="notification-row" class:completed={notification.completed}>
-            <span class="dot {notification.type}"></span>
             <span class="notification-text">{notification.subject}</span>
             <span class="notification-time">{notification.created_at_human}</span>
             {#if !notification.completed}
