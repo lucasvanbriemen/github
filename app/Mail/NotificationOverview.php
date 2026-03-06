@@ -29,7 +29,7 @@ class NotificationOverview extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.notification_digest',
+            view: 'emails.notification_overview',
             with: [
                 'digestUrl' => url('/') . '/#/notifications/' . $this->date,
             ],
