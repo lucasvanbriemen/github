@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->boolean('emailed')->default(false);
+            $table->date('emailed_at')->nullable();
         });
     }
 
     public function down(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->dropColumn('emailed');
+            $table->dropColumn('emailed_at');
         });
     }
 };

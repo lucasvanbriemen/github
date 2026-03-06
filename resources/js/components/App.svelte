@@ -4,6 +4,7 @@
   import Header from './Header.svelte';
   import Dashboard from './Dashboard.svelte';
   import EmailNotification from './EmailNotification.svelte';
+  import NotificationDigest from './NotificationDigest.svelte';
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './itemOverview/ItemOverview.svelte';
   import ProjectsOverview from './ProjectsOverview.svelte';
@@ -18,6 +19,7 @@
   const routes = {
     '/': Dashboard,
     '/notification/:id': EmailNotification,
+    '/notifications/digest/:date': NotificationDigest,
     '/:organization/:repository': RepositoryDashboard,
 
     '/:organization/:repository/projects': ProjectsOverview,

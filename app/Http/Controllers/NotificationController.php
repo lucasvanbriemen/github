@@ -48,14 +48,22 @@ class NotificationController extends Controller
         return response()->json(['sucess' => true]);
     }
 
-    public static function sendDigest()
+    public function digest(Request $request, $date)
     {
-        $notifications = Notification::where('emailed', false)
-            ->where('completed', false)
-            ->get();
+        $result = self::buildDigest(
+            Notification::where('emailed_at', $date)
+        );
+
+        return response()->json($result);
+    }
+
+    private static function buildDigest($query)
+    {
+        $notifications = $query->get();
 
         foreach ($notifications as $notification) {
             $notification->loadRelatedData();
+            $notification->subject = $notification->subject();
         }
 
         // Group notifications by their parent item
@@ -95,7 +103,7 @@ class NotificationController extends Controller
             }
         }
 
-        // Build final grouped structure: issue → own notifications + linked PR notifications
+        // Build final grouped structure: issue -> own notifications + linked PR notifications
         $processed = [];
         foreach ($itemGroups as $itemId => $group) {
             if (isset($prToIssueMap[$itemId])) {
@@ -111,9 +119,8 @@ class NotificationController extends Controller
 
             foreach ($prToIssueMap as $prItemId => $issueId) {
                 if ($issueId === $itemId && isset($itemGroups[$prItemId])) {
-                    $prItem = $itemGroups[$prItemId][0]->resolveItem();
                     $entry['linked'][] = [
-                        'item' => $prItem,
+                        'item' => $itemGroups[$prItemId][0]->resolveItem(),
                         'notifications' => $itemGroups[$prItemId],
                     ];
                     $processed[] = $prItemId;
@@ -127,7 +134,7 @@ class NotificationController extends Controller
         // PRs that link to issues not in our notification set
         foreach ($prToIssueMap as $prItemId => $issueId) {
             if (!in_array($prItemId, $processed)) {
-                $issue = Item::with('repository.organization')->find($issueId);
+                $issue = Item::with('repository')->find($issueId);
                 $linkedGroups[] = [
                     'item' => $issue,
                     'notifications' => [],
@@ -150,8 +157,26 @@ class NotificationController extends Controller
             }
         }
 
-        Mail::to(GithubConfig::USER_EMAIL)->send(new NotificationDigest($linkedGroups, $orphaned));
+        return [
+            'groups' => $linkedGroups,
+            'orphaned' => $orphaned,
+        ];
+    }
 
-        Notification::whereIn('id', $notifications->pluck('id'))->update(['emailed' => true]);
+    public static function sendDigest()
+    {
+        $today = now()->toDateString();
+
+        $ids = Notification::whereNull('emailed_at')
+            ->where('completed', false)
+            ->pluck('id');
+
+        if ($ids->isEmpty()) {
+            return;
+        }
+
+        Notification::whereIn('id', $ids)->update(['emailed_at' => $today]);
+
+        Mail::to(GithubConfig::USER_EMAIL)->send(new NotificationDigest($today));
     }
 }

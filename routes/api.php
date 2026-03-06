@@ -30,6 +30,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
     Route::post('/notifications/{id}/complete', [NotificationController::class, 'complete'])
         ->name('notifications.complete');
 
+    Route::get('/notifications/digest/{date}', [NotificationController::class, 'digest'])
+        ->name('notifications.digest');
+
     Route::name('organizations.repositories.')->prefix('/{organization}/{repository}')->group(function () {
         Route::get('/projects', [ProjectController::class, 'index'])
             ->name('projects');

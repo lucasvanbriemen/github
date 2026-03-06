@@ -12,28 +12,17 @@ class NotificationDigest extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public array $groups;
-    public array $orphaned;
+    public string $date;
 
-    public function __construct(array $groups, array $orphaned = [])
+    public function __construct(string $date)
     {
-        $this->groups = $groups;
-        $this->orphaned = $orphaned;
+        $this->date = $date;
     }
 
     public function envelope(): Envelope
     {
-        $count = 0;
-        foreach ($this->groups as $group) {
-            $count += count($group['notifications']);
-            foreach ($group['linked'] as $linked) {
-                $count += count($linked['notifications']);
-            }
-        }
-        $count += count($this->orphaned);
-
         return new Envelope(
-            subject: "github: {$count} " . ($count === 1 ? 'notification' : 'notifications') . " today",
+            subject: "github: notification digest {$this->date}",
         );
     }
 
@@ -42,9 +31,7 @@ class NotificationDigest extends Mailable
         return new Content(
             view: 'emails.notification_digest',
             with: [
-                'groups' => $this->groups,
-                'orphaned' => $this->orphaned,
-                'baseUrl' => url('/'),
+                'digestUrl' => url('/') . '/#/notifications/digest/' . $this->date,
             ],
         );
     }
