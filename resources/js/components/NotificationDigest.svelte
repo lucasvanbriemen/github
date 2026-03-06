@@ -21,10 +21,6 @@
     return `#/${item.repository.full_name}/${type}/${item.number}`;
   }
 
-  function getTypeLabel(item) {
-    return item.type === 'pull_request' ? 'PR' : 'Issue';
-  }
-
   async function completeNotification(notification) {
     notification.completed = true;
     await api.post(route('notifications.complete', { id: notification.id }));
@@ -51,7 +47,7 @@
   }
 </script>
 
-<div class="notification-digest">
+<div class="notification-overview">
   {#if loading}
     <ItemSkeleton />
   {:else}
@@ -60,15 +56,7 @@
         {#if group.item}
           <a href={getItemUrl(group.item)} class="item-header">
             <Icon name={group.item.type === 'pull_request' ? 'pull_request' : 'issue'} size="1.25rem" />
-            <div class="item-info">
-              <span class="item-title">{group.item.title}</span>
-              <span class="item-meta">
-                <span class="type-badge" class:pr={group.item.type === 'pull_request'}>
-                  {getTypeLabel(group.item)}
-                </span>
-                {group.item.repository.full_name}#{group.item.number}
-              </span>
-            </div>
+            <span class="item-title">{group.item.title}</span>
           </a>
         {/if}
 
@@ -89,13 +77,7 @@
           <div class="linked-section">
             <a href={getItemUrl(linked.item)} class="linked-header">
               <Icon name="pull_request" size="1rem" />
-              <div class="item-info">
-                <span class="linked-title">{linked.item.title}</span>
-                <span class="item-meta">
-                  <span class="type-badge pr">PR</span>
-                  {linked.item.repository.full_name}#{linked.item.number}
-                </span>
-              </div>
+              <span class="linked-title">{linked.item.title}</span>
             </a>
 
             {#each linked.notifications as notification}
