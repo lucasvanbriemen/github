@@ -22,7 +22,7 @@ class NotificationDigest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "github: notification digest {$this->date}",
+            subject: "github: your overview of yesterday{$this->date}",
         );
     }
 
@@ -31,7 +31,7 @@ class NotificationDigest extends Mailable
         return new Content(
             view: 'emails.notification_digest',
             with: [
-                'digestUrl' => url('/') . '/#/notifications/digest/' . $this->date,
+                'digestUrl' => url('/') . '/#/notifications/' . $this->date,
             ],
         );
     }
