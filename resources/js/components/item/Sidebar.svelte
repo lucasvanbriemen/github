@@ -6,6 +6,7 @@
   import Select from '../Select.svelte';
   import Switch from '../Switch.svelte';
   import ReviewerFocusModal from './ReviewerFocusModal.svelte';
+  import Modal from '../Modal.svelte';
   import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
   let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
@@ -14,6 +15,8 @@
   let contributors = $state([]);
   let focusedReviewer = $state(null);
   let showFocusModal = $state(false);
+  let showReviewerConfirm = $state(false);
+  let pendingReviewerSelection = $state(null);
 
   let linkedItems = $state([]);
   let projects = $state([]);
@@ -75,14 +78,52 @@
     }
   });
 
+  function getReviewerWarnings() {
+    const warnings = [];
+
+    const unchecked = item.body ? (item.body.match(/- \[ \]/g) || []).length : 0;
+    if (unchecked > 0) {
+      warnings.push(`${unchecked} unchecked checkbox${unchecked === 1 ? '' : 'es'} in the PR body`);
+    }
+
+    const hasLinkedIssue = linkedItems && linkedItems.length > 0;
+    const hasProject = item.projects && item.projects.length > 0;
+    if (!hasLinkedIssue && !hasProject) {
+      warnings.push('PR is not linked to an issue or on a project board');
+    }
+
+    return warnings;
+  }
+
+  let reviewerWarnings = $state(getReviewerWarnings());
+
   function requestReviewer({selectedValue}) {
     if (typeof selectedValue === 'string') {
       selectedValue = [selectedValue];
     }
 
+    const warnings = getReviewerWarnings();
+    if (warnings.length > 0) {
+      pendingReviewerSelection = selectedValue;
+      reviewerWarnings = warnings;
+      showReviewerConfirm = true;
+      return;
+    }
+
+    submitReviewerRequest(selectedValue);
+  }
+
+  function submitReviewerRequest(reviewers) {
     api.post(route('organizations.repositories.pr.add.reviewers', { $organization, $repository, number: item.number }), {
-      reviewers: selectedValue
+      reviewers
     });
+  }
+
+  function confirmReviewerRequest() {
+    if (pendingReviewerSelection) {
+      submitReviewerRequest(pendingReviewerSelection);
+      pendingReviewerSelection = null;
+    }
   }
 
   function updateLabels({selectedValue}) {
@@ -361,6 +402,21 @@
     {/if}
   {/if}
 </Sidebar>
+
+<Modal
+  isOpen={showReviewerConfirm}
+  onClose={() => { showReviewerConfirm = false; pendingReviewerSelection = null; }}
+  onConfirm={confirmReviewerRequest}
+  title="Review request warnings"
+  confirmText="Request anyway"
+>
+  <p>Are you sure you want to request a review?</p>
+  <ul>
+    {#each reviewerWarnings as warning}
+      <li>{warning}</li>
+    {/each}
+  </ul>
+</Modal>
 
   
 <style lang="scss">

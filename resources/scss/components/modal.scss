@@ -21,11 +21,11 @@
 		gap: 1rem;
 		padding: 1.5rem;
 
-		h3, p {
+		h3, p, ul, li {
 			margin: 0;
 		}
 
-		p {
+		p, li {
 			color: var(--text-color-secondary);
 		}
 
