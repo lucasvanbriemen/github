@@ -84,6 +84,26 @@ class Notification extends Model
         }
     }
 
+    /**
+     * Resolve the parent Item this notification belongs to.
+     */
+    public function resolveItem(): ?Item
+    {
+        if ($this->type === 'item_assigned' || $this->type === 'review_requested') {
+            return $this->item;
+        }
+
+        if ($this->type === 'item_comment' || $this->type === 'comment_mention') {
+            return $this->comment?->item;
+        }
+
+        if ($this->type === 'pr_review') {
+            return $this->review?->baseComment?->item;
+        }
+
+        return null;
+    }
+
     protected $fillable = [
         'type',
         'related_id',

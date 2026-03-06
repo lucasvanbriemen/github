@@ -2,39 +2,36 @@
 
 namespace App\Mail;
 
-use App\Models\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class NotificationCreated extends Mailable
+class NotificationOverview extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Notification $notification;
+    public string $date;
 
-    public function __construct(Notification $notification)
+    public function __construct(string $date)
     {
-        $this->notification = $notification;
+        $this->date = $date;
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "github: {$this->notification->subject()}",
+            subject: "github: your overview of yesterday{$this->date}",
         );
     }
 
     public function content(): Content
     {
-        $notificationUrl = url('/') . '/#/notification/' . $this->notification->id;
-
         return new Content(
-            view: 'emails.notification_created',
+            view: 'emails.notification_overview',
             with: [
-                'notificationUrl' => $notificationUrl,
+                'digestUrl' => url('/') . '/#/notifications/' . $this->date,
             ],
         );
     }

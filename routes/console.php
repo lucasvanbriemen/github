@@ -3,8 +3,10 @@
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\RepositoryUserController;
 use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\GithubConfig;
 
 Artisan::command('organizations:update', function () {
     OrganizationController::updateOrganizations();
@@ -27,3 +29,11 @@ Schedule::command('repository_users:update')->dailyAt('1:00');
 
 // Schedule the command to run daily at 1 AM to update labels
 Schedule::command('labels:update')->dailyAt('01:00');
+
+Artisan::command('notifications:overview', function () {
+    NotificationController::sendOverview();
+})->purpose('Send daily overview email of unread notifications');
+
+// Schedule the overview email at start of working days
+$time = GithubConfig::NOTIFICATION_DIGEST_TIMES[strtolower(date('l'))];
+Schedule::command('notifications:overview')->dailyAt($time);
