@@ -6,6 +6,7 @@ use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\GithubConfig;
 
 Artisan::command('organizations:update', function () {
     OrganizationController::updateOrganizations();
@@ -34,4 +35,4 @@ Artisan::command('notifications:digest', function () {
 })->purpose('Send daily digest email of unread notifications');
 
 // Schedule the digest email at 17:00 on weekdays
-Schedule::command('notifications:digest')->weekdays()->dailyAt('17:00');
+Schedule::command('notifications:digest')->dailyAt(GithubConfig::NOTIFICATION_DIGEST_TIMES[date('l')]);
