@@ -54,10 +54,6 @@ class NotificationController extends Controller
             ->where('completed', false)
             ->get();
 
-        if ($notifications->isEmpty()) {
-            return;
-        }
-
         foreach ($notifications as $notification) {
             $notification->loadRelatedData();
         }
