@@ -21,8 +21,9 @@ class NotificationOverview extends Mailable
 
     public function envelope(): Envelope
     {
+        // Your overview of March 15, 2024 (-1day of current date)
         return new Envelope(
-            subject: "github: your overview of yesterday{$this->date}",
+            subject: "Your overview of " . date('F j, Y', strtotime($this->date . ' -1 day')),
         );
     }
 
