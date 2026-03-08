@@ -4,39 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Services\RepositoryService;
 use App\Models\PullRequest;
-use App\Models\PullRequestDetails;
-use App\Models\GithubUser;
 use App\Models\Item;
-use App\Helpers\DiffRenderer;
+use App\Models\PullRequestDetails;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
-use Illuminate\Support\Facades\DB;
-use GrahamCampbell\GitHub\Facades\Github;
+use App\Helpers\DiffRenderer;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
 {
-    public function metadata($organizationName, $repositoryName)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $branches = $repository->branches()->get();
-        $branchNames = $branches->pluck('name');
-
-        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
-            return $contributor->githubUser;
-        });
-
-        $master_branch = $repository->master_branch;
-        $default_assignee = GithubConfig::USERNAME;
-
-        return response()->json([
-            'branches' => $branchNames,
-            'assignees' => $assignees,
-            'default_assignee' => $default_assignee,
-            'master_branch' => $master_branch,
-        ]);
-    }
-
     public function create($organizationName, $repositoryName)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -52,24 +28,30 @@ class PullRequestController extends Controller
             'draft' => true,
         ];
 
-        $response = Github::pullRequests()->create($organization->name, $repository->name, $prData);
+        $response = GitHub::pullRequests()->create($organization->name, $repository->name, $prData);
 
-        Github::issues()->update($organization->name, $repository->name, $response['number'], [
+        GitHub::issues()->update($organization->name, $repository->name, $response['number'], [
             'assignees' => $assignees,
         ]);
 
-        $state = $response['state'] ?? 'open';
+        $state = 'draft';
         // Determine merge base sha for accurate diffing
         $mergeBaseSha = null;
         $headSha = $response['head']['sha'] ?? null;
+        $baseSha = $response['base']['sha'] ?? null;
         $baseRef = $response['base']['ref'] ?? null;
         $headRef = $response['head']['ref'] ?? null;
 
-        if ($headSha && $baseRef && $headRef) {
+        // Prefer comparing by SHAs (stable even if branches move/delete)
+        if ($headSha && $baseSha) {
+            $compareData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/compare/{$baseSha}...{$headSha}");
+        } elseif ($headRef && $baseRef) {
             $compareData = ApiHelper::githubApi("/repos/{$organization->name}/{$repository->name}/compare/{$baseRef}...{$headRef}");
-            if ($compareData && isset($compareData->merge_base_commit->sha)) {
-                $mergeBaseSha = $compareData->merge_base_commit->sha;
-            }
+        } else {
+            $compareData = null;
+        }
+        if ($compareData && isset($compareData->merge_base_commit->sha)) {
+            $mergeBaseSha = $compareData->merge_base_commit->sha;
         }
 
         // Persist base fields in items table
@@ -106,12 +88,140 @@ class PullRequestController extends Controller
             // GitHub may return a single assignee
             $assigneeGithubIds[] = $response['assignee']['id'];
         }
-        
+
         $pr->assignees()->sync($assigneeGithubIds);
 
         return response()->json([
             'number' => $response['number'] ?? null,
             'state' => $state,
+        ]);
+    }
+
+    public function update($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        // If the posted data includes "draft" => false, we need to mark the PR as ready for review
+        $changeDraft = request()->input('draft', null);
+        if ($changeDraft !== null) {
+            $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
+            $nodeId = $pr->node_id;
+            $mutation = 'mutation {
+                markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
+                    pullRequest {
+                        isDraft
+                    }
+                }
+            }';
+
+            ApiHelper::githubGraphql($mutation);
+        }
+
+        $payload = [];
+        foreach (request()->all() as $key => $value) {
+            if (!in_array($key, ['state'])) {
+                continue;
+            }
+
+            $payload[$key] = $value;
+        }
+
+        GitHub::pullRequests()->update($organizationName, $repositoryName, $number, $payload);
+
+        return request()->all();
+    }
+
+    public static function getFiles($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pullRequest = PullRequest::where('repository_id', $repository->id)
+           ->where('number', $number)
+           ->firstOrFail();
+
+        // For merged PRs, use merge_base_sha to preserve the original diff
+        // For open/closed PRs, compare branches normally
+        if ($pullRequest->state === 'merged' && $pullRequest->merge_base_sha && $pullRequest->head_sha) {
+            // Compare from merge base to the head SHA at time of merge
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->merge_base_sha}...{$pullRequest->head_sha}";
+        } else {
+            // Compare branches for open/closed PRs
+            $url = "/repos/{$organization->name}/{$repository->name}/compare/{$pullRequest->base_branch}...{$pullRequest->head_branch}";
+        }
+
+        $diff = ApiHelper::githubApi($url);
+
+        $renderer = new DiffRenderer($diff);
+        $files = $renderer->getFiles();
+        return $files;
+    }
+
+    public function requestReviewers($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $pr = Item::with('requestedReviewers.user')
+          ->where('repository_id', $repository->id)
+          ->where('number', $number)
+          ->firstOrFail();
+
+        $currentReviewers = $pr->requestedReviewers
+            ->where('state', 'pending')
+            ->pluck('user.login')
+            ->all();
+        $updatedReviewers = request()->input('reviewers', []);
+
+        $toBeAdded   = array_values(array_diff($updatedReviewers, $currentReviewers));
+        $toBeRemoved = array_values(array_diff($currentReviewers, $updatedReviewers));
+
+        GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded);
+        GitHub::pullRequests()->reviewRequests()->remove($organizationName, $repositoryName, $number, $toBeRemoved);
+
+        // Return current state and delta
+        return response()->json([
+            'currentReviewers' => $currentReviewers,
+            'added' => $toBeAdded,
+            'removed' => $toBeRemoved,
+        ]);
+    }
+
+    public function submitReview($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $commitSha = $item->getLatestCommitSha();
+
+        $payload = [
+            'body' => request()->input('body', ''),
+            'event' => request()->input('state'),
+            'comments' => request()->input('comments', []),
+            'commit_id' => $commitSha,
+        ];
+
+        GitHub::pullRequests()->reviews()->create($organizationName, $repositoryName, $number, $payload);
+
+        // Return success, webhook will sync the review data
+        return response()->json(['success' => true], 200);
+    }
+
+    public function merge($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+
+        $response = GitHub::pullRequests()->merge($organizationName, $repositoryName, $number, $item->title, $item->getLatestCommitSha(), 'merge');
+
+        return response()->json([
+            'number' => $number,
+            'merged' => $response['merged'] ?? false,
+            'message' => $response['message'] ?? '',
         ]);
     }
 }

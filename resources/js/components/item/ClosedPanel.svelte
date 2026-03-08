@@ -1,0 +1,29 @@
+<script>
+  import { organization, repository } from "../stores";
+  import Modal from "../Modal.svelte";
+
+  let { item } = $props();
+  let number = item.number;
+  let closeConfirmOpen = $state(false);
+
+  function close() {
+    api.post(route(`organizations.repositories.item.update`, { $organization, $repository, number }), {
+      state: 'closed',
+    });
+    item.state = 'closed';
+  }
+</script>
+
+{#if item.state === 'open'}
+  <div class="merge-panel">
+    <button class="button-primary" onclick={() => closeConfirmOpen = true}>Close issue</button>
+  </div>
+{/if}
+
+<Modal isOpen={closeConfirmOpen} onClose={() => closeConfirmOpen = false} onConfirm={close} title="Close Issue" confirmText="Close">
+  Are you sure you want to close this issue? The issue can be reopened later.
+</Modal>
+
+<style lang="scss">
+  @import '../../../scss/components/item/pr/merge-panel';
+</style>

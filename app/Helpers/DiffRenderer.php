@@ -31,7 +31,6 @@ class DiffRenderer
 
     private function parseCommits(): void
     {
-       
     }
 
     /**
@@ -60,7 +59,6 @@ class DiffRenderer
         }
 
         $this->files = $parsed_files;
-
     }
 
     /**
@@ -205,13 +203,18 @@ class DiffRenderer
      */
     private function buildRowsForHunk(array $hunk): array
     {
-        $rows = [];
         $oldLines = $hunk['old']['lines'] ?? [];
         $newLines = $hunk['new']['lines'] ?? [];
+
+        // Build a mapping of which new line to pair with each old deletion
+        $pairingMap = $this->buildPairingMap($oldLines, $newLines);
+
+        $rows = [];
         $iOld = 0;
         $iNew = 0;
         $oldNo = $hunk['old']['start'] ?? null;
         $newNo = $hunk['new']['start'] ?? null;
+        $usedNewIndices = [];
 
         while ($iOld < count($oldLines) || $iNew < count($newLines)) {
             $l = $iOld < count($oldLines) ? $oldLines[$iOld] : null;
@@ -227,11 +230,42 @@ class DiffRenderer
                 continue;
             }
 
-            // Changed line: pair deletion with addition
-            if ($l && ($l['type'] ?? '') === 'del' && $r && ($r['type'] ?? '') === 'add') {
+            // Changed line: check if we have a pairing
+            if ($l && ($l['type'] ?? '') === 'del' && isset($pairingMap[$iOld])) {
+                $pairedNewIndex = $pairingMap[$iOld];
+
+                // Output any standalone additions before this pairing
+                while ($iNew < $pairedNewIndex) {
+                    if (!isset($usedNewIndices[$iNew])) {
+                        $newLine = $newLines[$iNew];
+                        if (($newLine['type'] ?? '') === 'add') {
+                            $rows[] = [
+                                'left' => ['number' => null, 'type' => 'empty', 'content' => ''],
+                                'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string)($newLine['content'] ?? '')],
+                            ];
+                            $usedNewIndices[$iNew] = true;
+                        }
+                    }
+                    $iNew++;
+                    if ($newNo !== null) { $newNo++; }
+                }
+
+                // Now pair the deletion with the matched addition
+                $matchedNewLine = $newLines[$pairedNewIndex];
                 $leftContent = (string)($l['content'] ?? '');
-                $rightContent = (string)($r['content'] ?? '');
+                $rightContent = (string)($matchedNewLine['content'] ?? '');
                 [$leftSeg, $rightSeg] = $this->computeIntralineSegments($leftContent, $rightContent);
+                $whitespaceOnly = $this->isWhitespaceOnlyChange($leftContent, $rightContent);
+
+                // Calculate the correct line number for the matched addition
+                $matchedNewNo = $newNo;
+                $tempI = $iNew;
+                while ($tempI <= $pairedNewIndex) {
+                    if ($tempI < $pairedNewIndex && !isset($usedNewIndices[$tempI])) {
+                        $matchedNewNo++;
+                    }
+                    $tempI++;
+                }
 
                 $rows[] = [
                     'left' => [
@@ -239,15 +273,18 @@ class DiffRenderer
                         'type' => 'del',
                         'content' => $leftContent,
                         'segments' => $leftSeg,
+                        'whitespace_only' => $whitespaceOnly,
                     ],
                     'right' => [
-                        'number' => $newNo,
+                        'number' => $matchedNewNo,
                         'type' => 'add',
                         'content' => $rightContent,
                         'segments' => $rightSeg,
+                        'whitespace_only' => $whitespaceOnly,
                     ],
                 ];
-                $iOld++; $iNew++; $oldNo++; $newNo++;
+                $iOld++; $oldNo++;
+                $usedNewIndices[$pairedNewIndex] = true;
                 continue;
             }
 
@@ -262,12 +299,19 @@ class DiffRenderer
             }
 
             // Standalone addition
-            if ($r && ($r['type'] ?? '') === 'add') {
+            if ($r && ($r['type'] ?? '') === 'add' && !isset($usedNewIndices[$iNew])) {
                 $rows[] = [
                     'left' => ['number' => null, 'type' => 'empty', 'content' => ''],
                     'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string)($r['content'] ?? '')],
                 ];
                 $iNew++; $newNo++;
+                continue;
+            }
+
+            // Skip used indices
+            if ($r && isset($usedNewIndices[$iNew])) {
+                $iNew++;
+                if ($newNo !== null) { $newNo++; }
                 continue;
             }
 
@@ -281,7 +325,7 @@ class DiffRenderer
                 continue;
             }
 
-            if ($r && ($r['type'] ?? '') === 'normal' && !$l) {
+            if ($r && ($r['type'] ?? '') === 'normal' && !$l && !isset($usedNewIndices[$iNew])) {
                 $rows[] = [
                     'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
                     'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
@@ -298,15 +342,107 @@ class DiffRenderer
     }
 
     /**
+     * Build a mapping of old deletion indices to new addition indices based on whitespace-aware similarity.
+     * Returns array where key is old index, value is the best matching new index.
+     */
+    private function buildPairingMap(array $oldLines, array $newLines): array
+    {
+        $pairingMap = [];
+        $usedNewIndices = [];
+
+        // Find all deletions and additions
+        $deletions = [];
+        $additions = [];
+
+        foreach ($oldLines as $i => $line) {
+            if (($line['type'] ?? '') === 'del') {
+                $deletions[$i] = $line;
+            }
+        }
+
+        foreach ($newLines as $i => $line) {
+            if (($line['type'] ?? '') === 'add') {
+                $additions[$i] = $line;
+            }
+        }
+
+        // For each deletion, find the best matching addition
+        foreach ($deletions as $oldIdx => $delLine) {
+            $delContent = (string)($delLine['content'] ?? '');
+            $delNoWs = preg_replace('/\s/u', '', $delContent);
+
+            $bestDistance = PHP_INT_MAX;
+            $bestNewIdx = null;
+
+            foreach ($additions as $newIdx => $addLine) {
+                // Skip already used additions
+                if (isset($usedNewIndices[$newIdx])) {
+                    continue;
+                }
+
+                $addContent = (string)($addLine['content'] ?? '');
+                $addNoWs = preg_replace('/\s/u', '', $addContent);
+
+                // Perfect match ignoring whitespace
+                if ($delNoWs === $addNoWs && $delNoWs !== '') {
+                    $bestDistance = 0;
+                    $bestNewIdx = $newIdx;
+                    break; // Take the first perfect match
+                }
+
+                // Use Levenshtein distance for partial matching
+                $distance = levenshtein($delNoWs, $addNoWs);
+                // Normalize by average length to get a distance that favors longer similar strings
+                $avgLen = (strlen($delNoWs) + strlen($addNoWs)) / 2;
+                $normalizedDistance = $avgLen > 0 ? $distance / $avgLen : $distance;
+
+                if ($normalizedDistance < $bestDistance && $normalizedDistance < 0.3) {
+                    $bestDistance = $normalizedDistance;
+                    $bestNewIdx = $newIdx;
+                }
+            }
+
+            if ($bestNewIdx !== null) {
+                $pairingMap[$oldIdx] = $bestNewIdx;
+                $usedNewIndices[$bestNewIdx] = true;
+            }
+        }
+
+        return $pairingMap;
+    }
+
+    /**
+     * Check if two lines differ only in whitespace.
+     * Returns true if the lines are identical when all whitespace is removed.
+     */
+    private function isWhitespaceOnlyChange(string $old, string $new): bool
+    {
+        $oldNoWs = preg_replace('/\s/u', '', $old);
+        $newNoWs = preg_replace('/\s/u', '', $new);
+        return $oldNoWs === $newNoWs && $old !== $new;
+    }
+
+    /**
      * Compute intra-line diff segments for a pair of texts.
-     * Returns two arrays of segments [ ['text' => string, 'type' => 'equal'|'change'], ...]
-     * The middle differing portion is marked as 'change'.
+     * Uses smart rules:
+     * - Added side: Only highlight if removing the changes from new code gives old code
+     * - Removed side: Only highlight if the line is 90%+ similar to new code
      */
     private function computeIntralineSegments(string $old, string $new): array
     {
         if ($old === $new) {
             $seg = [['text' => $old, 'type' => 'equal']];
             return [$seg, $seg];
+        }
+
+        // If only whitespace changed, return no highlights
+        $oldTrimmed = trim($old);
+        $newTrimmed = trim($new);
+        if ($oldTrimmed === $newTrimmed) {
+            return [
+                [['text' => $old, 'type' => 'equal']],
+                [['text' => $new, 'type' => 'equal']]
+            ];
         }
 
         $oldLen = strlen($old);
@@ -333,21 +469,111 @@ class DiffRenderer
         $preNew = substr($new, 0, $prefix);
         $sufNew = $suffix > 0 ? substr($new, $newLen - $suffix) : '';
 
+        // Check if we should show highlights on the new (added) side
+        // Only if removing the changed part from new gives us old
+        $shouldHighlightNew = false;
+        if ($newMid !== '') {
+            $reconstructed = $preNew . $sufNew;
+            if ($reconstructed === $old) {
+                $shouldHighlightNew = true;
+            }
+        }
+
+        // Check if we should show highlights on the old (removed) side
+        // Only if the line is 90%+ similar after removing changes
+        $shouldHighlightOld = false;
+        if ($oldMid !== '') {
+            $reconstructed = $pre . $suf;
+            $similarity = $this->calculateSimilarity($reconstructed, $new);
+            if ($similarity >= 0.9) {
+                $shouldHighlightOld = true;
+            }
+        }
+
         $leftSeg = [];
         $rightSeg = [];
 
         if ($pre !== '') { $leftSeg[] = ['text' => $pre, 'type' => 'equal']; }
-        if ($oldMid !== '') { $leftSeg[] = ['text' => $oldMid, 'type' => 'change']; }
+        if ($oldMid !== '' && $shouldHighlightOld) { $leftSeg[] = ['text' => $oldMid, 'type' => 'change']; }
+        elseif ($oldMid !== '') { $leftSeg[] = ['text' => $oldMid, 'type' => 'equal']; }
         if ($suf !== '') { $leftSeg[] = ['text' => $suf, 'type' => 'equal']; }
 
         if ($preNew !== '') { $rightSeg[] = ['text' => $preNew, 'type' => 'equal']; }
-        if ($newMid !== '') { $rightSeg[] = ['text' => $newMid, 'type' => 'change']; }
+        if ($newMid !== '' && $shouldHighlightNew) { $rightSeg[] = ['text' => $newMid, 'type' => 'change']; }
+        elseif ($newMid !== '') { $rightSeg[] = ['text' => $newMid, 'type' => 'equal']; }
         if ($sufNew !== '') { $rightSeg[] = ['text' => $sufNew, 'type' => 'equal']; }
 
         // If either middle is empty, segments array may end up only equals — that's fine
         if (!$leftSeg) { $leftSeg[] = ['text' => $old, 'type' => 'equal']; }
         if (!$rightSeg) { $rightSeg[] = ['text' => $new, 'type' => 'equal']; }
 
+        // If highlighted portion is 90%+ of the line, don't highlight
+        $leftHighlightLen = $this->getSegmentsLength($leftSeg, 'change');
+        $rightHighlightLen = $this->getSegmentsLength($rightSeg, 'change');
+
+        if ($leftHighlightLen / max(1, $oldLen) >= 0.9) {
+            $leftSeg = [['text' => $old, 'type' => 'equal']];
+        }
+
+        if ($rightHighlightLen / max(1, $newLen) >= 0.9) {
+            $rightSeg = [['text' => $new, 'type' => 'equal']];
+        }
+
         return [$leftSeg, $rightSeg];
+    }
+
+    /**
+     * Get total length of segments with a specific type.
+     */
+    private function getSegmentsLength(array $segments, string $type): int
+    {
+        $length = 0;
+        foreach ($segments as $seg) {
+            if (($seg['type'] ?? '') === $type) {
+                $length += strlen($seg['text'] ?? '');
+            }
+        }
+        return $length;
+    }
+
+    /**
+     * Calculate similarity between two strings using longest common subsequence.
+     * Returns a value between 0 and 1.
+     */
+    private function calculateSimilarity(string $str1, string $str2): float
+    {
+        $len1 = strlen($str1);
+        $len2 = strlen($str2);
+        $maxLen = max($len1, $len2);
+
+        if ($maxLen === 0) {
+            return 1.0;
+        }
+
+        $lcs = $this->getLongestCommonSubsequenceLength($str1, $str2);
+        return $lcs / $maxLen;
+    }
+
+    /**
+     * Calculate length of longest common subsequence.
+     */
+    private function getLongestCommonSubsequenceLength(string $str1, string $str2): int
+    {
+        $len1 = strlen($str1);
+        $len2 = strlen($str2);
+
+        $dp = array_fill(0, $len1 + 1, array_fill(0, $len2 + 1, 0));
+
+        for ($i = 1; $i <= $len1; $i++) {
+            for ($j = 1; $j <= $len2; $j++) {
+                if ($str1[$i - 1] === $str2[$j - 1]) {
+                    $dp[$i][$j] = $dp[$i - 1][$j - 1] + 1;
+                } else {
+                    $dp[$i][$j] = max($dp[$i - 1][$j], $dp[$i][$j - 1]);
+                }
+            }
+        }
+
+        return $dp[$len1][$len2];
     }
 }

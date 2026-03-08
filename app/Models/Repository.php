@@ -23,7 +23,19 @@ class Repository extends Model
         return $this->hasMany(RepositoryUser::class, 'repository_id', 'id');
     }
 
-    public function issues($state = 'open', $assignee = 'any')
+    public function milestones()
+    {
+        return $this->hasMany(Milestone::class, 'repository_id', 'id')
+            ->orderBy('due_on', 'asc');
+    }
+
+    public function labels()
+    {
+        return $this->hasMany(Label::class, 'repository_id', 'id')
+            ->orderBy('name', 'asc');
+    }
+
+    public function issues($state = 'open', $assignee = 'any', $search = null, $milestone = null)
     {
         $query = $this->hasMany(Issue::class, 'repository_id', 'id');
         $query->with('assignees', 'openedBy');
@@ -32,10 +44,18 @@ class Repository extends Model
             $query->where('state', $state);
         }
 
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
         if ($assignee !== 'any') {
             $query->whereHas('assignees', function ($q) use ($assignee) {
                 $q->where('github_users.id', $assignee);
             });
+        }
+
+        if ($milestone) {
+            $query->where('milestone_id', $milestone);
         }
 
         $query->orderBy('created_at', 'desc');
@@ -43,13 +63,22 @@ class Repository extends Model
         return $query;
     }
 
-    public function pullRequests($state = 'open', $assignee = 'any')
+    public function pullRequests($state = 'open', $assignee = 'any', $search = null, $milestone = null)
     {
         $query = $this->hasMany(PullRequest::class, 'repository_id', 'id')
             ->with('assignees', 'openedBy');
 
+        $stateMap = [
+            'open' => ['open', 'draft'],
+            'closed' => ['closed', 'merged'],
+        ];
+
         if ($state !== 'all') {
-            $query->where('state', $state);
+            $query->whereIn('state', $stateMap[$state]);
+        }
+
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
         }
 
         if ($assignee !== 'any') {
@@ -58,20 +87,22 @@ class Repository extends Model
             });
         }
 
+        if ($milestone) {
+            $query->where('milestone_id', $milestone);
+        }
+
         $query->orderBy('created_at', 'desc');
 
         return $query;
     }
 
-    public function items($type, $state = null, $assignee = null)
+    public function items($type, $state = null, $assignee = null, $search = null, $milestone = null)
     {
-        if ($type === 'issue') {
-            return $this->issues($state, $assignee);
-        } elseif ($type === 'pr') {
-            return $this->pullRequests($state, $assignee);
+        if ($type === 'prs') {
+            return $this->pullRequests($state, $assignee, $search, $milestone);
         }
 
-        throw new \InvalidArgumentException("Invalid item type: $type");
+        return $this->issues($state, $assignee, $search, $milestone);
     }
 
     public function branches()

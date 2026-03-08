@@ -5,14 +5,19 @@ namespace App\Listeners;
 use App\Events\IssueCommentWebhookReceived;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Issue;
-use App\Models\ItemComment;
+use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Models\Notification;
+use App\Models\Item;
 use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
+use App\GithubConfig;
+use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
 
-class ProcessIssueCommentWebhook implements ShouldQueue
+class ProcessIssueCommentWebhook //implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -67,14 +72,41 @@ class ProcessIssueCommentWebhook implements ShouldQueue
 
         GithubUser::updateFromWebhook($userData);
 
-        ItemComment::updateOrCreate(
-            ['id' => $commentData->id],
+        $comment = BaseComment::updateOrCreate(
+            ['comment_id' => $commentData->id, 'type' => 'issue'],
             [
+                'comment_id' => $commentData->id,
                 'issue_id' => $issueData->id,
                 'user_id' => $userData->id,
                 'body' => $commentData->body ?? '',
+                'type' => 'issue',
             ]
         );
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $issueData->number)
+            ->first();
+
+        if ($item->isCurrentlyAssignedToUser()) {
+            // Auto-resolve notifications when configured user comments
+            if ($userData->id === GithubConfig::USERID) {
+                NotificationAutoResolver::resolveTrigger('user_commented', $issueData->id);
+                return true;
+            }
+
+            // Avoid duplicate notifications for the same comment
+            if (Notification::where('type', 'item_comment')->where('related_id', $comment->id)->exists()) {
+                return true;
+            }
+
+            Notification::create([
+                'type' => 'item_comment',
+                'related_id' => $comment->id,
+                'triggered_by_id' => $userData->id,
+            ]);
+        }
+
+        ImportanceScoreService::updateItemScore($item);
 
         return true;
     }

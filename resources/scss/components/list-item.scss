@@ -10,14 +10,39 @@
   align-items: center;
   gap: 1rem;
 
-  .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+  :global(.item-open) {
     margin-top: 0.25rem;
-    fill: var(--success-color);
+    
+    :global(svg) {
+      stroke: var(--success-color);
+      fill: var(--success-color);
+    }
+  }
 
-    &.closed {
+  :global(.item-closed) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--error-color);
       fill: var(--error-color);
+    }
+  }
+
+  :global(.item-merged) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--merged-color);
+      fill: var(--merged-color);
+    }
+  }
+
+  :global(.item-draft) {
+    margin-top: 0.25rem;
+    
+    :global(svg) {
+      stroke: var(--draft-color);
+      fill: var(--draft-color);
     }
   }
 
@@ -38,6 +63,7 @@
       display: flex;
       align-items: center;
       font-size: 0.875rem;
+      color: var(--text-color-secondary);
 
       img {
         height: 1.25rem;
@@ -46,7 +72,14 @@
         margin: 0 0.25rem;
       }
 
-      color: var(--text-color-secondary);
+      .devider {
+        margin: 0 0.5rem;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: var(--text-color-secondary);
+        opacity: 0.5;
+      }
 
       .label {
         margin: 0.25rem;

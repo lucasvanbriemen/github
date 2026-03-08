@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
+use App\Observers\BaseCommentObserver;
+use App\Models\BaseComment;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        BaseComment::observe(BaseCommentObserver::class);
         Paginator::defaultView('pagination.index');
     }
 }

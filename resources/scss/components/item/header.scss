@@ -3,28 +3,15 @@
   padding: 1rem;
   border-radius: 0.5rem;
 
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
   h2 {
     margin: 0;
   }
 
-  .item-state {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    text-transform: capitalize;
-
-    width: fit-content;
-    padding: 0.25rem;
-    background-color: var(--success-color);
-    border-radius: 0.5rem;
-
-    &.item-state-closed {
-      background-color: var(--error-color);
-    }
-  }
-
-  div {
+  .details {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -36,5 +23,33 @@
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
+  }
+
+  :global(.item-open) {
+    :global(svg) {
+      stroke: var(--success-color);
+      fill: var(--success-color);
+    }
+  }
+  
+  :global(.item-closed) {
+    :global(svg) {
+      stroke: var(--error-color);
+      fill: var(--error-color);
+    }
+  }
+  
+  :global(.item-merged) {
+    :global(svg) {
+      stroke: var(--merged-color);
+      fill: var(--merged-color);
+    }
+  }
+  
+  :global(.item-draft) {
+    :global(svg) {
+      stroke: var(--draft-color);
+      fill: var(--draft-color);
+    }
   }
 }
