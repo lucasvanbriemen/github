@@ -1,0 +1,38 @@
+<script>
+  import { onMount } from 'svelte';
+  import ListItem from './ListItem.svelte';
+  import ListItemSkeleton from './ListItemSkeleton.svelte';
+  import { organization, repository } from './stores';
+
+  let isLoading = $state(true);
+  let projects = $state([]);
+
+  onMount(async () => {
+    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    isLoading = false;
+  });
+</script>
+
+<div class="repo-dashboard">
+  <div class="repo-main">
+    {#if isLoading}
+      {#each Array(3) as _}
+        <ListItemSkeleton />
+      {/each}
+    {:else}
+      {#each projects as project}
+        <ListItem item={{
+          type: 'project',
+          state: 'open',
+          title: project.title,
+          number: project.number,
+          created_at_human: project.updated_at,
+          }} />
+      {/each}
+    {/if}
+  </div>
+</div>
+  
+<style lang="scss">
+  @import '../../scss/components/project-listing.scss';
+</style>

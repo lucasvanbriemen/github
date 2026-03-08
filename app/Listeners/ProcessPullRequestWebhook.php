@@ -8,7 +8,11 @@ use App\Models\PullRequest;
 use App\Models\Repository;
 use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
+use App\GithubConfig;
+use App\Models\Notification;
 use App\Helpers\ApiHelper;
+use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
 use RuntimeException;
 use Carbon\Carbon;
 
@@ -44,7 +48,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         if ($prData->draft == true) {
             $state = 'draft';
         }
-        
+
         if ($state === 'closed' && isset($prData->merged_at) && $prData->merged_at !== null) {
             $state = 'merged';
         }
@@ -77,6 +81,13 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             if ($compareData && isset($compareData->merge_base_commit->sha)) {
                 $mergeBaseSha = $compareData->merge_base_commit->sha;
             }
+        }
+
+        $pr = PullRequest::where('id', $prData->id)->first();
+        if (!$pr) {
+            $preHookAssigned = false;
+        } else {
+            $preHookAssigned = $pr->isCurrentlyAssignedToUser();
         }
 
         // Update base fields in items table
@@ -122,10 +133,69 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             $pr->assignees()->sync($assigneeGithubIds);
         }
 
+        ImportanceScoreService::updateItemScore($pr);
+
+        // Auto-resolve notifications based on PR state
+        if ($state === 'merged') {
+            NotificationAutoResolver::resolveTrigger('item_merged', $pr->id);
+        } elseif ($state === 'closed') {
+            NotificationAutoResolver::resolveTrigger('item_closed', $pr->id);
+        }
+
+        // Auto-resolve workflow_failed when new commits are pushed to PR
+        if ($payload->action === 'synchronize') {
+            NotificationAutoResolver::resolveTrigger('new_commit_pushed', $pr->id);
+        }
+
+        $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
+        if ($currentlyAssigned && !$preHookAssigned) {
+            $senderData = $payload->sender ?? null;
+            if ($senderData) {
+                GithubUser::updateFromWebhook($senderData);
+            }
+
+            // Don't create notification if actor is the configured user
+            if ($senderData?->id === GithubConfig::USERID) {
+                // Continue processing but skip notification
+            } elseif (!Notification::where('type', 'item_assigned')
+                ->where('related_id', $pr->id)
+                ->exists()) {
+                Notification::create([
+                    'type' => 'item_assigned',
+                    'related_id' => $pr->id,
+                    'triggered_by_id' => $senderData?->id
+                ]);
+            }
+        } elseif (!$currentlyAssigned && $preHookAssigned) {
+            // PR was unassigned from user - resolve notifications
+            NotificationAutoResolver::resolveTrigger('item_unassigned', $pr->id);
+        }
+
         if ($payload->action === 'review_requested') {
             // Create/update the requested reviewer in github_users table
             $reviewerData = $payload->requested_reviewer ?? null;
             GithubUser::updateFromWebhook($reviewerData);
+
+            // create a notification if im being asked for a review
+            if ($reviewerData && $reviewerData->id === GithubConfig::USERID) {
+                $senderData = $payload->sender ?? null;
+                if ($senderData) {
+                    GithubUser::updateFromWebhook($senderData);
+                }
+
+                // Don't create notification if actor is the configured user
+                if ($senderData?->id === GithubConfig::USERID) {
+                    // Continue processing but skip notification
+                } elseif (!Notification::where('type', 'review_requested')
+                    ->where('related_id', $prData->id)
+                    ->exists()) {
+                    Notification::create([
+                        'type' => 'review_requested',
+                        'related_id' => $prData->id,
+                        'triggered_by_id' => $senderData?->id
+                    ]);
+                }
+            }
 
             RequestedReviewer::updateOrCreate(
                 [
@@ -134,10 +204,10 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 ],
                 [
                     'pull_request_id' => $prData->id,
-                    'user_id' => $reviewerData->id
+                    'user_id' => $reviewerData->id,
+                    'state' => 'pending'
                 ]
             );
-           
         }
 
         return true;

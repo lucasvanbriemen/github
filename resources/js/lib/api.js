@@ -36,12 +36,23 @@ export default {
 
     return fetch(url, options)
       .then(async (response) => {
-        // app.setLoading(false);
+        if (!response.ok) {
+          throw new Error(response.statusText);
+        }
         if (response.headers.get("content-type")?.includes("application/json")) { return response.json(); }
           return response.text();
         })
         .then((data) => {
+          if (method !== 'GET' && window.toast) {
+            window.toast('Updated successfully.');
+          }
           return data;
+        })
+        .catch((error) => {
+          if (window.toast) {
+            window.toast('Something went wrong.', 'error');
+          }
+          throw error;
         });
   },
 };

@@ -2,24 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiHelper;
 use App\Services\RepositoryService;
+use App\Models\Repository;
+use App\Models\Label;
+use App\GithubConfig;
 
 class RepositoryController extends Controller
 {
-    public function getContributors($organizationName, $repositoryName)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $contributorsPivot = $repository->contributors()->get();
-        $contributors = [];
-
-        foreach ($contributorsPivot as $contributor) {
-            $contributors[] = $contributor->githubUser;
-        }
-
-        return response()->json($contributors);
-    }
-
     public function getBranchesForPRNotices($organizationName, $repositoryName)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
@@ -33,20 +23,62 @@ class RepositoryController extends Controller
             ->get()
             ->map(function ($branch) {
                 $branch->last_commit = $branch->commits->first();
-                $branch->last_commit->created_at_human = $branch->last_commit->created_at->diffForHumans();
-                unset($branch->commits); // optional: remove loaded commits array if not needed
+                unset($branch->commits);
                 return $branch;
             });
 
         return response()->json($branches);
     }
 
-    public function getTemplates()
+    public static function updateLabels()
     {
-        $templatesPath = resource_path('repository_templates/templates.json');
-        $templatesJson = file_get_contents($templatesPath);
+        $repositories = Repository::all();
+
+        foreach ($repositories as $repository) {
+            $labels = ApiHelper::githubApi('/repos/'  .$repository->full_name . '/labels');
+
+            foreach ($labels as $label) {
+                // Update or create label
+                Label::updateOrCreate(
+                    [
+                        'repository_id' => $repository->id,
+                        'github_id' => $label->id,
+                    ],
+                    [
+                        'name' => $label->name,
+                        'color' => $label->color,
+                        'description' => $label->description,
+                    ]
+                );
+            }
+        }
+    }
+
+    public function metadata($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $branchNames = $repository->branches()->pluck('name');
+        $master_branch = $repository->master_branch;
+        $default_assignee = GithubConfig::USERNAME;
+        $labels = $repository->labels()->get();
+        $milestones = $repository->milestones()->get();
+
+        $assignees = $repository->contributors()->with('githubUser')->get()->map(function ($contributor) {
+            return $contributor->githubUser;
+        })->values();
+
+        $templatesJson = file_get_contents(resource_path('repository_templates/templates.json'));
         $templates = json_decode($templatesJson, true);
 
-        return response()->json($templates);
+        return response()->json([
+            'branches' => $branchNames,
+            'assignees' => $assignees,
+            'default_assignee' => $default_assignee,
+            'master_branch' => $master_branch,
+            'templates' => $templates,
+            'labels' => $labels,
+            'milestones' => $milestones,
+        ]);
     }
 }

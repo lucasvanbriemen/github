@@ -20,6 +20,8 @@ class UploadController extends Controller
         foreach ($request->file('files', []) as $file) {
             $original = $file->getClientOriginalName();
             $extension = $file->getClientOriginalExtension();
+            $size = $file->getSize();
+            $mime = $file->getMimeType();
 
             $basename = pathinfo($original, PATHINFO_FILENAME);
             $safeBase = Str::slug($basename);
@@ -31,10 +33,10 @@ class UploadController extends Controller
 
             $out[] = [
                 'name' => $original,
-                'type' => $file->getMimeType(),
+                'type' => $mime,
                 'url'  => route('media.show', ['path' => $storedPath]),
                 'path' => $storedPath,
-                'size' => $file->getSize(),
+                'size' => $size,
             ];
         }
 

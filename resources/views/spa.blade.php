@@ -8,6 +8,8 @@ $routes = collect(Route::getRoutes())->map(function ($route) {
 })->values();
 
 $userID = \App\GithubConfig::USERID;
+$username = \App\GithubConfig::USERNAME;
+$orgRules = \App\GithubConfig::ORG_RULES;
 
 @endphp
 
@@ -23,13 +25,18 @@ $userID = \App\GithubConfig::USERID;
     <script>
         const API_ROUTES = @json($routes);
         window.USER_ID = "{{ $userID }}";
+        window.CURRENT_USER_LOGIN = "{{ $username }}";
+        window.ORG_RULES = @json($orgRules);
 
         function route(name, params = {}) {
             const route = API_ROUTES.find(r => r.name === name);
             let uri = route.uri;
 
             for (const [key, value] of Object.entries(params)) {
-                uri = uri.replace(`{${key}}`, encodeURIComponent(value));
+                // Remove the $ if present
+                const cleanKey = key.startsWith('$') ? key.slice(1) : key;
+
+                uri = uri.replace(`{${cleanKey}}`, encodeURIComponent(value));
             }
 
             return `/${uri}`;

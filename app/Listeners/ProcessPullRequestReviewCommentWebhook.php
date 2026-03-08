@@ -9,6 +9,9 @@ use App\Models\PullRequestComment;
 use App\Models\BaseComment;
 use App\Models\Repository;
 use App\Models\GithubUser;
+use App\Services\ImportanceScoreService;
+use App\Services\NotificationAutoResolver;
+use App\GithubConfig;
 
 class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 {
@@ -54,7 +57,7 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 
         $sideValue = $commentData->side ?? 'RIGHT';
 
-        PullRequestComment::updateOrCreate(
+        $prComment = PullRequestComment::updateOrCreate(
             ['id' => $commentData->id],
             [
                 'pull_request_id' => $prData->id,
@@ -73,7 +76,16 @@ class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
         // If action is deleted, we just delete the comment
         if ($payload->action === 'deleted') {
             PullRequestComment::where('id', $commentData->id)->delete();
+        } else {
+            $prComment->unresolveParentIfResolved();
+
+            // Auto-resolve notifications when configured user comments
+            if ($userData->id === GithubConfig::USERID) {
+                NotificationAutoResolver::resolveTrigger('user_commented', $prData->id);
+            }
         }
+
+        ImportanceScoreService::updateItemScore($pr);
 
         return true;
     }

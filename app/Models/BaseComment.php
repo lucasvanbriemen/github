@@ -17,9 +17,9 @@ class BaseComment extends Model
         'created_at_human',
     ];
 
-    public function issue()
+    public function item()
     {
-        return $this->belongsTo(Issue::class, 'issue_id', 'id');
+        return $this->belongsTo(Item::class, 'issue_id', 'id');
     }
 
     public function getBodyAttribute($value)
