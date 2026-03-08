@@ -34,6 +34,10 @@ class IsLoggedIn
             $authToken = config('app.user_token');
         } else {
             $authToken = $_COOKIE['auth_token'] ?? null;
+
+            if (!$authToken && $this->allowIfAgentTokenPresent($request)) {
+                return $next($request);
+            }
         }
 
         $ch = curl_init('https://login.lucasvanbriemen.nl/api/user/token/'.$authToken);
@@ -51,5 +55,17 @@ class IsLoggedIn
         } else {
             return redirect('https://login.lucasvanbriemen.nl?redirect='.urlencode($request->fullUrl()));
         }
+    }
+
+    private function allowIfAgentTokenPresent(Request $request)
+    {
+        $token = $request->bearerToken();
+        $expectedToken = env('AGENT_TOKEN');
+
+        if (!$token || $token !== $expectedToken) {
+            return false;
+        }
+
+        return true;
     }
 }
