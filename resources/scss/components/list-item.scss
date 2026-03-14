@@ -81,6 +81,47 @@
         opacity: 0.5;
       }
 
+      .review-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        :global(svg) {
+          width: 0.875rem;
+          height: 0.875rem;
+        }
+
+        &--approved {
+          color: var(--success-color);
+          :global(svg) { stroke: var(--success-color); fill: var(--success-color); }
+        }
+        &--changes_requested {
+          color: var(--error-color);
+          :global(svg) { stroke: var(--error-color); fill: var(--error-color); }
+        }
+        &--pending {
+          color: var(--text-color-secondary);
+          :global(svg) { stroke: var(--text-color-secondary); fill: var(--text-color-secondary); }
+        }
+        &--draft {
+          color: var(--draft-color);
+          :global(svg) { stroke: var(--draft-color); fill: var(--draft-color); }
+        }
+        &--no_reviewers {
+          color: var(--text-color-secondary);
+          opacity: 0.6;
+          :global(svg) { stroke: var(--text-color-secondary); fill: var(--text-color-secondary); }
+        }
+        &--ci-failure {
+          color: var(--error-color);
+          :global(svg) { stroke: var(--error-color); fill: var(--error-color); }
+        }
+        &--conflicts {
+          color: var(--error-color);
+          :global(svg) { stroke: var(--error-color); fill: var(--error-color); }
+        }
+      }
+
       .label {
         margin: 0.25rem;
         padding: 0.25rem 0.5rem;

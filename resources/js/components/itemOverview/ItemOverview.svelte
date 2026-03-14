@@ -21,6 +21,50 @@
 
   const isPR = $derived(type === 'prs');
 
+  const GROUP_ORDER = ['approved', 'needs_action', 'no_reviewers', 'draft', 'pending'];
+  const GROUP_LABELS = {
+    needs_action: 'Needs your action',
+    approved: 'Approved',
+    pending: 'Pending review',
+    draft: 'Draft',
+    no_reviewers: 'No reviewers',
+  };
+
+  function getItemGroup(item) {
+    const userId = parseInt(window.USER_ID);
+    const reviewers = item.requested_reviewers || [];
+    const userReview = reviewers.find(r => r.user_id === userId);
+    const userNeedsToReview = userReview && (userReview.state === 'pending' || userReview.state === 'changes_requested');
+    const userIsAuthor = item.opened_by_id === userId;
+    const ciFailure = item.ci_status === 'failure';
+    const hasConflicts = item.has_conflicts === true;
+
+    if (userNeedsToReview || (userIsAuthor && item.review_status === 'changes_requested') || (userIsAuthor && ciFailure) || (userIsAuthor && hasConflicts)) {
+      return 'needs_action';
+    }
+    if (item.review_status === 'approved') return 'approved';
+    if (item.review_status === 'draft') return 'draft';
+    if (item.review_status === 'no_reviewers') return 'no_reviewers';
+    return 'pending';
+  }
+
+  let shouldGroup = $derived(isPR && state === 'open');
+
+  let groupedItems = $derived.by(() => {
+    if (!shouldGroup || !items.length) return [];
+
+    const groups = {};
+    for (const item of items) {
+      const group = getItemGroup(item);
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(item);
+    }
+
+    return GROUP_ORDER
+      .filter(key => groups[key]?.length)
+      .map(key => ({ key, label: GROUP_LABELS[key], items: groups[key] }));
+  });
+
   const POSSABLE_ITEM_STATES = [
     { value: 'open', label: 'Open' },
     { value: 'closed', label: 'Closed' },
@@ -148,10 +192,21 @@
         <PrNotice item={branch} />
       {/each}
 
-
-      {#each items as item}
-        <ListItem {item} />
-      {/each}
+      {#if shouldGroup && groupedItems.length}
+        {#each groupedItems as group}
+          <div class="group-header">
+            <span class="group-label">{group.label}</span>
+            <span class="group-count">{group.items.length}</span>
+          </div>
+          {#each group.items as item}
+            <ListItem {item} />
+          {/each}
+        {/each}
+      {:else}
+        {#each items as item}
+          <ListItem {item} />
+        {/each}
+      {/if}
 
       {#if paginationLinks.length > 3}
         <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />
