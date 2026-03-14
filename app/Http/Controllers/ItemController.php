@@ -77,10 +77,89 @@ class ItemController extends Controller
                 'assignees:id,name,avatar_url',
             ]);
 
+        if ($type === 'prs') {
+            $query->with([
+                'requestedReviewers:id,pull_request_id,user_id,state',
+                'details:id,head_sha',
+            ]);
+        }
+
         $page = request()->query('page', 1);
         $items = $query->paginate(30, ['*'], 'page', $page);
 
+        if ($type === 'prs') {
+            // Batch load CI status via head_sha -> commit -> workflow
+            $headShas = $items->getCollection()
+                ->map(fn($item) => $item->details?->head_sha)
+                ->filter()
+                ->values()
+                ->all();
+
+            $commits = Commit::whereIn('sha', $headShas)
+                ->with(['workflow' => fn($q) => $q->without('jobs')->select(['id', 'state', 'conclusion'])])
+                ->get()
+                ->keyBy('sha');
+
+            // Batch fetch mergeable status via GraphQL (single API call)
+            $mergeableMap = $this->batchFetchMergeableStatus($organizationName, $repositoryName, $items->getCollection());
+
+            foreach ($items as $item) {
+                $reviewers = $item->requestedReviewers;
+                if ($item->state === 'draft') {
+                    $item->review_status = 'draft';
+                } elseif ($reviewers->isEmpty()) {
+                    $item->review_status = 'no_reviewers';
+                } elseif ($reviewers->contains('state', 'changes_requested')) {
+                    $item->review_status = 'changes_requested';
+                } elseif ($reviewers->every(fn($r) => $r->state === 'approved')) {
+                    $item->review_status = 'approved';
+                } else {
+                    $item->review_status = 'pending';
+                }
+
+                $workflow = $commits->get($item->details?->head_sha)?->workflow;
+                $item->ci_status = $workflow?->conclusion;
+                $item->has_conflicts = $mergeableMap[$item->number] ?? false;
+
+                // Clean up details from response
+                unset($item->details);
+            }
+        }
+
         return response()->json($items);
+    }
+
+    private function batchFetchMergeableStatus($organizationName, $repositoryName, $items)
+    {
+        $openPrs = $items->filter(fn($item) => $item->state === 'open');
+
+        if ($openPrs->isEmpty()) {
+            return [];
+        }
+
+        $fragments = $openPrs->map(fn($item) =>
+            "pr_{$item->number}: pullRequest(number: {$item->number}) { mergeable }"
+        )->implode("\n");
+
+        $query = "query (\$owner: String!, \$repo: String!) {
+            repository(owner: \$owner, name: \$repo) {
+                {$fragments}
+            }
+        }";
+
+        $response = ApiHelper::githubGraphql($query, [
+            'owner' => $organizationName,
+            'repo' => $repositoryName,
+        ]);
+
+        $map = [];
+        foreach ($openPrs as $item) {
+            $alias = "pr_{$item->number}";
+            $mergeable = $response?->data?->repository?->{$alias}?->mergeable ?? null;
+            $map[$item->number] = $mergeable === 'CONFLICTING';
+        }
+
+        return $map;
     }
 
     public function getLinkedItems($organizationName, $repositoryName, $number)
