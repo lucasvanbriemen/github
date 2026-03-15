@@ -54,6 +54,14 @@
         {item.working_state}
       {/if}
       
+      {#if item.linked_prs?.length > 0}
+        <span class="devider"></span>
+        <div class="pr-count">
+          <Icon name="pull_request" size="0.875rem" />
+          <span>{item.linked_prs.length}</span>
+        </div>
+      {/if}
+
       {#if item.labels?.length > 0}
         <span class="devider"></span>
 

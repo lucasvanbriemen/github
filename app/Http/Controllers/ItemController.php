@@ -61,6 +61,122 @@ class ItemController extends Controller
         return response()->json($items);
     }
 
+    public function unifiedIndex($organizationName, $repositoryName)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $state = request()->query('state', 'open');
+        $assignee = request()->query('assignee', 'any');
+        $search = request()->query('search', '');
+        $milestone = request()->query('milestone', null);
+        $page = request()->query('page', 1);
+
+        // Step 1: Fetch all PRs for the repo to find linked ones
+        $allPrs = Item::where('repository_id', $repository->id)
+            ->where('type', 'pull_request')
+            ->select(['id', 'number', 'title', 'state', 'body', 'labels', 'created_at', 'opened_by_id'])
+            ->with(['openedBy:id,display_name,avatar_url', 'details:id,head_branch'])
+            ->get();
+
+        // Step 2: Parse PR bodies for "Closes/Fixes/Resolves #N" keywords
+        $issueToPrs = [];
+        $linkedPrNumbers = [];
+        $keywords = ['Closes', 'Fixes', 'Resolves', 'Close', 'Fix', 'Resolve'];
+
+        foreach ($allPrs as $pr) {
+            $body = $pr->getRawOriginal('body') ?? '';
+            $linkedIssueNumbers = [];
+
+            foreach ($keywords as $keyword) {
+                if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $body, $matches)) {
+                    foreach ($matches[1] as $issueNumber) {
+                        $linkedIssueNumbers[] = (int) $issueNumber;
+                    }
+                }
+            }
+
+            $linkedIssueNumbers = array_unique($linkedIssueNumbers);
+
+            if (!empty($linkedIssueNumbers)) {
+                $linkedPrNumbers[] = $pr->number;
+
+                $prData = [
+                    'number' => $pr->number,
+                    'title' => $pr->title,
+                    'state' => $pr->state,
+                    'head_branch' => $pr->details->head_branch ?? null,
+                    'opened_by' => $pr->openedBy ? [
+                        'display_name' => $pr->openedBy->display_name,
+                        'avatar_url' => $pr->openedBy->avatar_url,
+                    ] : null,
+                ];
+
+                foreach ($linkedIssueNumbers as $issueNumber) {
+                    $issueToPrs[$issueNumber][] = $prData;
+                }
+            }
+        }
+
+        $linkedPrNumbers = array_unique($linkedPrNumbers);
+
+        // Step 3: Query issues + unlinked PRs
+        $query = Item::where('repository_id', $repository->id)
+            ->where(function ($q) use ($linkedPrNumbers) {
+                $q->where('type', 'issue')
+                  ->orWhere(function ($q2) use ($linkedPrNumbers) {
+                      $q2->where('type', 'pull_request');
+                      if (!empty($linkedPrNumbers)) {
+                          $q2->whereNotIn('number', $linkedPrNumbers);
+                      }
+                  });
+            });
+
+        // State filter (different mapping for issues vs PRs)
+        if ($state !== 'all') {
+            $prStates = $state === 'open' ? ['open', 'draft'] : ['closed', 'merged'];
+            $query->where(function ($q) use ($state, $prStates) {
+                $q->where(function ($q2) use ($state) {
+                    $q2->where('type', 'issue')->where('state', $state);
+                })->orWhere(function ($q2) use ($prStates) {
+                    $q2->where('type', 'pull_request')->whereIn('state', $prStates);
+                });
+            });
+        }
+
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        if ($assignee !== 'any') {
+            $query->whereHas('assignees', function ($q) use ($assignee) {
+                $q->where('github_users.id', $assignee);
+            });
+        }
+
+        if ($milestone) {
+            $query->where('milestone_id', $milestone);
+        }
+
+        $items = $query->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type'])
+            ->with([
+                'openedBy:id,display_name,avatar_url',
+                'assignees:id,name,avatar_url',
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate(30, ['*'], 'page', $page);
+
+        // Step 4: Attach linked PRs to issues
+        foreach ($items as $item) {
+            if ($item->type === 'issue' && isset($issueToPrs[$item->number])) {
+                $item->linked_prs = array_values($issueToPrs[$item->number]);
+            } else {
+                $item->linked_prs = [];
+            }
+        }
+
+        return response()->json($items);
+    }
+
     public function index($organizationName, $repositoryName, $type)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);

@@ -4,6 +4,7 @@
   import SidebarGroup from '../sidebar/group.svelte';
   import Pagination from '../Pagination.svelte';
   import ListItem from '../ListItem.svelte';
+  import LinkedPrItem from './LinkedPrItem.svelte';
   import ListItemSkeleton from '../ListItemSkeleton.svelte';
   import Select from '../Select.svelte';
   import PrNotice from './PrNotice.svelte';
@@ -19,6 +20,7 @@
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
 
+  const isUnified = $derived(type === 'items');
   const isPR = $derived(type === 'prs');
 
   const POSSABLE_ITEM_STATES = [
@@ -58,7 +60,13 @@
     isLoading = true;
     currentPage = pageNr;
 
-    let url = `${route('organizations.repositories.items', {$organization, $repository, type})}?page=${pageNr}&state=${state}`;
+    let url;
+    if (isUnified) {
+      url = `${route('organizations.repositories.items.unified', {$organization, $repository})}?page=${pageNr}&state=${state}`;
+    } else {
+      url = `${route('organizations.repositories.items', {$organization, $repository, type})}?page=${pageNr}&state=${state}`;
+    }
+
     url += `&assignee=${selectedAssignee}`;
     url += `&search=${searchQuery}`;
     if (selectedMilestone) {
@@ -68,7 +76,7 @@
     const json = await api.get(url)
     items = json.data
     paginationLinks = json.links
-    
+
     for (let i = 0; i < items.length; i++) {
       try {
         items[i].labels = JSON.parse(items[i].labels);
@@ -79,8 +87,7 @@
 
     isLoading = false;
 
-    if (isPR) {
-      // Get branches applical for a PR
+    if (isPR || isUnified) {
       getBranchesForNotices();
     }
   }
@@ -89,8 +96,8 @@
     branchesForNotice = await api.get(route('organizations.repositories.branches.pr.notices', {$organization, $repository}));
   }
 
-  function linkToNewItem(type) {
-    window.location.hash = `#/${$organization}/${$repository}/new/${type}`;
+  function linkToNewItem(itemType) {
+    window.location.hash = `#/${$organization}/${$repository}/new/${itemType}`;
   }
 
   function filterItem() {
@@ -120,7 +127,12 @@
 
 <div class="repo-dashboard">
   <Sidebar>
-    <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
+    {#if isUnified}
+      <button class="button-primary" type="button" onclick={() => linkToNewItem('issue')}>New Issue</button>
+      <button class="button-primary-outline" type="button" onclick={() => linkToNewItem('pr')}>New Pull Request</button>
+    {:else}
+      <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
+    {/if}
 
     <SidebarGroup title="State">
       <Select name="state" selectableItems={POSSABLE_ITEM_STATES} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
@@ -148,9 +160,16 @@
         <PrNotice item={branch} />
       {/each}
 
-
       {#each items as item}
         <ListItem {item} />
+
+        {#if item.linked_prs?.length > 0}
+          <div class="linked-prs">
+            {#each item.linked_prs as pr}
+              <LinkedPrItem {pr} />
+            {/each}
+          </div>
+        {/if}
       {/each}
 
       {#if paginationLinks.length > 3}
@@ -159,7 +178,7 @@
     {/if}
   </div>
 </div>
-  
+
 <style lang="scss">
   @import '../../../scss/components/item-overview';
 </style>

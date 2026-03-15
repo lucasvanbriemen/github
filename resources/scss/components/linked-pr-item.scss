@@ -1,0 +1,90 @@
+.linked-pr-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 1rem;
+  text-decoration: none;
+  color: var(--text-color);
+  border-radius: 0.5rem;
+
+  :global(.item-open) {
+    :global(svg) {
+      stroke: var(--success-color);
+      fill: var(--success-color);
+    }
+  }
+
+  :global(.item-closed) {
+    :global(svg) {
+      stroke: var(--error-color);
+      fill: var(--error-color);
+    }
+  }
+
+  :global(.item-merged) {
+    :global(svg) {
+      stroke: var(--merged-color);
+      fill: var(--merged-color);
+    }
+  }
+
+  :global(.item-draft) {
+    :global(svg) {
+      stroke: var(--draft-color);
+      fill: var(--draft-color);
+    }
+  }
+
+  &:hover {
+    background-color: var(--background-color-two);
+  }
+
+  .pr-title {
+    flex: 1;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pr-state {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.state-open {
+      background-color: rgba(46, 160, 67, 0.15);
+      color: var(--success-color);
+    }
+
+    &.state-draft {
+      background-color: rgba(139, 148, 158, 0.15);
+      color: var(--draft-color);
+    }
+
+    &.state-merged {
+      background-color: rgba(163, 113, 247, 0.15);
+      color: var(--merged-color);
+    }
+
+    &.state-closed {
+      background-color: rgba(248, 81, 73, 0.15);
+      color: var(--error-color);
+    }
+  }
+
+  .pr-branch {
+    font-size: 0.75rem;
+    font-family: monospace;
+    padding: 0.125rem 0.5rem;
+    background-color: var(--background-color-two);
+    border-radius: 0.375rem;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+}

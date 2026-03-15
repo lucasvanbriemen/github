@@ -87,6 +87,19 @@
         border-radius: 1rem;
         font-size: 0.75rem;
       }
+
+      .pr-count {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: var(--text-color-secondary);
+        font-size: 0.8rem;
+
+        :global(svg) {
+          stroke: var(--text-color-secondary);
+          fill: var(--text-color-secondary);
+        }
+      }
     }
   }
 
