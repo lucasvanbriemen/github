@@ -52,6 +52,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/metadata', [RepositoryController::class, 'metadata'])
             ->name('metadata');
 
+        Route::get('/items', [ItemController::class, 'unifiedIndex'])
+            ->name('items.unified');
+
         Route::get('/items/{type}', [ItemController::class, 'index'])
             ->name('items');
 
