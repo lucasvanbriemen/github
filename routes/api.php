@@ -53,7 +53,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
             ->name('metadata');
 
         Route::get('/items', [ItemController::class, 'index'])
-            ->name('items.unified');
+            ->name('items');
 
         Route::post('/item/{number}/update-labels', [ItemController::class, 'updateLabels'])
             ->name('item.label.update');

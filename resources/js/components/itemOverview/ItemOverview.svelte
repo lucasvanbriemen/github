@@ -59,7 +59,7 @@
     isLoading = true;
     currentPage = pageNr;
 
-    let url = `${route('organizations.repositories.items.unified', {$organization, $repository})}?page=${pageNr}&state=${state}`;
+    let url = `${route('organizations.repositories.items', {$organization, $repository})}?page=${pageNr}&state=${state}`;
 
     url += `&assignee=${selectedAssignee}`;
     url += `&search=${searchQuery}`;
