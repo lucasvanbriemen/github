@@ -52,7 +52,7 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/metadata', [RepositoryController::class, 'metadata'])
             ->name('metadata');
 
-        Route::get('/items/{type}', [ItemController::class, 'index'])
+        Route::get('/items', [ItemController::class, 'index'])
             ->name('items');
 
         Route::post('/item/{number}/update-labels', [ItemController::class, 'updateLabels'])

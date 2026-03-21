@@ -38,8 +38,7 @@
     <div class="separator"></div>
 
     <a href="#/{$organization}/{$repository}/" class:active={selectedRoute === ''} onclick={() => selectedRoute = ''}>Overview</a>
-    <a href="#/{$organization}/{$repository}/issues" class:active={selectedRoute === 'issues'} onclick={() => selectedRoute = 'issues'}>Issues</a>
-    <a href="#/{$organization}/{$repository}/prs" class:active={selectedRoute === 'prs'} onclick={() => selectedRoute = 'prs'}>Pull Requests</a>
+    <a href="#/{$organization}/{$repository}/items" class:active={selectedRoute === 'items'} onclick={() => selectedRoute = 'items'}>Items</a>
     <a href="#/{$organization}/{$repository}/projects" class:active={selectedRoute === 'projects'} onclick={() => selectedRoute = 'projects'}>Projects</a>
   {/if}
 </header>
