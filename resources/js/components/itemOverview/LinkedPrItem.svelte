@@ -14,8 +14,6 @@
 
   <span class="pr-title">#{pr.number} {pr.title}</span>
 
-  <span class="pr-state state-{pr.state}">{pr.state}</span>
-
   {#if pr.head_branch}
     <span class="pr-branch">{pr.head_branch}</span>
   {/if}
