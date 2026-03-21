@@ -61,7 +61,7 @@ class ItemController extends Controller
         return response()->json($items);
     }
 
-    public function unifiedIndex($organizationName, $repositoryName)
+    public function index($organizationName, $repositoryName)
     {
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
@@ -173,28 +173,6 @@ class ItemController extends Controller
                 $item->linked_prs = [];
             }
         }
-
-        return response()->json($items);
-    }
-
-    public function index($organizationName, $repositoryName, $type)
-    {
-        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
-
-        $state = request()->query('state', 'open');
-        $assignee = request()->query('assignee', 'any');
-        $search = request()->query('search', '');
-        $milestone = request()->query('milestone', null);
-
-        $query = $repository->items($type, $state, $assignee, $search, $milestone)
-            ->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type'])
-            ->with([
-                'openedBy:id,display_name,avatar_url',
-                'assignees:id,name,avatar_url',
-            ]);
-
-        $page = request()->query('page', 1);
-        $items = $query->paginate(30, ['*'], 'page', $page);
 
         return response()->json($items);
     }
