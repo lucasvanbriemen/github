@@ -20,7 +20,6 @@
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
 
-  const isUnified = $derived(type === 'items');
   const isPR = $derived(type === 'prs');
 
   const POSSABLE_ITEM_STATES = [
@@ -60,12 +59,7 @@
     isLoading = true;
     currentPage = pageNr;
 
-    let url;
-    if (isUnified) {
-      url = `${route('organizations.repositories.items.unified', {$organization, $repository})}?page=${pageNr}&state=${state}`;
-    } else {
-      url = `${route('organizations.repositories.items', {$organization, $repository, type})}?page=${pageNr}&state=${state}`;
-    }
+    let url = `${route('organizations.repositories.items.unified', {$organization, $repository})}?page=${pageNr}&state=${state}`;
 
     url += `&assignee=${selectedAssignee}`;
     url += `&search=${searchQuery}`;
@@ -87,9 +81,7 @@
 
     isLoading = false;
 
-    if (isPR || isUnified) {
-      getBranchesForNotices();
-    }
+    getBranchesForNotices();
   }
 
   async function getBranchesForNotices() {
@@ -127,12 +119,8 @@
 
 <div class="repo-dashboard">
   <Sidebar>
-    {#if isUnified}
-      <button class="button-primary" type="button" onclick={() => linkToNewItem('issue')}>New Issue</button>
-      <button class="button-primary-outline" type="button" onclick={() => linkToNewItem('pr')}>New Pull Request</button>
-    {:else}
-      <button class="button-primary" type="button" onclick={() => linkToNewItem(isPR ? 'pr' : 'issue')}>New {isPR ? 'Pull Request' : 'Issue'}</button>
-    {/if}
+    <button class="button-primary" type="button" onclick={() => linkToNewItem('issue')}>New Issue</button>
+    <button class="button-primary-outline" type="button" onclick={() => linkToNewItem('pr')}>New Pull Request</button>
 
     <SidebarGroup title="State">
       <Select name="state" selectableItems={POSSABLE_ITEM_STATES} bind:selectedValue={state} onChange={() => { filterItem() }} searchable={false} />
