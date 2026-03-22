@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\BaseComment;
 use App\GithubConfig;
+use App\Models\BaseComment;
 use App\Models\Notification;
 
 class BaseCommentObserver
@@ -48,7 +48,8 @@ class BaseCommentObserver
         //
     }
 
-    private function handle(BaseComment $baseComment) {
+    private function handle(BaseComment $baseComment)
+    {
         if (stripos($baseComment->body, GithubConfig::USERNAME) === false) {
             return;
         }

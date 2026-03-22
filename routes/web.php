@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\IsLoggedIn;
 use App\Http\Controllers\ImageProxyController;
 use App\Http\Controllers\UploadController;
+use App\Http\Middleware\IsLoggedIn;
+use Illuminate\Support\Facades\Route;
 
 // To proxy images from private repositories
 Route::get('/proxy/image', [ImageProxyController::class, 'proxy'])->name('image.proxy');

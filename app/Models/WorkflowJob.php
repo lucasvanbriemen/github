@@ -14,6 +14,6 @@ class WorkflowJob extends Model
         'name',
         'steps',
         'state',
-        'conclusion'
+        'conclusion',
     ];
 }

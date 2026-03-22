@@ -35,7 +35,7 @@ class IsLoggedIn
         } else {
             $authToken = $_COOKIE['auth_token'] ?? null;
 
-            if (!$authToken && $this->allowIfAgentTokenPresent($request)) {
+            if (! $authToken && $this->allowIfAgentTokenPresent($request)) {
                 return $next($request);
             }
         }
@@ -62,7 +62,7 @@ class IsLoggedIn
         $token = $request->bearerToken();
         $expectedToken = env('AGENT_TOKEN');
 
-        if (!$token || $token !== $expectedToken) {
+        if (! $token || $token !== $expectedToken) {
             return false;
         }
 

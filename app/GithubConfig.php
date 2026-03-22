@@ -5,8 +5,10 @@ namespace App;
 class GithubConfig
 {
     public const USERID = 117530797;
-    public const USERNAME = "lukaas-007";
-    public const USER_EMAIL = "contact@lucasvanbriemen.nl";
+
+    public const USERNAME = 'lukaas-007';
+
+    public const USER_EMAIL = 'contact@lucasvanbriemen.nl';
 
     // Run php artisan items:recalculate-scores when changing array
     public const IMPORTANCE_SCORING = [
@@ -71,13 +73,13 @@ class GithubConfig
                 [
                     'label' => 'Deploy stack',
                     'type' => 'toggle_label',
-                    'value' => 'deploy-stack'
+                    'value' => 'deploy-stack',
                 ],
                 [
                     'label' => 'Request UAT',
                     'type' => 'toggle_label',
-                    'value' => 'needs-uat'
-                ]
+                    'value' => 'needs-uat',
+                ],
             ],
         ],
 
@@ -86,8 +88,8 @@ class GithubConfig
                 [
                     'label' => 'Start bugfix',
                     'type' => 'toggle_label',
-                    'value' => 'bug'
-                ]
+                    'value' => 'bug',
+                ],
             ],
         ],
     ];

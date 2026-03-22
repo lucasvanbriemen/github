@@ -18,7 +18,7 @@ class ApiHelper
         ];
     }
 
-    public static function githubApi($route, $method = 'GET', $payload = null, $rawResponse = false,  $headers = [])
+    public static function githubApi($route, $method = 'GET', $payload = null, $rawResponse = false, $headers = [])
     {
         self::init();
 
@@ -75,6 +75,7 @@ class ApiHelper
         if ($httpCode === 200) {
             return json_decode($responseBody);
         }
+
         return null;
     }
 

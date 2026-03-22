@@ -9,7 +9,9 @@ namespace App\Helpers;
 class DiffRenderer
 {
     private object $diff;
+
     private array $files = [];
+
     private array $commits = [];
 
     public function __construct(object $diff)
@@ -29,9 +31,7 @@ class DiffRenderer
         return $this->commits;
     }
 
-    private function parseCommits(): void
-    {
-    }
+    private function parseCommits(): void {}
 
     /**
      * Parse files from GitHub compare API response
@@ -114,8 +114,8 @@ class DiffRenderer
                 // close the previous hunk if any
                 $flushHunk();
 
-                $oldStart = (int)($m['old_start'] ?? 0);
-                $newStart = (int)($m['new_start'] ?? 0);
+                $oldStart = (int) ($m['old_start'] ?? 0);
+                $newStart = (int) ($m['new_start'] ?? 0);
                 $oldLine = $oldStart;
                 $newLine = $newStart;
 
@@ -131,6 +131,7 @@ class DiffRenderer
                         'lines' => [],
                     ],
                 ];
+
                 continue;
             }
 
@@ -226,7 +227,11 @@ class DiffRenderer
                     'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => $l['content'] ?? ''],
                     'right' => ['number' => $newNo, 'type' => 'normal', 'content' => $r['content'] ?? ''],
                 ];
-                $iOld++; $iNew++; $oldNo++; $newNo++;
+                $iOld++;
+                $iNew++;
+                $oldNo++;
+                $newNo++;
+
                 continue;
             }
 
@@ -236,24 +241,26 @@ class DiffRenderer
 
                 // Output any standalone additions before this pairing
                 while ($iNew < $pairedNewIndex) {
-                    if (!isset($usedNewIndices[$iNew])) {
+                    if (! isset($usedNewIndices[$iNew])) {
                         $newLine = $newLines[$iNew];
                         if (($newLine['type'] ?? '') === 'add') {
                             $rows[] = [
                                 'left' => ['number' => null, 'type' => 'empty', 'content' => ''],
-                                'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string)($newLine['content'] ?? '')],
+                                'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string) ($newLine['content'] ?? '')],
                             ];
                             $usedNewIndices[$iNew] = true;
                         }
                     }
                     $iNew++;
-                    if ($newNo !== null) { $newNo++; }
+                    if ($newNo !== null) {
+                        $newNo++;
+                    }
                 }
 
                 // Now pair the deletion with the matched addition
                 $matchedNewLine = $newLines[$pairedNewIndex];
-                $leftContent = (string)($l['content'] ?? '');
-                $rightContent = (string)($matchedNewLine['content'] ?? '');
+                $leftContent = (string) ($l['content'] ?? '');
+                $rightContent = (string) ($matchedNewLine['content'] ?? '');
                 [$leftSeg, $rightSeg] = $this->computeIntralineSegments($leftContent, $rightContent);
                 $whitespaceOnly = $this->isWhitespaceOnlyChange($leftContent, $rightContent);
 
@@ -261,7 +268,7 @@ class DiffRenderer
                 $matchedNewNo = $newNo;
                 $tempI = $iNew;
                 while ($tempI <= $pairedNewIndex) {
-                    if ($tempI < $pairedNewIndex && !isset($usedNewIndices[$tempI])) {
+                    if ($tempI < $pairedNewIndex && ! isset($usedNewIndices[$tempI])) {
                         $matchedNewNo++;
                     }
                     $tempI++;
@@ -283,54 +290,73 @@ class DiffRenderer
                         'whitespace_only' => $whitespaceOnly,
                     ],
                 ];
-                $iOld++; $oldNo++;
+                $iOld++;
+                $oldNo++;
                 $usedNewIndices[$pairedNewIndex] = true;
+
                 continue;
             }
 
             // Standalone deletion
             if ($l && ($l['type'] ?? '') === 'del') {
                 $rows[] = [
-                    'left' => ['number' => $oldNo, 'type' => 'del', 'content' => (string)($l['content'] ?? '')],
+                    'left' => ['number' => $oldNo, 'type' => 'del', 'content' => (string) ($l['content'] ?? '')],
                     'right' => ['number' => null, 'type' => 'empty', 'content' => ''],
                 ];
-                $iOld++; $oldNo++;
+                $iOld++;
+                $oldNo++;
+
                 continue;
             }
 
             // Standalone addition
-            if ($r && ($r['type'] ?? '') === 'add' && !isset($usedNewIndices[$iNew])) {
+            if ($r && ($r['type'] ?? '') === 'add' && ! isset($usedNewIndices[$iNew])) {
                 $rows[] = [
                     'left' => ['number' => null, 'type' => 'empty', 'content' => ''],
-                    'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string)($r['content'] ?? '')],
+                    'right' => ['number' => $newNo, 'type' => 'add', 'content' => (string) ($r['content'] ?? '')],
                 ];
-                $iNew++; $newNo++;
+                $iNew++;
+                $newNo++;
+
                 continue;
             }
 
             // Skip used indices
             if ($r && isset($usedNewIndices[$iNew])) {
                 $iNew++;
-                if ($newNo !== null) { $newNo++; }
+                if ($newNo !== null) {
+                    $newNo++;
+                }
+
                 continue;
             }
 
             // Fallbacks: mirror remaining context if sides misaligned
-            if ($l && ($l['type'] ?? '') === 'normal' && !$r) {
+            if ($l && ($l['type'] ?? '') === 'normal' && ! $r) {
                 $rows[] = [
-                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
-                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string)($l['content'] ?? '')],
+                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string) ($l['content'] ?? '')],
+                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string) ($l['content'] ?? '')],
                 ];
-                $iOld++; $oldNo++; if ($newNo !== null) { $newNo++; }
+                $iOld++;
+                $oldNo++;
+                if ($newNo !== null) {
+                    $newNo++;
+                }
+
                 continue;
             }
 
-            if ($r && ($r['type'] ?? '') === 'normal' && !$l && !isset($usedNewIndices[$iNew])) {
+            if ($r && ($r['type'] ?? '') === 'normal' && ! $l && ! isset($usedNewIndices[$iNew])) {
                 $rows[] = [
-                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
-                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string)($r['content'] ?? '')],
+                    'left' => ['number' => $oldNo, 'type' => 'normal', 'content' => (string) ($r['content'] ?? '')],
+                    'right' => ['number' => $newNo, 'type' => 'normal', 'content' => (string) ($r['content'] ?? '')],
                 ];
-                $iNew++; $newNo++; if ($oldNo !== null) { $oldNo++; }
+                $iNew++;
+                $newNo++;
+                if ($oldNo !== null) {
+                    $oldNo++;
+                }
+
                 continue;
             }
 
@@ -368,7 +394,7 @@ class DiffRenderer
 
         // For each deletion, find the best matching addition
         foreach ($deletions as $oldIdx => $delLine) {
-            $delContent = (string)($delLine['content'] ?? '');
+            $delContent = (string) ($delLine['content'] ?? '');
             $delNoWs = preg_replace('/\s/u', '', $delContent);
 
             $bestDistance = PHP_INT_MAX;
@@ -380,7 +406,7 @@ class DiffRenderer
                     continue;
                 }
 
-                $addContent = (string)($addLine['content'] ?? '');
+                $addContent = (string) ($addLine['content'] ?? '');
                 $addNoWs = preg_replace('/\s/u', '', $addContent);
 
                 // Perfect match ignoring whitespace
@@ -419,6 +445,7 @@ class DiffRenderer
     {
         $oldNoWs = preg_replace('/\s/u', '', $old);
         $newNoWs = preg_replace('/\s/u', '', $new);
+
         return $oldNoWs === $newNoWs && $old !== $new;
     }
 
@@ -432,6 +459,7 @@ class DiffRenderer
     {
         if ($old === $new) {
             $seg = [['text' => $old, 'type' => 'equal']];
+
             return [$seg, $seg];
         }
 
@@ -441,7 +469,7 @@ class DiffRenderer
         if ($oldTrimmed === $newTrimmed) {
             return [
                 [['text' => $old, 'type' => 'equal']],
-                [['text' => $new, 'type' => 'equal']]
+                [['text' => $new, 'type' => 'equal']],
             ];
         }
 
@@ -473,7 +501,7 @@ class DiffRenderer
         // Only if removing the changed part from new gives us old
         $shouldHighlightNew = false;
         if ($newMid !== '') {
-            $reconstructed = $preNew . $sufNew;
+            $reconstructed = $preNew.$sufNew;
             if ($reconstructed === $old) {
                 $shouldHighlightNew = true;
             }
@@ -483,7 +511,7 @@ class DiffRenderer
         // Only if the line is 90%+ similar after removing changes
         $shouldHighlightOld = false;
         if ($oldMid !== '') {
-            $reconstructed = $pre . $suf;
+            $reconstructed = $pre.$suf;
             $similarity = $this->calculateSimilarity($reconstructed, $new);
             if ($similarity >= 0.9) {
                 $shouldHighlightOld = true;
@@ -493,19 +521,37 @@ class DiffRenderer
         $leftSeg = [];
         $rightSeg = [];
 
-        if ($pre !== '') { $leftSeg[] = ['text' => $pre, 'type' => 'equal']; }
-        if ($oldMid !== '' && $shouldHighlightOld) { $leftSeg[] = ['text' => $oldMid, 'type' => 'change']; }
-        elseif ($oldMid !== '') { $leftSeg[] = ['text' => $oldMid, 'type' => 'equal']; }
-        if ($suf !== '') { $leftSeg[] = ['text' => $suf, 'type' => 'equal']; }
+        if ($pre !== '') {
+            $leftSeg[] = ['text' => $pre, 'type' => 'equal'];
+        }
+        if ($oldMid !== '' && $shouldHighlightOld) {
+            $leftSeg[] = ['text' => $oldMid, 'type' => 'change'];
+        } elseif ($oldMid !== '') {
+            $leftSeg[] = ['text' => $oldMid, 'type' => 'equal'];
+        }
+        if ($suf !== '') {
+            $leftSeg[] = ['text' => $suf, 'type' => 'equal'];
+        }
 
-        if ($preNew !== '') { $rightSeg[] = ['text' => $preNew, 'type' => 'equal']; }
-        if ($newMid !== '' && $shouldHighlightNew) { $rightSeg[] = ['text' => $newMid, 'type' => 'change']; }
-        elseif ($newMid !== '') { $rightSeg[] = ['text' => $newMid, 'type' => 'equal']; }
-        if ($sufNew !== '') { $rightSeg[] = ['text' => $sufNew, 'type' => 'equal']; }
+        if ($preNew !== '') {
+            $rightSeg[] = ['text' => $preNew, 'type' => 'equal'];
+        }
+        if ($newMid !== '' && $shouldHighlightNew) {
+            $rightSeg[] = ['text' => $newMid, 'type' => 'change'];
+        } elseif ($newMid !== '') {
+            $rightSeg[] = ['text' => $newMid, 'type' => 'equal'];
+        }
+        if ($sufNew !== '') {
+            $rightSeg[] = ['text' => $sufNew, 'type' => 'equal'];
+        }
 
         // If either middle is empty, segments array may end up only equals — that's fine
-        if (!$leftSeg) { $leftSeg[] = ['text' => $old, 'type' => 'equal']; }
-        if (!$rightSeg) { $rightSeg[] = ['text' => $new, 'type' => 'equal']; }
+        if (! $leftSeg) {
+            $leftSeg[] = ['text' => $old, 'type' => 'equal'];
+        }
+        if (! $rightSeg) {
+            $rightSeg[] = ['text' => $new, 'type' => 'equal'];
+        }
 
         // If highlighted portion is 90%+ of the line, don't highlight
         $leftHighlightLen = $this->getSegmentsLength($leftSeg, 'change');
@@ -533,6 +579,7 @@ class DiffRenderer
                 $length += strlen($seg['text'] ?? '');
             }
         }
+
         return $length;
     }
 
@@ -551,6 +598,7 @@ class DiffRenderer
         }
 
         $lcs = $this->getLongestCommonSubsequenceLength($str1, $str2);
+
         return $lcs / $maxLen;
     }
 

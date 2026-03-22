@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\GithubConfig;
+use App\Mail\NotificationOverview;
 use App\Models\Item;
 use App\Models\Notification;
-use App\Mail\NotificationOverview;
-use App\GithubConfig;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class NotificationController extends Controller
@@ -20,7 +20,7 @@ class NotificationController extends Controller
                 'comment.author:id,display_name',
                 'item.repository:id,full_name',
                 'review.baseComment.item.repository:id,full_name',
-                'review.baseComment.author:id,display_name'
+                'review.baseComment.author:id,display_name',
             ])
             ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
 
@@ -51,6 +51,7 @@ class NotificationController extends Controller
     public function digest(Request $request, $date)
     {
         $result = self::buildDigest(Notification::where('emailed_at', $date));
+
         return response()->json($result);
     }
 
@@ -130,7 +131,7 @@ class NotificationController extends Controller
 
         // PRs that link to issues not in our notification set
         foreach ($prToIssueMap as $prItemId => $issueId) {
-            if (!in_array($prItemId, $processed)) {
+            if (! in_array($prItemId, $processed)) {
                 $issue = Item::with('repository')->find($issueId);
                 $linkedGroups[] = [
                     'item' => $issue,
@@ -145,7 +146,7 @@ class NotificationController extends Controller
 
         // Remaining ungrouped item groups (PRs without issue links)
         foreach ($itemGroups as $itemId => $group) {
-            if (!in_array($itemId, $processed) && !isset($prToIssueMap[$itemId])) {
+            if (! in_array($itemId, $processed) && ! isset($prToIssueMap[$itemId])) {
                 $linkedGroups[] = [
                     'item' => $group[0]->resolveItem(),
                     'notifications' => $group,

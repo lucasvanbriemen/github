@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\RepositoryService;
-use App\Models\PullRequest;
-use App\Models\Item;
-use App\Models\PullRequestDetails;
-use App\GithubConfig;
 use App\Helpers\ApiHelper;
 use App\Helpers\DiffRenderer;
+use App\Models\Item;
+use App\Models\PullRequest;
+use App\Models\PullRequestDetails;
+use App\Services\RepositoryService;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
 class PullRequestController extends Controller
@@ -80,11 +79,11 @@ class PullRequestController extends Controller
 
         // Sync assignees (uses issue_assignees table)
         $assigneeGithubIds = [];
-        if (!empty($response['assignees']) && is_array($response['assignees'])) {
+        if (! empty($response['assignees']) && is_array($response['assignees'])) {
             foreach ($response['assignees'] as $assignee) {
                 $assigneeGithubIds[] = $assignee['id'];
             }
-        } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
+        } elseif (! empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
             // GitHub may return a single assignee
             $assigneeGithubIds[] = $response['assignee']['id'];
         }
@@ -107,7 +106,7 @@ class PullRequestController extends Controller
             $pr = ApiHelper::githubApi("/repos/{$repository->full_name}/pulls/{$number}");
             $nodeId = $pr->node_id;
             $mutation = 'mutation {
-                markPullRequestReadyForReview(input: {pullRequestId: "' . $nodeId . '"}) {
+                markPullRequestReadyForReview(input: {pullRequestId: "'.$nodeId.'"}) {
                     pullRequest {
                         isDraft
                     }
@@ -119,7 +118,7 @@ class PullRequestController extends Controller
 
         $payload = [];
         foreach (request()->all() as $key => $value) {
-            if (!in_array($key, ['state'])) {
+            if (! in_array($key, ['state'])) {
                 continue;
             }
 
@@ -136,8 +135,8 @@ class PullRequestController extends Controller
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $pullRequest = PullRequest::where('repository_id', $repository->id)
-           ->where('number', $number)
-           ->firstOrFail();
+            ->where('number', $number)
+            ->firstOrFail();
 
         // For merged PRs, use merge_base_sha to preserve the original diff
         // For open/closed PRs, compare branches normally
@@ -153,6 +152,7 @@ class PullRequestController extends Controller
 
         $renderer = new DiffRenderer($diff);
         $files = $renderer->getFiles();
+
         return $files;
     }
 
@@ -161,9 +161,9 @@ class PullRequestController extends Controller
         [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
 
         $pr = Item::with('requestedReviewers.user')
-          ->where('repository_id', $repository->id)
-          ->where('number', $number)
-          ->firstOrFail();
+            ->where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
 
         $currentReviewers = $pr->requestedReviewers
             ->where('state', 'pending')
@@ -171,7 +171,7 @@ class PullRequestController extends Controller
             ->all();
         $updatedReviewers = request()->input('reviewers', []);
 
-        $toBeAdded   = array_values(array_diff($updatedReviewers, $currentReviewers));
+        $toBeAdded = array_values(array_diff($updatedReviewers, $currentReviewers));
         $toBeRemoved = array_values(array_diff($currentReviewers, $updatedReviewers));
 
         GitHub::pullRequests()->reviewRequests()->create($organizationName, $repositoryName, $number, $toBeAdded);
@@ -214,7 +214,6 @@ class PullRequestController extends Controller
         $item = Item::where('repository_id', $repository->id)
             ->where('number', $number)
             ->firstOrFail();
-
 
         $response = GitHub::pullRequests()->merge($organizationName, $repositoryName, $number, $item->title, $item->getLatestCommitSha(), 'merge');
 

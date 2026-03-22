@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\GithubConfig;
 use App\Models\Item;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class ImportanceScoreService
 {
@@ -13,13 +13,12 @@ class ImportanceScoreService
      * Calculate the importance score for an item using weighted normalized scores
      * Each category returns 0-100, then weighted and summed for final score
      */
-
     public static function calculateScore(Item $item): int
     {
         $config = GithubConfig::IMPORTANCE_SCORING;
 
         // Hard filter: item must be assigned to current user
-        if (!$item->isCurrentlyAssignedToUser()) {
+        if (! $item->isCurrentlyAssignedToUser()) {
             return -999; // Return very low score for non-assigned items
         }
 
@@ -33,9 +32,9 @@ class ImportanceScoreService
 
         $finalScore = 0;
         foreach ($config['category_weights'] as $category => $weight) {
-            $method = 'get' . Str::studly($category) . 'Score';
+            $method = 'get'.Str::studly($category).'Score';
 
-            if (!method_exists(self::class, $method)) {
+            if (! method_exists(self::class, $method)) {
                 continue;
             }
 
@@ -54,7 +53,7 @@ class ImportanceScoreService
     {
         $config = GithubConfig::IMPORTANCE_SCORING['milestone_proximity'];
 
-        if (!$item->milestone || !$item->milestone->due_on) {
+        if (! $item->milestone || ! $item->milestone->due_on) {
             return GithubConfig::IMPORTANCE_SCORING['without_milestone']['normalized_score'];
         }
 
@@ -70,6 +69,7 @@ class ImportanceScoreService
                 $daysOverdue * $config['overdue']['escalation_per_day'],
                 100 - $baseScore
             );
+
             return min($baseScore + $escalation, 100);
         }
 
@@ -92,11 +92,11 @@ class ImportanceScoreService
 
         $status = self::getProjectStatusViaGraphQL($item);
 
-        if (!$status) {
+        if (! $status) {
             return 0;
         }
 
-        $isInProgress = collect($config['in_progress_keywords'])->some(fn($keyword) => str_contains(strtolower($status), $keyword));
+        $isInProgress = collect($config['in_progress_keywords'])->some(fn ($keyword) => str_contains(strtolower($status), $keyword));
 
         return $isInProgress ? $config['normalized_score'] : 0;
     }
@@ -113,12 +113,12 @@ class ImportanceScoreService
         // Group items by (organization, repository)
         $groupedByRepo = [];
         foreach ($items as $item) {
-            if (!$item->repository || !$item->repository->organization) {
+            if (! $item->repository || ! $item->repository->organization) {
                 continue;
             }
 
-            $repoKey = $item->repository->organization->name . '/' . $item->repository->name;
-            if (!isset($groupedByRepo[$repoKey])) {
+            $repoKey = $item->repository->organization->name.'/'.$item->repository->name;
+            if (! isset($groupedByRepo[$repoKey])) {
                 $groupedByRepo[$repoKey] = [
                     'org' => $item->repository->organization->name,
                     'repo' => $item->repository->name,
@@ -167,11 +167,11 @@ class ImportanceScoreService
                     }";
                 }
 
-                $query = "query (\$owner: String!, \$repo: String!) {
-                    repository(owner: \$owner, name: \$repo) {
-                        " . implode("\n", $queryParts) . "
+                $query = 'query ($owner: String!, $repo: String!) {
+                    repository(owner: $owner, name: $repo) {
+                        '.implode("\n", $queryParts).'
                     }
-                }";
+                }';
 
                 $response = \App\Helpers\ApiHelper::githubGraphql($query, [
                     'owner' => $org,
@@ -183,7 +183,7 @@ class ImportanceScoreService
                     $alias = "item{$index}";
                     $projectItems = $response->data->repository->{$alias}->projectItems->nodes ?? [];
 
-                    if (!empty($projectItems) && isset($projectItems[0]->fieldValueByName->name)) {
+                    if (! empty($projectItems) && isset($projectItems[0]->fieldValueByName->name)) {
                         $statuses[$item->id] = $projectItems[0]->fieldValueByName->name;
                     }
                 }
@@ -204,7 +204,7 @@ class ImportanceScoreService
         try {
             $item->load(['repository.organization']);
 
-            if (!$item->repository || !$item->repository->organization) {
+            if (! $item->repository || ! $item->repository->organization) {
                 return null;
             }
 
@@ -252,7 +252,7 @@ class ImportanceScoreService
             $data = $response->data->repository->issueOrPullRequest->projectItems->nodes ?? [];
 
             // Return the first project's status value if available
-            if (!empty($data) && isset($data[0]->fieldValueByName->name)) {
+            if (! empty($data) && isset($data[0]->fieldValueByName->name)) {
                 return $data[0]->fieldValueByName->name;
             }
 
@@ -291,7 +291,7 @@ class ImportanceScoreService
     {
         $config = GithubConfig::IMPORTANCE_SCORING['review_status'];
 
-        if (!$item->isPullRequest()) {
+        if (! $item->isPullRequest()) {
             return 0;
         }
 
@@ -312,7 +312,7 @@ class ImportanceScoreService
     {
         // Use eager-loaded relation if available
         if ($item->relationLoaded('comments')) {
-            return $item->comments->filter(fn($c) => $c->type === 'review');
+            return $item->comments->filter(fn ($c) => $c->type === 'review');
         }
 
         // Fallback to query
@@ -328,7 +328,7 @@ class ImportanceScoreService
     {
         // Use eager-loaded relation if available
         if ($item->relationLoaded('comments')) {
-            return $item->comments->filter(fn($c) => $c->type === 'code' && (!$c->resolved || is_null($c->resolved)));
+            return $item->comments->filter(fn ($c) => $c->type === 'code' && (! $c->resolved || is_null($c->resolved)));
         }
 
         // Fallback to query
@@ -336,7 +336,7 @@ class ImportanceScoreService
             ->where('type', 'code')
             ->where(function ($q) {
                 $q->where('resolved', false)
-                  ->orWhereNull('resolved');
+                    ->orWhereNull('resolved');
             })
             ->get();
     }
@@ -381,7 +381,7 @@ class ImportanceScoreService
      */
     public static function getPullRequestReviewStatus(Item $item): string
     {
-        if (!$item->isPullRequest()) {
+        if (! $item->isPullRequest()) {
             return 'none';
         }
 
@@ -396,12 +396,12 @@ class ImportanceScoreService
             return 'pending';
         }
 
-        $blockingReview = $reviews->contains(fn($review) => $review->state === 'CHANGES_REQUESTED' || $review->state === 'COMMENTED');
+        $blockingReview = $reviews->contains(fn ($review) => $review->state === 'CHANGES_REQUESTED' || $review->state === 'COMMENTED');
         if ($blockingReview) {
             return 'changes_requested';
         }
 
-        $allApproved = $reviews->every(fn($review) => $review->state === 'APPROVED');
+        $allApproved = $reviews->every(fn ($review) => $review->state === 'APPROVED');
         if ($allApproved) {
             return 'approved';
         }
@@ -414,7 +414,7 @@ class ImportanceScoreService
      */
     private static function hasLabel(Item $item, string $labelName): bool
     {
-        if (!is_array($item->labels)) {
+        if (! is_array($item->labels)) {
             return false;
         }
 

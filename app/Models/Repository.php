@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\GithubConfig;
 use Illuminate\Database\Eloquent\Model;
 
 class Repository extends Model
@@ -45,7 +44,7 @@ class Repository extends Model
         }
 
         if ($search) {
-            $query->where('title', 'like', '%' . $search . '%');
+            $query->where('title', 'like', '%'.$search.'%');
         }
 
         if ($assignee !== 'any') {
@@ -78,7 +77,7 @@ class Repository extends Model
         }
 
         if ($search) {
-            $query->where('title', 'like', '%' . $search . '%');
+            $query->where('title', 'like', '%'.$search.'%');
         }
 
         if ($assignee !== 'any') {

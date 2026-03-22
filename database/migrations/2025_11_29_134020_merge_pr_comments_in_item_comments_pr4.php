@@ -1,10 +1,10 @@
 <?php
 
+use App\Models\BaseComment;
+use App\Models\PullRequestComment;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\BaseComment;
-use App\Models\PullRequestComment;
 
 return new class extends Migration
 {
@@ -23,7 +23,7 @@ return new class extends Migration
                     'resolved' => $prComment->resolved,
                     'type' => 'code',
                     'created_at' => $prComment->created_at,
-                    'updated_at' => $prComment->updated_at
+                    'updated_at' => $prComment->updated_at,
                 ]);
 
                 $prComment->base_comment_id = $baseComment->id;

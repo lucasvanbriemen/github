@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Notification;
 use App\GithubConfig;
+use App\Models\Notification;
 
 class NotificationAutoResolver
 {

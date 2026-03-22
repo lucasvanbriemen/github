@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiHelper;
-use App\Services\RepositoryService;
 use App\Models\Item;
+use App\Services\RepositoryService;
 use Carbon\Carbon;
 
 class ProjectController extends Controller
@@ -38,7 +38,7 @@ class ProjectController extends Controller
         }
         GRAPHQL;
 
-        $response = ApiHelper::githubGraphql($mutation, ['owner' => $organizationName, 'name' => $repositoryName,]);
+        $response = ApiHelper::githubGraphql($mutation, ['owner' => $organizationName, 'name' => $repositoryName]);
         $data = $response->data->repository->projectsV2->nodes ?? [];
 
         $projects = [];
@@ -153,7 +153,7 @@ class ProjectController extends Controller
         $DBitems = Item::whereIn('number', $allIds)
             ->where('repository_id', $repository->id)
             ->with([
-                'assignees'
+                'assignees',
             ])
             ->get()
             ->keyBy('number');
@@ -163,7 +163,7 @@ class ProjectController extends Controller
             $columnName = $item->fieldValueByName->name ?? 'Unassigned';
             $column = $columns->get($columnName);
 
-            if (!isset($DBitems[$item->content->number])) {
+            if (! isset($DBitems[$item->content->number])) {
                 continue;
             }
 
@@ -219,13 +219,13 @@ class ProjectController extends Controller
                     'itemId' => $itemId,
                     'fieldId' => $fieldId,
                     'value' => [
-                        'singleSelectOptionId' => $statusValue
-                    ]
-                ]
+                        'singleSelectOptionId' => $statusValue,
+                    ],
+                ],
             ]);
         }
 
-        return response()->json(['success' => true, 'message' => "Added to project successfully", 'itemId' => $itemId]);
+        return response()->json(['success' => true, 'message' => 'Added to project successfully', 'itemId' => $itemId]);
     }
 
     public function updateItemProjectStatus(string $organizationName, string $repositoryName)
@@ -251,9 +251,9 @@ class ProjectController extends Controller
                 'itemId' => $itemId,
                 'fieldId' => $fieldId,
                 'value' => [
-                    'singleSelectOptionId' => $statusValue
-                ]
-            ]
+                    'singleSelectOptionId' => $statusValue,
+                ],
+            ],
         ]);
 
         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
@@ -275,8 +275,8 @@ class ProjectController extends Controller
         ApiHelper::githubGraphql($mutation, [
             'input' => [
                 'projectId' => $projectId,
-                'itemId' => $itemId
-            ]
+                'itemId' => $itemId,
+            ],
         ]);
 
         return response()->json(['success' => true, 'message' => 'Item removed from project successfully']);

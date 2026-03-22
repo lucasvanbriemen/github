@@ -3,10 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\CreateWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Branch;
-
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessCreateWebhook implements ShouldQueue
 {
@@ -24,7 +22,7 @@ class ProcessCreateWebhook implements ShouldQueue
             Branch::updateOrCreate(
                 [
                     'name' => $payload->ref,
-                    'repository_id' => $payload->repository->id
+                    'repository_id' => $payload->repository->id,
                 ],
                 ['updated_at' => now()]
             );

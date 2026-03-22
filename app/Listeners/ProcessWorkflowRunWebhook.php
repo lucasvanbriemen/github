@@ -3,11 +3,11 @@
 namespace App\Listeners;
 
 use App\Events\WorkflowRunWebhookReceived;
-use App\Models\Commit;
-use App\Models\Workflow;
-use App\Models\PullRequest;
-use App\Models\Notification;
 use App\GithubConfig;
+use App\Models\Commit;
+use App\Models\Notification;
+use App\Models\PullRequest;
+use App\Models\Workflow;
 
 class ProcessWorkflowRunWebhook // implements ShouldQueue
 {
@@ -39,7 +39,7 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
             [
                 'name' => $name,
                 'state' => $state,
-                'conclusion' => $conclusion
+                'conclusion' => $conclusion,
             ]
         );
 
@@ -72,7 +72,7 @@ class ProcessWorkflowRunWebhook // implements ShouldQueue
                     Notification::create([
                         'type' => 'workflow_failed',
                         'related_id' => $pr->id,
-                        'triggered_by_id' => $payload->sender?->id
+                        'triggered_by_id' => $payload->sender?->id,
                     ]);
                     break; // Only create one notification per workflow run
                 }

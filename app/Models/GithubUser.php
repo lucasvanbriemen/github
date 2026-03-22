@@ -25,7 +25,7 @@ class GithubUser extends Model
     {
 
         $existingUser = self::find($userData->id);
-        $displayName = $existingUser ? $existingUser->display_name : $userData->name ;
+        $displayName = $existingUser ? $existingUser->display_name : $userData->name;
 
         return self::updateOrCreate(
             ['id' => $userData->id],
@@ -34,7 +34,7 @@ class GithubUser extends Model
                 'name' => $userData->name ?? $userData->login ?? '',
                 'avatar_url' => $userData->avatar_url ?? null,
                 'type' => $userData->type ?? 'User',
-                'display_name' => $displayName
+                'display_name' => $displayName,
             ]
         );
     }

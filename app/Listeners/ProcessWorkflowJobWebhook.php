@@ -3,13 +3,9 @@
 namespace App\Listeners;
 
 use App\Events\WorkflowJobWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\Commit;
-use App\Models\GithubUser;
-use App\Models\Branch;
 use App\Models\WorkflowJob;
-use App\Models\Workflow;
-use App\Models\Repository;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessWorkflowJobWebhook // implements ShouldQueue
 {
@@ -39,14 +35,14 @@ class ProcessWorkflowJobWebhook // implements ShouldQueue
 
         WorkflowJob::updateOrCreate(
             [
-                'id' => $job->id
+                'id' => $job->id,
             ],
             [
                 'workflow_id' => $workflow_id,
                 'name' => $name,
                 'steps' => $steps,
                 'state' => $state,
-                'conclusion' => $conclusion
+                'conclusion' => $conclusion,
             ]
         );
 

@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\BaseComment;
-
 class PullRequestReview extends BaseComment
 {
     public const ABSOLUTE_ANSWERS = ['approved', 'changes_requested'];

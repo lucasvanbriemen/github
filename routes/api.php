@@ -1,18 +1,18 @@
 <?php
 
+use App\Http\Controllers\AiReviewController;
+use App\Http\Controllers\BaseCommentController;
 use App\Http\Controllers\IncomingWebhookController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrganizationController;
-use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PullRequestController;
+use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\WorkflowJobController;
 use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\PullRequestController;
-use App\Http\Controllers\BaseCommentController;
-use App\Http\Controllers\UploadController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\WorkflowJobController;
-use App\Http\Controllers\AiReviewController;
 
 Route::middleware(IsLoggedIn::class)->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index'])

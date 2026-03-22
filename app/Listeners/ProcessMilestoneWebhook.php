@@ -2,9 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Models\Milestone;
-use App\Models\Item;
 use App\Events\MilestoneWebhookReceived;
+use App\Models\Item;
+use App\Models\Milestone;
 use App\Services\ImportanceScoreService;
 use Carbon\Carbon;
 

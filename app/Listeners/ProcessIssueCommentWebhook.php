@@ -3,21 +3,21 @@
 namespace App\Listeners;
 
 use App\Events\IssueCommentWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Models\Issue;
-use App\Models\BaseComment;
-use App\Models\Repository;
-use App\Models\GithubUser;
-use App\Models\Notification;
-use App\Models\Item;
-use App\Models\PullRequest;
 use App\Events\IssuesWebhookReceived;
 use App\Events\PullRequestWebhookReceived;
 use App\GithubConfig;
+use App\Models\BaseComment;
+use App\Models\GithubUser;
+use App\Models\Issue;
+use App\Models\Item;
+use App\Models\Notification;
+use App\Models\PullRequest;
+use App\Models\Repository;
 use App\Services\ImportanceScoreService;
 use App\Services\NotificationAutoResolver;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ProcessIssueCommentWebhook //implements ShouldQueue
+class ProcessIssueCommentWebhook // implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -56,6 +56,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
                     'repository' => $repositoryData,
                 ];
                 PullRequestWebhookReceived::dispatch($prPayload);
+
                 return false;
             }
 
@@ -66,6 +67,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
             if (! $issue) {
                 // If the issue doesn't exist, we can't add a comment to it
                 IssuesWebhookReceived::dispatch($payload);
+
                 return false;
             }
         }
@@ -91,6 +93,7 @@ class ProcessIssueCommentWebhook //implements ShouldQueue
             // Auto-resolve notifications when configured user comments
             if ($userData->id === GithubConfig::USERID) {
                 NotificationAutoResolver::resolveTrigger('user_commented', $issueData->id);
+
                 return true;
             }
 

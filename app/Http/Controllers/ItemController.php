@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Fuse\Fuse;
-
-use App\Models\Item;
-use App\Services\RepositoryService;
-use App\Services\ImportanceScoreService;
-use App\Models\Issue;
-use App\Models\Commit;
-use App\Helpers\ApiHelper;
 use App\GithubConfig;
-use GrahamCampbell\GitHub\Facades\GitHub;
+use App\Helpers\ApiHelper;
+use App\Models\Commit;
+use App\Models\Issue;
+use App\Models\Item;
+use App\Services\ImportanceScoreService;
+use App\Services\RepositoryService;
 use Carbon\Carbon;
+use Fuse\Fuse;
+use GrahamCampbell\GitHub\Facades\GitHub;
 
 class ItemController extends Controller
 {
@@ -42,6 +41,7 @@ class ItemController extends Controller
             $hotfixLabel = $config['hotfix_friday']['label'];
             $items = $items->filter(function ($item) use ($hotfixLabel) {
                 $labels = is_array($item->labels) ? $item->labels : (json_decode($item->labels, true) ?? []);
+
                 return in_array($hotfixLabel, $labels);
             });
         }
@@ -97,7 +97,7 @@ class ItemController extends Controller
 
             $linkedIssueNumbers = array_unique($linkedIssueNumbers);
 
-            if (!empty($linkedIssueNumbers)) {
+            if (! empty($linkedIssueNumbers)) {
                 $linkedPrNumbers[] = $pr->number;
 
                 $prData = [
@@ -123,12 +123,12 @@ class ItemController extends Controller
         $query = Item::where('repository_id', $repository->id)
             ->where(function ($q) use ($linkedPrNumbers) {
                 $q->where('type', 'issue')
-                  ->orWhere(function ($q2) use ($linkedPrNumbers) {
-                      $q2->where('type', 'pull_request');
-                      if (!empty($linkedPrNumbers)) {
-                          $q2->whereNotIn('number', $linkedPrNumbers);
-                      }
-                  });
+                    ->orWhere(function ($q2) use ($linkedPrNumbers) {
+                        $q2->where('type', 'pull_request');
+                        if (! empty($linkedPrNumbers)) {
+                            $q2->whereNotIn('number', $linkedPrNumbers);
+                        }
+                    });
             });
 
         // State filter (different mapping for issues vs PRs)
@@ -144,7 +144,7 @@ class ItemController extends Controller
         }
 
         if ($search) {
-            $query->where('title', 'like', '%' . $search . '%');
+            $query->where('title', 'like', '%'.$search.'%');
         }
 
         if ($assignee !== 'any') {
@@ -185,15 +185,15 @@ class ItemController extends Controller
             ->where('number', $number)
             ->firstOrFail();
 
-        $type = "issue";
+        $type = 'issue';
         if ($item->type !== 'issue') {
-            $type = "pullRequest";
+            $type = 'pullRequest';
         }
 
         $query = '
             query ($org: String!, $repo: String!, $number: Int!) {
             repository(owner: $org, name: $repo) {
-                ' . $type . '(number: $number) {
+                '.$type.'(number: $number) {
                 timelineItems(
                     first: 100
                     itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]
@@ -252,7 +252,7 @@ class ItemController extends Controller
             // Match patterns like "Closes #85" or "closes: #85" or "closes #85,"
             if (preg_match_all("/\b$keyword\s+#(\d+)\b/i", $item->body, $matches)) {
                 foreach ($matches[1] as $issueNumber) {
-                    $ids[] = (int)$issueNumber;
+                    $ids[] = (int) $issueNumber;
                 }
             }
         }
@@ -305,11 +305,11 @@ class ItemController extends Controller
 
         // Sync assignees (uses issue_assignees table)
         $assigneeGithubIds = [];
-        if (!empty($response['assignees']) && is_array($response['assignees'])) {
+        if (! empty($response['assignees']) && is_array($response['assignees'])) {
             foreach ($response['assignees'] as $assignee) {
                 $assigneeGithubIds[] = $assignee['id'];
             }
-        } elseif (!empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
+        } elseif (! empty($response['assignee']) && is_array($response['assignee']) && isset($response['assignee']['id'])) {
             // GitHub may return a single assignee
             $assigneeGithubIds[] = $response['assignee']['id'];
         }
@@ -344,7 +344,7 @@ class ItemController extends Controller
         if ($item->isPullRequest()) {
             $item->load([
                 'details',
-                'requestedReviewers.user'
+                'requestedReviewers.user',
             ]);
 
             // Load the latest commit with workflow information
@@ -418,7 +418,7 @@ class ItemController extends Controller
                 'title' => $projectItem->project->title,
                 'number' => $projectItem->project->number,
                 'itemId' => $projectItem->id,
-                'status' => $projectItem->fieldValueByName->name ?? null
+                'status' => $projectItem->fieldValueByName->name ?? null,
             ];
 
             $projects[] = $projectData;
@@ -442,6 +442,7 @@ class ItemController extends Controller
 
         if ($comment->type === 'issue') {
             $comment->can_reply = false;
+
             return;
         }
 
@@ -466,7 +467,7 @@ class ItemController extends Controller
     {
         $childComments = $parentComment->child_comments ?? $parentComment->childComments ?? [];
 
-        if (!$childComments) {
+        if (! $childComments) {
             return;
         }
 
@@ -509,7 +510,7 @@ class ItemController extends Controller
 
         $payload = [];
         foreach (request()->all() as $key => $value) {
-            if (!in_array($key, ['state', 'milestone', 'body'])) {
+            if (! in_array($key, ['state', 'milestone', 'body'])) {
                 continue;
             }
 
@@ -546,7 +547,7 @@ class ItemController extends Controller
         $currentAssignees = $item->assignees->pluck('login')->all();
         $updatedAssignees = request()->input('assignees', []);
 
-        $toBeAdded   = array_values(array_diff($updatedAssignees, $currentAssignees));
+        $toBeAdded = array_values(array_diff($updatedAssignees, $currentAssignees));
         $toBeRemoved = array_values(array_diff($currentAssignees, $updatedAssignees));
 
         GitHub::issues()->assignees()->add($organizationName, $repositoryName, $number, ['assignees' => $toBeAdded]);
@@ -585,7 +586,7 @@ class ItemController extends Controller
                 'value' => $item['number'] ?? $item->number,
                 'label' => $item['title'] ?? $item->title,
                 'state' => $item['state'] ?? $item->state,
-                'type' => $item['type'] ?? $item->type
+                'type' => $item['type'] ?? $item->type,
             ];
         });
 
@@ -607,10 +608,10 @@ class ItemController extends Controller
                 ->where('number', $targetNumber)
                 ->firstOrFail();
 
-            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+            if ($sourceItem->isPullRequest() && ! $targetItem->isPullRequest()) {
                 $itemToUpdate = $sourceItem;
                 $itemNumberToLink = $targetNumber;
-            } elseif (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+            } elseif (! $sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
                 $itemToUpdate = $targetItem;
                 $itemNumberToLink = $sourceNumber;
             } else {
@@ -653,10 +654,10 @@ class ItemController extends Controller
                 ->where('number', $targetNumber)
                 ->firstOrFail();
 
-            if ($sourceItem->isPullRequest() && !$targetItem->isPullRequest()) {
+            if ($sourceItem->isPullRequest() && ! $targetItem->isPullRequest()) {
                 $itemToUpdate = $sourceItem;
                 $itemNumberToUnlink = $targetNumber;
-            } elseif (!$sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
+            } elseif (! $sourceItem->isPullRequest() && $targetItem->isPullRequest()) {
                 $itemToUpdate = $targetItem;
                 $itemNumberToUnlink = $sourceNumber;
             } else {

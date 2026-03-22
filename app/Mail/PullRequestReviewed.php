@@ -3,8 +3,6 @@
 namespace App\Mail;
 
 use App\Models\PullRequestReview;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -15,6 +13,7 @@ class PullRequestReviewed extends Mailable
     use SerializesModels;
 
     public PullRequestReview $pullRequestReview;
+
     public function __construct(PullRequestReview $pullRequestReview)
     {
         $this->pullRequestReview = $pullRequestReview;

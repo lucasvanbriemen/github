@@ -8,6 +8,7 @@ class IncommingWebhook extends Model
 {
     //
     protected $table = 'incoming_webhooks';
+
     protected $primaryKey = 'id';
 
     protected $fillable = ['event', 'payload'];

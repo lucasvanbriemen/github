@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 
 class SyncDatabase extends Command
 {
@@ -36,13 +34,14 @@ class SyncDatabase extends Command
         $remoteUsername = env('DB_USERNAME_SERVER');
         $remotePassword = env('DB_PASSWORD_SERVER');
 
-        if (!$remoteHost || !$remoteDatabase || !$remoteUsername) {
+        if (! $remoteHost || ! $remoteDatabase || ! $remoteUsername) {
             $this->error('Missing required server database credentials in .env (DB_HOST_SERVER, DB_DATABASE_SERVER, DB_USERNAME_SERVER)');
+
             return Command::FAILURE;
         }
 
         // Create local database name based on remote
-        $localDatabase = $remoteDatabase . '_local';
+        $localDatabase = $remoteDatabase.'_local';
 
         try {
             // Step 1: Connect to remote database
@@ -57,7 +56,7 @@ class SyncDatabase extends Command
             // Step 2: Create local database connection
             $this->info('Connecting to local database...');
             $localPdo = new \PDO(
-                "mysql:host=127.0.0.1;port=3306",
+                'mysql:host=127.0.0.1;port=3306',
                 'root',
                 ''
             );
@@ -69,15 +68,16 @@ class SyncDatabase extends Command
             $localPdo->exec("USE `$localDatabase`");
 
             // Disable foreign key checks
-            $localPdo->exec("SET FOREIGN_KEY_CHECKS = 0");
+            $localPdo->exec('SET FOREIGN_KEY_CHECKS = 0');
 
             // Step 3: Get all tables from remote database
             $this->info('Getting table list from remote database...');
-            $tablesQuery = $remotePdo->query("SHOW TABLES");
+            $tablesQuery = $remotePdo->query('SHOW TABLES');
             $tables = $tablesQuery->fetchAll(\PDO::FETCH_COLUMN);
 
             if (empty($tables)) {
                 $this->info('No tables found in remote database.');
+
                 return Command::SUCCESS;
             }
 
@@ -98,11 +98,11 @@ class SyncDatabase extends Command
                 $dataQuery = $remotePdo->query("SELECT * FROM `$table`");
                 $rows = $dataQuery->fetchAll(\PDO::FETCH_ASSOC);
 
-                if (!empty($rows)) {
+                if (! empty($rows)) {
                     // Prepare column names for INSERT
                     $columns = array_keys($rows[0]);
-                    $columnList = '`' . implode('`, `', $columns) . '`';
-                    $placeholders = ':' . implode(', :', $columns);
+                    $columnList = '`'.implode('`, `', $columns).'`';
+                    $placeholders = ':'.implode(', :', $columns);
 
                     $insertSQL = "INSERT INTO `$table` ($columnList) VALUES ($placeholders)";
                     $insertStmt = $localPdo->prepare($insertSQL);
@@ -112,11 +112,11 @@ class SyncDatabase extends Command
                     }
                 }
 
-                $this->info("Table $table copied successfully (" . count($rows) . " rows)");
+                $this->info("Table $table copied successfully (".count($rows).' rows)');
             }
 
             // Re-enable foreign key checks
-            $localPdo->exec("SET FOREIGN_KEY_CHECKS = 1");
+            $localPdo->exec('SET FOREIGN_KEY_CHECKS = 1');
 
             $this->info('Database sync completed successfully!');
             $this->info("Local database: $localDatabase");
@@ -125,10 +125,12 @@ class SyncDatabase extends Command
             return Command::SUCCESS;
 
         } catch (\PDOException $e) {
-            $this->error('Database error: ' . $e->getMessage());
+            $this->error('Database error: '.$e->getMessage());
+
             return Command::FAILURE;
         } catch (\Exception $e) {
-            $this->error('Error: ' . $e->getMessage());
+            $this->error('Error: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

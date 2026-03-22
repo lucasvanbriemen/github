@@ -3,11 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\MemberWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\GithubUser;
 use App\Models\RepositoryUser;
-use App\Models\Repository;
 
 class ProcesMemberWebhook
 {
@@ -40,11 +37,11 @@ class ProcesMemberWebhook
         GithubUser::updateOrCreate(
             ['id' => $userId],
             [
-            'login' => $login,
-            'name' => $login,
-            'avatar_url' => $member->avatar_url ?? null,
-            'type' => $member->type ?? 'User',
-            'display_name' => $login
+                'login' => $login,
+                'name' => $login,
+                'avatar_url' => $member->avatar_url ?? null,
+                'type' => $member->type ?? 'User',
+                'display_name' => $login,
             ]
         );
 

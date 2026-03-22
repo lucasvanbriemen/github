@@ -34,7 +34,7 @@ class PullRequest extends Item
         // Access head_branch via relationship
         $headBranch = $this->details->head_branch ?? null;
 
-        if (!$headBranch) {
+        if (! $headBranch) {
             return null;
         }
 
@@ -51,9 +51,10 @@ class PullRequest extends Item
 
         if (in_array($key, $prSpecificFields)) {
             // Load details if not already loaded
-            if (!$this->relationLoaded('details')) {
+            if (! $this->relationLoaded('details')) {
                 $this->load('details');
             }
+
             return $this->details->$key ?? null;
         }
 
@@ -65,6 +66,7 @@ class PullRequest extends Item
         return $this->requestedReviewers()->with('user')->get()->map(function ($reviewer) {
             $user = $reviewer->user;
             $user->state = $reviewer->state;
+
             return $user;
         });
     }

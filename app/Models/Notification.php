@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\BaseComment;
-use App\Models\Item;
-use App\Models\PullRequestReview;
 
 class Notification extends Model
 {
@@ -63,7 +60,7 @@ class Notification extends Model
         }
 
         if ($this->type === 'pr_review') {
-            return "{$this->review->baseComment->author->display_name} " . self::$stateMap[$this->review->state] . " on {$this->review->baseComment->item->title}";
+            return "{$this->review->baseComment->author->display_name} ".self::$stateMap[$this->review->state]." on {$this->review->baseComment->item->title}";
         }
 
         return 'Notification';

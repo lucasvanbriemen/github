@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ApiHelper;
-use App\Services\RepositoryService;
-use App\Models\Repository;
-use App\Models\Label;
 use App\GithubConfig;
+use App\Helpers\ApiHelper;
+use App\Models\Label;
+use App\Models\Repository;
+use App\Services\RepositoryService;
 
 class RepositoryController extends Controller
 {
@@ -24,6 +24,7 @@ class RepositoryController extends Controller
             ->map(function ($branch) {
                 $branch->last_commit = $branch->commits->first();
                 unset($branch->commits);
+
                 return $branch;
             });
 
@@ -35,7 +36,7 @@ class RepositoryController extends Controller
         $repositories = Repository::all();
 
         foreach ($repositories as $repository) {
-            $labels = ApiHelper::githubApi('/repos/'  .$repository->full_name . '/labels');
+            $labels = ApiHelper::githubApi('/repos/'.$repository->full_name.'/labels');
 
             foreach ($labels as $label) {
                 // Update or create label

@@ -3,20 +3,18 @@
 namespace App\Listeners;
 
 use App\Events\PullRequestWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\GithubConfig;
+use App\Helpers\ApiHelper;
+use App\Models\GithubUser;
+use App\Models\Notification;
 use App\Models\PullRequest;
 use App\Models\Repository;
-use App\Models\GithubUser;
 use App\Models\RequestedReviewer;
-use App\GithubConfig;
-use App\Models\Notification;
-use App\Helpers\ApiHelper;
 use App\Services\ImportanceScoreService;
 use App\Services\NotificationAutoResolver;
-use RuntimeException;
-use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ProcessPullRequestWebhook //implements ShouldQueue
+class ProcessPullRequestWebhook // implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -84,7 +82,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         }
 
         $pr = PullRequest::where('id', $prData->id)->first();
-        if (!$pr) {
+        if (! $pr) {
             $preHookAssigned = false;
         } else {
             $preHookAssigned = $pr->isCurrentlyAssignedToUser();
@@ -119,7 +117,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
 
         // Sync assignees in the pivot table
         $assigneeGithubIds = [];
-        if (!empty($prData->assignees) && is_array($prData->assignees)) {
+        if (! empty($prData->assignees) && is_array($prData->assignees)) {
             foreach ($prData->assignees as $assignee) {
                 $assigneeGithubIds[] = $assignee->id;
 
@@ -148,7 +146,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
         }
 
         $currentlyAssigned = $pr->isCurrentlyAssignedToUser();
-        if ($currentlyAssigned && !$preHookAssigned) {
+        if ($currentlyAssigned && ! $preHookAssigned) {
             $senderData = $payload->sender ?? null;
             if ($senderData) {
                 GithubUser::updateFromWebhook($senderData);
@@ -157,16 +155,16 @@ class ProcessPullRequestWebhook //implements ShouldQueue
             // Don't create notification if actor is the configured user
             if ($senderData?->id === GithubConfig::USERID) {
                 // Continue processing but skip notification
-            } elseif (!Notification::where('type', 'item_assigned')
+            } elseif (! Notification::where('type', 'item_assigned')
                 ->where('related_id', $pr->id)
                 ->exists()) {
                 Notification::create([
                     'type' => 'item_assigned',
                     'related_id' => $pr->id,
-                    'triggered_by_id' => $senderData?->id
+                    'triggered_by_id' => $senderData?->id,
                 ]);
             }
-        } elseif (!$currentlyAssigned && $preHookAssigned) {
+        } elseif (! $currentlyAssigned && $preHookAssigned) {
             // PR was unassigned from user - resolve notifications
             NotificationAutoResolver::resolveTrigger('item_unassigned', $pr->id);
         }
@@ -186,13 +184,13 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 // Don't create notification if actor is the configured user
                 if ($senderData?->id === GithubConfig::USERID) {
                     // Continue processing but skip notification
-                } elseif (!Notification::where('type', 'review_requested')
+                } elseif (! Notification::where('type', 'review_requested')
                     ->where('related_id', $prData->id)
                     ->exists()) {
                     Notification::create([
                         'type' => 'review_requested',
                         'related_id' => $prData->id,
-                        'triggered_by_id' => $senderData?->id
+                        'triggered_by_id' => $senderData?->id,
                     ]);
                 }
             }
@@ -205,7 +203,7 @@ class ProcessPullRequestWebhook //implements ShouldQueue
                 [
                     'pull_request_id' => $prData->id,
                     'user_id' => $reviewerData->id,
-                    'state' => 'pending'
+                    'state' => 'pending',
                 ]
             );
         }

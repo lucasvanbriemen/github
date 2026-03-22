@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Item;
-use App\Models\PullRequestReview;
-use App\Models\BaseComment;
-use App\Models\PullRequestComment;
-use App\Services\RepositoryService;
 use App\Helpers\ApiHelper;
+use App\Models\BaseComment;
+use App\Models\Item;
+use App\Services\RepositoryService;
 use GrahamCampbell\GitHub\Facades\GitHub;
 use OpenAI;
 
@@ -54,7 +52,7 @@ class BaseCommentController extends Controller
                 $repository->name,
                 $item->number,
                 [
-                'body' => $data['body'],
+                    'body' => $data['body'],
                 ]
             );
 
@@ -103,11 +101,11 @@ class BaseCommentController extends Controller
 
         $commitSha = $item->getLatestCommitSha();
         $payload = [
-            'body'      => request()->input('body'),
+            'body' => request()->input('body'),
             'commit_id' => $commitSha,
-            'path'      => request()->input('path'),
-            'line'      => request()->input('line'),
-            'side'      => request()->input('side'),
+            'path' => request()->input('path'),
+            'line' => request()->input('line'),
+            'side' => request()->input('side'),
         ];
 
         ApiHelper::githubApi("/repos/{$organizationName}/{$repositoryName}/pulls/{$pullRequestNumber}/comments", 'POST', $payload);
@@ -125,7 +123,7 @@ class BaseCommentController extends Controller
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => <<<TEXT
+                    'content' => <<<'TEXT'
                         You are an expert in refining GitHub Markdown to improve clarity, professionalism, structure, and grammatical correctness while strictly preserving the original intent.
 
                         Return only the improved text. Do not include explanations, commentary, or meta remarks. Do not introduce new examples, content, or assumptions that were not present in the original text.

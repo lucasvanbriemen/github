@@ -31,23 +31,26 @@ class ReplayIncomingWebhooks extends Command
 
         if ($id) {
             $webhook = IncommingWebhook::find($id);
-            if (!$webhook) {
+            if (! $webhook) {
                 $this->error("Incoming webhook with id {$id} not found.");
+
                 return self::FAILURE;
             }
 
-            $this->info("Replaying webhook id {$webhook->id} ({$webhook->event})" . ($dryRun ? ' [dry-run]' : ''));
+            $this->info("Replaying webhook id {$webhook->id} ({$webhook->event})".($dryRun ? ' [dry-run]' : ''));
             $this->replay($webhook, $dryRun);
+
             return self::SUCCESS;
         }
 
         $count = IncommingWebhook::count();
         if ($count === 0) {
             $this->info('No incoming webhooks found to replay.');
+
             return self::SUCCESS;
         }
 
-        $this->info("Replaying {$count} incoming webhooks" . ($dryRun ? ' [dry-run]' : ''));
+        $this->info("Replaying {$count} incoming webhooks".($dryRun ? ' [dry-run]' : ''));
 
         $processed = 0;
         foreach (IncommingWebhook::orderBy('id')->cursor() as $webhook) {
@@ -57,6 +60,7 @@ class ReplayIncomingWebhooks extends Command
         }
 
         $this->info("Done. Processed {$processed} webhook(s).");
+
         return self::SUCCESS;
     }
 
@@ -67,8 +71,9 @@ class ReplayIncomingWebhooks extends Command
         $studly = Str::studly($eventType);
         $class = "App\\Events\\{$studly}WebhookReceived";
 
-        if (!class_exists($class)) {
+        if (! class_exists($class)) {
             $this->error("  -> Event class {$class} not found for event '{$eventType}'");
+
             return;
         }
 
@@ -76,12 +81,14 @@ class ReplayIncomingWebhooks extends Command
         try {
             $payload = json_decode($webhook->payload ?? '{}', false, 512, JSON_THROW_ON_ERROR);
         } catch (\Throwable $e) {
-            $this->error('  -> Invalid stored payload JSON: ' . $e->getMessage());
+            $this->error('  -> Invalid stored payload JSON: '.$e->getMessage());
+
             return;
         }
 
         if ($dryRun) {
             $this->comment("  -> Would dispatch {$class} with stored payload");
+
             return;
         }
 
@@ -89,7 +96,7 @@ class ReplayIncomingWebhooks extends Command
             Event::dispatch(new $class($payload));
             $this->info("  -> Dispatched {$class}");
         } catch (\Throwable $e) {
-            $this->error('  -> Error dispatching event: ' . $e->getMessage());
+            $this->error('  -> Error dispatching event: '.$e->getMessage());
         }
     }
 }

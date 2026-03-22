@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\GithubConfig;
+use App\Models\IncommingWebhook;
+use App\Models\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use App\Models\IncommingWebhook;
-use App\Models\Repository;
-use App\GithubConfig;
 
 class IncomingWebhookController extends Controller
 {
@@ -27,29 +27,29 @@ class IncomingWebhookController extends Controller
         $class = "App\\Events\\{$studly}WebhookReceived";
 
         IncommingWebhook::create([
-            'event'   => $eventType,
+            'event' => $eventType,
             'payload' => $raw,
         ]);
 
-        if (!class_exists($class)) {
+        if (! class_exists($class)) {
             return response()->json([
                 'message' => 'Event class not found',
-                'event'   => $eventType,
+                'event' => $eventType,
             ], 400);
         }
- 
+
         Event::dispatch(new $class($payload));
 
         return response()->json([
             'message' => 'received',
-            'event'   => $eventType,
+            'event' => $eventType,
         ]);
     }
 
     // For the extension we want to check if the Github url maps to an exsiting GUI url
     public function checkEndPoint(Request $request)
     {
-        $url  = $request->input('url');
+        $url = $request->input('url');
         $path = parse_url($url, PHP_URL_PATH) ?? '/';
         $redirectUrl = null;
 
@@ -61,15 +61,15 @@ class IncomingWebhookController extends Controller
                 $pattern
             );
 
-            $regex = '#^' . $regex . '$#';
+            $regex = '#^'.$regex.'$#';
 
-            if (!preg_match($regex, $path, $matches)) {
+            if (! preg_match($regex, $path, $matches)) {
                 continue;
             }
 
             // Enforce allowed repositories
             if (isset($matches['organization'], $matches['repository'])) {
-                $repo = $matches['organization'] . '/' . $matches['repository'];
+                $repo = $matches['organization'].'/'.$matches['repository'];
 
                 if (Repository::where('full_name', $repo)->doesntExist()) {
                     return response()->json([
@@ -85,7 +85,7 @@ class IncomingWebhookController extends Controller
                 [
                     $matches['organization'] ?? '',
                     $matches['repository'] ?? '',
-                    $matches['tail'] ?? ''
+                    $matches['tail'] ?? '',
                 ],
                 $replacement
             );
@@ -94,7 +94,7 @@ class IncomingWebhookController extends Controller
         }
 
         if ($redirectUrl !== null) {
-            $redirectUrl = 'https://github.lucasvanbriemen.nl' . $redirectUrl;
+            $redirectUrl = 'https://github.lucasvanbriemen.nl'.$redirectUrl;
         }
 
         return response()->json([

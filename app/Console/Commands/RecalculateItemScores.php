@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Item;
 use App\Services\ImportanceScoreService;
+use Illuminate\Console\Command;
 
 class RecalculateItemScores extends Command
 {

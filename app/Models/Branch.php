@@ -3,19 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\PullRequestDetails;
-use App\Models\Commit;
 
 class Branch extends Model
 {
     const NOTICE_CREATED_TIME_HOURS = 6;
+
     const MASTER_BRANCHES = ['master', 'main'];
 
     public $fillable = [
         'updated_at',
         'created_at',
         'name',
-        'repository_id'
+        'repository_id',
     ];
 
     public function hasPullRequest()

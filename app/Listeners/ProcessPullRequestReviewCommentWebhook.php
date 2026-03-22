@@ -3,15 +3,15 @@
 namespace App\Listeners;
 
 use App\Events\PullRequestReviewCommentWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\GithubConfig;
+use App\Models\BaseComment;
+use App\Models\GithubUser;
 use App\Models\PullRequest;
 use App\Models\PullRequestComment;
-use App\Models\BaseComment;
 use App\Models\Repository;
-use App\Models\GithubUser;
 use App\Services\ImportanceScoreService;
 use App\Services\NotificationAutoResolver;
-use App\GithubConfig;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessPullRequestReviewCommentWebhook implements ShouldQueue
 {

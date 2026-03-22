@@ -10,7 +10,7 @@ class WorkflowJobController extends Controller
     public function getLogs($organizationName, $repositoryName, $jobId)
     {
         $job = WorkflowJob::find($jobId);
-        $rawLogs = ApiHelper::githubApi('/repos/' . $organizationName . '/' . $repositoryName . '/actions/jobs/' . $jobId . '/logs', 'GET', null, true);
+        $rawLogs = ApiHelper::githubApi('/repos/'.$organizationName.'/'.$repositoryName.'/actions/jobs/'.$jobId.'/logs', 'GET', null, true);
         $workflowFile = $this->getWorkflowFile($organizationName, $repositoryName);
         $jobSteps = json_decode($job->steps, true);
 
@@ -31,7 +31,7 @@ class WorkflowJobController extends Controller
 
     public function getWorkflowFile($organizationName, $repositoryName)
     {
-        $route = '/repos/' . $organizationName . '/' . $repositoryName . '/contents/.github/workflows/ruby.yml';
+        $route = '/repos/'.$organizationName.'/'.$repositoryName.'/contents/.github/workflows/ruby.yml';
         $body = ApiHelper::githubApi($route, 'GET', null, true, ['Accept' => 'application/vnd.github.v3.raw']);
 
         return $body;
@@ -59,7 +59,7 @@ class WorkflowJobController extends Controller
             for ($j = $i; $j < min($i + 20, count($lines)); $j++) {
                 $nextLine = $lines[$j];
 
-                if (!preg_match('/^\s+run:/', $nextLine)) {
+                if (! preg_match('/^\s+run:/', $nextLine)) {
                     continue;
                 }
 
@@ -72,8 +72,8 @@ class WorkflowJobController extends Controller
                 while ($k < count($lines)) {
                     $cmdLine = $lines[$k];
                     // Continue adding lines that are indented but not list items or new keys
-                    if (preg_match('/^\s+/', $cmdLine) && !preg_match('/^\s+-\s+/', $cmdLine) && !preg_match('/^\s+\w+:/', $cmdLine)) {
-                        $runCommand .= ' ' . trim($cmdLine);
+                    if (preg_match('/^\s+/', $cmdLine) && ! preg_match('/^\s+-\s+/', $cmdLine) && ! preg_match('/^\s+\w+:/', $cmdLine)) {
+                        $runCommand .= ' '.trim($cmdLine);
                         $k++;
                     } else {
                         break;
@@ -104,6 +104,7 @@ class WorkflowJobController extends Controller
                 // Start collecting a new group
                 $currentStepName = trim($matches[1]);
                 $currentLogs = [];
+
                 continue;
             }
 
@@ -115,6 +116,7 @@ class WorkflowJobController extends Controller
                 }
                 $currentStepName = null;
                 $currentLogs = [];
+
                 continue;
             }
 
@@ -189,6 +191,7 @@ class WorkflowJobController extends Controller
                 if (strpos($logLines[$i], '##[endgroup]') !== false) {
                     // We've exited a group, start collecting ungrouped output
                     $inUngroupedSection = true;
+
                     continue;
                 }
 
@@ -211,17 +214,17 @@ class WorkflowJobController extends Controller
                     $logGroupsArray[] = [
                         'name' => $name,
                         'logs' => $logs,
-                        'isExpanded' => false
+                        'isExpanded' => false,
                     ];
                 }
             }
 
             // Add ungrouped logs as a special "Output" group if they exist
-            if (!empty($ungroupedLogs)) {
+            if (! empty($ungroupedLogs)) {
                 $logGroupsArray[] = [
                     'name' => 'Output',
                     'logs' => trim(implode("\n", $ungroupedLogs)),
-                    'isExpanded' => $step['conclusion'] === 'failure'
+                    'isExpanded' => $step['conclusion'] === 'failure',
                 ];
             }
 
@@ -231,7 +234,7 @@ class WorkflowJobController extends Controller
                 'conclusion' => $step['conclusion'],
                 'logGroups' => $logGroupsArray,     // Array of collapsible log groups
                 'logs' => $stepLogText,               // Full raw logs for this step
-                'isExpanded' => $step['conclusion'] === 'failure'
+                'isExpanded' => $step['conclusion'] === 'failure',
             ];
         }
 

@@ -3,17 +3,17 @@
 namespace App\Listeners;
 
 use App\Events\PullRequestReviewWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Models\PullRequestReview;
-use App\Models\PullRequest;
-use App\Models\Repository;
-use App\Models\GithubUser;
-use App\Models\Notification;
-use App\Models\RequestedReviewer;
 use App\GithubConfig;
 use App\Models\BaseComment;
+use App\Models\GithubUser;
+use App\Models\Notification;
+use App\Models\PullRequest;
+use App\Models\PullRequestReview;
+use App\Models\Repository;
+use App\Models\RequestedReviewer;
 use App\Services\ImportanceScoreService;
 use App\Services\NotificationAutoResolver;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessPullRequestReviewWebhook implements ShouldQueue
 {
@@ -47,18 +47,18 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
         $baseComment = BaseComment::updateOrCreate(
             ['comment_id' => $reviewData->id, 'type' => 'review'],
             [
-            'issue_id' => $prData->id,
-            'user_id' => $userData->id,
-            'body' => $reviewData->body ?? '',
-            'type' => 'review',
+                'issue_id' => $prData->id,
+                'user_id' => $userData->id,
+                'body' => $reviewData->body ?? '',
+                'type' => 'review',
             ]
         );
 
         $review = PullRequestReview::updateOrCreate(
             ['id' => $reviewData->id],
             [
-            'base_comment_id' => $baseComment->id,
-            'state' => $reviewData->state,
+                'base_comment_id' => $baseComment->id,
+                'state' => $reviewData->state,
             ]
         );
 
@@ -92,7 +92,6 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
          * 3. Reviewer comments on dismissed review → state should REVERT to 'changes_requested'
          *    (This is GitHub's behavior - blocking states can't be cleared by just commenting)
          */
-
         if ($incomingState === 'dismissed') {
             // When a review is dismissed:
             // - Save what state it had before dismissal (could be 'approved' or 'changes_requested')
@@ -153,7 +152,7 @@ class ProcessPullRequestReviewWebhook implements ShouldQueue
             // Don't create notification if actor is the configured user
             if ($userData->id === GithubConfig::USERID) {
                 // Continue processing but skip notification
-            } elseif (!Notification::where('type', 'pr_review')
+            } elseif (! Notification::where('type', 'pr_review')
                 ->where('related_id', $review->id)
                 ->exists()) {
                 Notification::create([

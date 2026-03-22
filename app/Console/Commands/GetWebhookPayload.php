@@ -4,8 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\IncommingWebhook;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Str;
 
 class GetWebhookPayload extends Command
 {
@@ -30,20 +28,21 @@ class GetWebhookPayload extends Command
         $output = $this->argument('output');
 
         // If there is no ouput it bemes the id
-        if (!$output) {
+        if (! $output) {
             $output = $id;
         }
 
         $webhook = IncommingWebhook::find($id);
-        if (!$webhook) {
+        if (! $webhook) {
             $this->error("Incoming webhook with id {$id} not found.");
+
             return self::FAILURE;
         }
 
         $payload = $webhook->payload;
 
         // Create a top level file named output.json
-        file_put_contents($output . ".json", $payload, JSON_PRETTY_PRINT);
+        file_put_contents($output.'.json', $payload, JSON_PRETTY_PRINT);
 
         return self::SUCCESS;
     }

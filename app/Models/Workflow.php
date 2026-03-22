@@ -10,7 +10,6 @@ class Workflow extends Model
 
     protected $with = ['jobs'];
 
-
     public function jobs()
     {
         return $this->hasMany(WorkflowJob::class, 'workflow_id', 'id');
@@ -20,6 +19,6 @@ class Workflow extends Model
         'id',
         'name',
         'state',
-        'conclusion'
+        'conclusion',
     ];
 }

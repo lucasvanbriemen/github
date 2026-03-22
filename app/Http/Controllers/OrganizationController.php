@@ -26,6 +26,7 @@ class OrganizationController extends Controller
     public static function index()
     {
         $organizations = Organization::with('repositories')->get();
+
         return response()->json($organizations);
     }
 }

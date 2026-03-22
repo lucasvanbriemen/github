@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\BaseComment;
+use App\Observers\BaseCommentObserver;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use App\Observers\BaseCommentObserver;
-use App\Models\BaseComment;
 
 class AppServiceProvider extends ServiceProvider
 {

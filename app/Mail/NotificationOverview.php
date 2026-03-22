@@ -23,7 +23,7 @@ class NotificationOverview extends Mailable
     {
         // Your overview of March 15, 2024 (-1day of current date)
         return new Envelope(
-            subject: "Your overview of " . date('F j, Y', strtotime($this->date . ' -1 day')),
+            subject: 'Your overview of '.date('F j, Y', strtotime($this->date.' -1 day')),
         );
     }
 
@@ -32,7 +32,7 @@ class NotificationOverview extends Mailable
         return new Content(
             view: 'emails.notification_overview',
             with: [
-                'digestUrl' => url('/') . '/#/notifications/' . $this->date,
+                'digestUrl' => url('/').'/#/notifications/'.$this->date,
             ],
         );
     }

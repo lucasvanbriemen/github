@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Services\RepositoryService;
 use App\GithubConfig;
+use App\Services\RepositoryService;
+use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
     protected $table = 'items';
+
     protected $primaryKey = 'id';
+
     protected $keyType = 'int';
+
     public $incrementing = false;
+
     public $timestamps = true;
 
     protected $appends = [

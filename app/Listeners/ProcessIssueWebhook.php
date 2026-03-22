@@ -3,11 +3,11 @@
 namespace App\Listeners;
 
 use App\Events\IssuesWebhookReceived;
+use App\GithubConfig;
 use App\Models\GithubUser;
 use App\Models\Issue;
-use App\Models\Repository;
 use App\Models\Notification;
-use App\GithubConfig;
+use App\Models\Repository;
 use App\Services\ImportanceScoreService;
 use App\Services\NotificationAutoResolver;
 
@@ -28,7 +28,7 @@ class ProcessIssueWebhook
     {
         $payload = $event->payload;
 
-        if (!$payload || !isset($payload->issue) || !isset($payload->repository)) {
+        if (! $payload || ! isset($payload->issue) || ! isset($payload->repository)) {
             return false;
         }
         $issueData = $payload->issue;
@@ -43,7 +43,7 @@ class ProcessIssueWebhook
 
         $assigneeGithubIds = [];
         // We have to loop over the assignees to create/update them in the github_users table
-        if (!empty($issueData->assignees) && is_array($issueData->assignees)) {
+        if (! empty($issueData->assignees) && is_array($issueData->assignees)) {
             foreach ($issueData->assignees as $assignee) {
                 $assigneeGithubIds[] = $assignee->id;
 
@@ -59,7 +59,7 @@ class ProcessIssueWebhook
 
         // check if the issue already exists
         $issue = Issue::where('id', $issueData->id)->first();
-        if (!$issue) {
+        if (! $issue) {
             $preHookAssigned = false;
         } else {
             $preHookAssigned = $issue->isCurrentlyAssignedToUser();
@@ -90,7 +90,7 @@ class ProcessIssueWebhook
         }
 
         $currentlyAssigned = $issue->isCurrentlyAssignedToUser();
-        if ($currentlyAssigned && !$preHookAssigned) {
+        if ($currentlyAssigned && ! $preHookAssigned) {
             $senderData = $payload->sender ?? null;
             if ($senderData) {
                 GithubUser::updateFromWebhook($senderData);
@@ -99,16 +99,16 @@ class ProcessIssueWebhook
             // Don't create notification if actor is the configured user
             if ($senderData?->id === GithubConfig::USERID) {
                 // Continue processing but skip notification
-            } elseif (!Notification::where('type', 'item_assigned')
+            } elseif (! Notification::where('type', 'item_assigned')
                 ->where('related_id', $issue->id)
                 ->exists()) {
                 Notification::create([
                     'type' => 'item_assigned',
                     'related_id' => $issue->id,
-                    'triggered_by_id' => $senderData?->id
+                    'triggered_by_id' => $senderData?->id,
                 ]);
             }
-        } elseif (!$currentlyAssigned && $preHookAssigned) {
+        } elseif (! $currentlyAssigned && $preHookAssigned) {
             // Issue was unassigned from user - resolve notifications
             NotificationAutoResolver::resolveTrigger('item_unassigned', $issue->id);
         }

@@ -3,9 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\DeleteWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Models\Branch;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessDeleteWebhook implements ShouldQueue
 {
@@ -28,7 +27,7 @@ class ProcessDeleteWebhook implements ShouldQueue
             Branch::destroy(
                 [
                     'name' => $payload->ref,
-                    'repository_id' => $payload->repository->id
+                    'repository_id' => $payload->repository->id,
                 ]
             );
         }

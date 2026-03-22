@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiHelper;
 use App\Models\Item;
 use App\Services\RepositoryService;
-use App\Helpers\ApiHelper;
 use OpenAI;
 
 class AiReviewController extends Controller
@@ -19,7 +19,7 @@ class AiReviewController extends Controller
         $files = PullRequestController::getFiles($organizationName, $repositoryName, $number);
         $diffText = $this->buildDiffText($files);
 
-        $systemPrompt = <<<SYSTEM
+        $systemPrompt = <<<'SYSTEM'
             You are an AI helping the user to write a self-review of their own code changes in a pull request.
             It's your task to place yourself in the position of a reviewer seeing this code for the first time.
             Your goal is to review all code changes carefully. Flag anything that seems odd, unusual, or noteworthy:
@@ -43,9 +43,9 @@ class AiReviewController extends Controller
         SYSTEM;
 
         $userPrompt = "PR: {$item->title}";
-        $userPrompt .= "\n" . substr($item->body, 0, 500);
-        if (!empty($userContext)) {
-            $userPrompt .= "\nContext: " . substr($userContext, 0, 300);
+        $userPrompt .= "\n".substr($item->body, 0, 500);
+        if (! empty($userContext)) {
+            $userPrompt .= "\nContext: ".substr($userContext, 0, 300);
         }
         $userPrompt .= "\n\nAnalyze this full diff, then identify odd/unclear sections:\n{$diffText}";
 
@@ -73,7 +73,7 @@ class AiReviewController extends Controller
 
         $validItems = array_filter(
             $parsed['unclearItems'],
-            fn($item) => isset($item['path']) && isset($item['line']) && isset($item['code']) && isset($item['reason'])
+            fn ($item) => isset($item['path']) && isset($item['line']) && isset($item['code']) && isset($item['reason'])
         );
 
         return response()->json([
@@ -125,14 +125,14 @@ class AiReviewController extends Controller
         // Build the list of items for the prompt
         $itemsList = '';
         foreach ($itemsWithClarifications as $idx => $item) {
-            $itemText = "Item " . ($idx + 1) . ": {$item['path']}:{$item['line']}\n";
+            $itemText = 'Item '.($idx + 1).": {$item['path']}:{$item['line']}\n";
             $itemText .= "Code: {$item['code']}\n";
             $itemText .= "Clarification: {$item['clarification']}\n\n";
             $itemsList .= $itemText;
         }
 
         // Build GPT-4 prompt for generating comments based on clarifications
-        $systemPrompt = <<<SYSTEM
+        $systemPrompt = <<<'SYSTEM'
             Generate concise inline comments explaining:
             - Why the logic changed this way
             - What the code does that might be unclear without extra context
@@ -168,13 +168,13 @@ class AiReviewController extends Controller
 
         $parsed = json_decode($responseText, true);
 
-        if (!$parsed || !isset($parsed['comments'])) {
-            return response()->json(['error' => 'Failed to parse AI response' ], 400);
+        if (! $parsed || ! isset($parsed['comments'])) {
+            return response()->json(['error' => 'Failed to parse AI response'], 400);
         }
 
         $validComments = array_filter(
             $parsed['comments'],
-            fn($comment) => isset($comment['path']) && isset($comment['line']) && isset($comment['body'])
+            fn ($comment) => isset($comment['path']) && isset($comment['line']) && isset($comment['body'])
         );
 
         return response()->json([
@@ -242,8 +242,9 @@ class AiReviewController extends Controller
             $parts[] = "Changes: +{$file['additions']} -{$file['deletions']}";
 
             if (empty($file['changes'])) {
-                $parts[] = "(No diff hunks)";
-                $parts[] = "";
+                $parts[] = '(No diff hunks)';
+                $parts[] = '';
+
                 continue;
             }
 
@@ -267,7 +268,7 @@ class AiReviewController extends Controller
                     }
                 }
 
-                $parts[] = "";
+                $parts[] = '';
             }
         }
 

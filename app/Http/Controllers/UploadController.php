@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 
 class UploadController extends Controller
 {
@@ -28,13 +28,13 @@ class UploadController extends Controller
             $safeBase = $safeBase !== '' ? $safeBase : 'file';
 
             // example: media/uploads/2025/12/25/image-ysS4TjId.png
-            $filename = $safeBase . '-' . Str::random(8) . ($extension ? ".{$extension}" : '');
+            $filename = $safeBase.'-'.Str::random(8).($extension ? ".{$extension}" : '');
             $storedPath = $file->storeAs($pathPrefix, $filename, 'public');
 
             $out[] = [
                 'name' => $original,
                 'type' => $mime,
-                'url'  => route('media.show', ['path' => $storedPath]),
+                'url' => route('media.show', ['path' => $storedPath]),
                 'path' => $storedPath,
                 'size' => $size,
             ];
@@ -56,7 +56,7 @@ class UploadController extends Controller
             200,
             [
                 'Content-Type' => $mime,
-                'Content-Disposition' => 'inline; filename="' . $filename . '"',
+                'Content-Disposition' => 'inline; filename="'.$filename.'"',
                 'Cache-Control' => 'public, max-age=31536000',
             ]
         );

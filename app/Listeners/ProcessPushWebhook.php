@@ -3,11 +3,11 @@
 namespace App\Listeners;
 
 use App\Events\PushWebhookReceived;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\Branch;
 use App\Models\Commit;
 use App\Models\GithubUser;
-use App\Models\Branch;
 use App\Models\Repository;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProcessPushWebhook // implements ShouldQueue
 {
@@ -45,19 +45,19 @@ class ProcessPushWebhook // implements ShouldQueue
         $branch = Branch::updateOrCreate(
             [
                 'name' => $branchName,
-                'repository_id' => $repository->id
+                'repository_id' => $repository->id,
             ],
             ['updated_at' => now()]
         );
 
         // If there are no commits, we can stop here
-        if (!isset($payload->commits) || empty($payload->commits)) {
+        if (! isset($payload->commits) || empty($payload->commits)) {
             return;
         }
 
         foreach ($payload->commits as $commitData) {
             $author = GithubUser::where('name', $commitData->author->username)->first();
-            if (!$author) {
+            if (! $author) {
                 return;
             }
 
