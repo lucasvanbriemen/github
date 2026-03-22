@@ -303,6 +303,18 @@ class ItemController extends Controller
         }
 
         if (! isset($item->review_status)) {
+            // Config: current month milestone → promote to actionable
+            if (! empty($rules['current_milestone_group']) && $item->milestone) {
+                $dueOn = $item->milestone->due_on;
+                if ($dueOn) {
+                    $due = Carbon::parse($dueOn);
+                    $now = Carbon::now();
+                    if ($due->year === $now->year && $due->month === $now->month) {
+                        return $rules['current_milestone_group'];
+                    }
+                }
+            }
+
             return 'issues';
         }
 

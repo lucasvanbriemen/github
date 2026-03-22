@@ -83,6 +83,7 @@ class GithubConfig
             ],
             'grouping_rules' => [
                 'future_milestone_group' => 'upcoming',
+                'current_milestone_group' => 'needs_action',
                 'label_overrides' => [
                     [
                         'label' => 'needs uat',
