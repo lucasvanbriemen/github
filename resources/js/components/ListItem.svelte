@@ -4,8 +4,7 @@
 
   let { item } = $props();
 
-  // let isIssueOrPR = $derived(item.type === 'issue' || item.type === 'pull_request');
-  let isIssueOrPR = false;
+  let isPR = $derived(item.type === 'pull_request' && item.review_status);
 
   function itemUrl(number) {
     const base = window.location.origin;
@@ -48,12 +47,40 @@
     <div class="meta">
       {subTitle()}
 
-      {#if isIssueOrPR}
+      {#if isPR}
         <span class="devider"></span>
-        
-        {item.working_state}
+        <span class="review-status review-status--{item.review_status}">
+          <Icon name={item.review_status === 'no_reviewers' ? 'pending' : (item.review_status === 'draft' ? 'pull_request' : item.review_status)} size="0.875rem" />
+          {#if item.review_status === 'approved'}
+            Approved
+          {:else if item.review_status === 'changes_requested'}
+            Changes requested
+          {:else if item.review_status === 'pending'}
+            Pending review
+          {:else if item.review_status === 'draft'}
+            Draft
+          {:else if item.review_status === 'no_reviewers'}
+            No reviewers
+          {/if}
+        </span>
+
+        {#if item.ci_status === 'failure'}
+          <span class="devider"></span>
+          <span class="review-status review-status--ci-failure">
+            <Icon name="cross" size="0.875rem" />
+            CI failing
+          </span>
+        {/if}
+
+        {#if item.has_conflicts}
+          <span class="devider"></span>
+          <span class="review-status review-status--conflicts">
+            <Icon name="cross" size="0.875rem" />
+            Merge conflicts
+          </span>
+        {/if}
       {/if}
-      
+
       {#if item.labels?.length > 0}
         <span class="devider"></span>
 
