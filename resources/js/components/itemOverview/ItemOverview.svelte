@@ -22,7 +22,7 @@
 
   const isPR = $derived(type === 'prs');
 
-  const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues'];
+  const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues', 'upcoming'];
   const GROUP_LABELS = {
     needs_action: 'Needs your action',
     approved: 'Approved',
@@ -30,36 +30,17 @@
     no_reviewers: 'No reviewers',
     draft: 'Draft',
     issues: 'Issues',
+    upcoming: 'Upcoming',
   };
 
-  function getItemGroup(item) {
-    if (!item.review_status) return 'issues';
-
-    const userId = parseInt(window.USER_ID);
-    const reviewers = item.requested_reviewers || [];
-    const userReview = reviewers.find(r => r.user_id === userId);
-    const userNeedsToReview = userReview && (userReview.state === 'pending' || userReview.state === 'changes_requested');
-    const userIsAuthor = item.opened_by_id === userId;
-    const ciFailure = item.ci_status === 'failure';
-    const hasConflicts = item.has_conflicts === true;
-
-    if (userNeedsToReview || (userIsAuthor && item.review_status === 'changes_requested') || (userIsAuthor && ciFailure) || (userIsAuthor && hasConflicts)) {
-      return 'needs_action';
-    }
-    if (item.review_status === 'approved') return 'approved';
-    if (item.review_status === 'draft') return 'draft';
-    if (item.review_status === 'no_reviewers') return 'no_reviewers';
-    return 'pending';
-  }
-
-  let shouldGroup = $derived(state === 'open' && items.some(i => i.review_status));
+  let shouldGroup = $derived(items.some(i => i.group));
 
   let groupedItems = $derived.by(() => {
     if (!shouldGroup || !items.length) return [];
 
     const groups = {};
     for (const item of items) {
-      const group = getItemGroup(item);
+      const group = item.group || 'issues';
       if (!groups[group]) groups[group] = [];
       groups[group].push(item);
     }
