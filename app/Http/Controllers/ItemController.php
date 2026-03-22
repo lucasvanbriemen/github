@@ -242,7 +242,7 @@ class ItemController extends Controller
 
     private function computeItemGroup($item, $organizationName)
     {
-        $rules = GithubConfig::ORG_RULES[$organizationName]['grouping_rules'] ?? [];
+        $rules = GithubConfig::ORG_RULES[strtolower($organizationName)]['grouping_rules'] ?? [];
 
         // Config: future milestone → configured group
         if (! empty($rules['future_milestone_group']) && $item->milestone) {

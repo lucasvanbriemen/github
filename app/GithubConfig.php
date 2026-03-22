@@ -85,9 +85,13 @@ class GithubConfig
                 'future_milestone_group' => 'upcoming',
                 'label_overrides' => [
                     [
-                        'label' => 'needs-uat',
+                        'label' => 'needs uat',
                         'group' => 'pending',
                         'except_review_status' => ['changes_requested'],
+                    ],
+                    [
+                        'label' => 'changes requested',
+                        'group' => 'needs_action',
                     ],
                 ],
             ],
