@@ -20,8 +20,6 @@
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
 
-  const isPR = $derived(type === 'prs');
-
   const POSSABLE_ITEM_STATES = [
     { value: 'open', label: 'Open' },
     { value: 'closed', label: 'Closed' },
