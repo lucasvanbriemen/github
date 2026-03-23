@@ -47,37 +47,6 @@
     <div class="meta">
       {subTitle()}
 
-      {#if isPR}
-        <span class="devider"></span>
-        <span class="review-status review-status--{item.review_status}">
-          {#if item.review_status === 'approved'}
-            Approved
-          {:else if item.review_status === 'changes_requested'}
-            Changes requested
-          {:else if item.review_status === 'pending'}
-            Pending review
-          {:else if item.review_status === 'draft'}
-            Draft
-          {:else if item.review_status === 'no_reviewers'}
-            No reviewers
-          {/if}
-        </span>
-
-        {#if item.ci_status === 'failure'}
-          <span class="devider"></span>
-          <span class="review-status review-status--ci-failure">
-            CI failing
-          </span>
-        {/if}
-
-        {#if item.has_conflicts}
-          <span class="devider"></span>
-          <span class="review-status review-status--conflicts">
-            Merge conflicts
-          </span>
-        {/if}
-      {/if}
-
       {#if item.labels?.length > 0}
         <span class="devider"></span>
 
