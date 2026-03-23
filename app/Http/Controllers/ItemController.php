@@ -107,7 +107,7 @@ class ItemController extends Controller
                     $reviewStatus = 'no_reviewers';
                 } elseif ($reviewers->contains('state', 'changes_requested')) {
                     $reviewStatus = 'changes_requested';
-                } elseif ($reviewers->every(fn ($r) => $r->state === 'approved')) {
+                } elseif ($reviewers->contains('state', 'approved') && $reviewers->every(fn ($r) => in_array($r->state, ['approved', 'commented']))) {
                     $reviewStatus = 'approved';
                 } else {
                     $reviewStatus = 'pending';
@@ -216,7 +216,7 @@ class ItemController extends Controller
                     $item->review_status = 'no_reviewers';
                 } elseif ($reviewers->contains('state', 'changes_requested')) {
                     $item->review_status = 'changes_requested';
-                } elseif ($reviewers->every(fn ($r) => $r->state === 'approved')) {
+                } elseif ($reviewers->contains('state', 'approved') && $reviewers->every(fn ($r) => in_array($r->state, ['approved', 'commented']))) {
                     $item->review_status = 'approved';
                 } else {
                     $item->review_status = 'pending';
