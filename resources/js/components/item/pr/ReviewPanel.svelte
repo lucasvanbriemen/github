@@ -35,7 +35,6 @@
       }
     );
 
-    reviewBody = '';
     pendingReviewComments = [];
     reviewMenuOpen = false;
   }
