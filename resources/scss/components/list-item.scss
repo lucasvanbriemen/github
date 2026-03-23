@@ -81,35 +81,6 @@
         opacity: 0.5;
       }
 
-      .review-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-
-        &--approved {
-          color: var(--success-color);
-        }
-        &--changes_requested {
-          color: var(--error-color);
-        }
-        &--pending {
-          color: var(--text-color-secondary);
-        }
-        &--draft {
-          color: var(--draft-color);
-        }
-        &--no_reviewers {
-          color: var(--text-color-secondary);
-          opacity: 0.6;
-        }
-        &--ci-failure {
-          color: var(--error-color);
-        }
-        &--conflicts {
-          color: var(--error-color);
-        }
-      }
-
       .label {
         margin: 0.25rem;
         padding: 0.25rem 0.5rem;
