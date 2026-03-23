@@ -4,8 +4,6 @@
 
   let { item } = $props();
 
-  let isPR = $derived(item.type === 'pull_request' && item.review_status);
-
   function itemUrl(number) {
     const base = window.location.origin;
 
