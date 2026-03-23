@@ -50,7 +50,6 @@
       {#if isPR}
         <span class="devider"></span>
         <span class="review-status review-status--{item.review_status}">
-          <Icon name={item.review_status === 'no_reviewers' ? 'pending' : (item.review_status === 'draft' ? 'pull_request' : item.review_status)} size="0.875rem" />
           {#if item.review_status === 'approved'}
             Approved
           {:else if item.review_status === 'changes_requested'}
@@ -67,7 +66,6 @@
         {#if item.ci_status === 'failure'}
           <span class="devider"></span>
           <span class="review-status review-status--ci-failure">
-            <Icon name="cross" size="0.875rem" />
             CI failing
           </span>
         {/if}
@@ -75,7 +73,6 @@
         {#if item.has_conflicts}
           <span class="devider"></span>
           <span class="review-status review-status--conflicts">
-            <Icon name="cross" size="0.875rem" />
             Merge conflicts
           </span>
         {/if}
