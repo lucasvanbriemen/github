@@ -4,9 +4,6 @@
 
   let { item } = $props();
 
-  // let isIssueOrPR = $derived(item.type === 'issue' || item.type === 'pull_request');
-  let isIssueOrPR = false;
-
   function itemUrl(number) {
     const base = window.location.origin;
 
@@ -48,12 +45,6 @@
     <div class="meta">
       {subTitle()}
 
-      {#if isIssueOrPR}
-        <span class="devider"></span>
-        
-        {item.working_state}
-      {/if}
-      
       {#if item.labels?.length > 0}
         <span class="devider"></span>
 
