@@ -256,21 +256,6 @@ class ItemController extends Controller
             }
         }
 
-        // Config: label overrides
-        if (! empty($rules['label_overrides'])) {
-            $labels = is_string($item->labels) ? (json_decode($item->labels, true) ?? []) : ($item->labels ?? []);
-            foreach ($rules['label_overrides'] as $rule) {
-                $hasLabel = collect($labels)->contains(fn ($l) => strtolower($l['name'] ?? '') === strtolower($rule['label'])
-                );
-                if ($hasLabel) {
-                    $excluded = $rule['except_review_status'] ?? [];
-                    if (! in_array($item->review_status ?? null, $excluded)) {
-                        return $rule['group'];
-                    }
-                }
-            }
-        }
-
         // For issues, derive group from linked PRs
         if (! isset($item->review_status) && ! empty($item->linked_prs)) {
             $statuses = collect($item->linked_prs)

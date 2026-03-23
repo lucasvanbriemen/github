@@ -88,7 +88,6 @@ class GithubConfig
                     [
                         'label' => 'needs uat',
                         'group' => 'pending',
-                        'except_review_status' => ['changes_requested'],
                     ],
                     [
                         'label' => 'changes requested',
