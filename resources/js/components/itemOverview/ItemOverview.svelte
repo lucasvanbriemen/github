@@ -20,8 +20,6 @@
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
 
-  const isPR = $derived(type === 'prs');
-
   const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues'];
   const GROUP_LABELS = {
     needs_action: 'Needs your action',
