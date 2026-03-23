@@ -22,15 +22,14 @@
 
   const isPR = $derived(type === 'prs');
 
-  const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues', 'upcoming'];
+  const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues'];
   const GROUP_LABELS = {
     needs_action: 'Needs your action',
     approved: 'Approved',
     pending: 'Pending review',
     no_reviewers: 'No reviewers',
     draft: 'Draft',
-    issues: 'Issues',
-    upcoming: 'Upcoming',
+    issues: 'Issues'
   };
 
   let shouldGroup = $derived(items.some(i => i.group));

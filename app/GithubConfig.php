@@ -82,7 +82,7 @@ class GithubConfig
                 ],
             ],
             'grouping_rules' => [
-                'future_milestone_group' => 'upcoming',
+                'future_milestone_group' => 'waiting',
                 'current_milestone_group' => 'needs_action',
                 'label_overrides' => [
                     [
