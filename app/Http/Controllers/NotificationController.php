@@ -169,10 +169,6 @@ class NotificationController extends Controller
             ->where('completed', false)
             ->pluck('id');
 
-        if ($ids->isEmpty()) {
-            return;
-        }
-
         Notification::whereIn('id', $ids)->update(['emailed_at' => $today]);
 
         Mail::to(GithubConfig::USER_EMAIL)->send(new NotificationOverview($today));
