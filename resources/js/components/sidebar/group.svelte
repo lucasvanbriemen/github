@@ -1,6 +1,8 @@
 <script>
+  import { onMount } from "svelte";
+
   let { title, children } = $props();
-  let isOpen = $state(false);
+  let isOpen = $state(true);
 
   let maxHeight = $state(0);
   let body;
@@ -15,6 +17,11 @@
       body.style.maxHeight = 0;
     }
   }
+
+  onMount(() => {
+    maxHeight = body.scrollHeight;
+    body.style.maxHeight = maxHeight + 'px';
+  });
 </script>
 
 <div class="group" class:open={isOpen}>
