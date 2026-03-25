@@ -93,6 +93,10 @@ class GithubConfig
                         'label' => 'changes requested',
                         'group' => 'needs_action',
                     ],
+                    [
+                        'label' => 'waiting',
+                        'group' => 'waiting',
+                    ]
                 ],
             ],
         ],
