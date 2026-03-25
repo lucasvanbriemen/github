@@ -434,7 +434,61 @@ class DiffRenderer
             }
         }
 
-        return $pairingMap;
+        return $this->removeCrossingPairs($pairingMap);
+    }
+
+    /**
+     * Remove crossing pairs from a pairing map to ensure monotonic ordering.
+     * A crossing is when old_i < old_j but new_i > new_j, which causes the
+     * row builder to scramble lines. Uses longest increasing subsequence to
+     * maximize retained pairs.
+     */
+    private function removeCrossingPairs(array $pairingMap): array
+    {
+        if (count($pairingMap) <= 1) {
+            return $pairingMap;
+        }
+
+        ksort($pairingMap);
+        $keys = array_keys($pairingMap);
+        $values = array_values($pairingMap);
+        $n = count($values);
+
+        // Find longest increasing subsequence of new indices
+        $dp = array_fill(0, $n, 1);
+        $prev = array_fill(0, $n, -1);
+        $bestLen = 1;
+        $bestEnd = 0;
+
+        for ($i = 1; $i < $n; $i++) {
+            for ($j = 0; $j < $i; $j++) {
+                if ($values[$j] < $values[$i] && $dp[$j] + 1 > $dp[$i]) {
+                    $dp[$i] = $dp[$j] + 1;
+                    $prev[$i] = $j;
+                }
+            }
+            if ($dp[$i] > $bestLen) {
+                $bestLen = $dp[$i];
+                $bestEnd = $i;
+            }
+        }
+
+        // Reconstruct LIS
+        $lisPositions = [];
+        $pos = $bestEnd;
+        while ($pos >= 0) {
+            $lisPositions[] = $pos;
+            $pos = $prev[$pos];
+        }
+        $lisPositions = array_reverse($lisPositions);
+
+        // Build filtered map keeping only non-crossing pairs
+        $filtered = [];
+        foreach ($lisPositions as $pos) {
+            $filtered[$keys[$pos]] = $values[$pos];
+        }
+
+        return $filtered;
     }
 
     /**
