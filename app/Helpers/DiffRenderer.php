@@ -462,7 +462,7 @@ class DiffRenderer
 
         for ($i = 1; $i < $n; $i++) {
             for ($j = 0; $j < $i; $j++) {
-                if ($values[$j] < $values[$i] && $dp[$j] + 1 > $dp[$i]) {
+                if ($values[$j] < $values[$i] && $dp[$i] < $dp[$j] + 1) {
                     $dp[$i] = $dp[$j] + 1;
                     $prev[$i] = $j;
                 }
