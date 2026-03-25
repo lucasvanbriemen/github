@@ -27,7 +27,7 @@
     pending: 'Pending review',
     no_reviewers: 'No reviewers',
     draft: 'Draft',
-    issues: 'Issues'
+    issues: 'Issues without linked PRs',
   };
 
   let shouldGroup = $derived(items.some(i => i.group));
