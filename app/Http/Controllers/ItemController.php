@@ -75,7 +75,7 @@ class ItemController extends Controller
         $allPrs = Item::where('repository_id', $repository->id)
             ->where('type', 'pull_request')
             ->select(['id', 'number', 'title', 'state', 'body', 'labels', 'created_at', 'opened_by_id'])
-            ->with(['openedBy:id,display_name,avatar_url', 'details:id,head_branch'])
+            ->with(['openedBy:id,display_name,avatar_url', 'details:id,head_branch', 'requestedReviewers:id,pull_request_id,user_id,state'])
             ->get();
 
         // Step 2: Parse PR bodies for "Closes/Fixes/Resolves #N" keywords
@@ -100,10 +100,24 @@ class ItemController extends Controller
             if (! empty($linkedIssueNumbers)) {
                 $linkedPrNumbers[] = $pr->number;
 
+                $reviewers = $pr->requestedReviewers;
+                if ($pr->state === 'draft') {
+                    $reviewStatus = 'draft';
+                } elseif ($reviewers->isEmpty()) {
+                    $reviewStatus = 'no_reviewers';
+                } elseif ($reviewers->contains('state', 'changes_requested')) {
+                    $reviewStatus = 'changes_requested';
+                } elseif ($reviewers->contains('state', 'approved') && $reviewers->every(fn ($r) => in_array($r->state, ['approved', 'commented']))) {
+                    $reviewStatus = 'approved';
+                } else {
+                    $reviewStatus = 'pending';
+                }
+
                 $prData = [
                     'number' => $pr->number,
                     'title' => $pr->title,
                     'state' => $pr->state,
+                    'review_status' => $reviewStatus,
                     'head_branch' => $pr->details->head_branch ?? null,
                     'opened_by' => $pr->openedBy ? [
                         'display_name' => $pr->openedBy->display_name,
@@ -157,10 +171,13 @@ class ItemController extends Controller
             $query->where('milestone_id', $milestone);
         }
 
-        $items = $query->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type'])
+        $items = $query->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type', 'milestone_id'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
+                'requestedReviewers:id,pull_request_id,user_id,state',
+                'details:id,head_sha',
+                'milestone:id,title,due_on',
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(30, ['*'], 'page', $page);
@@ -174,7 +191,173 @@ class ItemController extends Controller
             }
         }
 
+        // Step 5: Batch load review status, CI status, and merge conflicts for PRs
+        $prItems = $items->getCollection()->filter(fn ($item) => $item->type === 'pull_request');
+
+        if ($prItems->isNotEmpty()) {
+            $headShas = $prItems
+                ->map(fn ($item) => $item->details?->head_sha)
+                ->filter()
+                ->values()
+                ->all();
+
+            $commits = Commit::whereIn('sha', $headShas)
+                ->with(['workflow' => fn ($q) => $q->without('jobs')->select(['id', 'state', 'conclusion'])])
+                ->get()
+                ->keyBy('sha');
+
+            $mergeableMap = $this->batchFetchMergeableStatus($organizationName, $repositoryName, $prItems);
+
+            foreach ($prItems as $item) {
+                $reviewers = $item->requestedReviewers;
+                if ($item->state === 'draft') {
+                    $item->review_status = 'draft';
+                } elseif ($reviewers->isEmpty()) {
+                    $item->review_status = 'no_reviewers';
+                } elseif ($reviewers->contains('state', 'changes_requested')) {
+                    $item->review_status = 'changes_requested';
+                } elseif ($reviewers->contains('state', 'approved') && $reviewers->every(fn ($r) => in_array($r->state, ['approved', 'commented']))) {
+                    $item->review_status = 'approved';
+                } else {
+                    $item->review_status = 'pending';
+                }
+
+                $workflow = $commits->get($item->details?->head_sha)?->workflow;
+                $item->ci_status = $workflow?->conclusion;
+                $item->has_conflicts = $mergeableMap[$item->number] ?? false;
+
+                unset($item->details);
+            }
+        }
+
+        // Step 6: Compute group for each item (only when viewing open state)
+        if ($state === 'open') {
+            foreach ($items as $item) {
+                $item->group = $this->computeItemGroup($item, $organizationName);
+            }
+        }
+
         return response()->json($items);
+    }
+
+    private function computeItemGroup($item, $organizationName)
+    {
+        $rules = GithubConfig::ORG_RULES[strtolower($organizationName)]['grouping_rules'] ?? [];
+
+        // Config: future milestone → configured group
+        if (! empty($rules['future_milestone_group']) && $item->milestone) {
+            $dueOn = $item->milestone->due_on;
+            if ($dueOn) {
+                $due = Carbon::parse($dueOn);
+                $now = Carbon::now();
+                if ($due->year * 12 + $due->month > $now->year * 12 + $now->month) {
+                    return $rules['future_milestone_group'];
+                }
+            }
+        }
+
+        // For issues, derive group from linked PRs
+        if (! isset($item->review_status) && ! empty($item->linked_prs)) {
+            $statuses = collect($item->linked_prs)
+                ->filter(fn ($pr) => in_array($pr['state'], ['open', 'draft']))
+                ->pluck('review_status')
+                ->filter()
+                ->values();
+
+            if ($statuses->isEmpty()) {
+                return 'issues';
+            }
+
+            if ($statuses->contains('approved')) {
+                return 'approved';
+            }
+            if ($statuses->contains('changes_requested')) {
+                return 'needs_action';
+            }
+            if ($statuses->contains('pending')) {
+                return 'pending';
+            }
+            if ($statuses->contains('no_reviewers')) {
+                return 'no_reviewers';
+            }
+            if ($statuses->contains('draft')) {
+                return 'draft';
+            }
+
+            return 'pending';
+        }
+
+        if (! isset($item->review_status)) {
+            // Config: current month milestone → promote to actionable
+            if (! empty($rules['current_milestone_group']) && $item->milestone) {
+                $dueOn = $item->milestone->due_on;
+                if ($dueOn) {
+                    $due = Carbon::parse($dueOn);
+                    $now = Carbon::now();
+                    if ($due->year === $now->year && $due->month === $now->month) {
+                        return $rules['current_milestone_group'];
+                    }
+                }
+            }
+
+            return 'issues';
+        }
+
+        // PR grouping logic
+        $userId = GithubConfig::USERID;
+        $reviewers = $item->requestedReviewers ?? collect();
+        $userReview = $reviewers->firstWhere('user_id', $userId);
+        $userNeedsToReview = $userReview && in_array($userReview->state, ['pending', 'changes_requested']);
+        $userIsAuthor = $item->opened_by_id === $userId;
+        $ciFailure = ($item->ci_status ?? null) === 'failure';
+        $hasConflicts = ($item->has_conflicts ?? false) === true;
+
+        if ($userNeedsToReview || ($userIsAuthor && $item->review_status === 'changes_requested') || ($userIsAuthor && $ciFailure) || ($userIsAuthor && $hasConflicts)) {
+            return 'needs_action';
+        }
+        if ($item->review_status === 'approved') {
+            return 'approved';
+        }
+        if ($item->review_status === 'draft') {
+            return 'draft';
+        }
+        if ($item->review_status === 'no_reviewers') {
+            return 'no_reviewers';
+        }
+
+        return 'pending';
+    }
+
+    private function batchFetchMergeableStatus($organizationName, $repositoryName, $items)
+    {
+        $openPrs = $items->filter(fn ($item) => $item->state === 'open');
+
+        if ($openPrs->isEmpty()) {
+            return [];
+        }
+
+        $fragments = $openPrs->map(fn ($item) => "pr_{$item->number}: pullRequest(number: {$item->number}) { mergeable }"
+        )->implode("\n");
+
+        $query = "query (\$owner: String!, \$repo: String!) {
+            repository(owner: \$owner, name: \$repo) {
+                {$fragments}
+            }
+        }";
+
+        $response = ApiHelper::githubGraphql($query, [
+            'owner' => $organizationName,
+            'repo' => $repositoryName,
+        ]);
+
+        $map = [];
+        foreach ($openPrs as $item) {
+            $alias = "pr_{$item->number}";
+            $mergeable = $response?->data?->repository?->{$alias}?->mergeable ?? null;
+            $map[$item->number] = $mergeable === 'CONFLICTING';
+        }
+
+        return $map;
     }
 
     public function getLinkedItems($organizationName, $repositoryName, $number)

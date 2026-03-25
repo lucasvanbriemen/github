@@ -32,6 +32,15 @@
     margin-top: 0.5rem;
   }
 
+  .group-label {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
   .linked-prs {
     margin-left: 1.5rem;
     padding-left: 0.75rem;

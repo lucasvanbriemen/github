@@ -20,6 +20,33 @@
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
 
+  const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues'];
+  const GROUP_LABELS = {
+    needs_action: 'Needs your action',
+    approved: 'Approved',
+    pending: 'Pending review',
+    no_reviewers: 'No reviewers',
+    draft: 'Draft',
+    issues: 'Issues without linked PRs',
+  };
+
+  let shouldGroup = $derived(items.some(i => i.group));
+
+  let groupedItems = $derived.by(() => {
+    if (!shouldGroup || !items.length) return [];
+
+    const groups = {};
+    for (const item of items) {
+      const group = item.group || 'issues';
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(item);
+    }
+
+    return GROUP_ORDER
+      .filter(key => groups[key]?.length)
+      .map(key => ({ key, label: GROUP_LABELS[key], items: groups[key] }));
+  });
+
   const POSSABLE_ITEM_STATES = [
     { value: 'open', label: 'Open' },
     { value: 'closed', label: 'Closed' },
@@ -146,17 +173,34 @@
         <PrNotice item={branch} />
       {/each}
 
-      {#each items as item}
-        <ListItem {item} />
+      {#if shouldGroup && groupedItems.length}
+        {#each groupedItems as group}
+          <div class="group-label">{group.label}</div>
+          {#each group.items as item}
+            <ListItem {item} />
 
-        {#if item.linked_prs?.length > 0}
-          <div class="linked-prs">
-            {#each item.linked_prs as pr}
-              <LinkedPrItem {pr} />
-            {/each}
-          </div>
-        {/if}
-      {/each}
+            {#if item.linked_prs?.length > 0}
+              <div class="linked-prs">
+                {#each item.linked_prs as pr}
+                  <LinkedPrItem {pr} />
+                {/each}
+              </div>
+            {/if}
+          {/each}
+        {/each}
+      {:else}
+        {#each items as item}
+          <ListItem {item} />
+
+          {#if item.linked_prs?.length > 0}
+            <div class="linked-prs">
+              {#each item.linked_prs as pr}
+                <LinkedPrItem {pr} />
+              {/each}
+            </div>
+          {/if}
+        {/each}
+      {/if}
 
       {#if paginationLinks.length > 3}
         <Pagination links={paginationLinks} onSelect={(page) => getItems(page)} />

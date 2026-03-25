@@ -81,6 +81,24 @@ class GithubConfig
                     'value' => 'needs-uat',
                 ],
             ],
+            'grouping_rules' => [
+                'future_milestone_group' => 'waiting',
+                'current_milestone_group' => 'needs_action',
+                'label_overrides' => [
+                    [
+                        'label' => 'needs uat',
+                        'group' => 'pending',
+                    ],
+                    [
+                        'label' => 'changes requested',
+                        'group' => 'needs_action',
+                    ],
+                    [
+                        'label' => 'waiting',
+                        'group' => 'waiting',
+                    ],
+                ],
+            ],
         ],
 
         'lucasvanbriemen' => [
