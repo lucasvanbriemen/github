@@ -175,10 +175,7 @@
 
       {#if shouldGroup && groupedItems.length}
         {#each groupedItems as group}
-          <div class="group-header">
-            <span class="group-label">{group.label}</span>
-            <span class="group-count">{group.items.length}</span>
-          </div>
+          <div class="group-label">{group.label}</div>
           {#each group.items as item}
             <ListItem {item} />
 

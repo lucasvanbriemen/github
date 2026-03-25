@@ -96,7 +96,7 @@ class GithubConfig
                     [
                         'label' => 'waiting',
                         'group' => 'waiting',
-                    ]
+                    ],
                 ],
             ],
         ],

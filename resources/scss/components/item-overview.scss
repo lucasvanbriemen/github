@@ -32,33 +32,13 @@
     margin-top: 0.5rem;
   }
 
-  .group-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
+  .group-label {
     margin-top: 0.5rem;
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    .group-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-color-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    .group-count {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-color-secondary);
-      background-color: var(--background-color-two);
-      padding: 0.1rem 0.45rem;
-      border-radius: 1rem;
-    }
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .linked-prs {
