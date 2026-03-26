@@ -397,8 +397,10 @@ class DiffRenderer
             $delContent = (string) ($delLine['content'] ?? '');
             $delNoWs = preg_replace('/\s/u', '', $delContent);
 
-            $bestDistance = PHP_INT_MAX;
-            $bestNewIdx = null;
+            $bestPerfectRawDistance = PHP_INT_MAX;
+            $bestPerfectIdx = null;
+            $bestPartialDistance = PHP_INT_MAX;
+            $bestPartialIdx = null;
 
             foreach ($additions as $newIdx => $addLine) {
                 // Skip already used additions
@@ -409,11 +411,18 @@ class DiffRenderer
                 $addContent = (string) ($addLine['content'] ?? '');
                 $addNoWs = preg_replace('/\s/u', '', $addContent);
 
-                // Perfect match ignoring whitespace
+                // Perfect match ignoring whitespace — prefer closest indentation
                 if ($delNoWs === $addNoWs && $delNoWs !== '') {
-                    $bestDistance = 0;
-                    $bestNewIdx = $newIdx;
-                    break; // Take the first perfect match
+                    $rawDistance = levenshtein($delContent, $addContent);
+                    if ($rawDistance < $bestPerfectRawDistance) {
+                        $bestPerfectRawDistance = $rawDistance;
+                        $bestPerfectIdx = $newIdx;
+                        if ($rawDistance === 0) {
+                            break; // Exact match including whitespace
+                        }
+                    }
+
+                    continue;
                 }
 
                 // Use Levenshtein distance for partial matching
@@ -422,11 +431,14 @@ class DiffRenderer
                 $avgLen = (strlen($delNoWs) + strlen($addNoWs)) / 2;
                 $normalizedDistance = $avgLen > 0 ? $distance / $avgLen : $distance;
 
-                if ($normalizedDistance < $bestDistance && $normalizedDistance < 0.3) {
-                    $bestDistance = $normalizedDistance;
-                    $bestNewIdx = $newIdx;
+                if ($normalizedDistance < $bestPartialDistance && $normalizedDistance < 0.3) {
+                    $bestPartialDistance = $normalizedDistance;
+                    $bestPartialIdx = $newIdx;
                 }
             }
+
+            // Perfect content matches always take priority over partial matches
+            $bestNewIdx = $bestPerfectIdx ?? $bestPartialIdx;
 
             if ($bestNewIdx !== null) {
                 $pairingMap[$oldIdx] = $bestNewIdx;
