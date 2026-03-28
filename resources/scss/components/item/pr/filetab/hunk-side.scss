@@ -6,11 +6,9 @@
     width: 100%;
     display: flex;
 
-    &:hover {
-      .add-comment-button {
-        opacity: 1;
-        pointer-events: auto;
-      }
+    &:hover .add-comment-button {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 
