@@ -20,11 +20,13 @@
   let branchesForNotice = $state([]);
   let selectableMilestones = $state([]);
 
-  const GROUP_ORDER = ['needs_action', 'approved', 'pending', 'no_reviewers', 'draft', 'issues'];
+  const GROUP_ORDER = ['needs_action', 'todo', 'approved', 'pending', 'waiting', 'no_reviewers', 'draft', 'issues'];
   const GROUP_LABELS = {
     needs_action: 'Needs your action',
+    todo: 'To do',
     approved: 'Approved',
     pending: 'Pending review',
+    waiting: 'Waiting',
     no_reviewers: 'No reviewers',
     draft: 'Draft',
     issues: 'Issues without linked PRs',

@@ -244,6 +244,18 @@ class ItemController extends Controller
     {
         $rules = GithubConfig::ORG_RULES[strtolower($organizationName)]['grouping_rules'] ?? [];
 
+        // Label overrides take highest priority (explicit human signal)
+        if (! empty($rules['label_overrides'])) {
+            $rawLabels = is_string($item->labels) ? json_decode($item->labels, true) : ($item->labels ?? []);
+            $itemLabelNames = array_map(fn ($l) => strtolower(is_array($l) ? ($l['name'] ?? '') : $l), $rawLabels ?: []);
+
+            foreach ($rules['label_overrides'] as $override) {
+                if (in_array(strtolower($override['label']), $itemLabelNames)) {
+                    return $override['group'];
+                }
+            }
+        }
+
         // Config: future milestone → configured group
         if (! empty($rules['future_milestone_group']) && $item->milestone) {
             $dueOn = $item->milestone->due_on;
@@ -268,11 +280,11 @@ class ItemController extends Controller
                 return 'issues';
             }
 
-            if ($statuses->contains('approved')) {
-                return 'approved';
-            }
             if ($statuses->contains('changes_requested')) {
                 return 'needs_action';
+            }
+            if ($statuses->contains('approved')) {
+                return 'approved';
             }
             if ($statuses->contains('pending')) {
                 return 'pending';
@@ -288,7 +300,7 @@ class ItemController extends Controller
         }
 
         if (! isset($item->review_status)) {
-            // Config: current month milestone → promote to actionable
+            // Config: current month milestone → to do
             if (! empty($rules['current_milestone_group']) && $item->milestone) {
                 $dueOn = $item->milestone->due_on;
                 if ($dueOn) {

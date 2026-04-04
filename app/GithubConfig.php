@@ -83,19 +83,19 @@ class GithubConfig
             ],
             'grouping_rules' => [
                 'future_milestone_group' => 'waiting',
-                'current_milestone_group' => 'needs_action',
+                'current_milestone_group' => 'todo',
                 'label_overrides' => [
                     [
+                        'label' => 'waiting',
+                        'group' => 'waiting',
+                    ],
+                    [
                         'label' => 'needs uat',
-                        'group' => 'pending',
+                        'group' => 'waiting',
                     ],
                     [
                         'label' => 'changes requested',
                         'group' => 'needs_action',
-                    ],
-                    [
-                        'label' => 'waiting',
-                        'group' => 'waiting',
                     ],
                 ],
             ],
