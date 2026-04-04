@@ -52,14 +52,14 @@
 
         <div class="repositories">
           {#each org.repositories as repo}
-            <button class="repository" onclick={() => selectRepository(org, repo)}>
+            <a class="repository" href={`#/${org.name}/${repo.name}`} onclick={() => selectRepository(org, repo)}>
               <h3 class="title">{repo.name}</h3>
               {#if repo.description}
                 <span class="description">{repo.description}</span>
               {:else}
                 <span class="no-description">No description provided.</span>
               {/if}
-            </button>
+            </a>
           {/each}
         </div>
       </div>
