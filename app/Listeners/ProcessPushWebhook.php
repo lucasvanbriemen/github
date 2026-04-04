@@ -3,9 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\PushWebhookReceived;
+use App\Helpers\Ably;
 use App\Models\Branch;
 use App\Models\Commit;
 use App\Models\GithubUser;
+use App\Models\Item;
+use App\Models\PullRequestDetails;
 use App\Models\Repository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -71,6 +74,20 @@ class ProcessPushWebhook // implements ShouldQueue
                     'message' => $commitData->message,
                 ]
             );
+        }
+
+        $openPRs = PullRequestDetails::where('head_branch', $branchName)
+            ->whereNull('closed_at')
+            ->get();
+
+        foreach ($openPRs as $prDetails) {
+            $item = Item::find($prDetails->id);
+            if ($item && $item->repository_id === $repository->id) {
+                Ably::send("pr.{$repository->full_name}.{$item->number}", [
+                    'event' => 'push',
+                    'branch' => $branchName,
+                ]);
+            }
         }
     }
 }

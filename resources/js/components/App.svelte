@@ -13,6 +13,7 @@
   import NewItem from './item/NewItem.svelte';
   import theme from '../lib/theme.js';
   import api from '../lib/api.js';
+  import ably from '../lib/ably.js';
   import { toast } from '../lib/toast.js';
   import Toast from './Toast.svelte';
 
@@ -37,6 +38,7 @@
   });
 
   window.api = api;
+  window.ably = ably;
   window.toast = toast;
 </script>
 

@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import ItemSkeleton from './ItemSkeleton.svelte';
   import ItemHeader from './ItemHeader.svelte';
   import FileTab from './pr/FileTab.svelte';
@@ -25,6 +25,7 @@
   let isPR = $state(type == 'prs');
   let isLoading = $state(true);
   let showWhitespace = $state(false);
+  let unsubAbly = null;
 
   onMount(async () => {
     isLoading = true;
@@ -43,7 +44,18 @@
 
     if (isPR) {
       loadFiles();
+
+      const channel = `pr.${$organization}/${$repository}.${number}`;
+      ably.connect([channel]);
+      unsubAbly = ably.subscribe(channel, () => {
+        loadFiles();
+      });
     }
+  });
+
+  onDestroy(() => {
+    unsubAbly?.();
+    ably.disconnect();
   });
 
   async function loadFiles() {
