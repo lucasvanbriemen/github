@@ -35,7 +35,39 @@
   onMount(async () => {
     theme.applyTheme();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
+
+    if (window.electronAPI) {
+      // Fetch initial notification count
+      fetchNotificationCount();
+
+      // Subscribe to real-time notification count updates via Ably
+      ably.subscribe('notifications', (data) => {
+        const parsed = JSON.parse(data.data);
+        window.electronAPI.updateNotificationCount(parsed.count);
+
+        if (parsed.subject) {
+          window.electronAPI.showNotification({
+            subject: parsed.subject,
+            type: parsed.type,
+          });
+        }
+      });
+    }
   });
+
+  async function fetchNotificationCount() {
+    try {
+      const response = await fetch(route('notifications'), {
+        headers: { Accept: 'application/json' },
+      });
+      if (response.ok) {
+        const notifications = await response.json();
+        window.electronAPI.updateNotificationCount(notifications.length);
+      }
+    } catch {
+      // Server may not be ready yet
+    }
+  }
 
   window.api = api;
   window.ably = ably;
