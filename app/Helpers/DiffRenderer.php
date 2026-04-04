@@ -34,6 +34,14 @@ class DiffRenderer
     private function parseCommits(): void {}
 
     /**
+     * Files excluded from the diff view and total counts.
+     */
+    private const EXCLUDED_FILES = [
+        'package-lock.json',
+        'composer.lock',
+    ];
+
+    /**
      * Parse files from GitHub compare API response
      * and transform patches into structured hunks/rows.
      */
@@ -45,6 +53,10 @@ class DiffRenderer
         $parsed_files = [];
 
         foreach ($this->files as $file) {
+            if (in_array(basename($file->filename), self::EXCLUDED_FILES)) {
+                continue;
+            }
+
             $file_to_parse = [];
 
             $file_to_parse['filename'] = $file->filename;
