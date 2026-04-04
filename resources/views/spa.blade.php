@@ -27,6 +27,7 @@ $orgRules = \App\GithubConfig::ORG_RULES;
         window.USER_ID = "{{ $userID }}";
         window.CURRENT_USER_LOGIN = "{{ $username }}";
         window.ORG_RULES = @json($orgRules);
+        window.ABLY_SUB_KEY = "{{ config('services.ably.sub_key') }}";
 
         function route(name, params = {}) {
             const route = API_ROUTES.find(r => r.name === name);

@@ -42,4 +42,9 @@ return [
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
     ],
+
+    'ably' => [
+        'main_key' => env('ABLY_MAIN_KEY'),
+        'sub_key' => env('ABLY_SUB_KEY'),
+    ],
 ];

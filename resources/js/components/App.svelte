@@ -11,6 +11,7 @@
   import Project from './Project.svelte';
   import Item from './item/Item.svelte';
   import NewItem from './item/NewItem.svelte';
+  import AblyTest from './AblyTest.svelte';
   import theme from '../lib/theme.js';
   import api from '../lib/api.js';
   import { toast } from '../lib/toast.js';
@@ -18,6 +19,7 @@
 
   const routes = {
     '/': Dashboard,
+    '/ably-test': AblyTest,
     '/notification/:id': EmailNotification,
     '/notifications/:date': NotificationOverview,
     '/:organization/:repository': RepositoryDashboard,
