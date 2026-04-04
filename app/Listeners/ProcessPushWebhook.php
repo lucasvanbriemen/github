@@ -76,7 +76,6 @@ class ProcessPushWebhook // implements ShouldQueue
             );
         }
 
-        // Notify open PRs whose head branch was pushed to
         $openPRs = PullRequestDetails::where('head_branch', $branchName)
             ->whereNull('closed_at')
             ->get();
