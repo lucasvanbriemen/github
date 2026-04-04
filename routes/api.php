@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AblyTestController;
 use App\Http\Controllers\AiReviewController;
 use App\Http\Controllers\BaseCommentController;
 use App\Http\Controllers\IncomingWebhookController;
@@ -131,10 +130,6 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
     // Media uploads (images/videos) from markdown editor
     Route::post('/uploads', [UploadController::class, 'store'])->name('uploads.store');
-
-    // Ably test endpoints
-    Route::post('/ably/test/channel-1', [AblyTestController::class, 'publishChannel1'])->name('ably.test.channel1');
-    Route::post('/ably/test/channel-2', [AblyTestController::class, 'publishChannel2'])->name('ably.test.channel2');
 });
 
 Route::any('incoming_hook', [IncomingWebhookController::class, 'index'])
