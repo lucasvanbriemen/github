@@ -6,7 +6,6 @@ const zlib = require('zlib');
 const { autoUpdater } = require('electron-updater');
 
 const APP_URL = "https://github.lucasvanbriemen.nl/";
-const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 let mainWindow = null;
 let tray = null;
@@ -410,8 +409,7 @@ ipcMain.on('show-notification', (_event, data) => {
 
 function configureAutoStart() {
   app.setLoginItemSettings({
-    openAtLogin: true,
-    args: [PROJECT_ROOT],
+    openAtLogin: true
   });
 }
 
