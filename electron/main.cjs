@@ -205,14 +205,6 @@ function waitForServer(timeout = 30000) {
   });
 }
 
-function killProcessTree(pid) {
-  if (process.platform === 'win32') {
-    exec(`taskkill /pid ${pid} /T /F`, () => {});
-  } else {
-    try { process.kill(-pid); } catch {}
-  }
-}
-
 function focusWindow() {
   if (!mainWindow) return;
   mainWindow.show();
@@ -264,30 +256,6 @@ function checkForUpdates() {
   autoUpdater.checkForUpdates().catch((err) => {
     console.error('Update check failed:', err.message);
   });
-}
-
-// ---------------------------------------------------------------------------
-// Server management
-// ---------------------------------------------------------------------------
-
-function startServer() {
-  const cwd = PROJECT_ROOT;
-
-  phpServer = spawn('php', ['artisan', 'serve'], {
-    cwd, stdio: 'pipe', windowsHide: true,
-  });
-  phpServer.stderr.on('data', (d) => console.log(`[server] ${d.toString().trim()}`));
-  phpServer.on('error', (e) => console.error('Failed to start PHP server:', e.message));
-
-  queueWorker = spawn('php', ['artisan', 'queue:listen', '--tries=1'], {
-    cwd, stdio: 'pipe', windowsHide: true,
-  });
-  queueWorker.on('error', (e) => console.error('Failed to start queue worker:', e.message));
-}
-
-function stopServer() {
-  if (phpServer && !phpServer.killed) { killProcessTree(phpServer.pid); phpServer = null; }
-  if (queueWorker && !queueWorker.killed) { killProcessTree(queueWorker.pid); queueWorker = null; }
 }
 
 // ---------------------------------------------------------------------------
@@ -459,8 +427,6 @@ app.whenReady().then(async () => {
     generateIcon();
     configureAutoStart();
     checkForUpdates();
-
-    startServer();
 
     await waitForServer();
     console.log('Server is ready.');
