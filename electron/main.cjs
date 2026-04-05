@@ -2,13 +2,11 @@ const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, Notification: Elec
 const path = require('path');
 const { spawn, exec } = require('child_process');
 const http = require('http');
-const net = require('net');
 const fs = require('fs');
 const zlib = require('zlib');
 const { autoUpdater } = require('electron-updater');
 
-const APP_PORT = 8000;
-const APP_URL = "https:/github.lucasvanbriemen.nl/";
+const APP_URL = "https://github.lucasvanbriemen.nl/";
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 let mainWindow = null;
@@ -184,22 +182,6 @@ function createOverlayBadge(count) {
   }
 
   return nativeImage.createFromBitmap(buffer, { width: size, height: size });
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function isPortAvailable(port) {
-  return new Promise((resolve) => {
-    const server = net.createServer();
-    server.once('error', () => resolve(false));
-    server.once('listening', () => {
-      server.close();
-      resolve(true);
-    });
-    server.listen(port, '127.0.0.1');
-  });
 }
 
 function waitForServer(timeout = 30000) {
@@ -478,14 +460,7 @@ app.whenReady().then(async () => {
     configureAutoStart();
     checkForUpdates();
 
-    const portAvailable = await isPortAvailable(APP_PORT);
-
-    if (portAvailable) {
-      startServer();
-      console.log('Starting PHP server and queue worker...');
-    } else {
-      console.log(`Port ${APP_PORT} already in use \u2014 connecting to existing server.`);
-    }
+    startServer();
 
     await waitForServer();
     console.log('Server is ready.');
