@@ -6,6 +6,7 @@ let highlighterPromise = null;
 // Map file extensions to Shiki language identifiers
 const extensionToLanguage = {
   'js': 'javascript',
+  'cjs': 'javascript',
   'jsx': 'jsx',
   'ts': 'typescript',
   'tsx': 'tsx',
