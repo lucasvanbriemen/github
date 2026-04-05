@@ -8,7 +8,7 @@ const zlib = require('zlib');
 const { autoUpdater } = require('electron-updater');
 
 const APP_PORT = 8000;
-const APP_URL = `http://127.0.0.1:${APP_PORT}`;
+const APP_URL = "https:/github.lucasvanbriemen.nl/";
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 let mainWindow = null;
