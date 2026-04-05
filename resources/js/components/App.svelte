@@ -37,20 +37,16 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
 
     if (window.electronAPI) {
-      // Fetch initial notification count
       fetchNotificationCount();
 
-      // Subscribe to real-time notification count updates via Ably
       ably.subscribe('notifications', (data) => {
         const parsed = JSON.parse(data.data);
         window.electronAPI.updateNotificationCount(parsed.count);
 
-        if (parsed.subject) {
-          window.electronAPI.showNotification({
-            subject: parsed.subject,
-            type: parsed.type,
-          });
-        }
+        window.electronAPI.showNotification({
+          subject: parsed.subject,
+          type: parsed.type,
+        });
       });
     }
   });
