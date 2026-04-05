@@ -366,7 +366,6 @@ function handleNotificationUpdate(count) {
       mainWindow?.setOverlayIcon(createOverlayBadge(count), `${count} notifications`);
     } catch {}
 
-    // Always call flashFrame — Windows ignores it if window is already foreground
     if (increased && mainWindow) {
       mainWindow.flashFrame(true);
       startTrayFlash();
