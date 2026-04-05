@@ -1,6 +1,5 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, Notification: ElectronNotification } = require('electron');
 const path = require('path');
-const { spawn, exec } = require('child_process');
 const http = require('http');
 const fs = require('fs');
 const zlib = require('zlib');
@@ -11,8 +10,6 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 let mainWindow = null;
 let tray = null;
-let phpServer = null;
-let queueWorker = null;
 let flashInterval = null;
 let notificationCount = 0;
 let iconPath = null;
