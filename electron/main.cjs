@@ -407,9 +407,15 @@ ipcMain.on('show-notification', (_event, data) => {
 // ---------------------------------------------------------------------------
 
 function configureAutoStart() {
-  app.setLoginItemSettings({
-    openAtLogin: true
-  });
+  if (app.isPackaged) {
+    app.setLoginItemSettings({ openAtLogin: true });
+  } else {
+    app.setLoginItemSettings({
+      openAtLogin: true,
+      path: process.execPath,
+      args: [path.resolve(__dirname, '..')]
+    });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -440,5 +446,4 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   app.isQuitting = true;
-  stopServer();
 });
