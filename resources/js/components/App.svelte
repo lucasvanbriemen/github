@@ -56,13 +56,8 @@
   });
 
   async function fetchNotificationCount() {
-    const response = await fetch(route('notifications'), {
-      headers: { Accept: 'application/json' },
-    });
-    if (response.ok) {
-      const notifications = await response.json();
-      window.electronAPI.updateNotificationCount(notifications.length);
-    }
+    notifications = await api.get(route('notifications'));
+    window.electronAPI.updateNotificationCount(notifications.length);
   }
 
   window.api = api;
