@@ -35,7 +35,26 @@
   onMount(async () => {
     theme.applyTheme();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
+
+    if (window.electronAPI) {
+      fetchNotificationCount();
+
+      ably.subscribe('notifications', (data) => {
+        const parsed = JSON.parse(data.data);
+        window.electronAPI.updateNotificationCount(parsed.count);
+
+        window.electronAPI.showNotification({
+          subject: parsed.subject,
+          type: parsed.type,
+        });
+      });
+    }
   });
+
+  async function fetchNotificationCount() {
+    notifications = await api.get(route('notifications'));
+    window.electronAPI.updateNotificationCount(notifications.length);
+  }
 
   window.api = api;
   window.ably = ably;
