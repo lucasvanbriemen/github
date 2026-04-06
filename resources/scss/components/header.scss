@@ -11,7 +11,6 @@ header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    position: relative;
 
     :global(svg) {
       width: 2rem;
@@ -21,21 +20,6 @@ header {
     .title {
       font-size: 1.25rem;
       font-weight: bold;
-    }
-
-    .notification-badge {
-      min-width: 1.25rem;
-      height: 1.25rem;
-      padding: 0 0.3rem;
-      border-radius: 1rem;
-      background-color: var(--primary-color);
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
     }
   }
 
