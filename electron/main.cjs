@@ -168,27 +168,6 @@ function createOverlayBadge(count) {
   return nativeImage.createFromBitmap(buffer, { width: size, height: size });
 }
 
-function waitForServer(timeout = 30000) {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-    const check = () => {
-      const req = http.get(APP_URL, (res) => {
-        res.resume();
-        resolve();
-      });
-      req.on('error', () => {
-        if (Date.now() - start > timeout) {
-          reject(new Error('Server did not respond within timeout'));
-        } else {
-          setTimeout(check, 500);
-        }
-      });
-      req.setTimeout(3000, () => req.destroy());
-    };
-    check();
-  });
-}
-
 function focusWindow() {
   if (!mainWindow) return;
   mainWindow.show();
@@ -202,7 +181,6 @@ function checkForUpdates() {
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on('update-available', (info) => {
-    console.log(`Update available: v${info.version}`);
     if (ElectronNotification.isSupported()) {
       new ElectronNotification({
         title: 'GitHub GUI',
@@ -213,28 +191,15 @@ function checkForUpdates() {
   });
 
   autoUpdater.on('update-downloaded', (info) => {
-    console.log(`Update downloaded: v${info.version}`);
     if (ElectronNotification.isSupported()) {
       const n = new ElectronNotification({
         title: 'GitHub GUI',
-        body: `Update v${info.version} ready — click to restart`,
+        body: `Update v${info.version} ready - click to restart`,
         silent: false,
       });
       n.on('click', () => autoUpdater.quitAndInstall());
       n.show();
     }
-  });
-
-  autoUpdater.on('update-not-available', () => {
-    console.log('Already up to date.');
-  });
-
-  autoUpdater.on('error', (err) => {
-    console.error('Auto-update error:', err.message);
-  });
-
-  autoUpdater.checkForUpdates().catch((err) => {
-    console.error('Update check failed:', err.message);
   });
 }
 
@@ -384,14 +349,9 @@ app.whenReady().then(async () => {
     configureAutoStart();
     checkForUpdates();
 
-    await waitForServer();
-    console.log('Server is ready.');
-
     createWindow();
     createTray();
-    console.log('App started.');
   } catch (e) {
-    console.error('Startup error:', e);
     app.quit();
   }
 });
