@@ -52,7 +52,7 @@
   });
 
   async function fetchNotificationCount() {
-    notifications = await api.get(route('notifications'));
+    const notifications = await api.get(route('notifications'));
     window.electronAPI.updateNotificationCount(notifications.length);
   }
 

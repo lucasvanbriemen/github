@@ -77,7 +77,13 @@ function buildPng(width, height, rgba) {
 }
 
 function generateIcon() {
-  const dest = path.join(__dirname, 'icon.png');
+  const bundled = path.join(__dirname, 'icon.png');
+  if (fs.existsSync(bundled)) {
+    iconPath = bundled;
+    return;
+  }
+
+  const dest = path.join(app.getPath('userData'), 'icon.png');
   if (fs.existsSync(dest)) {
     iconPath = dest;
     return;
