@@ -27,10 +27,6 @@ app.on('second-instance', () => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// PNG generation helpers
-// ---------------------------------------------------------------------------
-
 function crc32(buf) {
   let crc = 0xFFFFFFFF;
   for (let i = 0; i < buf.length; i++) {
@@ -80,10 +76,6 @@ function buildPng(width, height, rgba) {
   ]);
 }
 
-// ---------------------------------------------------------------------------
-// App icon
-// ---------------------------------------------------------------------------
-
 function generateIcon() {
   const dest = path.join(__dirname, 'icon.png');
   if (fs.existsSync(dest)) {
@@ -114,10 +106,6 @@ function generateIcon() {
 function getIcon() {
   return nativeImage.createFromPath(iconPath);
 }
-
-// ---------------------------------------------------------------------------
-// Numbered overlay badge (3x5 bitmap font)
-// ---------------------------------------------------------------------------
 
 const DIGITS = {
   '0': [0b111, 0b101, 0b101, 0b101, 0b111],
@@ -208,10 +196,6 @@ function focusWindow() {
   mainWindow.focus();
 }
 
-// ---------------------------------------------------------------------------
-// Auto-update via GitHub Releases (electron-updater)
-// ---------------------------------------------------------------------------
-
 function checkForUpdates() {
   autoUpdater.logger = { info: console.log, warn: console.warn, error: console.error };
   autoUpdater.autoDownload = true;
@@ -254,10 +238,6 @@ function checkForUpdates() {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Window
-// ---------------------------------------------------------------------------
-
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -290,10 +270,6 @@ function createWindow() {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Tray
-// ---------------------------------------------------------------------------
-
 function createTray() {
   tray = new Tray(getIcon());
   tray.setToolTip('GitHub GUI');
@@ -323,10 +299,6 @@ function updateTrayMenu() {
   tray.setToolTip(tooltip);
 }
 
-// ---------------------------------------------------------------------------
-// Tray flash (blink icon on / off)
-// ---------------------------------------------------------------------------
-
 function startTrayFlash() {
   if (flashInterval) return;
 
@@ -350,10 +322,6 @@ function stopTrayFlash() {
     tray.setImage(getIcon());
   }
 }
-
-// ---------------------------------------------------------------------------
-// Notification state
-// ---------------------------------------------------------------------------
 
 function handleNotificationUpdate(count) {
   const increased = count > notificationCount;
@@ -390,10 +358,6 @@ function showDetailedNotification(data) {
   n.show();
 }
 
-// ---------------------------------------------------------------------------
-// IPC
-// ---------------------------------------------------------------------------
-
 ipcMain.on('notification-count', (_event, count) => {
   handleNotificationUpdate(count);
 });
@@ -401,10 +365,6 @@ ipcMain.on('notification-count', (_event, count) => {
 ipcMain.on('show-notification', (_event, data) => {
   showDetailedNotification(data);
 });
-
-// ---------------------------------------------------------------------------
-// Auto-start on Windows boot
-// ---------------------------------------------------------------------------
 
 function configureAutoStart() {
   if (app.isPackaged) {
@@ -417,10 +377,6 @@ function configureAutoStart() {
     });
   }
 }
-
-// ---------------------------------------------------------------------------
-// App lifecycle
-// ---------------------------------------------------------------------------
 
 app.whenReady().then(async () => {
   try {
