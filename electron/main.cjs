@@ -83,7 +83,7 @@ function generateIcon() {
     return;
   }
 
-  const size = 64;
+  const size = 256;
   const rgba = Buffer.alloc(size * size * 4);
   const cx = size / 2, cy = size / 2, r = size / 2 - 2;
 
