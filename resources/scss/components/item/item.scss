@@ -23,8 +23,7 @@
     }
 
     .notification-banner {
-      border: 2px solid var(--primary-color);
-      border-left: 4px solid var(--primary-color);
+      border: 1px solid var(--primary-color);
       border-radius: 0.5rem;
       background-color: color-mix(in srgb, var(--primary-color) 6%, var(--background-color-one));
 
@@ -36,8 +35,8 @@
         border-bottom: 1px solid var(--border-color);
 
         .notification-banner-title {
-          font-weight: 600;
           font-size: 0.85rem;
+          color: var(--text-color-secondary);
         }
 
         .notification-banner-dismiss-all {
@@ -61,10 +60,6 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.5rem 0.75rem;
-
-        & + .notification-banner-item {
-          border-top: 1px solid var(--border-color);
-        }
 
         .notification-banner-avatar {
           width: 1.25rem;
