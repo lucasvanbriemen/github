@@ -6,7 +6,8 @@
   import Conversation from './Conversation.svelte';
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
-  import { organization, repository, repoMetadata } from '../stores';
+  import Icon from '../Icon.svelte';
+  import { organization, repository, repoMetadata, notificationCount } from '../stores';
   import CopyText from '../CopyText.svelte';
 
   let { params = {} } = $props();
@@ -26,6 +27,7 @@
   let isLoading = $state(true);
   let showWhitespace = $state(false);
   let unsubAbly = null;
+  let itemNotifications = $state([]);
 
   onMount(async () => {
     isLoading = true;
@@ -41,6 +43,7 @@
     isPR = item.type === 'pull_request';
 
     isLoading = false;
+    loadNotifications();
 
     if (isPR) {
       loadFiles();
@@ -62,6 +65,25 @@
     files = await api.get(route(`organizations.repositories.pr.files`, { $organization, $repository, number }));
     selectedFile = files[selectedFileIndex];
     loadingFiles = false;
+  }
+
+  async function loadNotifications() {
+    itemNotifications = await api.get(route('organizations.repositories.item.notifications', { $organization, $repository, number }));
+  }
+
+  async function completeNotification(id) {
+    itemNotifications = itemNotifications.filter(n => n.id !== id);
+    await api.post(route('notifications.complete', { id }));
+    notificationCount.update(n => Math.max(0, n - 1));
+  }
+
+  async function completeAllNotifications() {
+    const ids = itemNotifications.map(n => n.id);
+    itemNotifications = [];
+    for (const id of ids) {
+      await api.post(route('notifications.complete', { id }));
+    }
+    notificationCount.update(n => Math.max(0, n - ids.length));
   }
 
   function githubUrl(item) {
@@ -90,6 +112,27 @@
       {/if}
 
       <ItemHeader {item} />
+
+      {#if itemNotifications.length > 0}
+        <div class="notification-banner">
+          <div class="notification-banner-header">
+            <span class="notification-banner-title">{itemNotifications.length} notification{itemNotifications.length > 1 ? 's' : ''}</span>
+            <button class="notification-banner-dismiss-all" onclick={completeAllNotifications}>Dismiss all</button>
+          </div>
+          {#each itemNotifications as notification}
+            <div class="notification-banner-item">
+              {#if notification.triggered_by?.avatar_url}
+                <img src={notification.triggered_by.avatar_url} alt="" class="notification-banner-avatar" />
+              {/if}
+              <span class="notification-banner-text">{notification.subject}</span>
+              <span class="notification-banner-time">{notification.created_at_human}</span>
+              <button class="notification-banner-dismiss" onclick={() => completeNotification(notification.id)}>
+                <Icon name="approved" size="1.2rem" />
+              </button>
+            </div>
+          {/each}
+        </div>
+      {/if}
 
       <!-- PR Header: Branch Information (PR only) -->
       {#if isPR}

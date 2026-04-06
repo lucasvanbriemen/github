@@ -67,6 +67,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
         Route::get('/item/{number}', [ItemController::class, 'show'])
             ->name('item.show');
 
+        Route::get('/item/{number}/notifications', [NotificationController::class, 'forItem'])
+            ->name('item.notifications');
+
         Route::get('/item/{number}/linked', [ItemController::class, 'getLinkedItems'])
             ->name('item.linked.get');
 

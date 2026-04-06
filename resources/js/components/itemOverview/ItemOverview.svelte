@@ -34,6 +34,10 @@
 
   let shouldGroup = $derived(items.some(i => i.group));
 
+  function sortNotificationsFirst(itemList) {
+    return [...itemList].sort((a, b) => (b.notification_count || 0) - (a.notification_count || 0));
+  }
+
   let groupedItems = $derived.by(() => {
     if (!shouldGroup || !items.length) return [];
 
@@ -46,8 +50,10 @@
 
     return GROUP_ORDER
       .filter(key => groups[key]?.length)
-      .map(key => ({ key, label: GROUP_LABELS[key], items: groups[key] }));
+      .map(key => ({ key, label: GROUP_LABELS[key], items: sortNotificationsFirst(groups[key]) }));
   });
+
+  let sortedItems = $derived(sortNotificationsFirst(items));
 
   const POSSABLE_ITEM_STATES = [
     { value: 'open', label: 'Open' },
@@ -191,7 +197,7 @@
           {/each}
         {/each}
       {:else}
-        {#each items as item}
+        {#each sortedItems as item}
           <ListItem {item} />
 
           {#if item.linked_prs?.length > 0}
