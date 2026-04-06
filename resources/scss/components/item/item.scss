@@ -27,7 +27,6 @@
       border-left: 4px solid var(--primary-color);
       border-radius: 0.5rem;
       background-color: color-mix(in srgb, var(--primary-color) 6%, var(--background-color-one));
-      overflow: hidden;
 
       .notification-banner-header {
         display: flex;
