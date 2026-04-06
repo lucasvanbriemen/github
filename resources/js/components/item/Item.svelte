@@ -7,7 +7,7 @@
   import Navigation from './Navigation.svelte';
   import Sidebar from './Sidebar.svelte';
   import Icon from '../Icon.svelte';
-  import { organization, repository, repoMetadata, notificationCount } from '../stores';
+  import { organization, repository, repoMetadata } from '../stores';
   import CopyText from '../CopyText.svelte';
 
   let { params = {} } = $props();
@@ -74,7 +74,6 @@
   async function completeNotification(id) {
     itemNotifications = itemNotifications.filter(n => n.id !== id);
     await api.post(route('notifications.complete', { id }));
-    notificationCount.update(n => Math.max(0, n - 1));
   }
 
   async function completeAllNotifications() {
@@ -83,7 +82,6 @@
     for (const id of ids) {
       await api.post(route('notifications.complete', { id }));
     }
-    notificationCount.update(n => Math.max(0, n - ids.length));
   }
 
   function githubUrl(item) {
