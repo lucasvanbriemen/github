@@ -13,7 +13,9 @@ use App\Models\PullRequestReview;
 class NotificationAutoResolver
 {
     private const ITEM_DIRECT_TYPES = ['item_assigned', 'review_requested'];
+
     private const COMMENT_BASED_TYPES = ['item_comment', 'comment_mention'];
+
     private const REVIEW_BASED_TYPES = ['pr_review'];
 
     public static function resolveTrigger(string $trigger, int $itemId): int
