@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ApiHelper;
 use App\Models\BaseComment;
 use App\Models\Item;
+use App\Services\NotificationAutoResolver;
 use App\Services\RepositoryService;
 use GrahamCampbell\GitHub\Facades\GitHub;
 use OpenAI;
@@ -28,6 +29,11 @@ class BaseCommentController extends Controller
 
         $comment->resolved = $data['resolved'];
         $comment->save();
+
+        // When user resolves a thread, auto-complete notifications for that comment
+        if ($data['resolved']) {
+            NotificationAutoResolver::resolveForComment($comment->id);
+        }
 
         return response()->json(['success' => true, 'comment' => $comment]);
     }
@@ -71,6 +77,9 @@ class BaseCommentController extends Controller
 
         $localComment->load(['author']);
 
+        // Auto-resolve comment/mention notifications for this item since the user responded
+        NotificationAutoResolver::resolveTrigger('user_commented', $item->id);
+
         return response()->json($localComment);
     }
 
@@ -95,6 +104,9 @@ class BaseCommentController extends Controller
                     'in_reply_to' => $parentComment->comment_id,
                 ]
             );
+
+            // Auto-resolve notifications for the comment being replied to
+            NotificationAutoResolver::resolveForComment($parentComment->id);
 
             return response()->json(['success' => true]);
         }

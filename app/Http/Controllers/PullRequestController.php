@@ -7,6 +7,7 @@ use App\Helpers\DiffRenderer;
 use App\Models\Item;
 use App\Models\PullRequest;
 use App\Models\PullRequestDetails;
+use App\Services\NotificationAutoResolver;
 use App\Services\RepositoryService;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
@@ -203,6 +204,10 @@ class PullRequestController extends Controller
         ];
 
         GitHub::pullRequests()->reviews()->create($organizationName, $repositoryName, $number, $payload);
+
+        // Auto-resolve review_requested and comment notifications for this PR
+        NotificationAutoResolver::resolveTrigger('review_submitted', $item->id);
+        NotificationAutoResolver::resolveTrigger('user_commented', $item->id);
 
         // Return success, webhook will sync the review data
         return response()->json(['success' => true], 200);
