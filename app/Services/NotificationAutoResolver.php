@@ -12,19 +12,8 @@ use App\Models\PullRequestReview;
 
 class NotificationAutoResolver
 {
-    /**
-     * Notification types where related_id points directly to the Item ID.
-     */
     private const ITEM_DIRECT_TYPES = ['item_assigned', 'review_requested'];
-
-    /**
-     * Notification types where related_id points to a BaseComment ID.
-     */
     private const COMMENT_BASED_TYPES = ['item_comment', 'comment_mention'];
-
-    /**
-     * Notification types where related_id points to a PullRequestReview ID.
-     */
     private const REVIEW_BASED_TYPES = ['pr_review'];
 
     public static function resolveTrigger(string $trigger, int $itemId): int
@@ -80,9 +69,6 @@ class NotificationAutoResolver
         return $resolved;
     }
 
-    /**
-     * Resolve notifications that are directly related to a specific comment.
-     */
     public static function resolveForComment(int $commentId): int
     {
         $resolved = Notification::whereIn('type', self::COMMENT_BASED_TYPES)

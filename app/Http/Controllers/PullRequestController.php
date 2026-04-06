@@ -205,7 +205,6 @@ class PullRequestController extends Controller
 
         GitHub::pullRequests()->reviews()->create($organizationName, $repositoryName, $number, $payload);
 
-        // Auto-resolve review_requested and comment notifications for this PR
         NotificationAutoResolver::resolveTrigger('review_submitted', $item->id);
         NotificationAutoResolver::resolveTrigger('user_commented', $item->id);
 

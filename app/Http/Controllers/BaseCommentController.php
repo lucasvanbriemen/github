@@ -30,7 +30,6 @@ class BaseCommentController extends Controller
         $comment->resolved = $data['resolved'];
         $comment->save();
 
-        // When user resolves a thread, auto-complete notifications for that comment
         if ($data['resolved']) {
             NotificationAutoResolver::resolveForComment($comment->id);
         }
@@ -77,7 +76,6 @@ class BaseCommentController extends Controller
 
         $localComment->load(['author']);
 
-        // Auto-resolve comment/mention notifications for this item since the user responded
         NotificationAutoResolver::resolveTrigger('user_commented', $item->id);
 
         return response()->json($localComment);
@@ -105,7 +103,6 @@ class BaseCommentController extends Controller
                 ]
             );
 
-            // Auto-resolve notifications for the comment being replied to
             NotificationAutoResolver::resolveForComment($parentComment->id);
 
             return response()->json(['success' => true]);
