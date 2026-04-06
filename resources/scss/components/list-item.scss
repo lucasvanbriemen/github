@@ -10,9 +10,32 @@
   align-items: center;
   gap: 1rem;
 
+  .icon-wrapper {
+    position: relative;
+    flex-shrink: 0;
+
+    .notification-badge {
+      position: absolute;
+      top: -0.4rem;
+      right: -0.5rem;
+      min-width: 1.1rem;
+      height: 1.1rem;
+      padding: 0 0.25rem;
+      border-radius: 1rem;
+      background-color: var(--primary-color);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+  }
+
   :global(.item-open) {
     margin-top: 0.25rem;
-    
+
     :global(svg) {
       stroke: var(--success-color);
       fill: var(--success-color);
@@ -21,7 +44,7 @@
 
   :global(.item-closed) {
     margin-top: 0.25rem;
-    
+
     :global(svg) {
       stroke: var(--error-color);
       fill: var(--error-color);
@@ -30,7 +53,7 @@
 
   :global(.item-merged) {
     margin-top: 0.25rem;
-    
+
     :global(svg) {
       stroke: var(--merged-color);
       fill: var(--merged-color);
@@ -39,7 +62,7 @@
 
   :global(.item-draft) {
     margin-top: 0.25rem;
-    
+
     :global(svg) {
       stroke: var(--draft-color);
       fill: var(--draft-color);
@@ -109,8 +132,18 @@
     }
   }
 
+  &.has-notifications {
+    border-left: 4px solid var(--primary-color);
+    background-color: color-mix(in srgb, var(--primary-color) 6%, var(--background-color-one));
+    padding-left: calc(1rem - 6px);
+  }
+
   &:hover {
     cursor: pointer;
     border: 2px solid var(--primary-color-dark);
+
+    &.has-notifications {
+      border-left: 4px solid var(--primary-color);
+    }
   }
 }
