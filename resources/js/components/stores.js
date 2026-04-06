@@ -5,6 +5,7 @@ import api from '../lib/api';
 export const organization = writable(null);
 export const repository = writable(null);
 export const repoMetadata = writable(null);
+export const notificationCount = writable(0);
 
 let metadataPromise = null;
 

@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
-  import { organization, repository } from './stores';
+  import { organization, repository, notificationCount } from './stores';
 
   let organizations = $state([]);
   let selectedRoute = $state('');
@@ -16,6 +16,9 @@
   <a class="logo" href="#/">
     <Icon name="logo" />
     <span class="title">Git</span>
+    {#if $notificationCount > 0}
+      <span class="notification-badge">{$notificationCount}</span>
+    {/if}
   </a>
 
   <div class="separator"></div>

@@ -15,6 +15,7 @@
   import api from '../lib/api.js';
   import ably from '../lib/ably.js';
   import { toast } from '../lib/toast.js';
+  import { notificationCount } from './stores.js';
   import Toast from './Toast.svelte';
 
   const routes = {
@@ -36,24 +37,30 @@
     theme.applyTheme();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
 
-    if (window.electronAPI) {
-      fetchNotificationCount();
+    fetchNotificationCount();
 
-      ably.subscribe('notifications', (data) => {
-        const parsed = JSON.parse(data.data);
+    ably.subscribe('notifications', (data) => {
+      const parsed = JSON.parse(data.data);
+      notificationCount.set(parsed.count);
+
+      if (window.electronAPI) {
         window.electronAPI.updateNotificationCount(parsed.count);
 
         window.electronAPI.showNotification({
           subject: parsed.subject,
           type: parsed.type,
         });
-      });
-    }
+      }
+    });
   });
 
   async function fetchNotificationCount() {
     const notifications = await api.get(route('notifications'));
-    window.electronAPI.updateNotificationCount(notifications.length);
+    notificationCount.set(notifications.length);
+
+    if (window.electronAPI) {
+      window.electronAPI.updateNotificationCount(notifications.length);
+    }
   }
 
   window.api = api;
