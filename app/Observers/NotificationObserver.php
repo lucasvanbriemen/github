@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Helpers\Ably;
 use App\Models\Notification;
 
 class NotificationObserver
