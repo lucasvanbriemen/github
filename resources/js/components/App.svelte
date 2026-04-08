@@ -43,9 +43,12 @@
       ably.subscribe('notifications', (data) => {
         const parsed = JSON.parse(data.data);
 
-        if (window.electronAPI) {
-          window.electronAPI.updateNotificationCount(parsed.count);
-        }
+        window.electronAPI.updateNotificationCount(parsed.count);
+
+        window.electronAPI.showNotification({
+          subject: parsed.subject,
+          type: parsed.type,
+        });
       });
     }
   });
