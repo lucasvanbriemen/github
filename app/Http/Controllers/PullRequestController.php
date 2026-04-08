@@ -8,7 +8,6 @@ use App\Models\Item;
 use App\Models\PullRequest;
 use App\Models\PullRequestDetails;
 use App\Services\NotificationAutoResolver;
-use App\Services\NotificationAutoResolver;
 use App\Services\RepositoryService;
 use GrahamCampbell\GitHub\Facades\GitHub;
 
