@@ -19,4 +19,15 @@ class NotificationAutoResolver
             ->where('completed', false)
             ->update(['completed' => true]);
     }
+
+    public static function resolveForComment(int $commentId): int
+    {
+        $config = GithubConfig::NOTIFICATION_AUTO_RESOLVE;
+        $notificationTypes = $config['comment_resolve'] ?? [];
+
+        return Notification::whereIn('type', $notificationTypes)
+            ->where('related_id', $commentId)
+            ->where('completed', false)
+            ->update(['completed' => true]);
+    }
 }

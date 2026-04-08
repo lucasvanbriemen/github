@@ -6,6 +6,7 @@ use App\Helpers\ApiHelper;
 use App\Models\BaseComment;
 use App\Models\Item;
 use App\Services\RepositoryService;
+use App\Services\NotificationAutoResolver;
 use GrahamCampbell\GitHub\Facades\GitHub;
 use OpenAI;
 
@@ -28,6 +29,10 @@ class BaseCommentController extends Controller
 
         $comment->resolved = $data['resolved'];
         $comment->save();
+
+        if ($data['resolved']) {
+            NotificationAutoResolver::resolveForComment($comment->id);
+        }
 
         return response()->json(['success' => true, 'comment' => $comment]);
     }
@@ -71,6 +76,8 @@ class BaseCommentController extends Controller
 
         $localComment->load(['author']);
 
+        NotificationAutoResolver::resolveTrigger('user_commented', $item->id);
+
         return response()->json($localComment);
     }
 
@@ -95,6 +102,8 @@ class BaseCommentController extends Controller
                     'in_reply_to' => $parentComment->comment_id,
                 ]
             );
+
+            NotificationAutoResolver::resolveForComment($parentComment->id);
 
             return response()->json(['success' => true]);
         }
