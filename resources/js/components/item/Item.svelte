@@ -76,14 +76,6 @@
     await api.post(route('notifications.complete', { id }));
   }
 
-  async function completeAllNotifications() {
-    const ids = itemNotifications.map(n => n.id);
-    itemNotifications = [];
-    for (const id of ids) {
-      await api.post(route('notifications.complete', { id }));
-    }
-  }
-
   function githubUrl(item) {
     let urltype;
     if (isPR) {
@@ -115,7 +107,6 @@
         <div class="notification-banner">
           <div class="notification-banner-header">
             <span class="notification-banner-title">{itemNotifications.length} notification{itemNotifications.length > 1 ? 's' : ''}</span>
-            <button class="notification-banner-dismiss-all" onclick={completeAllNotifications}>Dismiss all</button>
           </div>
           {#each itemNotifications as notification}
             <div class="notification-banner-item">
