@@ -42,15 +42,9 @@
 
       ably.subscribe('notifications', (data) => {
         const parsed = JSON.parse(data.data);
-        notificationCount.set(parsed.count);
 
         if (window.electronAPI) {
           window.electronAPI.updateNotificationCount(parsed.count);
-
-          window.electronAPI.showNotification({
-            subject: parsed.subject,
-            type: parsed.type,
-          });
         }
       });
     }
@@ -58,7 +52,6 @@
 
   async function fetchNotificationCount() {
     const notifications = await api.get(route('notifications'));
-    notificationCount.set(notifications.length);
     window.electronAPI.updateNotificationCount(notifications.length);
   }
 
