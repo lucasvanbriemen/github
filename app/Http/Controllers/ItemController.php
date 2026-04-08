@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
+use App\Models\BaseComment;
 use App\Models\Commit;
 use App\Models\Issue;
 use App\Models\Item;
+use App\Models\Notification;
 use App\Services\ImportanceScoreService;
 use App\Services\RepositoryService;
 use Carbon\Carbon;
@@ -50,8 +52,10 @@ class ItemController extends Controller
         $projectStatuses = ImportanceScoreService::getProjectStatusesForItems($items->all());
 
         // Add score breakdown and project info to each item
-        $items->each(function ($item) use ($projectStatuses) {
+        $notificationCounts = self::getNotificationCountsForItems($items->pluck('id')->all());
+        $items->each(function ($item) use ($projectStatuses, $notificationCounts) {
             $item->project_status = $projectStatuses[$item->id] ?? null;
+            $item->notification_count = $notificationCounts[$item->id] ?? 0;
 
             if (is_string($item->labels)) {
                 $item->labels = json_decode($item->labels, true);
@@ -237,7 +241,70 @@ class ItemController extends Controller
             }
         }
 
+        // Step 7: Attach notification counts per item
+        $itemIds = $items->getCollection()->pluck('id')->all();
+        $notificationCounts = self::getNotificationCountsForItems($itemIds);
+        foreach ($items as $item) {
+            $item->notification_count = $notificationCounts[$item->id] ?? 0;
+        }
+
         return response()->json($items);
+    }
+
+    /**
+     * Get notification counts grouped by item ID for a set of items.
+     */
+    private static function getNotificationCountsForItems(array $itemIds): array
+    {
+        if (empty($itemIds)) {
+            return [];
+        }
+
+        $counts = [];
+
+        // Direct item notifications (item_assigned, review_requested)
+        $directCounts = Notification::whereIn('notifications.type', ['item_assigned', 'review_requested'])
+            ->whereIn('related_id', $itemIds)
+            ->where('completed', false)
+            ->selectRaw('related_id as item_id, COUNT(*) as count')
+            ->groupBy('related_id')
+            ->pluck('count', 'item_id')
+            ->all();
+
+        foreach ($directCounts as $itemId => $count) {
+            $counts[$itemId] = ($counts[$itemId] ?? 0) + $count;
+        }
+
+        // Comment-based notifications (item_comment, comment_mention)
+        $commentNotifications = Notification::whereIn('notifications.type', ['item_comment', 'comment_mention'])
+            ->where('notifications.completed', false)
+            ->join('base_comments', 'notifications.related_id', '=', 'base_comments.id')
+            ->whereIn('base_comments.issue_id', $itemIds)
+            ->selectRaw('base_comments.issue_id as item_id, COUNT(*) as count')
+            ->groupBy('base_comments.issue_id')
+            ->pluck('count', 'item_id')
+            ->all();
+
+        foreach ($commentNotifications as $itemId => $count) {
+            $counts[$itemId] = ($counts[$itemId] ?? 0) + $count;
+        }
+
+        // Review-based notifications (pr_review)
+        $reviewNotifications = Notification::where('notifications.type', 'pr_review')
+            ->where('notifications.completed', false)
+            ->join('pull_request_reviews', 'notifications.related_id', '=', 'pull_request_reviews.id')
+            ->join('base_comments', 'pull_request_reviews.base_comment_id', '=', 'base_comments.id')
+            ->whereIn('base_comments.issue_id', $itemIds)
+            ->selectRaw('base_comments.issue_id as item_id, COUNT(*) as count')
+            ->groupBy('base_comments.issue_id')
+            ->pluck('count', 'item_id')
+            ->all();
+
+        foreach ($reviewNotifications as $itemId => $count) {
+            $counts[$itemId] = ($counts[$itemId] ?? 0) + $count;
+        }
+
+        return $counts;
     }
 
     private function computeItemGroup($item, $organizationName)

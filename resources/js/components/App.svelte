@@ -37,7 +37,7 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
 
     if (window.electronAPI) {
-      fetchNotificationCount();
+    fetchNotificationCount();
 
       ably.subscribe('notifications', (data) => {
         const parsed = JSON.parse(data.data);

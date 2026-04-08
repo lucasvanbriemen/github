@@ -22,6 +22,88 @@
       opacity: 0.8;
     }
 
+    .notification-banner {
+      border: 1px solid var(--primary-color);
+      border-radius: 0.5rem;
+      background-color: color-mix(in srgb, var(--primary-color) 6%, var(--background-color-one));
+
+      .notification-banner-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+
+        .notification-banner-title {
+          font-size: 0.85rem;
+          color: var(--text-color-secondary);
+        }
+
+        .notification-banner-dismiss-all {
+          background: none;
+          border: none;
+          color: var(--text-color-secondary);
+          font-size: 0.8rem;
+          cursor: pointer;
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+
+          &:hover {
+            color: var(--text-color);
+            background-color: var(--background-color-two);
+          }
+        }
+      }
+
+      .notification-banner-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+
+        .notification-banner-avatar {
+          width: 1.25rem;
+          height: 1.25rem;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .notification-banner-text {
+          flex: 1;
+          font-size: 0.85rem;
+        }
+
+        .notification-banner-time {
+          font-size: 0.75rem;
+          color: var(--text-color-secondary);
+          flex-shrink: 0;
+        }
+
+        .notification-banner-dismiss {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 0.25rem;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+
+          :global(svg) {
+            color: var(--text-color-secondary);
+            fill: var(--text-color-secondary);
+            stroke: var(--text-color-secondary);
+          }
+
+          &:hover :global(svg) {
+            color: var(--primary-color);
+            fill: var(--primary-color);
+            stroke: var(--primary-color);
+          }
+        }
+      }
+    }
+
     .item-header-pr-title {
       display: flex;
       align-items: center;

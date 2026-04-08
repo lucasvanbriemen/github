@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\GithubConfig;
 use App\Mail\NotificationOverview;
+use App\Models\BaseComment;
 use App\Models\Item;
 use App\Models\Notification;
+use App\Models\PullRequestReview;
+use App\Services\RepositoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -46,6 +49,55 @@ class NotificationController extends Controller
         $notification->save();
 
         return response()->json(['sucess' => true]);
+    }
+
+    public function forItem($organizationName, $repositoryName, $number)
+    {
+        [$organization, $repository] = RepositoryService::getRepositoryWithOrganization($organizationName, $repositoryName);
+
+        $item = Item::where('repository_id', $repository->id)
+            ->where('number', $number)
+            ->firstOrFail();
+
+        $itemId = $item->id;
+
+        // Collect notification IDs across all relationship types
+        $directIds = Notification::whereIn('notifications.type', ['item_assigned', 'review_requested'])
+            ->where('related_id', $itemId)
+            ->where('completed', false)
+            ->pluck('id');
+
+        $commentIds = BaseComment::where('issue_id', $itemId)->pluck('id');
+        $commentNotifIds = $commentIds->isNotEmpty()
+            ? Notification::whereIn('notifications.type', ['item_comment', 'comment_mention'])
+                ->whereIn('related_id', $commentIds)
+                ->where('completed', false)
+                ->pluck('id')
+            : collect();
+
+        $reviewIds = PullRequestReview::whereHas('baseComment', fn ($q) => $q->where('issue_id', $itemId))->pluck('id');
+        $reviewNotifIds = $reviewIds->isNotEmpty()
+            ? Notification::where('notifications.type', 'pr_review')
+                ->whereIn('related_id', $reviewIds)
+                ->where('completed', false)
+                ->pluck('id')
+            : collect();
+
+        $allIds = $directIds->merge($commentNotifIds)->merge($reviewNotifIds);
+
+        if ($allIds->isEmpty()) {
+            return response()->json([]);
+        }
+
+        $notifications = Notification::whereIn('id', $allIds)
+            ->with(['triggeredBy:id,name,avatar_url'])
+            ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
+
+        foreach ($notifications as $notification) {
+            $notification->subject = $notification->subject();
+        }
+
+        return response()->json($notifications);
     }
 
     public function digest(Request $request, $date)
