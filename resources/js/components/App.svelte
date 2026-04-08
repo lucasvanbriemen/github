@@ -15,7 +15,6 @@
   import api from '../lib/api.js';
   import ably from '../lib/ably.js';
   import { toast } from '../lib/toast.js';
-  import { notificationCount } from './stores.js';
   import Toast from './Toast.svelte';
 
   const routes = {
@@ -42,7 +41,6 @@
 
       ably.subscribe('notifications', (data) => {
         const parsed = JSON.parse(data.data);
-
         window.electronAPI.updateNotificationCount(parsed.count);
 
         window.electronAPI.showNotification({
