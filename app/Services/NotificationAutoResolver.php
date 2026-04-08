@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\GithubConfig;
-use App\Helpers\Ably;
 use App\Models\BaseComment;
 use App\Models\Notification;
 use App\Models\PullRequestReview;
