@@ -50,7 +50,8 @@
         "publish": {
             "provider": "github",
             "owner": "lucasvanbriemen",
-            "repo": "github"
+            "repo": "github",
+            "releaseType": "release"
         }
     },
     "devDependencies": {
