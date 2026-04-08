@@ -37,30 +37,29 @@
     theme.applyTheme();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
 
+    if (window.electronAPI) {
     fetchNotificationCount();
 
-    ably.subscribe('notifications', (data) => {
-      const parsed = JSON.parse(data.data);
-      notificationCount.set(parsed.count);
+      ably.subscribe('notifications', (data) => {
+        const parsed = JSON.parse(data.data);
+        notificationCount.set(parsed.count);
 
-      if (window.electronAPI) {
-        window.electronAPI.updateNotificationCount(parsed.count);
+        if (window.electronAPI) {
+          window.electronAPI.updateNotificationCount(parsed.count);
 
-        window.electronAPI.showNotification({
-          subject: parsed.subject,
-          type: parsed.type,
-        });
-      }
-    });
+          window.electronAPI.showNotification({
+            subject: parsed.subject,
+            type: parsed.type,
+          });
+        }
+      });
+    }
   });
 
   async function fetchNotificationCount() {
     const notifications = await api.get(route('notifications'));
     notificationCount.set(notifications.length);
-
-    if (window.electronAPI) {
-      window.electronAPI.updateNotificationCount(notifications.length);
-    }
+    window.electronAPI.updateNotificationCount(notifications.length);
   }
 
   window.api = api;
