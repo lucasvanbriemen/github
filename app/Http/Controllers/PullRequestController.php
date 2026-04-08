@@ -6,6 +6,7 @@ use App\Helpers\ApiHelper;
 use App\Helpers\DiffRenderer;
 use App\Models\Item;
 use App\Models\PullRequest;
+use App\Services\NotificationAutoResolver;
 use App\Models\PullRequestDetails;
 use App\Services\NotificationAutoResolver;
 use App\Services\RepositoryService;

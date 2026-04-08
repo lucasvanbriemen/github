@@ -64,10 +64,6 @@ class NotificationAutoResolver
             }
         }
 
-        if ($resolved > 0) {
-            self::broadcastCount();
-        }
-
         return $resolved;
     }
 
@@ -78,16 +74,6 @@ class NotificationAutoResolver
             ->where('completed', false)
             ->update(['completed' => true]);
 
-        if ($resolved > 0) {
-            self::broadcastCount();
-        }
-
         return $resolved;
-    }
-
-    private static function broadcastCount(): void
-    {
-        $count = Notification::where('completed', false)->count();
-        Ably::send('notifications', ['count' => $count]);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\BaseComment;
 use App\Models\Item;
 use App\Services\NotificationAutoResolver;
 use App\Services\RepositoryService;
+use App\Services\NotificationAutoResolver;
 use GrahamCampbell\GitHub\Facades\GitHub;
 use OpenAI;
 
