@@ -388,77 +388,114 @@ class DiffRenderer
         $pairingMap = [];
         $usedNewIndices = [];
 
-        // Find all deletions and additions
-        $deletions = [];
-        $additions = [];
+        // Assign block numbers based on context line boundaries.
+        // Lines between the Nth and (N+1)th context lines share block number N.
+        // This prevents pairing deletions with additions across context lines,
+        // which would cause the row builder to skip past context lines and
+        // misalign subsequent rows.
+        $oldBlocks = $this->assignChangeBlocks($oldLines);
+        $newBlocks = $this->assignChangeBlocks($newLines);
+
+        // Group deletions and additions by block
+        $deletionsByBlock = [];
+        $additionsByBlock = [];
 
         foreach ($oldLines as $i => $line) {
             if (($line['type'] ?? '') === 'del') {
-                $deletions[$i] = $line;
+                $block = $oldBlocks[$i];
+                $deletionsByBlock[$block][$i] = $line;
             }
         }
 
         foreach ($newLines as $i => $line) {
             if (($line['type'] ?? '') === 'add') {
-                $additions[$i] = $line;
+                $block = $newBlocks[$i];
+                $additionsByBlock[$block][$i] = $line;
             }
         }
 
-        // For each deletion, find the best matching addition
-        foreach ($deletions as $oldIdx => $delLine) {
-            $delContent = (string) ($delLine['content'] ?? '');
-            $delNoWs = preg_replace('/\s/u', '', $delContent);
+        // For each block, pair deletions with additions
+        foreach ($deletionsByBlock as $block => $deletions) {
+            $additions = $additionsByBlock[$block] ?? [];
 
-            $bestPerfectRawDistance = PHP_INT_MAX;
-            $bestPerfectIdx = null;
-            $bestPartialDistance = PHP_INT_MAX;
-            $bestPartialIdx = null;
+            foreach ($deletions as $oldIdx => $delLine) {
+                $delContent = (string) ($delLine['content'] ?? '');
+                $delNoWs = preg_replace('/\s/u', '', $delContent);
 
-            foreach ($additions as $newIdx => $addLine) {
-                // Skip already used additions
-                if (isset($usedNewIndices[$newIdx])) {
-                    continue;
-                }
+                $bestPerfectRawDistance = PHP_INT_MAX;
+                $bestPerfectIdx = null;
+                $bestPartialDistance = PHP_INT_MAX;
+                $bestPartialIdx = null;
 
-                $addContent = (string) ($addLine['content'] ?? '');
-                $addNoWs = preg_replace('/\s/u', '', $addContent);
-
-                // Perfect match ignoring whitespace — prefer closest indentation
-                if ($delNoWs === $addNoWs && $delNoWs !== '') {
-                    $rawDistance = levenshtein($delContent, $addContent);
-                    if ($rawDistance < $bestPerfectRawDistance) {
-                        $bestPerfectRawDistance = $rawDistance;
-                        $bestPerfectIdx = $newIdx;
-                        if ($rawDistance === 0) {
-                            break; // Exact match including whitespace
-                        }
+                foreach ($additions as $newIdx => $addLine) {
+                    // Skip already used additions
+                    if (isset($usedNewIndices[$newIdx])) {
+                        continue;
                     }
 
-                    continue;
+                    $addContent = (string) ($addLine['content'] ?? '');
+                    $addNoWs = preg_replace('/\s/u', '', $addContent);
+
+                    // Perfect match ignoring whitespace — prefer closest indentation
+                    if ($delNoWs === $addNoWs && $delNoWs !== '') {
+                        $rawDistance = levenshtein($delContent, $addContent);
+                        if ($rawDistance < $bestPerfectRawDistance) {
+                            $bestPerfectRawDistance = $rawDistance;
+                            $bestPerfectIdx = $newIdx;
+                            if ($rawDistance === 0) {
+                                break; // Exact match including whitespace
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    // Use Levenshtein distance for partial matching
+                    $distance = levenshtein($delNoWs, $addNoWs);
+                    // Normalize by average length to get a distance that favors longer similar strings
+                    $avgLen = (strlen($delNoWs) + strlen($addNoWs)) / 2;
+                    $normalizedDistance = $avgLen > 0 ? $distance / $avgLen : $distance;
+
+                    if ($normalizedDistance < $bestPartialDistance && $normalizedDistance < 0.3) {
+                        $bestPartialDistance = $normalizedDistance;
+                        $bestPartialIdx = $newIdx;
+                    }
                 }
 
-                // Use Levenshtein distance for partial matching
-                $distance = levenshtein($delNoWs, $addNoWs);
-                // Normalize by average length to get a distance that favors longer similar strings
-                $avgLen = (strlen($delNoWs) + strlen($addNoWs)) / 2;
-                $normalizedDistance = $avgLen > 0 ? $distance / $avgLen : $distance;
+                // Perfect content matches always take priority over partial matches
+                $bestNewIdx = $bestPerfectIdx ?? $bestPartialIdx;
 
-                if ($normalizedDistance < $bestPartialDistance && $normalizedDistance < 0.3) {
-                    $bestPartialDistance = $normalizedDistance;
-                    $bestPartialIdx = $newIdx;
+                if ($bestNewIdx !== null) {
+                    $pairingMap[$oldIdx] = $bestNewIdx;
+                    $usedNewIndices[$bestNewIdx] = true;
                 }
-            }
-
-            // Perfect content matches always take priority over partial matches
-            $bestNewIdx = $bestPerfectIdx ?? $bestPartialIdx;
-
-            if ($bestNewIdx !== null) {
-                $pairingMap[$oldIdx] = $bestNewIdx;
-                $usedNewIndices[$bestNewIdx] = true;
             }
         }
 
         return $this->removeCrossingPairs($pairingMap);
+    }
+
+    /**
+     * Assign block numbers to change lines based on context line boundaries.
+     * Change lines between the Nth and (N+1)th context lines share block number N.
+     * Since context lines appear in both old and new arrays, block numbers correspond
+     * between the two sides, ensuring deletions only pair with additions in the same region.
+     */
+    private function assignChangeBlocks(array $lines): array
+    {
+        $blockMap = [];
+        $block = 0;
+
+        foreach ($lines as $i => $line) {
+            $type = $line['type'] ?? '';
+            if ($type === 'normal') {
+                $block++;
+            } else {
+                $blockMap[$i] = $block;
+            }
+        }
+
+        return $blockMap;
     }
 
     /**
