@@ -7,6 +7,8 @@ const { autoUpdater } = require('electron-updater');
 
 const APP_URL = "https://github.lucasvanbriemen.nl/";
 
+app.setAppUserModelId('nl.ltvb.github-gui');
+
 let mainWindow = null;
 let tray = null;
 let flashInterval = null;
