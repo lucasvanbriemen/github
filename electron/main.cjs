@@ -12,13 +12,9 @@ let soundWindow = null;
 let notificationSoundDataUrl = null;
 
 function loadNotificationSound() {
-  try {
-    if (fs.existsSync(notificationSoundPath)) {
-      const b64 = fs.readFileSync(notificationSoundPath).toString('base64');
-      notificationSoundDataUrl = `data:audio/wav;base64,${b64}`;
-    }
-  } catch (e) {
-    console.log('[sound] failed to load wav:', e);
+  if (fs.existsSync(notificationSoundPath)) {
+    const b64 = fs.readFileSync(notificationSoundPath).toString('base64');
+    notificationSoundDataUrl = `data:audio/wav;base64,${b64}`;
   }
 }
 
@@ -36,14 +32,11 @@ function playNotificationSound() {
   if (!soundWindow || soundWindow.isDestroyed()) createSoundWindow();
   const url = notificationSoundDataUrl;
   const js = `(() => {
-    try {
-      if (!window.__audio) window.__audio = new Audio(${JSON.stringify(url)});
-      window.__audio.currentTime = 0;
-      const p = window.__audio.play();
-      if (p && p.catch) p.catch(e => console.log('[audio] play error', e));
-    } catch (e) { console.log('[audio] threw', e); }
+    if (!window.__audio) window.__audio = new Audio(${JSON.stringify(url)});
+    window.__audio.currentTime = 0;
+    const p = window.__audio.play();
   })();`;
-  soundWindow.webContents.executeJavaScript(js).catch((e) => console.log('[sound] exec error:', e));
+  soundWindow.webContents.executeJavaScript(js);
 }
 
 const APP_URL = "https://github.lucasvanbriemen.nl/";
@@ -368,10 +361,7 @@ function escapeXml(str) {
 }
 
 function showDetailedNotification(data) {
-  console.log('[notification] isSupported:', ElectronNotification.isSupported());
   if (!ElectronNotification.isSupported()) return;
-
-  console.log('[notification] showing:', data);
 
   const body = data.subject || 'New notification';
 
@@ -418,7 +408,6 @@ ipcMain.on('notification-count', (_event, count) => {
 });
 
 ipcMain.on('show-notification', (_event, data) => {
-  console.log('[ipc] show-notification received:', data);
   showDetailedNotification(data);
 });
 
