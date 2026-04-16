@@ -386,9 +386,6 @@ function showDetailedNotification(data) {
 
   notification.on('click', () => focusWindow());
   notification.on('action', () => focusWindow());
-  notification.on('show', () => console.log('[notification] displayed successfully'));
-  notification.on('failed', (e) => console.log('[notification] failed:', e));
-  notification.on('close', () => console.log('[notification] closed'));
   notification.show();
   playNotificationSound();
 }
@@ -398,7 +395,6 @@ ipcMain.on('notification-count', (_event, count) => {
 });
 
 ipcMain.on('show-notification', (_event, data) => {
-  console.log('[ipc] show-notification received:', data);
   showDetailedNotification(data);
 });
 
