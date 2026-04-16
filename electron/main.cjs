@@ -366,10 +366,9 @@ function showDetailedNotification(data) {
   const body = data.subject || 'New notification';
 
   let n;
-  if (process.platform === 'win32') {
-    const iconSrc = iconPath ? `file:///${iconPath.replace(/\\/g, '/')}` : '';
-    const imageXml = iconSrc ? `<image placement="appLogoOverride" src="${escapeXml(iconSrc)}"/>` : '';
-    const toastXml = `<?xml version="1.0" encoding="utf-8"?>
+  const iconSrc = iconPath ? `file:///${iconPath.replace(/\\/g, '/')}` : '';
+  const imageXml = iconSrc ? `<image placement="appLogoOverride" src="${escapeXml(iconSrc)}"/>` : '';
+  const toastXml = `<?xml version="1.0" encoding="utf-8"?>
 <toast scenario="reminder" activationType="foreground" launch="focus">
   <visual>
     <binding template="ToastGeneric">
@@ -384,15 +383,7 @@ function showDetailedNotification(data) {
     <action content="Dismiss" activationType="system" arguments="dismiss"/>
   </actions>
 </toast>`;
-    n = new ElectronNotification({ toastXml });
-  } else {
-    n = new ElectronNotification({
-      title: 'GitHub GUI',
-      body,
-      icon: iconPath,
-      silent: true,
-    });
-  }
+  n = new ElectronNotification({ toastXml });
 
   n.on('click', () => focusWindow());
   n.on('action', () => focusWindow());
