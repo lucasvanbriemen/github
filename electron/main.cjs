@@ -365,7 +365,6 @@ function showDetailedNotification(data) {
 
   const body = data.subject || 'New notification';
 
-  let n;
   const iconSrc = iconPath ? `file:///${iconPath.replace(/\\/g, '/')}` : '';
   const imageXml = iconSrc ? `<image placement="appLogoOverride" src="${escapeXml(iconSrc)}"/>` : '';
   const toastXml = `<?xml version="1.0" encoding="utf-8"?>
@@ -383,14 +382,14 @@ function showDetailedNotification(data) {
     <action content="Dismiss" activationType="system" arguments="dismiss"/>
   </actions>
 </toast>`;
-  n = new ElectronNotification({ toastXml });
+  const notification = new Notification({ toastXml });
 
-  n.on('click', () => focusWindow());
-  n.on('action', () => focusWindow());
-  n.on('show', () => console.log('[notification] displayed successfully'));
-  n.on('failed', (e) => console.log('[notification] failed:', e));
-  n.on('close', () => console.log('[notification] closed'));
-  n.show();
+  notification.on('click', () => focusWindow());
+  notification.on('action', () => focusWindow());
+  notification.on('show', () => console.log('[notification] displayed successfully'));
+  notification.on('failed', (e) => console.log('[notification] failed:', e));
+  notification.on('close', () => console.log('[notification] closed'));
+  notification.show();
   playNotificationSound();
 }
 
