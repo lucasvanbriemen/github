@@ -5,6 +5,40 @@ const fs = require('fs');
 const zlib = require('zlib');
 const { autoUpdater } = require('electron-updater');
 
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
+const notificationSoundPath = path.join(__dirname, 'sounds', 'notification.wav');
+let soundWindow = null;
+let notificationSoundDataUrl = null;
+
+function loadNotificationSound() {
+  if (fs.existsSync(notificationSoundPath)) {
+    const b64 = fs.readFileSync(notificationSoundPath).toString('base64');
+    notificationSoundDataUrl = `data:audio/wav;base64,${b64}`;
+  }
+}
+
+function createSoundWindow() {
+  if (soundWindow && !soundWindow.isDestroyed()) return;
+  soundWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true, backgroundThrottling: false },
+  });
+  soundWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><html><body><script>window.__audio=null;</script></body></html>'));
+}
+
+function playNotificationSound() {
+  if (!notificationSoundDataUrl) return;
+  if (!soundWindow || soundWindow.isDestroyed()) createSoundWindow();
+  const url = notificationSoundDataUrl;
+  const js = `(() => {
+    if (!window.__audio) window.__audio = new Audio(${JSON.stringify(url)});
+    window.__audio.currentTime = 0;
+    const p = window.__audio.play();
+  })();`;
+  soundWindow.webContents.executeJavaScript(js);
+}
+
 const APP_URL = "https://github.lucasvanbriemen.nl/";
 
 app.setAppUserModelId('nl.ltvb.github-gui');
@@ -327,22 +361,36 @@ function escapeXml(str) {
 }
 
 function showDetailedNotification(data) {
-  console.log('[notification] isSupported:', ElectronNotification.isSupported());
   if (!ElectronNotification.isSupported()) return;
 
-  console.log('[notification] showing:', data);
+  const body = data.subject || 'New notification';
 
-  const n = new ElectronNotification({
-    title: 'GitHub GUI',
-    body: data.subject || 'New notification',
-    icon: iconPath,
-    silent: false,
-  });
-  n.on('click', () => focusWindow());
-  n.on('show', () => console.log('[notification] displayed successfully'));
-  n.on('failed', (e) => console.log('[notification] failed:', e));
-  n.on('close', () => console.log('[notification] closed'));
-  n.show();
+  const iconSrc = iconPath ? `file:///${iconPath.replace(/\\/g, '/')}` : '';
+  const imageXml = iconSrc ? `<image placement="appLogoOverride" src="${escapeXml(iconSrc)}"/>` : '';
+  const toastXml = `<?xml version="1.0" encoding="utf-8"?>
+<toast scenario="reminder" activationType="foreground" launch="focus">
+  <visual>
+    <binding template="ToastGeneric">
+      ${imageXml}
+      <text>GitHub GUI</text>
+      <text>${escapeXml(body)}</text>
+    </binding>
+  </visual>
+  <audio silent="true"/>
+  <actions>
+    <action content="Open" activationType="foreground" arguments="focus"/>
+    <action content="Dismiss" activationType="system" arguments="dismiss"/>
+  </actions>
+</toast>`;
+  const notification = new Notification({ toastXml });
+
+  notification.on('click', () => focusWindow());
+  notification.on('action', () => focusWindow());
+  notification.on('show', () => console.log('[notification] displayed successfully'));
+  notification.on('failed', (e) => console.log('[notification] failed:', e));
+  notification.on('close', () => console.log('[notification] closed'));
+  notification.show();
+  playNotificationSound();
 }
 
 ipcMain.on('notification-count', (_event, count) => {
@@ -374,6 +422,8 @@ app.whenReady().then(async () => {
 
     createWindow();
     createTray();
+    loadNotificationSound();
+    createSoundWindow();
   } catch (e) {
     app.quit();
   }
