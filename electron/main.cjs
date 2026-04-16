@@ -3,7 +3,23 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 const zlib = require('zlib');
+const { spawn } = require('child_process');
 const { autoUpdater } = require('electron-updater');
+
+const notificationSoundPath = path.join(__dirname, 'sounds', 'notification.wav');
+
+function playNotificationSound() {
+  if (process.platform !== 'win32') return;
+  if (!fs.existsSync(notificationSoundPath)) return;
+  const cmd = `(New-Object Media.SoundPlayer '${notificationSoundPath.replace(/'/g, "''")}').PlaySync()`;
+  const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', cmd], {
+    windowsHide: true,
+    stdio: 'ignore',
+    detached: true,
+  });
+  child.on('error', (e) => console.log('[sound] spawn error:', e));
+  child.unref();
+}
 
 const APP_URL = "https://github.lucasvanbriemen.nl/";
 
@@ -332,17 +348,44 @@ function showDetailedNotification(data) {
 
   console.log('[notification] showing:', data);
 
-  const n = new ElectronNotification({
-    title: 'GitHub GUI',
-    body: data.subject || 'New notification',
-    icon: iconPath,
-    silent: false,
-  });
+  const body = data.subject || 'New notification';
+
+  let n;
+  if (process.platform === 'win32') {
+    const iconSrc = iconPath ? `file:///${iconPath.replace(/\\/g, '/')}` : '';
+    const imageXml = iconSrc ? `<image placement="appLogoOverride" src="${escapeXml(iconSrc)}"/>` : '';
+    const toastXml = `<?xml version="1.0" encoding="utf-8"?>
+<toast scenario="reminder" activationType="foreground" launch="focus">
+  <visual>
+    <binding template="ToastGeneric">
+      ${imageXml}
+      <text>GitHub GUI</text>
+      <text>${escapeXml(body)}</text>
+    </binding>
+  </visual>
+  <audio silent="true"/>
+  <actions>
+    <action content="Open" activationType="foreground" arguments="focus"/>
+    <action content="Dismiss" activationType="system" arguments="dismiss"/>
+  </actions>
+</toast>`;
+    n = new ElectronNotification({ toastXml });
+  } else {
+    n = new ElectronNotification({
+      title: 'GitHub GUI',
+      body,
+      icon: iconPath,
+      silent: true,
+    });
+  }
+
   n.on('click', () => focusWindow());
+  n.on('action', () => focusWindow());
   n.on('show', () => console.log('[notification] displayed successfully'));
   n.on('failed', (e) => console.log('[notification] failed:', e));
   n.on('close', () => console.log('[notification] closed'));
   n.show();
+  playNotificationSound();
 }
 
 ipcMain.on('notification-count', (_event, count) => {
