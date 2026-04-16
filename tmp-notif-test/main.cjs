@@ -1,31 +1,56 @@
-const { app, Notification } = require('electron');
+const { app, BrowserWindow, Notification } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
+const fs = require('fs');
 
 app.setAppUserModelId('nl.ltvb.github-gui');
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 function escapeXml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 const soundPath = path.join(__dirname, '..', 'electron', 'sounds', 'notification.wav');
+let soundWindow = null;
+let dataUrl = null;
 
-function playSound() {
-  const cmd = `(New-Object Media.SoundPlayer '${soundPath.replace(/'/g, "''")}').PlaySync()`;
-  console.log('[sound] spawning powershell; path:', soundPath);
-  const child = spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', cmd], {
-    windowsHide: true,
-  });
-  child.stdout.on('data', (d) => console.log('[sound stdout]', d.toString()));
-  child.stderr.on('data', (d) => console.log('[sound stderr]', d.toString()));
-  child.on('error', (e) => console.log('[sound] spawn error:', e));
-  child.on('exit', (code) => console.log('[sound] exit code:', code));
+function loadWav() {
+  const b64 = fs.readFileSync(soundPath).toString('base64');
+  dataUrl = `data:audio/wav;base64,${b64}`;
+  console.log('[sound] loaded', b64.length, 'b64 chars');
 }
 
-app.whenReady().then(() => {
+function createSoundWin() {
+  soundWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true, backgroundThrottling: false },
+  });
+  soundWindow.webContents.on('console-message', (_e, _l, msg) => console.log('[soundwin]', msg));
+  soundWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><html><body><script>window.__audio=null;</script></body></html>'));
+  return new Promise((resolve) => soundWindow.webContents.once('did-finish-load', resolve));
+}
+
+function playSound() {
+  if (!dataUrl) return;
+  const js = `(() => {
+    try {
+      if (!window.__audio) window.__audio = new Audio(${JSON.stringify(dataUrl)});
+      window.__audio.currentTime = 0;
+      const p = window.__audio.play();
+      if (p && p.then) p.then(() => console.log('play resolved')).catch(e => console.log('play error', e && e.message));
+    } catch (e) { console.log('threw', e && e.message); }
+  })();`;
+  soundWindow.webContents.executeJavaScript(js)
+    .then(() => console.log('[sound] exec ok'))
+    .catch(e => console.log('[sound] exec err:', e));
+}
+
+app.whenReady().then(async () => {
+  loadWav();
+  await createSoundWin();
+
   const iconPath = 'C:\\Users\\vanbr\\AppData\\Roaming\\github-gui\\icon.png';
   const iconSrc = `file:///${iconPath.replace(/\\/g, '/')}`;
-  const body = 'Testing custom sound + persistent toast';
+  const body = 'Custom sound + persistent toast';
 
   const toastXml = `<?xml version="1.0" encoding="utf-8"?>
 <toast scenario="reminder" activationType="foreground" launch="focus">

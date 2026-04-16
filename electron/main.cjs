@@ -3,22 +3,47 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 const zlib = require('zlib');
-const { spawn } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
 const notificationSoundPath = path.join(__dirname, 'sounds', 'notification.wav');
+let soundWindow = null;
+let notificationSoundDataUrl = null;
+
+function loadNotificationSound() {
+  try {
+    if (fs.existsSync(notificationSoundPath)) {
+      const b64 = fs.readFileSync(notificationSoundPath).toString('base64');
+      notificationSoundDataUrl = `data:audio/wav;base64,${b64}`;
+    }
+  } catch (e) {
+    console.log('[sound] failed to load wav:', e);
+  }
+}
+
+function createSoundWindow() {
+  if (soundWindow && !soundWindow.isDestroyed()) return;
+  soundWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { nodeIntegration: false, contextIsolation: true, backgroundThrottling: false },
+  });
+  soundWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><html><body><script>window.__audio=null;</script></body></html>'));
+}
 
 function playNotificationSound() {
-  if (process.platform !== 'win32') return;
-  if (!fs.existsSync(notificationSoundPath)) return;
-  const cmd = `(New-Object Media.SoundPlayer '${notificationSoundPath.replace(/'/g, "''")}').PlaySync()`;
-  const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', cmd], {
-    windowsHide: true,
-    stdio: 'ignore',
-    detached: true,
-  });
-  child.on('error', (e) => console.log('[sound] spawn error:', e));
-  child.unref();
+  if (!notificationSoundDataUrl) return;
+  if (!soundWindow || soundWindow.isDestroyed()) createSoundWindow();
+  const url = notificationSoundDataUrl;
+  const js = `(() => {
+    try {
+      if (!window.__audio) window.__audio = new Audio(${JSON.stringify(url)});
+      window.__audio.currentTime = 0;
+      const p = window.__audio.play();
+      if (p && p.catch) p.catch(e => console.log('[audio] play error', e));
+    } catch (e) { console.log('[audio] threw', e); }
+  })();`;
+  soundWindow.webContents.executeJavaScript(js).catch((e) => console.log('[sound] exec error:', e));
 }
 
 const APP_URL = "https://github.lucasvanbriemen.nl/";
@@ -417,6 +442,8 @@ app.whenReady().then(async () => {
 
     createWindow();
     createTray();
+    loadNotificationSound();
+    createSoundWindow();
   } catch (e) {
     app.quit();
   }
