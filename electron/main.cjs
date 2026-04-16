@@ -40,6 +40,7 @@ function playNotificationSound() {
 }
 
 const APP_URL = "https://github.lucasvanbriemen.nl/";
+const PROTOCOL = 'githubgui';
 
 app.setAppUserModelId('nl.ltvb.github-gui');
 
@@ -48,6 +49,7 @@ let tray = null;
 let flashInterval = null;
 let notificationCount = 0;
 let iconPath = null;
+let pendingDeepLink = null;
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
@@ -55,13 +57,69 @@ if (!gotTheLock) {
   app.quit();
 }
 
-app.on('second-instance', () => {
+function registerProtocol() {
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
+    }
+  } else {
+    app.setAsDefaultProtocolClient(PROTOCOL);
+  }
+}
+
+function parseDeepLink(argv) {
+  const url = (argv || []).find((a) => typeof a === 'string' && a.startsWith(`${PROTOCOL}://`));
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const encoded = u.searchParams.get('u');
+    if (encoded === null) return '';
+    return encoded;
+  } catch {
+    return null;
+  }
+}
+
+function handleDeepLink(relativeUrl) {
+  if (!mainWindow) return;
+  if (relativeUrl) {
+    const target = APP_URL.replace(/\/$/, '') + (relativeUrl.startsWith('/') ? relativeUrl : `/${relativeUrl}`);
+    try {
+      const curr = new URL(mainWindow.webContents.getURL());
+      const tgt = new URL(target);
+      if (curr.origin === tgt.origin && curr.pathname === tgt.pathname) {
+        mainWindow.webContents.executeJavaScript(`window.location.hash = ${JSON.stringify(tgt.hash)};`);
+      } else {
+        mainWindow.loadURL(target);
+      }
+    } catch {
+      mainWindow.loadURL(target);
+    }
+  }
+  focusWindow();
+}
+
+app.on('second-instance', (_event, argv) => {
+  const link = parseDeepLink(argv);
+  if (link !== null) {
+    handleDeepLink(link);
+    return;
+  }
+  focusWindow();
+});
+
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  const link = parseDeepLink([url]);
+  if (link === null) return;
   if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.show();
-    mainWindow.focus();
+    handleDeepLink(link);
+  } else {
+    pendingDeepLink = link;
   }
 });
+
+registerProtocol();
 
 function crc32(buf) {
   let crc = 0xFFFFFFFF;
@@ -416,10 +474,18 @@ app.whenReady().then(async () => {
     configureAutoStart();
     checkForUpdates();
 
+    const startupLink = parseDeepLink(process.argv);
+
     createWindow();
     createTray();
     loadNotificationSound();
     createSoundWindow();
+
+    const initialLink = pendingDeepLink ?? startupLink;
+    if (initialLink) {
+      pendingDeepLink = null;
+      mainWindow.webContents.once('did-finish-load', () => handleDeepLink(initialLink));
+    }
   } catch (e) {
     app.quit();
   }

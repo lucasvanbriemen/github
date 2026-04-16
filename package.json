@@ -17,6 +17,12 @@
     "build": {
         "appId": "nl.ltvb.github-gui",
         "productName": "GitHub GUI",
+        "protocols": [
+            {
+                "name": "GitHub GUI",
+                "schemes": ["githubgui"]
+            }
+        ],
         "directories": {
             "output": "dist-electron"
         },
