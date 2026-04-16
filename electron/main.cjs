@@ -408,6 +408,7 @@ ipcMain.on('notification-count', (_event, count) => {
 });
 
 ipcMain.on('show-notification', (_event, data) => {
+  console.log('[ipc] show-notification received:', data);
   showDetailedNotification(data);
 });
 
