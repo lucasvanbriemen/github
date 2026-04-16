@@ -241,6 +241,10 @@ function createWindow() {
     mainWindow.flashFrame(false);
     stopTrayFlash();
   });
+
+  mainWindow.on('show', () => {
+    mainWindow.webContents.send('window-shown');
+  });
 }
 
 function createTray() {
@@ -318,8 +322,15 @@ function handleNotificationUpdate(count) {
   }
 }
 
+function escapeXml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function showDetailedNotification(data) {
+  console.log('[notification] isSupported:', ElectronNotification.isSupported());
   if (!ElectronNotification.isSupported()) return;
+
+  console.log('[notification] showing:', data);
 
   const n = new ElectronNotification({
     title: 'GitHub GUI',
@@ -328,6 +339,9 @@ function showDetailedNotification(data) {
     silent: false,
   });
   n.on('click', () => focusWindow());
+  n.on('show', () => console.log('[notification] displayed successfully'));
+  n.on('failed', (e) => console.log('[notification] failed:', e));
+  n.on('close', () => console.log('[notification] closed'));
   n.show();
 }
 
@@ -336,6 +350,7 @@ ipcMain.on('notification-count', (_event, count) => {
 });
 
 ipcMain.on('show-notification', (_event, data) => {
+  console.log('[ipc] show-notification received:', data);
   showDetailedNotification(data);
 });
 
