@@ -20,7 +20,13 @@
       return comment.author?.display_name + ' commented  ' + comment.created_at_human;
     }
 
-    return comment.author?.display_name + ' ' + comment.details?.state + ' the PR  ' + comment.created_at_human;
+    const state_map = {
+      'approved': 'approved',
+      'changes_requested': 'requested changes',
+      'commented': 'commented'
+    };
+
+    return comment.author?.display_name + ' ' + state_map[comment.details?.state] + ' the PR  ' + comment.created_at_human;
   }
 
   // If the body is empty and there are no child comments, we don't want to show the comment
