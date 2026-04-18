@@ -24,6 +24,12 @@ class ProcessReleaseWebhook implements ShouldQueue
     {
         $payload = $event->payload;
 
+        if (! $payload || ! isset($payload->release) || ! isset($payload->repository)) {
+            return false;
+        }
+
+        $releaseData = $payload->release;
+
         $repoFullName = $payload->repository->full_name;
         $repository = Repository::where('full_name', $repoFullName)->first();
 
@@ -33,13 +39,13 @@ class ProcessReleaseWebhook implements ShouldQueue
         }
 
         Release::updateOrCreate(
-            ['github_id' => $payload->id],
+            ['github_id' => $releaseData->id],
             [
                 'repository_id' => $repository->id,
-                'name' => $payload->name,
-                'description' => $payload->body,
-                'author_id' => $payload->author->id,
-                'status' => $payload->draft ? 'draft' : 'published',
+                'name' => $releaseData->name,
+                'description' => $releaseData->body,
+                'author_id' => $releaseData->author->id ?? null,
+                'status' => $releaseData->draft ? 'draft' : 'published',
             ]
         );
 
