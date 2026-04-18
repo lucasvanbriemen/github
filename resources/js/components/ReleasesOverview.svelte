@@ -24,7 +24,7 @@
         <ListItem item={{
           type: 'release',
           state: 'open',
-          title: release.title,
+          title: release.name,
           number: release.id,
           created_at_human: release.created_at_human,
           author: release.author,
