@@ -12,6 +12,8 @@
       type = 'prs';
     } else if (item.type === 'project') {
       type = 'projects';
+    } else if (item.type === 'release') {
+      type = 'releases';
     }
 
     // Use item data if stores are not set (e.g., on homepage)
@@ -28,6 +30,10 @@
 
     if (item.type === 'project') {
       return `#${item.number} updated ${item.created_at_human}`;
+    }
+
+    if (item.type === 'release') {
+      return `created ${item.created_at_human} ago by ${item.author?.display_name}`;
     }
   }
 
