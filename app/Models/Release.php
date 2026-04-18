@@ -16,6 +16,17 @@ class Release extends Model
         return $this->belongsTo(GithubUser::class, 'author_id', 'id');
     }
 
+    protected $with = ['author'];
+
+    protected $appends = [
+        'created_at_human',
+    ];
+
+    public function getCreatedAtHumanAttribute()
+    {
+        return $this->created_at?->diffForHumans();
+    }
+
     public $fillable = [
         'github_id',
         'repository_id',
