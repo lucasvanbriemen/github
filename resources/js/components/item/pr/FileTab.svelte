@@ -247,7 +247,7 @@
                 {/if}
 
                 {#if selectedFile.status !== 'removed'}
-                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
+                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} bind:searchingTerm />
                 {/if}
               </div>
             {/each}
