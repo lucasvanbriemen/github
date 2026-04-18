@@ -7,6 +7,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\PullRequestController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\UploadController;
@@ -39,6 +40,9 @@ Route::middleware(IsLoggedIn::class)->group(function () {
 
         Route::get('/projects/{number}', [ProjectController::class, 'show'])
             ->name('project.show');
+
+        Route::get('/releases', [ReleaseController::class, 'index'])
+            ->name('releases');
 
         Route::post('/item/add-to-project', [ProjectController::class, 'addItemToProject'])
             ->name('project.item.add');
