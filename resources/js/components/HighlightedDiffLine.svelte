@@ -1,9 +1,8 @@
 <script>
   import { getContext } from 'svelte';
   import { highlightCodeInline, buildLineHtmlFromTokens } from '../utils/syntaxHighlighter.js';
-  import { diffSearch } from '../utils/diffSearchStore.svelte.js';
 
-  let { code = '', language = 'text', segments = null, lineType = 'normal', showWhitespace = true, lineNumber = null, side = null } = $props();
+  let { code = '', language = 'text', segments = null, lineType = 'normal', showWhitespace = true, lineNumber = null, side = null, searchingTerm = $bindable({ term: null }) } = $props();
 
   let highlightedHtml = $state('');
   let currentTheme = $state('github-light');
@@ -125,7 +124,7 @@
   $effect(() => {
     void showWhitespace;
     if (getPrecomputedTokens) void getPrecomputedTokens();
-    const term = diffSearch.term;
+    const term = searchingTerm.term;
     highlight(term);
   });
 </script>

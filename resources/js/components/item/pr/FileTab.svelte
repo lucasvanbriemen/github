@@ -4,9 +4,8 @@
   import ChangedLine from './ChangedLine.svelte';
   import ReviewPanel from './ReviewPanel.svelte';
   import { tokenizeAllLines, detectLanguage } from '../../../utils/syntaxHighlighter.js';
-  import { diffSearch } from '../../../utils/diffSearchStore.svelte.js';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false, searchingTerm = $bindable({ term: null }) } = $props();
 
   const applicableExtensionsForPreview = ['svg'];
 
@@ -22,9 +21,9 @@
   setContext('precomputedTokens', () => precomputedTokens);
 
   // In-diff search: set by Ctrl+Shift+F from current selection, cleared by Esc.
-  // Writes flow to the shared diffSearch.term rune (module-level $state) so all
+  // Writes flow to the shared searchingTerm.term rune (module-level $state) so all
   // HighlightedDiffLine instances in the tree react to changes reliably.
-  let searchTerm = $derived(diffSearch.term);
+  let searchTerm = $derived(searchingTerm.term);
 
   let searchResults = $derived.by(() => {
     if (!searchTerm || !files?.length) return [];
@@ -76,8 +75,8 @@
   }
 
   function handleSearchShortcut(e) {
-    if (e.key === 'Escape' && diffSearch.term) {
-      diffSearch.term = '';
+    if (e.key === 'Escape' && searchTerm.term) {
+      searchTerm.term = '';
       e.preventDefault();
       return;
     }
@@ -88,7 +87,7 @@
     const selected = (window.getSelection()?.toString() || '').trim();
     if (!selected) return;
 
-    diffSearch.term = selected;
+    searchTerm.term = selected;
     e.preventDefault();
   }
 
@@ -194,9 +193,9 @@
   <div class="diff-search-bar">
     <div class="header-row">
       <span class="label">Finding:</span>
-      <span class="term">{searchTerm}</span>
+      <span class="term">{searchTerm.term}</span>
       <span class="summary">{totalMatches} match{totalMatches === 1 ? '' : 'es'} in {searchResults.length} file{searchResults.length === 1 ? '' : 's'}</span>
-      <button type="button" class="clear" onclick={() => (diffSearch.term = '')} title="Clear (Esc)">✕</button>
+      <button type="button" class="clear" onclick={() => (searchTerm.term = '')} title="Clear (Esc)">✕</button>
     </div>
 
     {#if searchResults.length > 0}
@@ -244,7 +243,7 @@
             {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
               <div class="changed-line-pair">
                 {#if selectedFile.status !== 'added'}
-                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
+                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} bind:searchingTerm />
                 {/if}
 
                 {#if selectedFile.status !== 'removed'}

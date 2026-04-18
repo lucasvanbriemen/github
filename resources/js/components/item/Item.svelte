@@ -21,6 +21,7 @@
   let loadingFiles = $state(true);
   let selectedFileIndex = $state(0);
   let selectedFile = $state(null);
+  let searchingTerm = $state({ term: null });
 
   let item = $state({});
   let isPR = $state(type == 'prs');
@@ -145,7 +146,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {item} {files} {loadingFiles} bind:selectedFile bind:selectedFileIndex {params} {showWhitespace} />
+        <FileTab {item} {files} {loadingFiles} bind:selectedFile bind:selectedFileIndex {params} {showWhitespace} bind:searchingTerm />
       {/if}
     {/if}
   </div>
