@@ -40,6 +40,7 @@
     <a href="#/{$organization}/{$repository}/" class:active={selectedRoute === ''} onclick={() => selectedRoute = ''}>Overview</a>
     <a href="#/{$organization}/{$repository}/items" class:active={selectedRoute === 'items'} onclick={() => selectedRoute = 'items'}>Items</a>
     <a href="#/{$organization}/{$repository}/projects" class:active={selectedRoute === 'projects'} onclick={() => selectedRoute = 'projects'}>Projects</a>
+    <a href="#/{$organization}/{$repository}/releases" class:active={selectedRoute === 'releases'} onclick={() => selectedRoute = 'releases'}>Releases</a>
   {/if}
 </header>
 

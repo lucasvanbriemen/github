@@ -26,6 +26,8 @@
     '/:organization/:repository/projects': ProjectsOverview,
     '/:organization/:repository/projects/:number': Project,
 
+    '/:organization/:repository/releases': ProjectsOverview,
+
     // Item Related
     '/:organization/:repository/:type': ItemOverview,
     '/:organization/:repository/new/:type/:branch?': NewItem,
