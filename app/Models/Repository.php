@@ -126,6 +126,12 @@ class Repository extends Model
         );
     }
 
+    public function releases()
+    {
+        return $this->hasMany(Release::class, 'repository_id', 'id')
+            ->orderBy('created_at', 'desc');
+    }
+
     public $fillable = [
         'organization_id',
         'name',
