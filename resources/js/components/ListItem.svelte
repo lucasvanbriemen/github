@@ -43,7 +43,7 @@
   }
 </script>
 
-<a class="list-item" class:assigned={isCurrentUserAssigned()} class:has-notifications={item.notification_count > 0} href="{itemUrl(item.number)}">
+<a class="list-item {item.type}-{item.state}" class:assigned={isCurrentUserAssigned()} class:has-notifications={item.notification_count > 0} href="{itemUrl(item.number)}">
   <div class="icon-wrapper">
     <Icon name={item.type} size="1.5rem" className="item-{item.state}" />
     {#if item.notification_count > 0}

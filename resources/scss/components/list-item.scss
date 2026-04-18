@@ -10,6 +10,18 @@
   align-items: center;
   gap: 1rem;
 
+  &.release-open {
+    border-left: 4px solid var(--success-color);
+    background-color: color-mix(in srgb, var(--success-color) 6%, var(--background-color-one));
+    padding-left: calc(1rem - 6px);
+  }
+
+  &.release-draft {
+    border-left: 4px solid var(--draft-color);
+    background-color: color-mix(in srgb, var(--draft-color) 6%, var(--background-color-one));
+    padding-left: calc(1rem - 6px);
+  }
+
   .icon-wrapper {
     position: relative;
     flex-shrink: 0;
