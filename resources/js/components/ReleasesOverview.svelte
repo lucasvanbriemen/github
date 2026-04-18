@@ -5,10 +5,10 @@
   import { organization, repository } from './stores';
 
   let isLoading = $state(true);
-  let projects = $state([]);
+  let releases = $state([]);
 
   onMount(async () => {
-    projects = await api.get(route('organizations.repositories.projects', { $organization, $repository }));
+    releases = await api.get(route('organizations.repositories.releases', { $organization, $repository }));
     isLoading = false;
   });
 </script>
@@ -20,13 +20,13 @@
         <ListItemSkeleton />
       {/each}
     {:else}
-      {#each projects as project}
+      {#each releases as release}
         <ListItem item={{
-          type: 'project',
+          type: 'release',
           state: 'open',
-          title: project.title,
-          number: project.number,
-          created_at_human: project.updated_at,
+          title: release.title,
+          number: release.number,
+          created_at_human: release.updated_at,
           }} />
       {/each}
     {/if}
