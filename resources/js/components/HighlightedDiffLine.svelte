@@ -9,7 +9,6 @@
 
   const getPrecomputedTokens = getContext('precomputedTokens') ?? null;
 
-  // Detect theme from document attribute
   function detectTheme() {
     const theme = document.documentElement.getAttribute('data-theme');
     return theme === 'dark' ? 'github-dark' : 'github-light';
@@ -18,7 +17,6 @@
   async function highlight() {
     currentTheme = detectTheme();
 
-    // Try pre-computed tokens first (correct cross-line grammar state)
     if (getPrecomputedTokens && lineNumber != null && side) {
       const tokenData = getPrecomputedTokens();
       const sideKey = side.toLowerCase();
@@ -30,7 +28,7 @@
       }
     }
 
-    // Fallback: individual per-segment highlighting
+    //er-segment highlighting
     if (segments && Array.isArray(segments) && segments.length > 0) {
       highlightedHtml = await renderSegments(segments);
     } else {
@@ -64,7 +62,6 @@
     return html;
   }
 
-  // Re-highlight when showWhitespace changes or pre-computed tokens arrive
   $effect(() => {
     void showWhitespace;
     if (getPrecomputedTokens) {
