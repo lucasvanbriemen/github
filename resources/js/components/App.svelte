@@ -8,6 +8,7 @@
   import RepositoryDashboard from './RepositoryDashboard.svelte';
   import ItemOverview from './itemOverview/ItemOverview.svelte';
   import ProjectsOverview from './ProjectsOverview.svelte';
+  import ReleasesOverview from './ReleasesOverview.svelte';
   import Project from './Project.svelte';
   import Item from './item/Item.svelte';
   import NewItem from './item/NewItem.svelte';
@@ -26,7 +27,7 @@
     '/:organization/:repository/projects': ProjectsOverview,
     '/:organization/:repository/projects/:number': Project,
 
-    '/:organization/:repository/releases': ProjectsOverview,
+    '/:organization/:repository/releases': ReleasesOverview,
 
     // Item Related
     '/:organization/:repository/:type': ItemOverview,
