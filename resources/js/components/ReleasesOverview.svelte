@@ -23,7 +23,7 @@
       {#each releases as release}
         <ListItem item={{
           type: 'release',
-          state: 'open',
+          state: release.status,
           title: release.name,
           number: release.id,
           created_at_human: release.created_at_human,
