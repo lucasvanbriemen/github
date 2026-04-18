@@ -25,8 +25,9 @@
           type: 'release',
           state: 'open',
           title: release.title,
-          number: release.number,
-          created_at_human: release.updated_at,
+          number: release.id,
+          created_at_human: release.created_at_human,
+          author: release.author,
           }} />
       {/each}
     {/if}
