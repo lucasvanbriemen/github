@@ -79,8 +79,8 @@
   }
 
   function handleSearchShortcut(e) {
-    if (e.key === 'Escape' && searchTerm.term) {
-      searchTerm.term = '';
+    if (e.key === 'Escape' && searchTerm) {
+      searchingTerm = '';
       e.preventDefault();
       return;
     }
@@ -91,7 +91,7 @@
     const selected = (window.getSelection()?.toString() || '').trim();
     if (!selected) return;
 
-    searchTerm.term = selected;
+    searchingTerm = selected;
     e.preventDefault();
   }
 
@@ -197,28 +197,10 @@
   <div class="diff-search-bar">
     <div class="header-row">
       <span class="label">Finding:</span>
-      <span class="term">{searchTerm.term}</span>
+      <span class="term">{searchTerm}</span>
       <span class="summary">{totalMatches} match{totalMatches === 1 ? '' : 'es'} in {searchResults.length} file{searchResults.length === 1 ? '' : 's'}</span>
-      <button type="button" class="clear" onclick={() => (searchTerm.term = '')} title="Clear (Esc)">✕</button>
+      <button type="button" class="clear" onclick={() => (searchingTerm = '')} title="Clear (Esc)">✕</button>
     </div>
-
-    {#if searchResults.length > 0}
-      <ul class="results">
-        {#each searchResults as result}
-          <li>
-            <button
-              type="button"
-              class="result"
-              class:active={result.fileIndex === selectedFileIndex}
-              onclick={() => jumpToResult(result.fileIndex)}
-            >
-              <span class="count">{result.count}</span>
-              <span class="name">{result.filename}</span>
-            </button>
-          </li>
-        {/each}
-      </ul>
-    {/if}
   </div>
 {/if}
 

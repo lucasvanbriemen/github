@@ -9,7 +9,24 @@
   import Modal from '../Modal.svelte';
   import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), searchingTerm = $bindable('') } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), searchingTerm = $bindable(''), searchResults = [] } = $props();
+
+  function jumpToSearchResult(fileIndex) {
+    selectedFileIndex = fileIndex;
+
+    const deadline = performance.now() + 2000;
+    const tryFlash = () => {
+      const first = document.querySelector('.pr-files mark.search-match');
+      if (first) {
+        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        first.classList.add('search-match-focus');
+        setTimeout(() => first.classList.remove('search-match-focus'), 1500);
+        return;
+      }
+      if (performance.now() < deadline) requestAnimationFrame(tryFlash);
+    };
+    requestAnimationFrame(tryFlash);
+  }
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -311,6 +328,21 @@
 
     <SidebarGroup title="Search">
       <input type="text" bind:value={searchingTerm} placeholder="Search files..." class="search-input" oninput={() => searchingTerm = searchingTerm.toLowerCase()} />
+      <ul class="search-results">
+        {#each searchResults as result}
+          <li>
+            <button
+              type="button"
+              class="result"
+              class:active={result.fileIndex === selectedFileIndex}
+              onclick={() => jumpToSearchResult(result.fileIndex)}
+            >
+              <span class="count">{result.count}</span>
+              <span class="name">{shortFileName(result.filename)}</span>
+            </button>
+          </li>
+        {/each}
+      </ul>
     </SidebarGroup>
   {/if}
 
