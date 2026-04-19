@@ -124,8 +124,7 @@
   $effect(() => {
     void showWhitespace;
     if (getPrecomputedTokens) void getPrecomputedTokens();
-    const term = searchingTerm;
-    highlight(term);
+    highlight(searchingTerm);
   });
 </script>
 
