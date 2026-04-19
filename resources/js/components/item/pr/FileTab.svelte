@@ -5,7 +5,7 @@
   import ReviewPanel from './ReviewPanel.svelte';
   import { tokenizeAllLines, detectLanguage } from '../../../utils/syntaxHighlighter.js';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false, searchingTerm = $bindable('') } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false, searchingTerm = $bindable(''), searchResults = $bindable([]) } = $props();
 
   const applicableExtensionsForPreview = ['svg'];
 
@@ -25,7 +25,7 @@
   // HighlightedDiffLine instances in the tree react to changes reliably.
   let searchTerm = $derived(searchingTerm);
 
-  let searchResults = $derived.by(() => {
+  let computedSearchResults = $derived.by(() => {
     if (!searchTerm || !files?.length) return [];
     const needle = searchTerm.toLowerCase();
     const results = [];
@@ -50,6 +50,10 @@
     });
 
     return results;
+  });
+
+  $effect(() => {
+    searchResults = computedSearchResults;
   });
 
   let totalMatches = $derived(searchResults.reduce((s, r) => s + r.count, 0));
