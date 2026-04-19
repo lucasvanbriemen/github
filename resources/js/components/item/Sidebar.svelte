@@ -331,12 +331,7 @@
       <ul class="search-results">
         {#each searchResults as result}
           <li>
-            <button
-              type="button"
-              class="result"
-              class:active={result.fileIndex === selectedFileIndex}
-              onclick={() => jumpToSearchResult(result.fileIndex)}
-            >
+            <button type="button" class="result" class:active={result.fileIndex === selectedFileIndex} onclick={() => jumpToSearchResult(result.fileIndex)}>
               <span class="count">{result.count}</span>
               <span class="name">{shortFileName(result.filename)}</span>
             </button>
