@@ -5,7 +5,7 @@
   import Markdown from '../../Markdown.svelte';
   import { organization, repository } from '../../stores';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true, searchingTerm = $bindable({ term: null }) } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true, searchingTerm = $bindable('') } = $props();
 
   let number = params.number;
 

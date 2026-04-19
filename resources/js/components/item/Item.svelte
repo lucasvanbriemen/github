@@ -21,7 +21,7 @@
   let loadingFiles = $state(true);
   let selectedFileIndex = $state(0);
   let selectedFile = $state(null);
-  let searchingTerm = $state({ term: null });
+  let searchingTerm = $state('');
 
   let item = $state({});
   let isPR = $state(type == 'prs');

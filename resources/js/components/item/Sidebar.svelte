@@ -9,7 +9,7 @@
   import Modal from '../Modal.svelte';
   import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), searchingTerm = $bindable({ term: null }) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), searchingTerm = $bindable('') } = $props();
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -310,7 +310,7 @@
     </SidebarGroup>
 
     <SidebarGroup title="Search">
-      <input type="text" bind:value={searchingTerm.term} placeholder="Search files..." class="search-input" oninput={() => searchingTerm.term = searchingTerm.term.toLowerCase()} />
+      <input type="text" bind:value={searchingTerm} placeholder="Search files..." class="search-input" oninput={() => searchingTerm = searchingTerm.toLowerCase()} />
     </SidebarGroup>
   {/if}
 

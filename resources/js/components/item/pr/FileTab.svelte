@@ -5,7 +5,7 @@
   import ReviewPanel from './ReviewPanel.svelte';
   import { tokenizeAllLines, detectLanguage } from '../../../utils/syntaxHighlighter.js';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false, searchingTerm = $bindable({ term: null }) } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false, searchingTerm = $bindable('') } = $props();
 
   const applicableExtensionsForPreview = ['svg'];
 
@@ -21,9 +21,9 @@
   setContext('precomputedTokens', () => precomputedTokens);
 
   // In-diff search: set by Ctrl+Shift+F from current selection, cleared by Esc.
-  // Writes flow to the shared searchingTerm.term rune (module-level $state) so all
+  // Writes flow to the shared searchingTerm rune (module-level $state) so all
   // HighlightedDiffLine instances in the tree react to changes reliably.
-  let searchTerm = $derived(searchingTerm.term);
+  let searchTerm = $derived(searchingTerm);
 
   let searchResults = $derived.by(() => {
     if (!searchTerm || !files?.length) return [];
