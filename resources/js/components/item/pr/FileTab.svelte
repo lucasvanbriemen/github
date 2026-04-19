@@ -58,26 +58,6 @@
 
   let totalMatches = $derived(searchResults.reduce((s, r) => s + r.count, 0));
 
-  // Jump to a file from the search-results list and briefly flash the first match.
-  // Highlighting is async (precomputed tokens rebuild on file switch), so poll
-  // for the first mark to appear instead of guessing a fixed delay.
-  function jumpToResult(fileIndex) {
-    selectedFileIndex = fileIndex;
-
-    const deadline = performance.now() + 2000;
-    const tryFlash = () => {
-      const first = document.querySelector('.pr-files mark.search-match');
-      if (first) {
-        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        first.classList.add('search-match-focus');
-        setTimeout(() => first.classList.remove('search-match-focus'), 1500);
-        return;
-      }
-      if (performance.now() < deadline) requestAnimationFrame(tryFlash);
-    };
-    requestAnimationFrame(tryFlash);
-  }
-
   function handleSearchShortcut(e) {
     if (e.key === 'Escape' && searchTerm) {
       searchingTerm = '';
