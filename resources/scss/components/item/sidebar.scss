@@ -162,12 +162,12 @@
   }
 }
 
-.file-selector {
+.file-selector, .search-results {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 
-  .file-name {
+  .file-name, .result {
     background-color: transparent;
     border: none;
     text-align: left;

@@ -5,7 +5,7 @@
   import Markdown from '../../Markdown.svelte';
   import { organization, repository } from '../../stores';
 
-  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true } = $props();
+  let { changedLinePair = {}, selectedFile = {}, comments = [], pendingReviewComments = $bindable([]), side, params, showWhitespace = true, searchingTerm = $bindable('') } = $props();
 
   let number = params.number;
 
@@ -86,6 +86,7 @@
           lineNumber={displayLine.number}
           {side}
           {showWhitespace}
+          bind:searchingTerm
         />
       {/if}
     </div>

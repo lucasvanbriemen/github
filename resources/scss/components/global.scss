@@ -88,3 +88,30 @@ body {
     }
   }
 }
+
+mark.search-match {
+  background-color: rgba(234, 179, 8, 0.55);
+  color: inherit;
+  border-radius: 0.125rem;
+  padding: 0;
+}
+
+mark.search-match.search-match-focus {
+  animation: search-match-pulse 1.5s ease-out;
+  border-radius: 0.25rem;
+}
+
+@keyframes search-match-pulse {
+  0% {
+    background-color: rgba(234, 179, 8, 1);
+    box-shadow: 0 0 0 6px rgba(234, 179, 8, 0.7);
+  }
+  60% {
+    background-color: rgba(234, 179, 8, 0.9);
+    box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.35);
+  }
+  100% {
+    background-color: rgba(234, 179, 8, 0.55);
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+  }
+}

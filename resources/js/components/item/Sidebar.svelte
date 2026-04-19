@@ -9,7 +9,24 @@
   import Modal from '../Modal.svelte';
   import { organization, repository, repoMetadata, waitForMetadata } from '../stores';
 
-  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null) } = $props();
+  let { item, isPR, isLoading, metadata, params = {}, activeTab, files, showWhitespace = $bindable(false), selectedFileIndex = $bindable(0), selectedFile = $bindable(null), searchingTerm = $bindable(''), searchResults = [] } = $props();
+
+  function jumpToSearchResult(fileIndex) {
+    selectedFileIndex = fileIndex;
+
+    const deadline = performance.now() + 2000;
+    const tryFlash = () => {
+      const first = document.querySelector('.pr-files mark.search-match');
+      if (first) {
+        first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        first.classList.add('search-match-focus');
+        setTimeout(() => first.classList.remove('search-match-focus'), 1500);
+        return;
+      }
+      if (performance.now() < deadline) requestAnimationFrame(tryFlash);
+    };
+    requestAnimationFrame(tryFlash);
+  }
 
   let labels = $state([]);
   let contributors = $state([]);
@@ -305,6 +322,17 @@
       <div class="file-selector">
         {#each files as file (file.filename)}
           <button class="file-name" class:selected={selectedFile?.filename === file.filename} onclick={() => { selectedFile = file; selectedFileIndex = files.indexOf(file); }}>{shortFileName(file.filename)}</button>
+        {/each}
+      </div>
+    </SidebarGroup>
+
+    <SidebarGroup title="Search">
+      <input type="text" bind:value={searchingTerm} placeholder="Search files..." class="search-input" oninput={() => searchingTerm = searchingTerm.toLowerCase()} />
+      <div class="search-results">
+        {#each searchResults as result}
+          <button type="button" class="result" class:selected={result.fileIndex === selectedFileIndex} onclick={() => jumpToSearchResult(result.fileIndex)}>
+            <span class="name">{shortFileName(result.filename)}</span>
+          </button>
         {/each}
       </div>
     </SidebarGroup>

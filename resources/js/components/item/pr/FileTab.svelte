@@ -5,7 +5,7 @@
   import ReviewPanel from './ReviewPanel.svelte';
   import { tokenizeAllLines, detectLanguage } from '../../../utils/syntaxHighlighter.js';
 
-  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false } = $props();
+  let { item = {}, files = [], loadingFiles = true, selectedFileIndex = $bindable(0), selectedFile = $bindable(null), params = {}, showWhitespace = false, searchingTerm = $bindable(''), searchResults = $bindable([]) } = $props();
 
   const applicableExtensionsForPreview = ['svg'];
 
@@ -19,6 +19,61 @@
   // Pre-computed syntax tokens for the selected file (keyed by line number per side)
   let precomputedTokens = $state({ left: new Map(), right: new Map() });
   setContext('precomputedTokens', () => precomputedTokens);
+
+  // In-diff search: set by Ctrl+Shift+F from current selection, cleared by Esc.
+  // Writes flow to the shared searchingTerm rune (module-level $state) so all
+  // HighlightedDiffLine instances in the tree react to changes reliably.
+  let searchTerm = $derived(searchingTerm);
+
+  let computedSearchResults = $derived.by(() => {
+    if (!searchTerm || !files?.length) return [];
+    const needle = searchTerm.toLowerCase();
+    const results = [];
+
+    files.forEach((file, fileIndex) => {
+      let count = 0;
+      for (const hunk of (file.changes || [])) {
+        for (const row of (hunk.rows || [])) {
+          for (const side of ['left', 'right']) {
+            const cell = row[side];
+            if (!cell || cell.type === 'empty' || !cell.content) continue;
+            const text = cell.content.toLowerCase();
+            let idx = 0;
+            while ((idx = text.indexOf(needle, idx)) !== -1) {
+              count++;
+              idx += needle.length;
+            }
+          }
+        }
+      }
+      if (count > 0) results.push({ fileIndex, filename: file.filename, count });
+    });
+
+    return results;
+  });
+
+  $effect(() => {
+    searchResults = computedSearchResults;
+  });
+
+  let totalMatches = $derived(searchResults.reduce((s, r) => s + r.count, 0));
+
+  function handleSearchShortcut(e) {
+    if (e.key === 'Escape' && searchTerm) {
+      searchingTerm = '';
+      e.preventDefault();
+      return;
+    }
+
+    const isSearchCombo = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'F' || e.key === 'f');
+    if (!isSearchCombo) return;
+
+    const selected = (window.getSelection()?.toString() || '').trim();
+    if (!selected) return;
+
+    searchingTerm = selected;
+    e.preventDefault();
+  }
 
   function detectTheme() {
     return document.documentElement.getAttribute('data-theme') === 'dark' ? 'github-dark' : 'github-light';
@@ -84,6 +139,9 @@
       if (e.target.closest('.pr-header')) return;
       reviewMenuOpen = false;
     });
+
+    window.addEventListener('keydown', handleSearchShortcut);
+    return () => window.removeEventListener('keydown', handleSearchShortcut);
   });
 
   $effect(() => {
@@ -140,11 +198,11 @@
             {#each (hunk.rows || []) as changedLinePair (changedLinePair)}
               <div class="changed-line-pair">
                 {#if selectedFile.status !== 'added'}
-                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} />
+                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="LEFT" {params} {showWhitespace} bind:searchingTerm />
                 {/if}
 
                 {#if selectedFile.status !== 'removed'}
-                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} />
+                  <ChangedLine {changedLinePair} {selectedFile} {comments} bind:pendingReviewComments side="RIGHT" {params} {showWhitespace} bind:searchingTerm />
                 {/if}
               </div>
             {/each}

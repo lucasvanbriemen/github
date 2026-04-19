@@ -21,6 +21,8 @@
   let loadingFiles = $state(true);
   let selectedFileIndex = $state(0);
   let selectedFile = $state(null);
+  let searchingTerm = $state('');
+  let searchResults = $state([]);
 
   let item = $state({});
   let isPR = $state(type == 'prs');
@@ -89,7 +91,7 @@
 </script>
 
 <div class="item-overview">
-  <Sidebar {item} {isPR} {isLoading} metadata={$repoMetadata} {params} {activeTab} {files} {showWhitespace} bind:selectedFileIndex bind:selectedFile />
+  <Sidebar {item} {isPR} {isLoading} metadata={$repoMetadata} {params} {activeTab} {files} {showWhitespace} bind:selectedFileIndex bind:selectedFile bind:searchingTerm {searchResults} />
 
   <!-- MAIN CONTENT: Header, Body, and Comments -->
   <div class="item-main {activeTab}" class:is-pr={isPR}>
@@ -145,7 +147,7 @@
 
       <!-- Files Changed Tab Content (PR only) -->
       {#if isPR && activeTab === 'files'}
-        <FileTab {item} {files} {loadingFiles} bind:selectedFile bind:selectedFileIndex {params} {showWhitespace} />
+        <FileTab {item} {files} {loadingFiles} bind:selectedFile bind:selectedFileIndex {params} {showWhitespace} bind:searchingTerm bind:searchResults />
       {/if}
     {/if}
   </div>
