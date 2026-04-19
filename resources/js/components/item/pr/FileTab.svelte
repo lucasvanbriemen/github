@@ -173,17 +173,6 @@
   </div>
 {/if}
 
-{#if searchTerm}
-  <div class="diff-search-bar">
-    <div class="header-row">
-      <span class="label">Finding:</span>
-      <span class="term">{searchTerm}</span>
-      <span class="summary">{totalMatches} match{totalMatches === 1 ? '' : 'es'} in {searchResults.length} file{searchResults.length === 1 ? '' : 's'}</span>
-      <button type="button" class="clear" onclick={() => (searchingTerm = '')} title="Clear (Esc)">✕</button>
-    </div>
-  </div>
-{/if}
-
 <div class="pr-files">
   {#if loadingFiles}
     <div class="loading">Loading files...</div>
