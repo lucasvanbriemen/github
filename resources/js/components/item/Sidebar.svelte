@@ -328,15 +328,13 @@
 
     <SidebarGroup title="Search">
       <input type="text" bind:value={searchingTerm} placeholder="Search files..." class="search-input" oninput={() => searchingTerm = searchingTerm.toLowerCase()} />
-      <ul class="search-results">
+      <div class="search-results">
         {#each searchResults as result}
-          <li>
-            <button type="button" class="result" class:active={result.fileIndex === selectedFileIndex} onclick={() => jumpToSearchResult(result.fileIndex)}>
-              <span class="name">{shortFileName(result.filename)}</span>
-            </button>
-          </li>
+          <button type="button" class="result" class:selected={result.fileIndex === selectedFileIndex} onclick={() => jumpToSearchResult(result.fileIndex)}>
+            <span class="name">{shortFileName(result.filename)}</span>
+          </button>
         {/each}
-      </ul>
+      </div>
     </SidebarGroup>
   {/if}
 
