@@ -440,7 +440,7 @@ function showDetailedNotification(data) {
     <action content="Dismiss" activationType="system" arguments="dismiss"/>
   </actions>
 </toast>`;
-  const notification = new Notification({ toastXml });
+  const notification = new ElectronNotification({ toastXml });
 
   notification.on('click', () => focusWindow());
   notification.on('action', () => focusWindow());
