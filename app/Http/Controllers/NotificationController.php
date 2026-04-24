@@ -25,7 +25,8 @@ class NotificationController extends Controller
                 'review.baseComment.item.repository:id,full_name',
                 'review.baseComment.author:id,display_name',
             ])
-            ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
+            ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id'])
+            ->sortByDesc('created_at');
 
         foreach ($notifications as $notification) {
             $notification->subject = $notification->subject();
