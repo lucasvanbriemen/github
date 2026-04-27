@@ -10,7 +10,10 @@
   let filteredUsers = $derived.by(() => {
     if (!query) return users;
     const lowerQuery = query.toLowerCase();
-    return users.filter(user => user.display_name.toLowerCase().includes(lowerQuery));
+    return users.filter(user =>
+      user.login?.toLowerCase().includes(lowerQuery) ||
+      user.display_name?.toLowerCase().includes(lowerQuery)
+    );
   });
 
   function findMentionStart(text, cursorPos) {
