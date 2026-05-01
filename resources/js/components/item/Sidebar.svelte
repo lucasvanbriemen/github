@@ -327,14 +327,14 @@
     </SidebarGroup>
 
     <SidebarGroup title="Search">
-      <input type="text" bind:value={searchingTerm} placeholder="Search files..." class="search-input" oninput={() => searchingTerm = searchingTerm.toLowerCase()} />
       <div class="search-results">
         {#each searchResults as result}
-          <button type="button" class="result" class:selected={result.fileIndex === selectedFileIndex} onclick={() => jumpToSearchResult(result.fileIndex)}>
-            <span class="name">{shortFileName(result.filename)}</span>
-          </button>
+        <button type="button" class="result" class:selected={result.fileIndex === selectedFileIndex} onclick={() => jumpToSearchResult(result.fileIndex)}>
+          <span class="name">{shortFileName(result.filename)}</span>
+        </button>
         {/each}
       </div>
+      <input type="text" bind:value={searchingTerm} placeholder="Search files..." class="search-input" oninput={() => searchingTerm = searchingTerm.toLowerCase()} />
     </SidebarGroup>
   {/if}
 
