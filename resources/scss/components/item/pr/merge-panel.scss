@@ -24,7 +24,7 @@
     max-height: 5rem;
     overflow: auto;
     
-    border: 2px solid var(--starred-color);
+    border: 2px solid var(--waiting-color);
 
     .workflow-name, .conflicts-title {
       font-size: 0.85rem;
@@ -35,7 +35,7 @@
     }
 
     .job, .conflict-file {
-      border: 1px solid var(--starred-color);
+      border: 1px solid var(--waiting-color);
       color: var(--text-color-secondary);
       padding: 0.25rem 0.5rem;
       border-radius: 0.5rem;

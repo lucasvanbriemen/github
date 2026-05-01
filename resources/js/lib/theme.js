@@ -15,6 +15,11 @@ export default {
       light: "#e0e0e0",
       dark: "#e0e0e0",
     },
+    {
+      name: "waiting-color",
+      light: "#ffaa00",
+      dark: "#ffaa00",
+    }
   ],
 
   getTheme() {
