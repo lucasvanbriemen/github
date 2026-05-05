@@ -37,6 +37,8 @@ const extensionToLanguage = {
   'sh': 'bash',
   'bash': 'bash',
   'zsh': 'bash',
+  'swift': 'swift',
+  'plist': 'xml',
 };
 
 
