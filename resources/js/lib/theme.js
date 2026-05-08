@@ -1,25 +1,22 @@
 import api from "./api.js";
 
 export default {
-  themeUrl: "https://components.lucasvanbriemen.nl/api/colors?theme=THEME_NAME",
+  themeUrl: "https://components.lucasvanbriemen.nl/api/colors",
 
-  custom_colors: [
-    {
-      name: "merged-color",
+  custom_colors: {
+    "merged-color": {
       light: "#9d46e0",
       dark: "#8a19e0",
     },
-    {
-      name: "draft-color",
+    "draft-color": {
       light: "#e0e0e0",
       dark: "#e0e0e0",
     },
-    {
-      name: "waiting-color",
+    "waiting-color": {
       light: "#ffaa00",
       dark: "#ffaa00",
     }
-  ],
+  },
 
   getTheme() {
     const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
