@@ -25,17 +25,14 @@ export default {
 
   async applyTheme() {
     document.documentElement.setAttribute("data-theme", this.getTheme());
-    const url = this.themeUrl.replace("THEME_NAME", this.getTheme());
-    const colors = await api.get(url);
+    const colors = await api.get(this.themeUrl);
 
-    colors.forEach(color => {
-      document.documentElement.style.setProperty(`--${color.name}`, color.value);
-    });
+    const mergedColors = { ...this.custom_colors, ...colors };
 
-    this.custom_colors.forEach(color => {
-      const name = `--${color.name}`;
+    Object.entries(mergedColors).forEach(([name, color]) => {
+      const cssVarName = `--${name}`;
       const value = this.getTheme() === "dark" ? color.dark : color.light;
-      document.documentElement.style.setProperty(name, value);
+      document.documentElement.style.setProperty(cssVarName, value);
     });
   },
 
