@@ -2,7 +2,6 @@ import api from "./api.js";
 
 export default {
   themeUrl: "https://components.lucasvanbriemen.nl/api/colors?theme=THEME_NAME",
-  selectedTheme: "auto",
 
   custom_colors: [
     {
@@ -23,12 +22,8 @@ export default {
   ],
 
   getTheme() {
-    if (this.selectedTheme === "auto") {
-      const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      return darkModeMediaQuery.matches ? "dark" : "light";
-    }
-
-    return this.selectedTheme;
+    const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    return darkModeMediaQuery.matches ? "dark" : "light";
   },
 
   async applyTheme() {
@@ -46,4 +41,12 @@ export default {
       document.documentElement.style.setProperty(name, value);
     });
   },
+
+  init() {
+    this.applyTheme();
+
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      this.applyTheme();
+    });
+  }
 };

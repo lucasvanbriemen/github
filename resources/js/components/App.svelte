@@ -36,8 +36,7 @@
   };
 
   onMount(async () => {
-    theme.applyTheme();
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => theme.applyTheme());
+    theme.init();
 
     if (window.electronAPI) {
       fetchNotificationCount();
