@@ -1,5 +1,5 @@
 header {
-  background-color: var(--background-color-one);
+  background-color: var(--surface-at-2);
   padding: 1rem;
 
   display: flex;
@@ -26,7 +26,7 @@ header {
   .separator {
     width: 3px;
     height: 2rem;
-    background-color: var(--border-color);
+    background-color: var(--outline-variant);
     border-radius: 1rem;
     transform: rotate(25deg);
   }
@@ -51,28 +51,26 @@ header {
     .org, .repo {
       font-size: 1rem;
       font-weight: 500;
-      color: var(--text-color-secondary);
+      color: var(--on-surface-variant);
     }
   }
 
   a:not(.logo) {
     text-decoration: none;
     font-size: 1rem;
-    color: var(--text-color-secondary);
+    color: var(--on-surface);
     font-weight: 500;
     padding: 0.5rem;
     border-radius: 0.5rem;
 
-    border: 2px solid var(--background-color-two);
-
     &:hover {
-      color: var(--text-color);
-      background-color: var(--background-color-two);
+      color: var(--on-secondary-container);
+      background-color: var(--secondary-container);
     }
 
     &.active {
-      border: 2px solid var(--primary-color-dark);
-      color: var(--text-color);
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
     }
   }
 }
