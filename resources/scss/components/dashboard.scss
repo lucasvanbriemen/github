@@ -26,8 +26,8 @@ main {
     display: flex;
     gap: 0.5rem;
 
-    border: 2px solid var(--background-color-two);
-    background-color: var(--background-color);
+    border: 2px solid var(--surface-at-2);
+    background-color: var(--surface);
     padding: 1.5rem 0.5rem;
     border-radius: 0.5rem;
     cursor: pointer;
@@ -36,7 +36,7 @@ main {
     text-align: left;
 
     &:hover {
-      border: 2px solid var(--primary-color);
+      border: 2px solid var(--primary);
     }
 
     img {
@@ -61,7 +61,7 @@ main {
 
     .description, .no-description {
       font-size: 0.9rem;
-      color: var(--text-color-secondary);
+      color: var(--on-surface-variant);
     }
 
     .no-description {
@@ -78,16 +78,16 @@ main {
         padding: 0.5rem;
         border-radius: 0.5rem;
         min-width: 33%;
-        border: 2px solid var(--background-color-one);
+        border: 2px solid var(--surface-at-2);
         display: flex;
         text-align: left;
         flex-direction: column;
-        background-color: var(--background-color-one);
+        background-color: var(--surface-at-2);
         cursor: pointer;
         text-decoration: none;
 
         &:hover {
-          border: 2px solid var(--primary-color);
+          border: 2px solid var(--primary);
         }
       }
     }

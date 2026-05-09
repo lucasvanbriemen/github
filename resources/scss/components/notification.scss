@@ -1,5 +1,5 @@
 .notification {
-  border: 2px solid var(--background-color-two);
+  border: 2px solid var(--surface-at-2);
   padding: 1rem;
   border-radius: 0.5rem;
   background-color: transparent;
@@ -16,7 +16,7 @@
   }
 
   &:hover {
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--primary);
   }
 
   h3, p {
@@ -31,7 +31,7 @@
 
   p {
     font-size: 0.9rem;
-    color: var(--text-color-secondary);
+    color: var(--on-surface-variant);
 
     overflow: hidden;
     text-overflow: ellipsis;
@@ -45,17 +45,17 @@
     padding: 0.5rem;
 
     :global(svg) {
-      color: var(--text-color-secondary);
-      fill: var(--text-color-secondary);
-      stroke: var(--text-color-secondary);
+      color: var(--on-surface-variant);
+      fill: var(--on-surface-variant);
+      stroke: var(--on-surface-variant);
     }
   }
 
   :global(.icon:hover) {
     :global(svg) {
-      color: var(--primary-color);
-      fill: var(--primary-color);
-      stroke: var(--primary-color);
+      color: var(--primary);
+      fill: var(--primary);
+      stroke: var(--primary);
     }
   }
 }
