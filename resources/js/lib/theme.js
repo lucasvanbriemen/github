@@ -72,19 +72,6 @@ export default {
       dark: "#1b5fc2",
     },
 
-    "secondary-color": {
-      light: "#4ab035",
-      dark: "#2b8f17",
-    },
-    "secondary-color-dark": {
-      light: "#459e33",
-      dark: "#18520c",
-    },
-    "secondary-color-light": {
-      light: "#306e23",
-      dark: "#36b31d",
-    },
-
     "font-family": {
       light: "Roboto, sans-serif",
       dark: "Roboto, sans-serif",
