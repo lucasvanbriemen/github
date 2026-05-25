@@ -6,7 +6,7 @@
   gap: 1rem;
 
   .item-group {
-    background-color: var(--background-color-one);
+    background-color: var(--surface-at-1);
     border-radius: 1rem;
     overflow: hidden;
     padding: 1rem;
@@ -34,17 +34,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--text-color-secondary);
+    color: var(--on-surface-variant);
   }
 
   .notification-time {
     flex-shrink: 0;
     font-size: 0.75rem;
-    color: var(--text-color-secondary);
+    color: var(--on-surface-variant);
   }
 
   .linked-section {
-    border-top: 1px solid var(--background-color-two);
+    border-top: 1px solid var(--surface-at-2);
 
     .linked-header {
       display: flex;
@@ -53,10 +53,10 @@
       padding: 0.75rem 1.25rem 0.75rem 2.25rem;
       text-decoration: none;
       color: inherit;
-      border-bottom: 1px solid var(--background-color-two);
+      border-bottom: 1px solid var(--surface-at-2);
 
       &:hover {
-        background-color: var(--background-color-two);
+        background-color: var(--surface-at-2);
       }
     }
 
