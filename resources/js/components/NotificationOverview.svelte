@@ -4,6 +4,7 @@
   import ItemSkeleton from './item/ItemSkeleton.svelte';
   import flatpickr from 'flatpickr';
   import 'flatpickr/dist/flatpickr.css';
+    import { get } from 'svelte/store';
 
   let { params = {} } = $props();
 
@@ -13,10 +14,7 @@
   let dateRangePicker;
 
   onMount(async () => {
-    const data = await api.get(route('notifications.digest', { date: params.date }));
-    groups = data.groups;
-    orphaned = data.orphaned;
-    loading = false;
+    await getNotifications();
 
     flatpickr(dateRangePicker, {
       mode: 'range',
@@ -27,10 +25,18 @@
           const start = selectedDates[0].toISOString().split('T')[0];
           const end = selectedDates[1].toISOString().split('T')[0];
           window.location.hash = `#/notifications/${start}...${end}`;
+          getNotifications();
         }
       }
     });
   });
+
+  async function getNotifications() {
+    const data = await api.get(route('notifications.digest', { date: params.date }));
+    groups = data.groups;
+    orphaned = data.orphaned;
+    loading = false;
+  }
 
   function getItemUrl(item) {
     const type = item.type === 'pull_request' ? 'prs' : 'issues';
