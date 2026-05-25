@@ -24,6 +24,7 @@
           const start = selectedDates[0].toISOString().split('T')[0];
           const end = selectedDates[1].toISOString().split('T')[0];
           window.location.hash = `#/notifications/${start}...${end}`;
+          loading = true;
           getNotifications();
         }
       }
