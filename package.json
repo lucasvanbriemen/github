@@ -20,7 +20,9 @@
         "protocols": [
             {
                 "name": "GitHub GUI",
-                "schemes": ["githubgui"]
+                "schemes": [
+                    "githubgui"
+                ]
             }
         ],
         "directories": {
@@ -74,11 +76,12 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
-        "electron-updater": "^6.3.0",
         "@bytemd/plugin-gfm": "^1.22.0",
         "bytemd": "^1.22.0",
         "diff2html": "^3.4.52",
+        "electron-updater": "^6.3.0",
         "fast-glob": "^3.3.3",
+        "flatpickr": "^4.6.13",
         "github-markdown-css": "^5.8.1",
         "highlight.js": "^11.11.1",
         "marked": "^16.4.1",
