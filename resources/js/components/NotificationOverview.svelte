@@ -4,7 +4,6 @@
   import ItemSkeleton from './item/ItemSkeleton.svelte';
   import flatpickr from 'flatpickr';
   import 'flatpickr/dist/flatpickr.css';
-    import { get } from 'svelte/store';
 
   let { params = {} } = $props();
 
