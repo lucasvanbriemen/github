@@ -39,7 +39,7 @@ function syncFromUrl() {
   organization.set(org ?? null);
   repository.set(repo ?? null);
 
-  if (org && repo && get(repoMetadata) === null) {
+  if (org && repo && get(repoMetadata) === null && org !== 'notifications') {
     metadataPromise = api.get(route('organizations.repositories.metadata', { organization: org, repository: repo })).then(data => {
       repoMetadata.set(data);
       return data;

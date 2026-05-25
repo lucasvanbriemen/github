@@ -34,7 +34,7 @@
     {/if}
   {/each}
 
-  {#if $organization && $repository}
+  {#if $organization && $repository && $organization !== 'notifications'}
     <div class="separator"></div>
 
     <a href="#/{$organization}/{$repository}/" class:active={selectedRoute === ''} onclick={() => selectedRoute = ''}>Overview</a>
