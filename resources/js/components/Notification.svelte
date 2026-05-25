@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-import Icon from './Icon.svelte';
+  import Icon from './Icon.svelte';
+
   let { notification } = $props();
 
   let url = $state('');
