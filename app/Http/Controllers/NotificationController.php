@@ -109,8 +109,8 @@ class NotificationController extends Controller
             [$start, $end] = explode('...', $date);
             $result = self::buildDigest(Notification::whereBetween('emailed_at', [$start, $end]));
         } else {
+            $result = self::buildDigest(Notification::where('emailed_at', $date));
         }
-        $result = self::buildDigest(Notification::where('emailed_at', $date));
 
         return response()->json($result);
     }
