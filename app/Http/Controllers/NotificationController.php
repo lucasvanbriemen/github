@@ -103,6 +103,13 @@ class NotificationController extends Controller
 
     public function digest(Request $request, $date)
     {
+
+        // If it has "..." it's a range, otherwise it's a single day
+        if (str_contains($date, '...')) {
+            [$start, $end] = explode('...', $date);
+            $result = self::buildDigest(Notification::whereBetween('emailed_at', [$start, $end]));
+        } else {
+        }
         $result = self::buildDigest(Notification::where('emailed_at', $date));
 
         return response()->json($result);
