@@ -66,9 +66,7 @@
 
 <div class="notification-overview">
 
-  <div class="data-range">
-    <input type="text" id="date-range" bind:this={dateRangePicker} />
-  </div>
+  <input type="text" id="date-range" bind:this={dateRangePicker} />
 
   {#if loading}
     <ItemSkeleton />
