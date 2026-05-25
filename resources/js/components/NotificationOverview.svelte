@@ -2,18 +2,34 @@
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
   import ItemSkeleton from './item/ItemSkeleton.svelte';
+  import flatpickr from 'flatpickr';
+  import 'flatpickr/dist/flatpickr.css';
 
   let { params = {} } = $props();
 
   let groups = $state([]);
   let orphaned = $state([]);
   let loading = $state(true);
+  let dateRangePicker;
 
   onMount(async () => {
     const data = await api.get(route('notifications.digest', { date: params.date }));
     groups = data.groups;
     orphaned = data.orphaned;
     loading = false;
+
+    flatpickr(dateRangePicker, {
+      mode: 'range',
+      dateFormat: 'Y-m-d',
+      defaultDate: params.date ? params.date.split('...') : null,
+      onClose: function(selectedDates) {
+        if (selectedDates.length === 2) {
+          const start = selectedDates[0].toISOString().split('T')[0];
+          const end = selectedDates[1].toISOString().split('T')[0];
+          window.location.hash = `#/notifications/${start}...${end}`;
+        }
+      }
+    });
   });
 
   function getItemUrl(item) {
@@ -43,6 +59,11 @@
 </script>
 
 <div class="notification-overview">
+
+  <div class="data-range">
+    <input type="text" id="date-range" bind:this={dateRangePicker} />
+  </div>
+
   {#if loading}
     <ItemSkeleton />
   {:else}
