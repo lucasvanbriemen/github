@@ -19,6 +19,9 @@
       mode: 'range',
       dateFormat: 'Y-m-d',
       defaultDate: params.date ? params.date.split('...') : null,
+      altInput: true,
+      altFormat: 'F j, Y',
+
       onClose: function(selectedDates) {
         if (selectedDates.length === 2) {
           const start = selectedDates[0].toISOString().split('T')[0];
