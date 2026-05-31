@@ -45,10 +45,6 @@ class IsLoggedIn
         curl_close($ch);
 
         if ($httpCode === 200) {
-            $current_user = json_decode($responseBody); // Convert JSON to object
-            $current_user = $current_user->user;
-            app()->instance('current_user', $current_user);
-
             return $next($request);
         } else {
             return redirect('https://login.ltvb.nl?redirect='.urlencode($request->fullUrl()));
