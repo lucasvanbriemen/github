@@ -45,6 +45,19 @@ class IsLoggedIn
         curl_close($ch);
 
         if ($httpCode === 200) {
+
+            if ($request->query('auth_token')) {
+                setcookie('auth_token', $authToken, time() + 10 * 24 * 60 * 60, '/', '.lucasvanbriemen.nl', true, true);
+
+                $cleanUrl = $request->url();
+                $params = $request->query();
+                unset($params['auth_token']);
+                if (!empty($params)) {
+                    $cleanUrl .= '?' . http_build_query($params);
+                }
+                return redirect($cleanUrl);
+            }
+
             return $next($request);
         } else {
             return redirect('https://login.ltvb.nl?redirect='.urlencode($request->fullUrl()));
