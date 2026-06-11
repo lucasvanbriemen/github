@@ -7,6 +7,10 @@ gem "propshaft"
 gem "dartsass-rails"
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 2.1"
+# MySQL adapter for the shared development database (same DB as the Laravel app)
+gem "trilogy"
+# Loads database credentials from .env in every environment
+gem "dotenv-rails"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]

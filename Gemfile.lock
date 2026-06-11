@@ -108,6 +108,9 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (6.0.4)
@@ -380,6 +383,8 @@ GEM
     thruster (0.1.21-x86_64-darwin)
     thruster (0.1.21-x86_64-linux)
     timeout (0.6.1)
+    trilogy (2.12.5)
+      bigdecimal
     tsort (0.2.0)
     turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
@@ -423,6 +428,7 @@ DEPENDENCIES
   capybara
   dartsass-rails
   debug
+  dotenv-rails
   importmap-rails
   jbuilder
   kamal
@@ -437,6 +443,7 @@ DEPENDENCIES
   sqlite3 (>= 2.1)
   stimulus-rails
   thruster
+  trilogy
   turbo-rails
   tzinfo-data
   web-console

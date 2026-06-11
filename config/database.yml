@@ -9,9 +9,20 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
 
+# Development and production both use the same remote MySQL database as the
+# main Laravel app. Credentials live in .env (see .env.example).
+mysql_shared: &mysql_shared
+  adapter: trilogy
+  host: <%= ENV["DB_HOST"] %>
+  port: <%= ENV.fetch("DB_PORT", 3306) %>
+  database: <%= ENV["DB_DATABASE"] %>
+  username: <%= ENV["DB_USERNAME"] %>
+  password: <%= ENV["DB_PASSWORD"] %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
 development:
-  <<: *default
-  database: storage/development.sqlite3
+  <<: *mysql_shared
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -25,8 +36,7 @@ test:
 # is mounted as a persistent Docker volume in config/deploy.yml.
 production:
   primary:
-    <<: *default
-    database: storage/production.sqlite3
+    <<: *mysql_shared
   cache:
     <<: *default
     database: storage/production_cache.sqlite3
