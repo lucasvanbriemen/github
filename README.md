@@ -1,20 +1,24 @@
-A personal dashboard for managing GitHub repositories, pull requests, and issues. Built with Laravel
+# README
 
-## License
+This README would normally document whatever steps are necessary to get the
+application up and running.
 
-MIT
+Things you may want to cover:
 
-## Icons
+* Ruby version
 
-- Component: `resources/js/components/Icon.svelte`
-- Usage: `<Icon name="plus" size="16" />` or `<Icon name="cross" />`
-- Sources: SVG files in `resources/svg` (e.g., `plus.svg`, `cross.svg`).
-- Behavior: Loads the matching SVG by name and inlines it; size is controlled via `size` (number or CSS value). Icon color follows `currentColor`.
+* System dependencies
 
-## Utilities
+* Configuration
 
-- Replaying stored incoming webhooks:
-  - Replay all: `php artisan webhooks:replay`
-  - Replay one by id: `php artisan webhooks:replay 123`
-  - Dry run: `php artisan webhooks:replay --dry-run`
-  - This re-dispatches the original payload to `POST /api/incoming_hook` with the stored event.
+* Database creation
+
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...

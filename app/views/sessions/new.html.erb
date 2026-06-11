@@ -1,0 +1,18 @@
+<% content_for :title, "Login" %>
+
+<div class="form-wrapper">
+  <%= form_for :session, url: session_path, builder: CustomFormBuilder, html: { class: "login-form frosted-glass", data: { turbo: false } } do |f| %>
+    <h1>Hi there!</h1>  
+    <%= csrf_meta_tags %>
+    <%= f.hidden_field :redirect_to, value: params[:redirect] %>
+
+    <%= f.email_field :email, required: true, autofocus: true %>
+    <%= f.password_field :password, required: true %>
+
+    <%= f.submit text: "Login" %>
+
+    <%= flash[:alert] %>
+  <% end %>
+</div>
+
+<div class="login-image" role="img" aria-label="Login Background"></div>

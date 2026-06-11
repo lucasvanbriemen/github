@@ -1,0 +1,56 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 1rem);
+  padding: 2rem;
+
+  gap: 2rem;
+
+  .form-wrapper {
+    width: 66%;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    form {
+      padding: 2rem;
+      border-radius: 1rem;
+      width: 50%;
+    }
+  }
+
+  .login-image {
+    width: 33%;
+    align-self: stretch;
+    background-image: url("login-light.jpg");
+    background-size: cover;
+    background-position: center;
+    border-radius: 1rem;
+
+    @media (prefers-color-scheme: dark) {
+      background-image: url("login-dark.jpg");
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    
+    .form-wrapper {
+      z-index: 1;
+      width: 100%;
+      
+      .login-form {
+        width: 100%;
+      }
+    }
+
+    .login-image {
+      position: absolute;
+      height: calc(100% - 2rem);
+      width: calc(100% - 2rem);
+      inset: 1rem;
+    }
+  }
+}
