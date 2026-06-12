@@ -4,13 +4,24 @@
 
 <div class="organizations">
   <% @organizations.each do |organization| %> 
-    <img src="<%= organization.avatar_url %>">
-    <p><%= organization.name %></p>
-    <p><%= organization.description %></p>
+    <div class="organization-data">
+      <img src="<%= organization.avatar_url %>">  
 
-    <% organization.repositories.each do |repository| %>
+      <div class="organization-data">
+        <p><%= organization.name %></p>
+        <p><%= organization.description %></p>
+      </div>
+    </div>
+
+    <div class="repositories">
+    <% organization.repositories.each do |repository| %>  
+      <div class="repository">
       <p><%= repository.name %></p>
-      <p><%= repository.description %></p>
-    <% end %>
+      <p><%= repository.description %></p>    
+      </div>
+
+    <% end %> 
+      </div>
+
   <% end %>
 </div>
