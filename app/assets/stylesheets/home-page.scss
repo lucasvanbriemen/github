@@ -49,6 +49,22 @@
           }
         }
       }
+
+      .repositories {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        .repository {
+          padding: 0.75rem;
+          background-color: var(--surface-at-2);
+          border-radius: 1rem;
+
+          .repository-name {
+            font-weight: 500;
+          }
+        }
+      }
     }
   }
 }
