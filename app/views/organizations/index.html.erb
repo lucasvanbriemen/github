@@ -10,8 +10,8 @@
           <img src="<%= organization.avatar_url %>">  
 
           <div class="organization-data">
-            <p><%= organization.name %></p>
-            <p><%= organization.description %></p>
+            <p class="title"><%= organization.name %></p>
+            <p class="description <%= "null-value" if organization.description.blank? %>"><%= organization.description.blank? ? "No description set" : organization.description %></p>
           </div>
         </div>
 
