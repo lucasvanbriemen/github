@@ -12,10 +12,10 @@
     .organization {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 1rem;
 
       border: 2px solid var(--outline-variant);
-      border-radius: 0.5rem;
+      border-radius: 1rem;
       padding: 1rem;
 
       .organization-details {
