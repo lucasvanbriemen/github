@@ -1,5 +1,7 @@
 <% content_for :title, "Git" %>
 
+<%= header(title: "Git" , items: []) %>
+
 <% @organizations.each do |organization| %>
   <p><%= organization.name %></p>
 
