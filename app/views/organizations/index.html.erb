@@ -7,7 +7,7 @@
     <% @organizations.each do |organization| %> 
       <div class="organization">
         <div class="organization-details">
-          <img src="<%= organization.avatar_url %>">  
+          <img src="<%= organization.avatar_url %>" loading="lazy">  
 
           <div class="organization-data">
             <p class="title"><%= organization.name %></p>
