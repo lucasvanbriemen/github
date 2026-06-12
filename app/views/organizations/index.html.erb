@@ -2,10 +2,15 @@
 
 <%= header(title: "Git" , items: []) %>
 
-<% @organizations.each do |organization| %>
-  <p><%= organization.name %></p>
+<div class="organizations">
+  <% @organizations.each do |organization| %> 
+    <img src="<%= organization.avatar_url %>">
+    <p><%= organization.name %></p>
+    <p><%= organization.description %></p>
 
-  <% organization.repositories.each do |repository| %>
-    <p><%= repository.name %></p>
+    <% organization.repositories.each do |repository| %>
+      <p><%= repository.name %></p>
+      <p><%= repository.description %></p>
+    <% end %>
   <% end %>
-<% end %>
+</div>
