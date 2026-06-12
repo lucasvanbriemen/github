@@ -2,24 +2,28 @@
 
 <%= header(title: "Git" , items: []) %>
 
-<div class="organizations">
-  <% @organizations.each do |organization| %> 
-    <div class="organization-data">
-      <img src="<%= organization.avatar_url %>">  
+<div class="home-page">
+  <div class="organizations">
+    <% @organizations.each do |organization| %> 
+      <div class="organization">
+        <div class="organization-details">
+          <img src="<%= organization.avatar_url %>">  
 
-      <div class="organization-data">
-        <p><%= organization.name %></p>
-        <p><%= organization.description %></p>
-      </div>
-    </div>
-
-    <div class="repositories">
-      <% organization.repositories.each do |repository| %>  
-        <div class="repository">
-          <p><%= repository.name %></p>
-          <p><%= repository.description %></p>    
+          <div class="organization-data">
+            <p><%= organization.name %></p>
+            <p><%= organization.description %></p>
+          </div>
         </div>
-      <% end %> 
-    </div>
-  <% end %>
+
+        <div class="repositories">
+          <% organization.repositories.each do |repository| %>  
+            <div class="repository">
+              <p><%= repository.name %></p>
+              <p><%= repository.description %></p>    
+            </div>
+          <% end %> 
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
