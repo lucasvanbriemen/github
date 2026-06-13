@@ -4,9 +4,9 @@
 
 <div class="home-page">
   <div class="organizations">
-    <% @organizations.each do |organization| %> 
+    <% @organizations.each_with_index do |organization, index| %> 
       <div class="organization">
-        <%= image_tag "image.png", loading: "lazy", class: "background-image" %>
+        <%= image_tag "image#{index + 1}.png", loading: "lazy", class: "background-image" %>
         
         <div class="organization-details frosted-glass">
           <img src="<%= organization.avatar_url %>" loading="lazy">  
