@@ -6,21 +6,22 @@
   <div class="organizations">
     <% @organizations.each do |organization| %> 
       <div class="organization">
+        <%= image_tag "image.png", loading: "lazy", class: "background-image" %>
+        
         <div class="organization-details">
           <img src="<%= organization.avatar_url %>" loading="lazy">  
 
           <div class="organization-data">
             <p class="title"><%= organization.name %></p>
-            <p class="          border: 1px solid var(--outline-variant);
- <%= "null-value" if organization.description.blank? %>"><%= organization.display_description %></p>
+            <p class="description <%= "null-value" if organization.description.blank? %>"><%= organization.display_description %></p>
           </div>
         </div>
 
         <div class="repositories">
           <% organization.repositories.each do |repository| %>  
-            <div class="repository">
+            <div class="repository frosted-glass">
               <p class="title"><%= repository.name %></p>
-              <p class="description <%= "null-value" if repository.description.blank? %>"><%= repository.display_description %></p>    
+              <p class="description"><%= repository.description %></p>    
             </div>
           <% end %> 
         </div>
