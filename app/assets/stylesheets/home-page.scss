@@ -9,6 +9,10 @@
 
     width: 33%;
 
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+
     .organization {
       display: flex;
       flex-direction: column;
@@ -75,6 +79,9 @@
         .repository {
           padding: 0.75rem;
           border-radius: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
 
           .title {
             font-weight: 600;
