@@ -6,7 +6,9 @@ Rails.application.routes.draw do
 
   root to: "organizations#index"
 
-  resources :organizations, only: [ :index, :show ]
+  resources :organizations, only: [ :index ]
+
+  get "/:organization_name/:repository_name", to: "repositories#show", as: :repository
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
