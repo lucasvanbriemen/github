@@ -19,7 +19,7 @@
 
         <div class="repositories">
           <% organization.repositories.each do |repository| %>  
-            <a class="repository frosted-glass" href="<%= repository_path(organization.slug, repository.slug) %>" target="_blank">
+            <a class="repository frosted-glass" href="<%= repository_path(organization.slug, repository.slug) %>">
               <p class="title"><%= repository.name %></p>
               <p class="description <%= "null-value" if repository.description.blank? %>"><%= repository.display_description %></p>    
             </a>
