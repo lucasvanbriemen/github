@@ -6,8 +6,8 @@
   <div class="organizations">
     <% @organizations.each_with_index do |organization, index| %> 
       <div class="organization">
-        <%= image_tag "image#{index + 1}.png", loading: "lazy", class: "background-image" %>
-        
+        <img src="<%= organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= organization.banner_dark_url %>" data-theme-image-light="<%= organization.banner_light_url %>">
+
         <div class="organization-details frosted-glass">
           <img src="<%= organization.avatar_url %>" loading="lazy">  
 
