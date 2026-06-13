@@ -90,6 +90,11 @@
           .description {
             color: var(--text-secondary);
           }
+
+          &:hover {
+            background-color: var(--surface-variant);
+            outline: 2px solid var(--outline-variant);
+          }
         }
       }
     }

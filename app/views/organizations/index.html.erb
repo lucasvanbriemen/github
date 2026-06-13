@@ -19,10 +19,10 @@
 
         <div class="repositories">
           <% organization.repositories.each do |repository| %>  
-            <div class="repository frosted-glass">
+            <a class="repository frosted-glass" href="" target="_blank">
               <p class="title"><%= repository.name %></p>
               <p class="description <%= "null-value" if repository.description.blank? %>"><%= repository.display_description %></p>    
-            </div>
+            </a>
           <% end %> 
         </div>
       </div>
