@@ -1,5 +1,6 @@
 class Repository < ApplicationRecord
   belongs_to :organization
+  has_many :items
 
   def slug
     name.downcase.gsub(" ", "-")

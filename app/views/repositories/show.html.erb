@@ -1,1 +1,8 @@
 <%= @repository.name %> - <%= @repository.organization.name %>
+
+<h2>Items</h2>
+<ul>
+  <% @repository.items.each do |item| %>
+    <li><%= item.title %></li>
+  <% end %>
+</ul>
