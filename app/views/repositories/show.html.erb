@@ -8,9 +8,9 @@
   </header>
 
   <% tab_items = [
-       { label: "All", active: (params[:filter].blank? || params[:filter] == "all"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name) },
-       { label: "Issues", active: (params[:filter] == "issues"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, type: "issues") },
-       { label: "Pull requests", active: (params[:filter] == "pull_requests"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, type: "pull_requests") }
+       { label: "All", active: (params[:type].blank? || params[:type] == "all"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name) },
+       { label: "Issues", active: (params[:type] == "issues"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, type: "issues") },
+       { label: "Pull requests", active: (params[:type] == "pull_requests"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, type: "pull_requests") }
      ] %>
 
   <%= tabs(items: tab_items) %>

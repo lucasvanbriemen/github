@@ -4,6 +4,6 @@ class RepositoriesController < ApplicationController
     @repository = organization.repositories.find_by!(name: params[:repository_name])
 
     filter = Item::ALLOWED_TYPES.include?(params[:type]) ? params[:type] : nil
-    @items = @repository.items.public_send((params[:type] || "all")).page(params[:page])
+    @items = @repository.items.public_send((filter || "all")).page(params[:page])
   end
 end
