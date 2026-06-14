@@ -7,25 +7,13 @@
     <p class="description"><%= @repository.display_description %></p>
   </header>
 
-  <% tabs = [
-       { key: "all", label: "All", is_active: (params[:filter].blank? || params[:filter] == "all"), url: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name) },
-       { key: "issues", label: "Issues", is_active: (params[:filter] == "issues"), url: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, filter: "issues") },
-       { key: "pull_requests", label: "Pull requests", is_active: (params[:filter] == "pull_requests"), url: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, filter: "pull_requests") }
+  <% tab_items = [
+       { label: "All", active: (params[:filter].blank? || params[:filter] == "all"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name) },
+       { label: "Issues", active: (params[:filter] == "issues"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, filter: "issues") },
+       { label: "Pull requests", active: (params[:filter] == "pull_requests"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, filter: "pull_requests") }
      ] %>
 
-  <div class="tabs">
-    <nav>
-      <% tabs.each do |tab| %>
-        <div class="tab">
-        <%= link_to tab[:url],
-                    class: "tab #{'current disabled' if tab[:is_active]}" do %>
-          <%= tab[:label] %>
-        <% end %>
-              </div>
-
-      <% end %>
-    </nav>
-  </div>
+  <%= tabs(items: tab_items) %>
 
   <% if @items.any? %>
     <ul class="items">
