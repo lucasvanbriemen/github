@@ -1,12 +1,5 @@
 <% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
 
-<div class="repository-show">
-  <header class="repository-header">
-    <p class="organization"><%= @repository.organization.name %></p>
-    <h1><%= @repository.name %></h1>
-    <p class="description"><%= @repository.display_description %></p>
-  </header>
-
   <% tab_items = [
        { label: "All", active: (params[:type].blank? || params[:type] == "all"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name) },
        { label: "Issues", active: (params[:type] == "issues"), href: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, type: "issues") },
@@ -28,4 +21,3 @@
   <% else %>
     <p class="items items--empty">Nothing to show here yet.</p>
   <% end %>
-</div>
