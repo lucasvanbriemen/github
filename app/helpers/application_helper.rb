@@ -7,7 +7,7 @@ module ApplicationHelper
 
     org  = @repository.organization.slug
     repo = @repository.slug
-    base = repository_path(org, repo)
+    base = items_path(org, repo)
 
     [
       { name: "Items", href: base, active: true },

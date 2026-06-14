@@ -1,5 +1,5 @@
-class RepositoriesController < ApplicationController
-  def show
+class ItemsController < ApplicationController
+  def index
     organization = Organization.find_by!(name: params[:organization_name])
     @repository = organization.repositories.find_by!(name: params[:repository_name])
 
