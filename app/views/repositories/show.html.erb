@@ -16,12 +16,15 @@
   <div class="tabs">
     <nav>
       <% tabs.each do |tab| %>
+        <div class="tab">
         <%= link_to repository_path(organization_name: @repository.organization.name,
                                     repository_name: @repository.name,
                                     filter: tab[:key]),
-                    class: "tab #{'current' if params[:filter] == tab[:key]}" do %>
+                    class: "tab #{'current disabled' if params[:filter] == tab[:key]}" do %>
           <%= tab[:label] %>
         <% end %>
+              </div>
+
       <% end %>
     </nav>
   </div>
