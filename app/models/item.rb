@@ -3,6 +3,9 @@ class Item < ApplicationRecord
   belongs_to :repository
   paginates_per 50
 
+  scope :issues, -> { where(type: "issue") }
+  scope :pull_requests, -> { where(type: "pull_request") }
+
   # TODO: rename the type column to kind and remove this method and inheritance_column override
   def kind
     type
