@@ -8,19 +8,17 @@
   </header>
 
   <% tabs = [
-       { key: "all", label: "All" },
-       { key: "issues", label: "Issues" },
-       { key: "pull_requests", label: "Pull requests" }
+       { key: "all", label: "All", is_active: (params[:filter].blank? || params[:filter] == "all"), url: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name) },
+       { key: "issues", label: "Issues", is_active: (params[:filter] == "issues"), url: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, filter: "issues") },
+       { key: "pull_requests", label: "Pull requests", is_active: (params[:filter] == "pull_requests"), url: repository_path(organization_name: @repository.organization.name, repository_name: @repository.name, filter: "pull_requests") }
      ] %>
 
   <div class="tabs">
     <nav>
       <% tabs.each do |tab| %>
         <div class="tab">
-        <%= link_to repository_path(organization_name: @repository.organization.name,
-                                    repository_name: @repository.name,
-                                    filter: tab[:key]),
-                    class: "tab #{'current disabled' if params[:filter] == tab[:key]}" do %>
+        <%= link_to tab[:url],
+                    class: "tab #{'current disabled' if tab[:is_active]}" do %>
           <%= tab[:label] %>
         <% end %>
               </div>
