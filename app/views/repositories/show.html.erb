@@ -2,7 +2,11 @@
 
 <h2>Items</h2>
 <ul>
-  <% @repository.items.each do |item| %>
+  <% @items.each do |item| %>
     <li><%= item.title %></li>
   <% end %>
 </ul>
+
+<div class="pagination">
+  <%= paginate @items %>
+</div>
