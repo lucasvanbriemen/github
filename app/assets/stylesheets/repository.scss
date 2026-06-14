@@ -1,0 +1,61 @@
+.repository-show {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .repository-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .organization {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .description {
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// Filter tabs — styled to match the shared pagination component
+// (ui-components/assets/scss/pagination.scss): a rounded, outlined pill
+// container with rounded targets, the active one filled in the primary color.
+.tabs {
+  display: flex;
+  justify-content: center;
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    background-color: var(--surface-at-1);
+    border: 1px solid var(--outline-variant);
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border-radius: 0.75rem;
+
+    &:hover {
+      background-color: var(--surface-at-2);
+    }
+
+    &.current {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      font-weight: bold;
+    }
+  }
+}

@@ -1,12 +1,42 @@
-<%= @repository.name %> - <%= @repository.organization.name %>
+<% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
 
-<h2>Items</h2>
-<ul>
-  <% @items.each do |item| %>
-    <li><%= item.title %></li>
+<div class="repository-show">
+  <header class="repository-header">
+    <p class="organization"><%= @repository.organization.name %></p>
+    <h1><%= @repository.name %></h1>
+    <p class="description"><%= @repository.display_description %></p>
+  </header>
+
+  <% tabs = [
+       { key: "all", label: "All" },
+       { key: "issues", label: "Issues" },
+       { key: "pull_requests", label: "Pull requests" }
+     ] %>
+
+  <div class="tabs">
+    <nav>
+      <% tabs.each do |tab| %>
+        <%= link_to repository_path(organization_name: @repository.organization.name,
+                                    repository_name: @repository.name,
+                                    filter: tab[:key]),
+                    class: "tab #{'current' if @filter == tab[:key]}" do %>
+          <%= tab[:label] %>
+        <% end %>
+      <% end %>
+    </nav>
+  </div>
+
+  <% if @items.any? %>
+    <ul class="items">
+      <% @items.each do |item| %>
+        <li class="item"><%= item.title %></li>
+      <% end %>
+    </ul>
+
+    <div class="pagination">
+      <%= paginate @items %>
+    </div>
+  <% else %>
+    <p class="items items--empty">Nothing to show here yet.</p>
   <% end %>
-</ul>
-
-<div class="pagination">
-  <%= paginate @items %>
 </div>
