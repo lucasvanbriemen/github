@@ -10,9 +10,7 @@ module ApplicationHelper
     base = items_path(org, repo)
 
     [
-      { name: "Items", href: base, active: true },
-      { name: "Projects", href: "#{base}/projects", active: false },
-      { name: "Releases", href: "#{base}/releases", active: false }
+      { name: "Items", href: base, active: true }
     ]
   end
 end
