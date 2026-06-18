@@ -1,16 +1,16 @@
 <% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
-  <%= tabs(items: filter_tabs) %>
+<%= tabs(items: filter_tabs) %>
 
-  <% if @items.any? %>
-    <ul class="items">
-      <% @items.each do |item| %>
-        <li class="item"><%= item.title %></li>
-      <% end %>
-    </ul>
+<% if @items.any? %>
+  <ul class="items">
+    <% @items.each do |item| %>
+      <li class="item"><%= item.title %></li>
+    <% end %>
+  </ul>
 
-    <div class="pagination">
-      <%= paginate @items %>
-    </div>
-  <% else %>
-    <p class="items items--empty">Nothing to show here yet.</p>
-  <% end %>
+  <div class="pagination">
+    <%= paginate @items %>
+  </div>
+<% else %>
+  <p class="items items--empty">Nothing to show here yet.</p>
+<% end %>
