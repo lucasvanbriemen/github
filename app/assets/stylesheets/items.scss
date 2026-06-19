@@ -4,4 +4,16 @@
 
   width: calc(min(90%, 100rem));
   margin: 1rem auto;
+
+  .filter-wrapper {
+    width: 20%;
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: var(--surface-at-1);
+    border: 1px solid var(--outline-variant);
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
 }
