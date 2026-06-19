@@ -11,6 +11,7 @@
     padding: 1rem;
     background-color: var(--surface-at-1);
     border: 1px solid var(--outline-variant);
+    height: fit-content;
 
     @media (max-width: 768px) {
       display: none;

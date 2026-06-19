@@ -1,8 +1,7 @@
 <% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
-<%= tabs(items: filter_tabs) %>
 
 <div class="filter-with-item-wrapper">
-  <%= render partial: "filters" %>
+  <%= render partial: "filters", locals: { organization: @repository.organization } %>
 
   <div class="items">
     <% @items.each do |item| %>
