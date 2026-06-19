@@ -3,7 +3,7 @@
 <div class="filter-with-item-wrapper">
   <%= render partial: "filters", locals: { organization: @repository.organization } %>
 
-  <div class="items">
+  <div class="item-wrapper">
     <% @items.each do |item| %>
       <%= render partial: "item", locals: { item: item } %>
     <% end %>
