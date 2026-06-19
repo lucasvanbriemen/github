@@ -1,11 +1,15 @@
 <% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
 <%= tabs(items: filter_tabs) %>
 
-<ul class="items">
-  <% @items.each do |item| %>
-    <li class="item"><%= item.title %> - <%= item.state %> - <%= item.created_by.display_name %></li>
-  <% end %>
-</ul>
+<div class="filter-with-item-wrapper">
+  <%= render partial: "filters" %>
+
+  <div class="items">
+    <% @items.each do |item| %>
+      <%= render partial: "item", locals: { item: item } %>
+    <% end %>
+  </div>
+</div>
 
 <div class="pagination">
   <%= paginate @items %>
