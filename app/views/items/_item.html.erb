@@ -1,3 +1,4 @@
 <a class="item" href="javascript:void(0)">
+  <%= item_svg(item) %>
   <h3><%= item.title %></h3> - <%= item.state %> - <%= item.created_by.display_name %> - <%= time_ago_in_words(item.created_at) %> - <%= item.kind %>
 </a>
