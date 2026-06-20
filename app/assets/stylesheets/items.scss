@@ -26,9 +26,17 @@
 
     .item {
       display: flex;
+      flex-direction: column;
       padding: 1rem;
       border-radius: 1rem;
-      background-color: var(--surface-at-2);
+      background-color: var(--surface-at-1);
+      border: 1px solid var(--outline-variant);
+
+      h3 {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
     }
   }
 }
