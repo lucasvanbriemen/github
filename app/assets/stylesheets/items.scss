@@ -26,11 +26,18 @@
 
     .item {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
       padding: 1rem;
       border-radius: 1rem;
       background-color: var(--surface-at-1);
       border: 1px solid var(--outline-variant);
+
+      .item-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
 
       h3 {
         color: var(--primary);
