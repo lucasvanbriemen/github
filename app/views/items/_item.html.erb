@@ -1,7 +1,7 @@
 <a class="item" href="javascript:void(0)">
   <%= item_svg(item) %>
   <div class="item-content">
-    <h3><%= item.title %></h3> - <%= item.state %> - <%= item.created_by.display_name %> - <%= time_ago_in_words(item.created_at) %> - <%= item.kind %>
+    <h3><%= item.title %></h3> - <%= item.created_by.display_name %> - <%= time_ago_in_words(item.created_at) %>
   </div>
 
   <% item.assignees.each do |assignee| %>
