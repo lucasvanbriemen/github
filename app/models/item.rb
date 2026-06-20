@@ -7,7 +7,7 @@ class Item < ApplicationRecord
   scope :issues, -> { where(type: "issue") }
   scope :pull_requests, -> { where(type: "pull_request") }
 
-  ALLOWED_TYPES = [ "issue", "pull_request", nil, "all" ].freeze
+  ALLOWED_TYPES = [ "issues", "pull_requests", nil, "all" ].freeze
 
   # TODO: rename the type column to kind and remove this method and inheritance_column override
   def kind

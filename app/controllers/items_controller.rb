@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
     organization = Organization.find_by!(name: params[:organization_name])
     @repository = organization.repositories.find_by!(name: params[:repository_name])
 
-    filter = Item::ALLOWED_TYPES.include?(params[:type]) ? params[:type] : nil
+    filter = Item::ALLOWED_TYPES.include?(params[:kind]) ? params[:kind] : nil
     @items = @repository.items.public_send((filter || "all")).page(params[:page]).order(created_at: :desc)
   end
 end
