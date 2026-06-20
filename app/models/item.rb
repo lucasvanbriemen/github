@@ -2,6 +2,11 @@ class Item < ApplicationRecord
   self.inheritance_column = nil
   belongs_to :repository
   has_one :github_user, primary_key: :opened_by_id, foreign_key: :id
+  has_and_belongs_to_many :assignees,
+    class_name: "GithubUser",
+    join_table: "issue_assignees", # TODO: rename to item_assignees
+    foreign_key: "issue_id",
+    association_foreign_key: "user_id"
   paginates_per 50
 
   scope :issues, -> { where(type: "issue") }

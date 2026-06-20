@@ -3,4 +3,6 @@
   <div class="item-content">
     <h3><%= item.title %></h3> - <%= item.state %> - <%= item.created_by.display_name %> - <%= time_ago_in_words(item.created_at) %> - <%= item.kind %>
   </div>
+
+  <%= item.assignees.map(&:display_name).join(", ") if item.assignees.any? %>
 </a>
