@@ -27,6 +27,7 @@
     .item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 1rem;
       padding: 1rem;
       border-radius: 1rem;
@@ -45,5 +46,25 @@
         font-weight: 500;
       }
     }
+  }
+}
+
+.item-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--surface-at-2);
+  border-radius: 50%;
+  padding: 0.5rem;
+
+  &.icon-open {
+    background-color: var(--success-container);
+  }
+
+  &.icon-closed {
+    background-color: var(--error-container);
+  }
+
+  &.icon-merged {
+    background-color: var(--primary-container);
   }
 }
