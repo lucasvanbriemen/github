@@ -35,6 +35,14 @@
       border-radius: 1rem;
       border: 1px solid var(--outline-variant);
 
+      &:hover {
+        background-color: var(--surface-at-1);
+
+        .assignee {
+          margin-left: 0 !important;
+        }
+      }
+
       .item-content {
         flex: 1;
         display: flex;
@@ -45,6 +53,20 @@
           color: var(--primary);
           font-size: 1.1rem;
           font-weight: 500;
+        }
+      }
+
+      .assignees-wrapper {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 0.5rem;
+
+        .assignee {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-left: -2rem;
         }
       }
     }
