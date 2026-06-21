@@ -7,7 +7,7 @@
 
   <div class="assignees-wrapper">
     <% item.assignees.each do |assignee| %>
-      <img src="<%= assignee.avatar_url %>" class="assignee">
+      <img src="<%= assignee.avatar_url %>" class="assignee" loading="lazy">
     <% end %>
   </div>
 </a>
