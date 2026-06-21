@@ -17,6 +17,13 @@
           selected: Array(params[:assignee]), 
           form: form ) %>
 
+      <%= search_select(
+            name: "state" , title: "State" ,
+            options: Item::ALLOWED_STATES.map { |state| { value: state, label: state.humanize } },
+            selected: Array(params[:state]),    
+            placeholder: "Any state",
+            form: form ) %>
+
     <%= form.submit text: "Apply" %>
   <% end %>
 </div>

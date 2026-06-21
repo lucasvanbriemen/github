@@ -15,8 +15,10 @@ class Item < ApplicationRecord
   # distinct: an item with several of the selected assignees would otherwise
   # appear once per matching assignee row from the join.
   scope :by_assignee, ->(assignee_ids) { joins(:assignees).where(assignees: { id: assignee_ids }).distinct }
+  scope :state, ->(state) { where(state: state) }
 
   ALLOWED_FILTER_KINDS = [ "issues", "pull_requests", nil, "all" ].freeze
+  ALLOWED_STATES = [ "open", "closed", "draft", "merged" ].freeze
 
   # TODO: rename the type column to kind and remove this method and inheritance_column override
   def kind
