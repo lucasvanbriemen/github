@@ -1,3 +1,22 @@
 <div class="filter-wrapper frosted-glass">
   <%= tabs(items: filter_tabs) %>
+
+  <%= form_with url: items_path(organization_name: organization.name, repository_name: @repository.name), method: :get, class: "people-filters", builder: CustomFormBuilder do |form| %>
+    <%# Preserve the kind tab when filtering by people. %>
+    <%= form.hidden_field :kind, value: params[:kind] %>
+
+    <%= multi_select(
+          name: "author", title: "Author",
+          options: @authors.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
+          selected: Array(params[:author]), 
+          form: form ) %>
+
+    <%= multi_select(
+          name: "assignee", title: "Assignee",
+          options: @assignees.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
+          selected: Array(params[:assignee]), 
+          form: form ) %>
+
+    <%= form.submit text: "Apply" %>
+  <% end %>
 </div>

@@ -11,6 +11,10 @@ class Item < ApplicationRecord
 
   scope :issues, -> { where(type: "issue") }
   scope :pull_requests, -> { where(type: "pull_request") }
+  scope :by_author, ->(author_ids) { where(opened_by_id: author_ids) }
+  # distinct: an item with several of the selected assignees would otherwise
+  # appear once per matching assignee row from the join.
+  scope :by_assignee, ->(assignee_ids) { joins(:assignees).where(assignees: { id: assignee_ids }).distinct }
 
   ALLOWED_FILTER_KINDS = [ "issues", "pull_requests", nil, "all" ].freeze
 
