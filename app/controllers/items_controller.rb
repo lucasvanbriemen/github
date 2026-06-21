@@ -8,9 +8,12 @@ class ItemsController < ApplicationController
 
     # author/assignee arrive as arrays of ids. Within each filter the ids are
     # OR-combined (any of the selected people); the two filters are then ANDed.
+    # When no assignee/state is given we default to the current user's open and
+    # draft items, matching the defaults shown in the filter UI.
     author_ids = filter_ids(:author)
-    assignee_ids = filter_ids(:assignee)
-    states = filter_ids(:state)
+    assignee_ids = filter_ids(:assignee).presence || Item::DEFAULT_FILTER_USER_ID
+    states = filter_ids(:state).presence || Item::DEFAULT_FILTER_STATES
+
     items = items.by_author(author_ids) if author_ids.any?
     items = items.by_assignee(assignee_ids) if assignee_ids.any?
     items = items.state(states) if states.any?

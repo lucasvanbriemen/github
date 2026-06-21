@@ -19,6 +19,8 @@ class Item < ApplicationRecord
 
   ALLOWED_FILTER_KINDS = [ "issues", "pull_requests", nil, "all" ].freeze
   ALLOWED_STATES = [ "open", "closed", "draft", "merged" ].freeze
+  DEFAULT_FILTER_STATES = [ "open", "draft" ].freeze
+  DEFAULT_FILTER_USER_ID = [ GithubConfig::USER_ID ].freeze
 
   # TODO: rename the type column to kind and remove this method and inheritance_column override
   def kind

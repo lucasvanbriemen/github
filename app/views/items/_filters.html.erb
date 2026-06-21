@@ -14,13 +14,13 @@
     <%= search_select(
           name: "assignee", title: "Assignee",
           options: @assignees.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
-          selected: Array(params[:assignee]), 
+          selected: Array(params[:assignee]).presence || Item::DEFAULT_FILTER_USER_ID,
           form: form ) %>
 
       <%= search_select(
             name: "state" , title: "State" ,
             options: Item::ALLOWED_STATES.map { |state| { value: state, label: state.humanize } },
-            selected: Array(params[:state]),    
+            selected: Array(params[:state]).presence || Item::DEFAULT_FILTER_STATES,
             placeholder: "Any state",
             form: form ) %>
 
