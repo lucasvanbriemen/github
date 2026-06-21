@@ -5,13 +5,13 @@
     <%# Preserve the kind tab when filtering by people. %>
     <%= form.hidden_field :kind, value: params[:kind] %>
 
-    <%= multi_select(
+    <%= search_select(
           name: "author", title: "Author",
           options: @authors.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
           selected: Array(params[:author]), 
           form: form ) %>
 
-    <%= multi_select(
+    <%= search_select(
           name: "assignee", title: "Assignee",
           options: @assignees.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
           selected: Array(params[:assignee]), 
