@@ -1,8 +1,8 @@
 <% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
-        <img src="<%= @repository.organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= @repository.organization.banner_dark_url %>" data-theme-image-light="<%= @repository.organization.banner_light_url %>">
+        <img src="<%= @organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= @organization.banner_dark_url %>" data-theme-image-light="<%= @organization.banner_light_url %>">
 
 <div class="filter-with-item-wrapper">
-  <%= render partial: "filters", locals: { organization: @repository.organization } %>
+  <%= render partial: "filters" %>
 
   <div class="item-wrapper">
     <% @items.each do |item| %>

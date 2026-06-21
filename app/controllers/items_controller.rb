@@ -1,7 +1,7 @@
 class ItemsController < ApplicationController
   def index
-    organization = Organization.find_by!(name: params[:organization_name])
-    @repository = organization.repositories.find_by!(name: params[:repository_name])
+    @organization = Organization.find_by!(name: params[:organization_name])
+    @repository = @organization.repositories.find_by!(name: params[:repository_name])
 
     kind_filter = Item::ALLOWED_FILTER_KINDS.include?(params[:kind]) ? params[:kind] : nil
     items = @repository.items.public_send(kind_filter || "all")
