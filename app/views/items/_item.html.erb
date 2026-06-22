@@ -1,0 +1,13 @@
+<a class="item frosted-glass" href="javascript:void(0)">
+  <%= item_svg(item) %>
+  <div class="item-content">
+    <h3><%= item.title %></h3>  
+    <p>Created by <%= item.created_by.display_name %> <%= time_ago_in_words(item.created_at) %></p>
+  </div>
+
+  <div class="assignees-wrapper">
+    <% item.assignees.each do |assignee| %>
+      <img src="<%= assignee.avatar_url %>" class="assignee" loading="lazy">
+    <% end %>
+  </div>
+</a>

@@ -1,0 +1,27 @@
+<div class="home-page">
+  <div class="organizations">
+    <% @organizations.each_with_index do |organization, index| %> 
+      <div class="organization">
+        <img src="<%= organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= organization.banner_dark_url %>" data-theme-image-light="<%= organization.banner_light_url %>">
+
+        <div class="organization-details frosted-glass">
+          <img src="<%= organization.avatar_url %>" loading="lazy">  
+
+          <div class="organization-data">
+            <p class="title"><%= organization.name %></p>
+            <p class="description <%= "null-value" if organization.description.blank? %>"><%= organization.display_description %></p>
+          </div>
+        </div>
+
+        <div class="repositories">
+          <% organization.repositories.each do |repository| %>  
+            <a class="repository frosted-glass" href="<%= items_path(organization.slug, repository.slug) %>">
+              <p class="title"><%= repository.name %></p>
+              <p class="description <%= "null-value" if repository.description.blank? %>"><%= repository.display_description %></p>    
+            </a>
+          <% end %> 
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

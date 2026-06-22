@@ -1,0 +1,29 @@
+<div class="filter-wrapper frosted-glass">
+  <%= tabs(items: filter_tabs) %>
+
+  <%= form_with url: items_path(organization_name: @organization.name, repository_name: @repository.name), method: :get, builder: CustomFormBuilder do |form| %>
+    <%# Preserve the kind tab when filtering by people. %>
+    <%= form.hidden_field :kind, value: params[:kind] %>
+
+    <%= search_select(
+          name: "author", title: "Author",
+          options: @authors.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
+          selected: Array(params[:author]), 
+          form: form ) %>
+
+    <%= search_select(
+          name: "assignee", title: "Assignee",
+          options: @assignees.map { |u| { value: u.id, label: u.display_name, image: u.avatar_url } },
+          selected: Array(params[:assignee]).presence || Item::DEFAULT_FILTER_USER_ID,
+          form: form ) %>
+
+      <%= search_select(
+            name: "state" , title: "State" ,
+            options: Item::ALLOWED_STATES.map { |state| { value: state, label: state.humanize } },
+            selected: Array(params[:state]).presence || Item::DEFAULT_FILTER_STATES,
+            placeholder: "Any state",
+            form: form ) %>
+
+    <%= form.submit text: "Apply" %>
+  <% end %>
+</div>
