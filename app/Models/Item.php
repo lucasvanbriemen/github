@@ -29,15 +29,10 @@ class Item extends Model
         'title',
         'body',
         'state',
-        'labels',
         'opened_by_id',
         'type',
         'milestone_id',
         'importance_score',
-    ];
-
-    protected $casts = [
-        'labels' => 'array',
     ];
 
     public function getBodyAttribute($value)
@@ -125,5 +120,11 @@ class Item extends Model
     public function milestone()
     {
         return $this->belongsTo(Milestone::class, 'milestone_id', 'id');
+    }
+
+    public function labels()
+    {
+        return $this->belongsToMany(Label::class, 'item_labels', 'item_id', 'label_id', 'id', 'id')
+            ->withTimestamps();
     }
 }

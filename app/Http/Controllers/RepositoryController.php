@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
+use App\Models\Item;
 use App\Models\Label;
 use App\Models\Repository;
 use App\Services\RepositoryService;
@@ -48,14 +49,17 @@ class RepositoryController extends Controller
                 }
 
                 foreach ($labels as $label) {
-                    // Update or create label
+                    // Match on (repository_id, name) to align with the table's
+                    // unique constraint: GitHub guarantees label names are unique
+                    // per repo, while github_id can change if a label is deleted
+                    // and recreated under the same name.
                     Label::updateOrCreate(
                         [
                             'repository_id' => $repository->id,
-                            'github_id' => $label->id,
+                            'name' => $label->name,
                         ],
                         [
-                            'name' => $label->name,
+                            'github_id' => $label->id,
                             'color' => $label->color,
                             'description' => $label->description,
                         ]
@@ -64,6 +68,53 @@ class RepositoryController extends Controller
 
                 $page++;
             } while (count($labels) === $perPage);
+        }
+    }
+
+    /**
+     * Rebuild the item_labels pivot from GitHub. The issues endpoint returns
+     * both issues and pull requests with their labels inline, so we page through
+     * it per repository and sync each matching item's labels.
+     */
+    public static function resyncItemLabels()
+    {
+        $perPage = 100;
+
+        foreach (Repository::all() as $repository) {
+            // Map item number -> item id for fast lookup (covers issues and PRs).
+            $itemsByNumber = Item::where('repository_id', $repository->id)->pluck('id', 'number');
+
+            if ($itemsByNumber->isEmpty()) {
+                continue;
+            }
+
+            $page = 1;
+
+            do {
+                $issues = ApiHelper::githubApi(
+                    '/repos/'.$repository->full_name.'/issues?state=all&per_page='.$perPage.'&page='.$page
+                );
+
+                if (empty($issues)) {
+                    break;
+                }
+
+                foreach ($issues as $issue) {
+                    if (! isset($itemsByNumber[$issue->number])) {
+                        continue;
+                    }
+
+                    $item = Item::find($itemsByNumber[$issue->number]);
+                    if (! $item) {
+                        continue;
+                    }
+
+                    $labelIds = Label::syncFromGithub($repository->id, $issue->labels ?? []);
+                    $item->labels()->sync($labelIds);
+                }
+
+                $page++;
+            } while (count($issues) === $perPage);
         }
     }
 

@@ -35,9 +35,7 @@
     isLoading = true;
     item = await api.get(route(`organizations.repositories.item.show`, { $organization, $repository, number }));
 
-    try {
-      item.labels = JSON.parse(item.labels);
-    } catch (e) {
+    if (!Array.isArray(item.labels)) {
       item.labels = [];
     }
 

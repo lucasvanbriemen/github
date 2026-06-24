@@ -6,6 +6,7 @@ use App\Events\PullRequestWebhookReceived;
 use App\GithubConfig;
 use App\Helpers\ApiHelper;
 use App\Models\GithubUser;
+use App\Models\Label;
 use App\Models\Notification;
 use App\Models\PullRequest;
 use App\Models\Repository;
@@ -98,9 +99,11 @@ class ProcessPullRequestWebhook // implements ShouldQueue
                 'title' => $prData->title,
                 'body' => $prData->body ?? '',
                 'state' => $state,
-                'labels' => json_encode($prData->labels ?? []),
             ]
         );
+
+        // Sync labels into the item_labels pivot table
+        $pr->labels()->sync(Label::syncFromGithub($repository->id, $prData->labels ?? []));
 
         // Update PR-specific fields in pull_requests table
         \DB::table('pull_requests')->updateOrInsert(

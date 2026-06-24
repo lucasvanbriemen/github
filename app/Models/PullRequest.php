@@ -88,7 +88,6 @@ class PullRequest extends Item
     }
 
     protected $casts = [
-        'labels' => 'array',
         'closed_at' => 'datetime',
     ];
 

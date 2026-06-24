@@ -414,11 +414,7 @@ class ImportanceScoreService
      */
     private static function hasLabel(Item $item, string $labelName): bool
     {
-        if (! is_array($item->labels)) {
-            return false;
-        }
-
-        return in_array($labelName, $item->labels);
+        return $item->labels->contains('name', $labelName);
     }
 
     /**

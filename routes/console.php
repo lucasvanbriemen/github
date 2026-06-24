@@ -20,6 +20,10 @@ Artisan::command('labels:update', function () {
     RepositoryController::updateLabels();
 })->purpose('Update labels from GitHub API');
 
+Artisan::command('items:resync-labels', function () {
+    RepositoryController::resyncItemLabels();
+})->purpose('Rebuild the item_labels pivot from GitHub for all items');
+
 // Schedule the command to run every other day at 2 AM
 Schedule::command('organizations:update')->cron('0 2 */2 * *');
 

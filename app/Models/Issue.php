@@ -16,8 +16,4 @@ class Issue extends Item
             $model->type = 'issue';
         });
     }
-
-    protected $casts = [
-        'labels' => 'array',
-    ];
 }

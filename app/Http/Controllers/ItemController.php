@@ -8,6 +8,7 @@ use App\Models\BaseComment;
 use App\Models\Commit;
 use App\Models\Issue;
 use App\Models\Item;
+use App\Models\Label;
 use App\Models\Notification;
 use App\Services\ImportanceScoreService;
 use App\Services\RepositoryService;
@@ -31,6 +32,7 @@ class ItemController extends Controller
                 'milestone:id,due_on,title',
                 'comments:id,issue_id,type,resolved,user_id',
                 'comments.author:id,name',
+                'labels',
             ])
             ->get();
 
@@ -42,9 +44,7 @@ class ItemController extends Controller
         if ($isFriday) {
             $hotfixLabel = $config['hotfix_friday']['label'];
             $items = $items->filter(function ($item) use ($hotfixLabel) {
-                $labels = is_array($item->labels) ? $item->labels : (json_decode($item->labels, true) ?? []);
-
-                return in_array($hotfixLabel, $labels);
+                return $item->labels->contains('name', $hotfixLabel);
             });
         }
 
@@ -56,10 +56,6 @@ class ItemController extends Controller
         $items->each(function ($item) use ($projectStatuses, $notificationCounts) {
             $item->project_status = $projectStatuses[$item->id] ?? null;
             $item->notification_count = $notificationCounts[$item->id] ?? 0;
-
-            if (is_string($item->labels)) {
-                $item->labels = json_decode($item->labels, true);
-            }
         });
 
         return response()->json($items);
@@ -78,7 +74,7 @@ class ItemController extends Controller
         // Step 1: Fetch all PRs for the repo to find linked ones
         $allPrs = Item::where('repository_id', $repository->id)
             ->where('type', 'pull_request')
-            ->select(['id', 'number', 'title', 'state', 'body', 'labels', 'created_at', 'opened_by_id'])
+            ->select(['id', 'number', 'title', 'state', 'body', 'created_at', 'opened_by_id'])
             ->with(['openedBy:id,display_name,avatar_url', 'details:id,head_branch', 'requestedReviewers:id,pull_request_id,user_id,state'])
             ->get();
 
@@ -175,13 +171,14 @@ class ItemController extends Controller
             $query->where('milestone_id', $milestone);
         }
 
-        $items = $query->select(['id', 'title', 'state', 'labels', 'created_at', 'opened_by_id', 'number', 'type', 'milestone_id'])
+        $items = $query->select(['id', 'title', 'state', 'created_at', 'opened_by_id', 'number', 'type', 'milestone_id'])
             ->with([
                 'openedBy:id,display_name,avatar_url',
                 'assignees:id,name,avatar_url',
                 'requestedReviewers:id,pull_request_id,user_id,state',
                 'details:id,head_sha',
                 'milestone:id,title,due_on',
+                'labels',
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(30, ['*'], 'page', $page);
@@ -313,8 +310,7 @@ class ItemController extends Controller
 
         // Label overrides take highest priority (explicit human signal)
         if (! empty($rules['label_overrides'])) {
-            $rawLabels = is_string($item->labels) ? json_decode($item->labels, true) : ($item->labels ?? []);
-            $itemLabelNames = array_map(fn ($l) => strtolower(is_array($l) ? ($l['name'] ?? '') : $l), $rawLabels ?: []);
+            $itemLabelNames = $item->labels->map(fn ($l) => strtolower($l->name))->all();
 
             foreach ($rules['label_overrides'] as $override) {
                 if (in_array(strtolower($override['label']), $itemLabelNames)) {
@@ -560,10 +556,12 @@ class ItemController extends Controller
                 'title' => $response['title'] ?? '',
                 'body' => $response['body'] ?? '',
                 'state' => $state,
-                'labels' => json_encode($response['labels'] ?? []),
                 'opened_by_id' => $response['user']['id'] ?? null,
             ]
         );
+
+        // Sync labels into the item_labels pivot table
+        $issue->labels()->sync(Label::syncFromGithub($repository->id, $response['labels'] ?? []));
 
         // Sync assignees (uses issue_assignees table)
         $assigneeGithubIds = [];
@@ -595,6 +593,7 @@ class ItemController extends Controller
                 'openedBy',
                 'comments',
                 'milestone',
+                'labels',
             ])
             ->firstOrFail();
 

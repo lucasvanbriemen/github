@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ApiHelper;
 use App\Helpers\DiffRenderer;
 use App\Models\Item;
+use App\Models\Label;
 use App\Models\PullRequest;
 use App\Models\PullRequestDetails;
 use App\Services\NotificationAutoResolver;
@@ -63,10 +64,12 @@ class PullRequestController extends Controller
                 'title' => $response['title'] ?? '',
                 'body' => $response['body'] ?? '',
                 'state' => $state,
-                'labels' => json_encode($response['labels'] ?? []),
                 'opened_by_id' => $response['user']['id'] ?? null,
             ]
         );
+
+        // Sync labels into the item_labels pivot table
+        $pr->labels()->sync(Label::syncFromGithub($repository->id, $response['labels'] ?? []));
 
         PullRequestDetails::updateOrCreate(
             ['id' => $response['id']],

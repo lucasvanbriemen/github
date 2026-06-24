@@ -6,6 +6,7 @@ use App\Events\IssuesWebhookReceived;
 use App\GithubConfig;
 use App\Models\GithubUser;
 use App\Models\Issue;
+use App\Models\Label;
 use App\Models\Notification;
 use App\Models\Repository;
 use App\Services\ImportanceScoreService;
@@ -75,12 +76,14 @@ class ProcessIssueWebhook
                 'body' => $issueData->body ?? '',
                 'milestone_id' => $issueData->milestone->id ?? null,
                 'state' => $issueData->state,
-                'labels' => json_encode($issueData->labels ?? []),
             ]
         );
 
         // Sync assignees in the pivot table
         $issue->assignees()->sync($assigneeGithubIds);
+
+        // Sync labels into the item_labels pivot table
+        $issue->labels()->sync(Label::syncFromGithub($repository->id, $issueData->labels ?? []));
 
         ImportanceScoreService::updateItemScore($issue);
 

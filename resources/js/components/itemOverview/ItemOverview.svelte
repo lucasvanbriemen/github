@@ -105,9 +105,7 @@
     paginationLinks = json.links
 
     for (let i = 0; i < items.length; i++) {
-      try {
-        items[i].labels = JSON.parse(items[i].labels);
-      } catch (e) {
+      if (!Array.isArray(items[i].labels)) {
         items[i].labels = [];
       }
     }
