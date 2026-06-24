@@ -9,6 +9,8 @@ class Item < ApplicationRecord
     association_foreign_key: "user_id"
   paginates_per 50
 
+  has_and_belongs_to_many :labels, class_name: "Label", join_table: "item_labels", foreign_key: "item_id", association_foreign_key: "label_id"
+
   scope :issues, -> { where(type: "issue") }
   scope :pull_requests, -> { where(type: "pull_request") }
   scope :by_author, ->(author_ids) { where(opened_by_id: author_ids) }

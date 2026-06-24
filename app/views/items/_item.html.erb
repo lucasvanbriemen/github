@@ -10,4 +10,9 @@
       <img src="<%= assignee.avatar_url %>" class="assignee" loading="lazy">
     <% end %>
   </div>
+
+  <%= item.labels.map do |label| %>
+    <span class="label" style="background-color: <%= label.color %>"><%= label.name %></span>
+  <% end.join(" ").html_safe %> 
+  
 </a>
