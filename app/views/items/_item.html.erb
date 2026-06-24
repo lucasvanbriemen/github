@@ -3,6 +3,11 @@
   <div class="item-content">
     <h3><%= item.title %></h3>  
     <p>Created by <%= item.created_by.display_name %> <%= time_ago_in_words(item.created_at) %></p>
+    <div class="labels-wrapper">
+      <% item.labels.each do |label| %>
+        <span class="label" style="<%= label.style_variables %>"><%= label.name %></span>
+      <% end %>
+    </div> 
   </div>
 
   <div class="assignees-wrapper">
@@ -10,8 +15,4 @@
       <img src="<%= assignee.avatar_url %>" class="assignee" loading="lazy">
     <% end %>
   </div>
-
-  <% item.labels.each do |label| %>
-    <span class="label" style="<%= label.style_variables %>"><%= label.name %></span>
-  <% end %> 
 </a>
