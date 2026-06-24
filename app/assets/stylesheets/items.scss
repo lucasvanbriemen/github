@@ -105,6 +105,52 @@
   }
 }
 
+// Labels are themed from the per-label color CSS variables emitted by
+// Label#style_variables (--label-r/g/b + --label-h/s/l). We compute the
+// color's *perceived* lightness and use it to pick a foreground that always
+// contrasts. Defaults below are the light-mode treatment; the dark-mode block
+// re-tunes the thresholds and switches to a translucent, lightened swatch so
+// the same color reads well against either background.
+.label {
+  // Rec. 709 luma of the label color, normalized to 0–1.
+  --perceived-lightness: calc(
+    (var(--label-r) * 0.2126 + var(--label-g) * 0.7152 + var(--label-b) * 0.0722) / 255
+  );
+  // 1 when the swatch is dark (use white text), 0 when light (use black text).
+  --lightness-threshold: 0.453;
+  --lightness-switch: max(0, min(calc((var(--lightness-threshold) - var(--perceived-lightness)) * 1000), 1));
+  // Only near-white labels get a visible border so they don't vanish on a
+  // light page; everything else keeps a transparent edge.
+  --border-threshold: 0.96;
+  --border-alpha: max(0, min(calc((var(--perceived-lightness) - var(--border-threshold)) * 100), 1));
+
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.6rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  background: rgb(var(--label-r), var(--label-g), var(--label-b));
+  color: hsl(0deg, 0%, calc(var(--lightness-switch) * 100%));
+  border: 1px solid hsla(var(--label-h), calc(var(--label-s) * 1%), calc((var(--label-l) - 25) * 1%), var(--border-alpha));
+
+  @media screen and (prefers-color-scheme: dark) {
+    --lightness-threshold: 0.6;
+    --background-alpha: 0.18;
+    --border-alpha: 0.3;
+    // How much to lighten a too-dark swatch so its text stays legible.
+    --lighten-by: calc((var(--lightness-threshold) - var(--perceived-lightness)) * 100 * var(--lightness-switch));
+
+    background: rgba(var(--label-r), var(--label-g), var(--label-b), var(--background-alpha));
+    color: hsl(var(--label-h), calc(var(--label-s) * 1%), calc((var(--label-l) + var(--lighten-by)) * 1%));
+    border-color: hsla(var(--label-h), calc(var(--label-s) * 1%), calc((var(--label-l) + var(--lighten-by)) * 1%), var(--border-alpha));
+    
+  }
+}
+
 .background-image {
   position: fixed;
   top: 0;
