@@ -1,0 +1,9 @@
+<% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
+<img src="<%= @organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= @organization.banner_dark_url %>" data-theme-image-light="<%= @organization.banner_light_url %>">
+
+<div class="filter-with-item-wrapper">
+
+  <div class="item-wrapper">
+      <%= render partial: "item", locals: { item: @item } %>
+
+</div>

@@ -1,4 +1,4 @@
-<a class="item frosted-glass" href="javascript:void(0)">
+<a class="item frosted-glass" href="<%= item_path(@organization.name, @repository.name, item.number) %>">
   <%= item_svg(item) %>
   <div class="item-content">
     <h3><%= item.title %></h3>  

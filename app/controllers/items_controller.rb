@@ -25,6 +25,12 @@ class ItemsController < ApplicationController
     @assignees = GithubUser.where(id: @repository.items.joins(:assignees).select("github_users.id")).order(:login)
   end
 
+  def show
+    @organization = Organization.find_by!(name: params[:organization_name])
+    @repository = @organization.repositories.find_by!(name: params[:repository_name])
+    @item = @repository.items.includes(:github_user, :assignees, :labels).find_by!(number: params[:number])
+  end
+
   private
 
   def filter_ids(key)
