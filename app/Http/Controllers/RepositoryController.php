@@ -35,23 +35,35 @@ class RepositoryController extends Controller
     {
         $repositories = Repository::all();
 
-        foreach ($repositories as $repository) {
-            $labels = ApiHelper::githubApi('/repos/'.$repository->full_name.'/labels');
+        $perPage = 100;
 
-            foreach ($labels as $label) {
-                // Update or create label
-                Label::updateOrCreate(
-                    [
-                        'repository_id' => $repository->id,
-                        'github_id' => $label->id,
-                    ],
-                    [
-                        'name' => $label->name,
-                        'color' => $label->color,
-                        'description' => $label->description,
-                    ]
-                );
-            }
+        foreach ($repositories as $repository) {
+            $page = 1;
+
+            do {
+                $labels = ApiHelper::githubApi('/repos/'.$repository->full_name.'/labels?per_page='.$perPage.'&page='.$page);
+
+                if (empty($labels)) {
+                    break;
+                }
+
+                foreach ($labels as $label) {
+                    // Update or create label
+                    Label::updateOrCreate(
+                        [
+                            'repository_id' => $repository->id,
+                            'github_id' => $label->id,
+                        ],
+                        [
+                            'name' => $label->name,
+                            'color' => $label->color,
+                            'description' => $label->description,
+                        ]
+                    );
+                }
+
+                $page++;
+            } while (count($labels) === $perPage);
         }
     }
 
