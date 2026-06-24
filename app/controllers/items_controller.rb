@@ -18,7 +18,7 @@ class ItemsController < ApplicationController
     items = items.by_assignee(assignee_ids) if assignee_ids.any?
     items = items.state(states) if states.any?
 
-    @items = items.includes(:github_user, :assignees).page(params[:page]).order(created_at: :desc)
+    @items = items.includes(:github_user, :assignees, :labels).page(params[:page]).order(created_at: :desc)
 
     # People who can be filtered on, scoped to this repository's items.
     @authors = GithubUser.where(id: @repository.items.select(:opened_by_id)).order(:login)
