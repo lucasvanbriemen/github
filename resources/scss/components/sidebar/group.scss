@@ -7,37 +7,21 @@
   flex-direction: column;
   flex-wrap: wrap;
   border: 1px solid var(--background-color-one);
+  border: 1px solid var(--background-color-two);
+  gap: 0.5rem;
 
   .body {
-    transition: max-height 0.2s ease-in-out;
-    max-height: 0;
-
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     padding-bottom: 0.5rem;
   }
 
-  &:not(.open) {
-    &:hover {
-      cursor: pointer;
-      border: 1px solid var(--primary-color);
-    }
+ 
 
-    .body {
-      padding-bottom: 0;
-      overflow: hidden;
-    }
-  }
-
-  &.open {
-    border: 1px solid var(--background-color-two);
-    gap: 0.5rem;
-
-    .group-title {
-      font-size: 0.75rem;
-      margin: -0.25rem 0 0rem -.25rem;
-    }
+  .group-title {
+    font-size: 0.75rem;
+    margin: -0.25rem 0 0rem -.25rem;
   }
 
   .group-title {
