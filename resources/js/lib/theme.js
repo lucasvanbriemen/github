@@ -38,7 +38,7 @@ export default {
       dark: "#4a824b",
     },
     "error-color": {
-      light: "#4a824b",
+      light: "#f43d3d",
       dark: "#a12a34",
     },
     "starred-color": {
