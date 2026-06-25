@@ -46,6 +46,13 @@
     return `#/${item.repository.full_name}/${type}/${item.number}`;
   }
 
+  // Link a notification to its item, carrying the comment to scroll to or a
+  // request to highlight the item once the item view loads.
+  function getNotificationUrl(item, notification) {
+    const anchor = notification.comment_id ? `?comment=${notification.comment_id}` : '?highlight=item';
+    return getItemUrl(item) + anchor;
+  }
+
   async function completeAll() {
     const ids = [];
     for (const group of groups) {
@@ -81,10 +88,10 @@
         {/if}
 
         {#each group.notifications as notification}
-          <div class="notification-row">
+          <a class="notification-row" href={getNotificationUrl(group.item, notification)}>
             <span class="notification-text">{notification.subject}</span>
             <span class="notification-time">{notification.created_at_human}</span>
-          </div>
+          </a>
         {/each}
 
         {#each group.linked as linked}
@@ -95,10 +102,10 @@
             </a>
 
             {#each linked.notifications as notification}
-              <div class="notification-row linked" class:completed={notification.completed}>
+              <a class="notification-row linked" class:completed={notification.completed} href={getNotificationUrl(linked.item, notification)}>
                 <span class="notification-text">{notification.subject}</span>
                 <span class="notification-time">{notification.created_at_human}</span>
-              </div>
+              </a>
             {/each}
           </div>
         {/each}

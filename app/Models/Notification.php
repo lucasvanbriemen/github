@@ -82,6 +82,23 @@ class Notification extends Model
     }
 
     /**
+     * Resolve the id of the comment this notification points at, if any.
+     * Used by the frontend to scroll to and highlight the comment.
+     */
+    public function resolveCommentId(): ?int
+    {
+        if ($this->type === 'item_comment' || $this->type === 'comment_mention') {
+            return (int) $this->related_id;
+        }
+
+        if ($this->type === 'pr_review') {
+            return $this->review?->baseComment?->id;
+        }
+
+        return null;
+    }
+
+    /**
      * Resolve the parent Item this notification belongs to.
      */
     public function resolveItem(): ?Item

@@ -58,7 +58,8 @@
     }
 
     if (item && itemType) {
-      window.location.hash = `#/${item.repository.full_name}/${itemType}/${item.number}`;
+      const anchor = notification.comment_id ? `?comment=${notification.comment_id}` : '?highlight=item';
+      window.location.hash = `#/${item.repository.full_name}/${itemType}/${item.number}${anchor}`;
     }
   }
 

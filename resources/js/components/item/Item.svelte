@@ -9,6 +9,9 @@
   import Icon from '../Icon.svelte';
   import { organization, repository, repoMetadata } from '../stores';
   import CopyText from '../CopyText.svelte';
+  import { querystring } from 'svelte-spa-router';
+  import { get } from 'svelte/store';
+  import { scrollToComment, flashHighlight } from '../../lib/highlight.js';
 
   let { params = {} } = $props();
   let number = $derived(params.number);
@@ -44,6 +47,7 @@
 
     isLoading = false;
     loadNotifications();
+    focusFromUrl();
 
     if (isPR) {
       loadFiles();
@@ -69,6 +73,28 @@
 
   async function loadNotifications() {
     itemNotifications = await api.get(route('organizations.repositories.item.notifications', { $organization, $repository, number }));
+  }
+
+  // When arriving from a notification the URL carries either a comment to
+  // scroll to (?comment=123) or a request to highlight the item (?highlight=item).
+  function focusFromUrl() {
+    const qs = new URLSearchParams(get(querystring));
+
+    if (qs.get('comment')) {
+      scrollToComment(qs.get('comment'));
+    } else if (qs.get('highlight') === 'item') {
+      flashHighlight('.notification-banner');
+    }
+  }
+
+  // Clicking a notification while already on the item view: scroll to its
+  // comment, or flash the banner when there is no specific comment.
+  function focusNotification(notification) {
+    if (notification.comment_id) {
+      scrollToComment(notification.comment_id);
+    } else {
+      flashHighlight('.notification-banner');
+    }
   }
 
   async function completeNotification(id) {
@@ -113,7 +139,7 @@
               {#if notification.triggered_by?.avatar_url}
                 <img src={notification.triggered_by.avatar_url} alt="" class="notification-banner-avatar" />
               {/if}
-              <span class="notification-banner-text">{notification.subject}</span>
+              <button type="button" class="notification-banner-text" onclick={() => focusNotification(notification)}>{notification.subject}</button>
               <span class="notification-banner-time">{notification.created_at_human}</span>
               <button class="notification-banner-dismiss" onclick={() => completeNotification(notification.id)}>
                 <Icon name="approved" size="1.2rem" />

@@ -102,6 +102,28 @@ mark.search-match.search-match-focus {
   border-radius: 0.25rem;
 }
 
+// Brief outline applied when navigating to an item / comment from a
+// notification, so the user can see what the notification referred to.
+.flash-highlight {
+  animation: flash-highlight-pulse 2s ease-out;
+  border-radius: 0.5rem;
+  scroll-margin: 1rem;
+}
+
+@keyframes flash-highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 2px var(--primary-color),
+      0 0 0 6px color-mix(in srgb, var(--primary-color) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 2px var(--primary-color),
+      0 0 0 6px color-mix(in srgb, var(--primary-color) 20%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
 @keyframes search-match-pulse {
   0% {
     background-color: rgba(234, 179, 8, 1);

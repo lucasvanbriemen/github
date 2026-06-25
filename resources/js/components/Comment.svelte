@@ -66,7 +66,7 @@
 </script>
 
 {#if showComment}
-  <div class="item-comment" class:item-comment-resolved={comment.resolved}>
+  <div id="comment-{comment.id}" class="item-comment" class:item-comment-resolved={comment.resolved}>
     <button class="item-comment-header" onclick={() => toggleItemComment(comment)}>
 
       {#if comment.details?.badge}

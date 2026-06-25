@@ -57,8 +57,16 @@
     } else if (item.type === 'pull_request') {
       type = 'prs';
     }
-    
+
     url = `#/${item.repository.full_name}/${type}/${item.number}`;
+
+    // Carry the target so the item view can scroll to the comment or
+    // highlight the item once it loads.
+    if (notification.comment_id) {
+      url += `?comment=${notification.comment_id}`;
+    } else {
+      url += '?highlight=item';
+    }
   }
 
   onMount(() => {

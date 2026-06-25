@@ -30,6 +30,7 @@ class NotificationController extends Controller
 
         foreach ($notifications as $notification) {
             $notification->subject = $notification->subject();
+            $notification->comment_id = $notification->resolveCommentId();
         }
 
         return response()->json($notifications);
@@ -39,6 +40,7 @@ class NotificationController extends Controller
     {
         $notification = Notification::with(relations: 'triggeredBy')->findOrFail($id);
         $notification->loadRelatedData();
+        $notification->comment_id = $notification->resolveCommentId();
 
         return response()->json($notification);
     }
@@ -91,11 +93,12 @@ class NotificationController extends Controller
         }
 
         $notifications = Notification::whereIn('id', $allIds)
-            ->with(['triggeredBy:id,name,avatar_url'])
+            ->with(['triggeredBy:id,name,avatar_url', 'review.baseComment:id'])
             ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
 
         foreach ($notifications as $notification) {
             $notification->subject = $notification->subject();
+            $notification->comment_id = $notification->resolveCommentId();
         }
 
         return response()->json($notifications);
@@ -122,6 +125,7 @@ class NotificationController extends Controller
         foreach ($notifications as $notification) {
             $notification->loadRelatedData();
             $notification->subject = $notification->subject();
+            $notification->comment_id = $notification->resolveCommentId();
         }
 
         // Group notifications by their parent item

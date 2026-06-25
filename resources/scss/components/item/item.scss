@@ -71,6 +71,15 @@
         .notification-banner-text {
           flex: 1;
           font-size: 0.85rem;
+          background: none;
+          border: none;
+          padding: 0;
+          text-align: left;
+          cursor: pointer;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
 
         .notification-banner-time {
