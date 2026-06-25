@@ -1,4 +1,4 @@
-.filter-with-item-wrapper {
+.filter-with-item-wrapper, .option-with-item-wrapper {
   display: flex;
   gap: 1rem;
 
@@ -6,7 +6,7 @@
   margin: 1rem auto;
   z-index: 1;
 
-  .filter-wrapper {
+  .filter-wrapper, .option-wrapper {
     width: 20%;
     border-radius: 1rem;
     padding: 1rem;
