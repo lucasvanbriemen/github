@@ -33,4 +33,8 @@ class Item < ApplicationRecord
   def created_by
     github_user
   end
+
+  def body_html
+    GitHub::Markup.render("item.md", body.to_s)
+  end
 end
