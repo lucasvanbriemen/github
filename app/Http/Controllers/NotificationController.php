@@ -93,7 +93,7 @@ class NotificationController extends Controller
         }
 
         $notifications = Notification::whereIn('id', $allIds)
-            ->with(['triggeredBy:id,name,avatar_url', 'review.baseComment:id'])
+            ->with(['triggeredBy:id,name,avatar_url', 'review.baseComment.author'])
             ->get(['id', 'type', 'completed', 'created_at', 'triggered_by_id', 'related_id']);
 
         foreach ($notifications as $notification) {
