@@ -3,11 +3,13 @@
   <div class="item-content">
     <h3><%= item.title %></h3>  
     <p>Created by <%= item.created_by.display_name %> <%= time_ago_in_words(item.created_at) %></p>
-    <div class="labels-wrapper">
-      <% item.labels.each do |label| %>
-        <span class="label" style="<%= label.style_variables %>"><%= label.name %></span>
-      <% end %>
-    </div> 
+    <% if item.labels.any? %>
+      <div class="labels-wrapper">
+        <% item.labels.each do |label| %>
+          <span class="label" style="<%= label.style_variables %>"><%= label.name %></span>
+        <% end %>
+      </div> 
+    <% end %>
   </div>
 
   <div class="assignees-wrapper">
