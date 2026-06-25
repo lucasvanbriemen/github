@@ -1,6 +1,8 @@
 .filter-with-item-wrapper, .option-with-item-wrapper {
   display: flex;
   gap: 1rem;
+  z-index: 1;
+  position: relative;
 
   width: calc(min(90%, 100rem));
   margin: 1rem auto;
