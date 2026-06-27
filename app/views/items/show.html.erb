@@ -12,8 +12,8 @@
     </div>
 
     <div class="comments">
-      <%= @item.base_comments.each do |comment| %>
-        <%= comment.body %>
+      <% @item.base_comments.each do |comment| %>
+        <%= comment.body %> <hr>
       <% end %>
     </div>
   </div>
