@@ -23,7 +23,8 @@ module ItemHelper
 
   def item_comment(body: "", author: nil, created_at: nil)
     content_tag :div, class: "comment frosted-glass" do
-      concat(content_tag(:div, class: "comment-header") do
+      concat(content_tag(:div, class: "header") do
+        concat(image_tag(author.avatar_url, class: "comment-author-image"))
         concat(content_tag(:span, author.display_name, class: "comment-author"))
         concat(content_tag(:span, time_ago_in_words(created_at), class: "comment-created-at"))
       end)

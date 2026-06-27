@@ -1,0 +1,25 @@
+.item-wrapper .comment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  border-radius: 1rem;
+  border: 1px solid var(--outline-variant);
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    .author {
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .created-at {
+      font-size: 0.9rem;
+      color: var(--on-surface-variant);
+    }
+  }
+}
