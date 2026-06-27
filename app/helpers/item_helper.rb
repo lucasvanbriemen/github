@@ -22,12 +22,12 @@ module ItemHelper
   end
 
   def item_comment(body: "", author: nil, created_at: nil)
-    content_tag :div, class: "comment" do
+    content_tag :div, class: "comment frosted-glass" do
       concat(content_tag(:div, class: "comment-header") do
-        concat(content_tag(:span, author&.login || "unknown", class: "comment-author"))
-        concat(content_tag(:span, created_at&.strftime("%b %d, %Y %H:%M") || "unknown", class: "comment-created-at"))
+        concat(content_tag(:span, author.display_name, class: "comment-author"))
+        concat(content_tag(:span, time_ago_in_words(created_at), class: "comment-created-at"))
       end)
-      concat(content_tag(:div, GitHub::Markup.render("item.md", body.to_s), class: "comment-body markdown"))
+      concat(content_tag(:div, GitHub::Markup.render("item.md", body.to_s).html_safe, class: "comment-body markdown"))
     end
   end
 end

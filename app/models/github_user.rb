@@ -7,4 +7,10 @@ class GithubUser < ApplicationRecord
   def kind
     type
   end
+
+  def display_name
+    stored_name = super
+
+    stored_name || name || login || email || "unknown"
+  end
 end
