@@ -10,5 +10,11 @@
     <div class="markdown">
       <%= @item.body_html.html_safe %>
     </div>
+
+    <div class="comments">
+      <%= @item.base_comments.each do |comment| %>
+        <%= comment.body %>
+      <% end %>
+    </div>
   </div>
 </div>

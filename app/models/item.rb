@@ -8,6 +8,7 @@ class Item < ApplicationRecord
     foreign_key: "issue_id",
     association_foreign_key: "user_id"
   paginates_per 50
+  has_many :base_comments, class_name: "BaseComment", foreign_key: "issue_id"
 
   has_and_belongs_to_many :labels, class_name: "Label", join_table: "item_labels", foreign_key: "item_id", association_foreign_key: "label_id"
 
