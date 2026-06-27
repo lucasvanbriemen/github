@@ -28,7 +28,7 @@ class ItemsController < ApplicationController
   def show
     @organization = Organization.find_by!(name: params[:organization_name])
     @repository = @organization.repositories.find_by!(name: params[:repository_name])
-    @item = @repository.items.includes(:github_user, :assignees, :labels).find_by!(number: params[:number])
+    @item = @repository.items.includes(:github_user, :assignees, :labels, :milestone, base_comments: :github_user).find_by!(number: params[:number])
   end
 
   private
