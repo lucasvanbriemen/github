@@ -20,4 +20,14 @@ module ItemHelper
     svg_name = item.kind == "pull_request" ? "pull_request" : "issue"
     icon(svg_name, class: "item-icon item-#{item.kind} icon-#{item.state}")
   end
+
+  def item_comment(body: "", author: nil, created_at: nil)
+    content_tag :div, class: "comment" do
+      concat(content_tag(:div, class: "comment-header") do
+        concat(content_tag(:span, author&.login || "unknown", class: "comment-author"))
+        concat(content_tag(:span, created_at&.strftime("%b %d, %Y %H:%M") || "unknown", class: "comment-created-at"))
+      end)
+      concat(content_tag(:div, GitHub::Markup.render("item.md", body.to_s), class: "comment-body markdown"))
+    end
+  end
 end

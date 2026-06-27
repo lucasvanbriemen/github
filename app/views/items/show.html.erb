@@ -7,13 +7,11 @@
   <div class="item-wrapper">
     <%= render partial: "header" %>
 
-    <div class="markdown">
-      <%= @item.body_html.html_safe %>
-    </div>
+    <%= item_comment(body: @item.body, author: @item.github_user, created_at: @item.created_at) %>
 
     <div class="comments">
       <% @item.base_comments.each do |comment| %>
-        <%= comment.body %> <hr>
+        <%= item_comment(body: comment.body, author: comment.github_user, created_at: comment.created_at) %>
       <% end %>
     </div>
   </div>
