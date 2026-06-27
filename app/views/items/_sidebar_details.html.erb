@@ -1,1 +1,7 @@
-<div class="option-wrapper frosted-glass"><%= @item.milestone&.title %></div>
+<div class="option-wrapper frosted-glass">
+  <%= @item.milestone&.title %>
+
+  <%= @item.labels.map { |label| label.name }.join(", ") %>
+  <%= @item.assignees.map { |assignee| assignee.display_name }.join(", ") %>
+
+</div>
