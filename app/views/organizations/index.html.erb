@@ -14,7 +14,7 @@
         </div>
 
         <div class="repositories">
-          <% organization.repositories.each do |repository| %>  
+          <% organization.visible_repositories(include_private: can?(:read, :github, :private_repositories)).each do |repository| %>
             <a class="repository frosted-glass" href="<%= items_path(organization.slug, repository.slug) %>">
               <p class="title"><%= repository.name %></p>
               <p class="description <%= "null-value" if repository.description.blank? %>"><%= repository.display_description %></p>    
