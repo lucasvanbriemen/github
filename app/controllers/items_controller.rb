@@ -3,6 +3,10 @@ class ItemsController < ApplicationController
     @organization = Organization.find_by!(name: params[:organization_name])
     @repository = @organization.repositories.find_by!(name: params[:repository_name])
 
+    if cannot?(:read, :github, :repositories) || (cannot?(:read, :github, :private_repositories) && @repository.private?)
+      return forbidden
+    end
+
     kind_filter = Item::ALLOWED_FILTER_KINDS.include?(params[:kind]) ? params[:kind] : nil
     items = @repository.items.public_send(kind_filter || "all")
 
@@ -28,6 +32,11 @@ class ItemsController < ApplicationController
   def show
     @organization = Organization.find_by!(name: params[:organization_name])
     @repository = @organization.repositories.find_by!(name: params[:repository_name])
+
+    if cannot?(:read, :github, :repositories) || (cannot?(:read, :github, :private_repositories) && @repository.private?)
+      return forbidden
+    end
+
     @item = @repository.items.includes(:github_user, :assignees, :labels, :milestone, base_comments: :github_user).find_by!(number: params[:number])
   end
 
