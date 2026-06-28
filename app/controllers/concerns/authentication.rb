@@ -9,27 +9,45 @@ module Authentication
   AUTH_COOKIE_DURATION = 1.week
 
   included do
-    before_action :require_login
-    helper_method :current_account
+    before_action :load_account
+    helper_method :current_account, :can?, :cannot?
   end
 
   private
 
   attr_reader :current_account
 
-  def require_login
-    token = auth_token
-    @current_account = fetch_account(token) if token.present?
+  def load_account
+    @current_account = fetch_account(auth_token)
 
-    if @current_account.nil?
-      return redirect_to "#{LOGIN_URL}?redirect=#{CGI.escape(request.original_url)}", allow_other_host: true
-    end
-
-    # Token arrived via the URL (login redirect); persist it as a cookie and clean the URL.
     if params[:auth_token].present?
-      store_auth_cookie(token)
+      store_auth_cookie(params[:auth_token])
       redirect_to clean_url
     end
+  end
+
+  # Permission tree login merged into the session JSON, e.g.
+  # { "apps" => ["read", "update", ...], "github" => { "repositories" => [...] } }.
+  # String keys/values, since it arrives as parsed JSON.
+  def current_permissions
+    current_account&.dig("permissions") || {}
+  end
+
+  # Is the current account allowed to perform `operation` on a permission area?
+  # Flat areas: can?(:update, :apps). Nested areas: can?(:read, :github, :repositories).
+  def can?(operation, *area)
+    return true if Rails.env.development?
+
+    node = current_permissions.dig(*area.map(&:to_s))
+    node.is_a?(Array) && node.include?(operation.to_s)
+  end
+
+  def cannot?(operation, *area)
+    !can?(operation, *area)
+  end
+
+  def forbidden
+    redirect_to "#{LOGIN_URL}?redirect=#{CGI.escape(request.original_url)}", allow_other_host: true
   end
 
   def auth_token
@@ -44,6 +62,8 @@ module Authentication
   end
 
   def store_auth_cookie(token)
+    cookies.delete(:auth_token, domain: :all)
+
     cookies[:auth_token] = {
       value: token,
       expires: AUTH_COOKIE_DURATION.from_now,
