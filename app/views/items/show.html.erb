@@ -10,7 +10,7 @@
     <%= item_comment(body: @item.body, author: @item.github_user, created_at: @item.created_at) %>
 
     <% @item.base_comments.each do |comment| %>
-      <%= item_comment(body: comment.body, author: comment.github_user, created_at: comment.created_at) %>
+      <%= base_comment(comment) %>
     <% end %>
   </div>
 </div>

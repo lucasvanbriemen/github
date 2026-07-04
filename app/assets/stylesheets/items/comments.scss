@@ -34,4 +34,58 @@
   .comment-body {
     padding: 1rem;
   }
+
+  .comment-reply {
+    border: 1px solid var(--outline-variant);
+    margin: 0 1.5rem 1.5rem 1.5rem;
+  }
+
+  &.review-approved .comment-header .created-at {
+    color: var(--on-success-container);
+  }
+
+  &.review-changes_requested .comment-header .created-at {
+    color: var(--on-error-container);
+  }
+
+  .diff-hunk {
+    width: 100%;
+    border-collapse: collapse;
+    border-bottom: 1px solid var(--outline-variant);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+
+    .diff-line-number {
+      width: 1%;
+      min-width: 2.5rem;
+      padding: 0 0.5rem;
+      text-align: right;
+      color: var(--secondary);
+      user-select: none;
+    }
+
+    .diff-line-text {
+      padding: 0 0.5rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .diff-header {
+      background-color: var(--surface);
+      color: var(--secondary);
+    }
+
+    .diff-addition {
+      background-color: color-mix(in srgb, var(--success-container) 40%, transparent);
+    }
+
+    .diff-deletion {
+      background-color: color-mix(in srgb, var(--error-container) 40%, transparent);
+    }
+
+    .diff-commented .diff-line-number:first-child {
+      box-shadow: inset 3px 0 0 var(--primary);
+    }
+  }
 }

@@ -21,14 +21,65 @@ module ItemHelper
     icon(svg_name, class: "item-icon item-#{item.kind} icon-#{item.state}")
   end
 
-  def item_comment(body: "", author: nil, created_at: nil)
-    content_tag :div, class: "comment frosted-glass" do
-      concat(content_tag(:div, class: "comment-header") do
-        concat(image_tag(author.avatar_url, class: "comment-author-image"))
-        concat(content_tag(:span, author.display_name, class: "author"))
-        concat(content_tag(:span, "commented #{time_ago_in_words(created_at)}", class: "created-at"))
+  def item_comment(body: "", author: nil, created_at: nil, action: "commented", state: nil, replies: [])
+    classes = [ "comment", "frosted-glass" ]
+    classes << "review-#{state}" if state
+
+    content_tag :div, class: classes.join(" ") do
+      concat(comment_header(author: author, action: action, created_at: created_at))
+      concat(capture { yield }) if block_given?
+      concat(content_tag(:div, GitHub::Markup.render("item.md", body.to_s).html_safe, class: "comment-body markdown")) if body.present?
+      replies.each do |reply|
+        concat(content_tag(:div, class: "comment-reply") do
+          concat(comment_header(author: reply.github_user, action: "replied", created_at: reply.created_at))
+          concat(content_tag(:div, GitHub::Markup.render("item.md", reply.body.to_s).html_safe, class: "comment-body markdown"))
+        end)
+      end
+    end
+  end
+
+  # Renders a BaseComment according to its kind: plain issue comments, review
+  # verdicts (approved/changes requested) and code comments with their diff
+  # hunk. Replies to a code comment are rendered inside the comment they reply
+  # to, so they return nothing at the top level.
+  def base_comment(comment)
+    common = { body: comment.body, author: comment.github_user, created_at: comment.created_at }
+
+    case comment.kind
+    when "review"
+      review = comment.pull_request_review
+      item_comment(**common, action: review&.action || "reviewed", state: review&.state)
+    when "code"
+      code = comment.pull_request_comment
+      return if code.reply?
+
+      replies = code.replies.map(&:base_comment).compact
+      item_comment(**common, action: "commented on #{code.path}", replies: replies) { diff_hunk(code) }
+    else
+      item_comment(**common)
+    end
+  end
+
+  def comment_header(author:, action:, created_at:)
+    content_tag :div, class: "comment-header" do
+      concat(image_tag(author.avatar_url, class: "comment-author-image"))
+      concat(content_tag(:span, author.display_name, class: "author"))
+      concat(content_tag(:span, "#{action} #{time_ago_in_words(created_at)}", class: "created-at"))
+    end
+  end
+
+  def diff_hunk(code)
+    content_tag :table, class: "diff-hunk" do
+      safe_join(code.hunk_lines.map do |line|
+        classes = [ "diff-line", "diff-#{line.kind}" ]
+        classes << "diff-commented" if code.commented_line?(line)
+
+        content_tag :tr, class: classes.join(" ") do
+          concat(content_tag(:td, line.old_number, class: "diff-line-number"))
+          concat(content_tag(:td, line.new_number, class: "diff-line-number"))
+          concat(content_tag(:td, line.text, class: "diff-line-text"))
+        end
       end)
-      concat(content_tag(:div, GitHub::Markup.render("item.md", body.to_s).html_safe, class: "comment-body markdown"))
     end
   end
 end

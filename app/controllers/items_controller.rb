@@ -37,7 +37,7 @@ class ItemsController < ApplicationController
       return forbidden
     end
 
-    @item = @repository.items.includes(:github_user, :assignees, :labels, :milestone, base_comments: :github_user).find_by!(number: params[:number])
+    @item = @repository.items.includes(:github_user, :assignees, :labels, :milestone, base_comments: [ :github_user, :pull_request_review, { pull_request_comment: { replies: { base_comment: :github_user } } } ]).find_by!(number: params[:number])
   end
 
   private
