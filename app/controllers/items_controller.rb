@@ -1,12 +1,5 @@
 class ItemsController < ApplicationController
   def index
-    @organization = Organization.find_by!(name: params[:organization_name])
-    @repository = @organization.repositories.find_by!(name: params[:repository_name])
-
-    if cannot?(:read, :github, :repositories) || (cannot?(:read, :github, :private_repositories) && @repository.private?)
-      return forbidden
-    end
-
     kind_filter = Item::ALLOWED_FILTER_KINDS.include?(params[:kind]) ? params[:kind] : nil
     items = @repository.items.public_send(kind_filter || "all")
 
