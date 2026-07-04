@@ -3,7 +3,7 @@
 
 <%= turbo_stream_from @item %>
 
-<div class="option-with-item-wrapper">
+<div class="option-with-item-wrapper files-layout">
   <div class="option-wrapper frosted-glass file-list">
     <h3><%= @files.size %> changed files</h3>
     <% @files.each_with_index do |file, index| %>

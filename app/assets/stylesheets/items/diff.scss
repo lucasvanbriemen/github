@@ -1,3 +1,14 @@
+// The Files tab wants all the horizontal room it can get for side-by-side
+// diffs, so it opts out of the centered content column.
+.files-layout.option-with-item-wrapper {
+  width: calc(100% - 2rem);
+  max-width: none;
+
+  // Give the diff column the rest of the width; keep the file list narrow.
+  .file-list { width: 16rem; flex-shrink: 0; }
+  .item-wrapper { width: auto; flex: 1; min-width: 0; }
+}
+
 .file-list {
   h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
 
