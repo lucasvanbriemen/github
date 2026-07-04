@@ -174,7 +174,14 @@
   flex-direction: column;
   gap: 1rem;
 
-  .item-details h3 {
-    font-size: 1rem;
+  .item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
   }
 }
