@@ -7,6 +7,10 @@ class ApplicationController < ActionController::Base
   before_action :load_repository
 
   def load_repository
+    if params[:organization_name].blank? || params[:repository_name].blank?
+      return
+    end
+
     @organization = Organization.find_by!(name: params[:organization_name])
     @repository = @organization.repositories.find_by!(name: params[:repository_name])
 
