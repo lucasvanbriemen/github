@@ -1,0 +1,133 @@
+.merge-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--outline-variant);
+
+  &:not(:has(*)) {
+    display: none;
+  }
+
+  .workflow,
+  .merge-conflicts,
+  .merge-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+
+    background-color: var(--surface-at-1);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border: 2px solid var(--outline-variant);
+
+    .workflow-name,
+    .conflicts-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: var(--secondary);
+    }
+
+    .complete-title { font-weight: bold; }
+    .complete-metadata { color: var(--secondary); font-size: 0.85rem; }
+
+    .job {
+      color: var(--secondary);
+      text-decoration: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--outline-variant);
+
+      &:hover { background-color: var(--surface-at-2); }
+      &.failure { border-color: var(--error-container); }
+      &.success { border-color: var(--success-container); }
+    }
+  }
+
+  .workflow.success { border-color: var(--success-container); }
+  .workflow.failure { border-color: var(--error-container); }
+
+  .merge-conflicts {
+    border-color: var(--error-container);
+
+    .conflicts-message { color: var(--secondary); font-size: 0.85rem; }
+
+    .conflict-file {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.85rem;
+      border: 1px solid var(--error-container);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .copy-command {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--surface);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+
+      code {
+        flex: 1;
+        font-size: 0.8rem;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .copy-button {
+        border: 1px solid var(--outline-variant);
+        border-radius: 0.5rem;
+        background: none;
+        color: var(--primary);
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .merge-status.blocked {
+    border-color: var(--error-container);
+    .status-message { color: var(--on-error-container); font-size: 0.9rem; }
+  }
+}
+
+.comment-form {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// A code comment's resolve toggle sits at the right of the header.
+.comment .comment-header .resolve-toggle {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.5rem;
+  color: var(--secondary);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.comment--resolved {
+  opacity: 0.6;
+
+  .diff-hunk,
+  .comment-body { display: none; }
+}
+
+.comment .reply-form {
+  margin: 0 1rem 1rem;
+
+  summary {
+    cursor: pointer;
+    color: var(--secondary);
+    font-size: 0.9rem;
+  }
+}

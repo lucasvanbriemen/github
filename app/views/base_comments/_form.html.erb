@@ -1,0 +1,7 @@
+<% repository = item.repository %>
+<div id="new_comment_form">
+  <%= form_with url: item_comments_path(repository.organization.name, repository.name, item.number), method: :post, builder: CustomFormBuilder, class: "comment-form frosted-glass" do |form| %>
+    <%= form.text_area :body, markdown: true, label: "Add a comment" %>
+    <%= form.submit text: "Comment" %>
+  <% end %>
+</div>

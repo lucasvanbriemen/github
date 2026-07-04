@@ -1,0 +1,72 @@
+.review-panel {
+  border-radius: 1rem;
+  border: 1px solid var(--outline-variant);
+  padding: 0.5rem 1rem;
+
+  summary {
+    cursor: pointer;
+    font-weight: 500;
+
+    .pending-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.2rem;
+      height: 1.2rem;
+      padding: 0 0.35rem;
+      margin-left: 0.25rem;
+      border-radius: 1rem;
+      background-color: var(--primary);
+      color: var(--on-primary);
+      font-size: 0.75rem;
+    }
+  }
+
+  .pending-comment {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--outline-variant);
+
+    .pending-comment-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .pending-comment-loc {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.8rem;
+        color: var(--secondary);
+      }
+
+      .pending-comment-remove {
+        background: none;
+        border: none;
+        color: var(--on-error-container);
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  .review-actions,
+  .inline-comment-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+}
+
+.inline-comment-form {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--outline-variant);
+
+  .inline-comment-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+}

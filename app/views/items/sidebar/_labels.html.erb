@@ -1,0 +1,22 @@
+<% repository = item.repository %>
+<div class="item-details" id="<%= dom_id(item, :labels) %>">
+  <h3>Labels</h3>
+  <div class="labels-wrapper">
+    <% item.labels.each do |label| %>
+      <span class="label" style="<%= label.style_variables %>">
+        <%= label.name %>
+      </span>
+    <% end %>
+  </div>
+
+  <%= form_with url: item_labels_path(repository.organization.name, repository.name, item.number), method: :put, builder: CustomFormBuilder do |form| %>
+    <%= search_select(
+      name: "labels",
+      title: "Labels",
+      auto_submit: true,
+      options: repository.labels.order(:name).map { |label| { value: label.name, label: label.name } },
+      selected: item.labels.map(&:name),
+      placeholder: "Add labels",
+      form: form) %>
+  <% end %>
+</div>

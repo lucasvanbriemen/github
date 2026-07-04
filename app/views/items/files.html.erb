@@ -1,0 +1,37 @@
+<% content_for :title, "Files · #{@repository.name} · #{@repository.organization.name}" %>
+<img src="<%= @organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= @organization.banner_dark_url %>" data-theme-image-light="<%= @organization.banner_light_url %>">
+
+<%= turbo_stream_from @item %>
+
+<div class="option-with-item-wrapper">
+  <div class="option-wrapper frosted-glass file-list">
+    <h3><%= @files.size %> changed files</h3>
+    <% @files.each_with_index do |file, index| %>
+      <a class="file-list-entry <%= "current" if index == @file_index %>"
+         href="<%= item_files_path(@organization.name, @repository.name, @item.number, file: index) %>"
+         title="<%= file[:filename] %>">
+        <span class="file-short-name"><%= short_file_name(file[:filename]) %></span>
+        <span class="file-counts"><span class="additions">+<%= file[:additions] %></span> <span class="deletions">−<%= file[:deletions] %></span></span>
+      </a>
+    <% end %>
+  </div>
+
+  <div class="item-wrapper">
+    <div id="<%= dom_id(@item, :header) %>">
+      <%= render "items/header", item: @item %>
+    </div>
+
+    <%= tabs(items: [
+      { label: "Conversation", active: false, href: item_path(@organization.name, @repository.name, @item.number) },
+      { label: "Files changed", active: true, href: item_files_path(@organization.name, @repository.name, @item.number) }
+    ]) %>
+
+    <% if @file.nil? %>
+      <p class="null-value">No file changes to show.</p>
+    <% else %>
+      <%= render "items/file_navigation", file: @file, index: @file_index, total: @files.size %>
+      <%= render "items/review_panel", item: @item %>
+      <%= render "items/file_diff", file: @file, item: @item, inline_comments: @inline_comments %>
+    <% end %>
+  </div>
+</div>

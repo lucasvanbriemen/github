@@ -1,0 +1,15 @@
+<% repository = item.repository %>
+<% org = repository.organization.name; repo = repository.name %>
+
+<div class="merge-panel frosted-glass">
+  <% if item.state == "open" %>
+    <%= button_to "Close issue", item_path(org, repo, item.number),
+          method: :patch, params: { state: "closed" },
+          class: "button button-danger-outline", form_class: "panel-action",
+          data: { turbo_confirm: "Close this issue?" } %>
+  <% else %>
+    <%= button_to "Reopen issue", item_path(org, repo, item.number),
+          method: :patch, params: { state: "open" },
+          class: "button button-primary", form_class: "panel-action" %>
+  <% end %>
+</div>

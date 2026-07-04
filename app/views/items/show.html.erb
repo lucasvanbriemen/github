@@ -1,16 +1,39 @@
 <% content_for :title, "#{@repository.name} · #{@repository.organization.name}" %>
 <img src="<%= @organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= @organization.banner_dark_url %>" data-theme-image-light="<%= @organization.banner_light_url %>">
 
-<div class="option-with-item-wrapper">
-  <%= render partial: "sidebar_details" %>
+<%= turbo_stream_from @item %>
+
+<div class="option-with-item-wrapper" data-controller="highlight">
+  <%= render "items/sidebar", item: @item %>
 
   <div class="item-wrapper">
-    <%= render partial: "header" %>
+    <%= render "items/notifications_banner", item: @item %>
 
-    <%= base_comment(@item) %>
+    <div id="<%= dom_id(@item, :header) %>">
+      <%= render "items/header", item: @item %>
+    </div>
 
-    <% @item.base_comments.each do |comment| %>
-      <%= base_comment(comment) %>
+    <% if @item.pull_request? %>
+      <%= tabs(items: [
+        { label: "Conversation", active: true, href: item_path(@organization.name, @repository.name, @item.number) },
+        { label: "Files changed", active: false, href: item_files_path(@organization.name, @repository.name, @item.number) }
+      ]) %>
     <% end %>
+
+    <%= render "items/body", item: @item %>
+
+    <div id="<%= dom_id(@item, :comments) %>">
+      <%= render partial: "base_comments/base_comment", collection: @item.base_comments %>
+    </div>
+
+    <div id="<%= dom_id(@item, :panel) %>">
+      <% if @item.pull_request? %>
+        <%= render "items/merge_panel", item: @item, conflict_files: @conflict_files, mergeable: @mergeable, mergeable_state: @mergeable_state %>
+      <% else %>
+        <%= render "items/closed_panel", item: @item %>
+      <% end %>
+    </div>
+
+    <%= render "base_comments/form", item: @item %>
   </div>
 </div>

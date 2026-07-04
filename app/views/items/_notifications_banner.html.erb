@@ -1,0 +1,20 @@
+<%# Pending notifications for this item, shown at the top and dismissable.
+    Rendered with a stable id so the notifications stream / model broadcasts
+    can replace it live. %>
+<% notifications = Notification.pending_for_item(item).includes(:triggered_by) %>
+<div id="<%= dom_id(item, :notifications) %>">
+  <% if notifications.any? %>
+    <div class="notifications-banner frosted-glass">
+      <% notifications.each do |notification| %>
+        <div class="notification-row">
+          <% if notification.triggered_by %>
+            <%= image_tag notification.triggered_by.avatar_url, class: "person-avatar", loading: "lazy", alt: "" %>
+          <% end %>
+          <span class="notification-subject"><%= notification.subject %></span>
+          <%= button_to "Dismiss", complete_notification_path(notification),
+                class: "notification-dismiss", form_class: "notification-dismiss-form" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

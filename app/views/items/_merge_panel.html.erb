@@ -1,0 +1,70 @@
+<%# PR action panel: CI status, merge conflicts, blocked state and the
+    merge/close/ready buttons. Locals: item, and (from items#show) the live
+    mergeable/mergeable_state/conflict_files. Broadcasts re-render via a Turbo 8
+    page refresh, where those live locals aren't available — guard on them. %>
+<% repository = item.repository %>
+<% org = repository.organization.name; repo = repository.name %>
+<% workflow = item.latest_commit&.workflow %>
+<% conflicts = local_assigns[:conflict_files] || [] %>
+<% mergeable = local_assigns[:mergeable] %>
+<% mergeable_state = local_assigns[:mergeable_state] %>
+
+<div class="merge-panel frosted-glass">
+  <% if workflow %>
+    <div class="workflow <%= workflow.conclusion %>">
+      <span class="workflow-name"><%= workflow.name %></span>
+      <% if workflow.conclusion == "success" %>
+        <span class="complete-title">All checks have passed</span>
+        <span class="complete-metadata">All <%= workflow.workflow_jobs.size %> jobs completed successfully</span>
+      <% else %>
+        <% workflow.workflow_jobs.each do |job| %>
+          <a class="job <%= job.conclusion %>" href="<%= actions_job_url(item, job) %>" target="_blank" rel="noopener"><%= job.name %></a>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if conflicts.any? %>
+    <div class="merge-conflicts">
+      <span class="conflicts-title">Merge Conflicts</span>
+      <span class="conflicts-message">This pull request has merge conflicts that must be resolved before merging.</span>
+      <div class="copy-command" data-controller="clipboard" data-clipboard-text-value="<%= merge_command(item) %>">
+        <code><%= merge_command(item) %></code>
+        <button type="button" class="copy-button" data-action="clipboard#copy" data-clipboard-target="button">Copy</button>
+      </div>
+      <% conflicts.each do |file| %>
+        <div class="conflict-file"><%= file %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if mergeable_state == "blocked" %>
+    <div class="merge-status blocked">
+      <span class="status-message">This pull request cannot be merged because requested changes are pending review.</span>
+    </div>
+  <% end %>
+
+  <% if item.state == "open" %>
+    <% if item_mergeable?(conflicts, mergeable) %>
+      <%= button_to "Merge Pull Request", item_merge_path(org, repo, item.number),
+            class: class_names("button", "button-primary", "button-outline": merge_over_workflow_failure?(item)),
+            form_class: "panel-action",
+            data: { turbo_confirm: "Merge this pull request into the base branch?" } %>
+    <% else %>
+      <button class="button button-primary" disabled title="This pull request cannot be merged">Merge Pull Request</button>
+    <% end %>
+
+    <%= button_to "Close Pull Request", item_path(org, repo, item.number),
+          method: :patch, params: { state: "closed" },
+          class: "button button-danger-outline", form_class: "panel-action",
+          data: { turbo_confirm: "Close this pull request without merging?" } %>
+  <% elsif item.state == "draft" %>
+    <%= button_to "Ready for Review", item_path(org, repo, item.number),
+          method: :patch, params: { draft: "false" },
+          class: "button button-primary", form_class: "panel-action" %>
+  <% elsif item.state == "closed" %>
+    <%= button_to "Reopen Pull Request", item_path(org, repo, item.number),
+          method: :patch, params: { state: "open" },
+          class: "button button-primary", form_class: "panel-action" %>
+  <% end %>
+</div>

@@ -74,3 +74,6 @@ gem "github-markup", require: "github/markup"
 # Pinned to 0.23.x: github-markup 6.0.0 uses the legacy CommonMarker.render_html
 # API, which commonmarker 1.0+ removed in favor of Commonmarker.to_html.
 gem "commonmarker", "~> 0.23.10"
+
+# Server-side syntax highlighting for the PR diff viewer.
+gem "rouge", "~> 4.2"

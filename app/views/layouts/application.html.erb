@@ -26,7 +26,10 @@
   </head>
 
   <body>
-    <%= header(title: "Git", items: header_items) %>
+    <%= turbo_stream_from :notifications %>
+    <%= header(title: "Git", items: header_items) do %>
+      <%= render "notifications/badge", count: Notification.pending.count %>
+    <% end %>
 
     <%= yield %>
   </body>

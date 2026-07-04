@@ -1,0 +1,35 @@
+<%# One file's side-by-side diff. Each row is a .changed-line-pair grid of two
+    cells (LEFT = old, RIGHT = new). data-whitespace-only lets the whitespace
+    toggle de-emphasize indentation-only rows without a re-request. %>
+<div class="file-diff frosted-glass" data-controller="whitespace-toggle diff-comments"
+     data-diff-comments-url-value="<%= item_review_comments_path(@repository.organization.name, @repository.name, item.number) %>">
+  <div class="file-diff-header">
+    <span class="file-diff-name"><%= file[:filename] %></span>
+    <span class="file-diff-status status-<%= file[:status] %>"><%= file[:status] %></span>
+    <label class="whitespace-toggle-control">
+      <input type="checkbox" data-action="whitespace-toggle#toggle"> Hide whitespace
+    </label>
+  </div>
+
+  <% if svg_preview?(file) %>
+    <div class="svg-preview">
+      <img src="data:image/svg+xml;base64,<%= svg_preview_data(file) %>" alt="<%= file[:filename] %>">
+    </div>
+  <% else %>
+    <div class="diff-body">
+      <% file[:hunks].each do |hunk| %>
+        <% hunk[:rows].each do |row| %>
+          <div class="changed-line-pair" data-whitespace-only="<%= row[:left][:whitespace_only] || row[:right][:whitespace_only] || false %>">
+            <%= render "items/diff_cell", cell: row[:left], side: "LEFT", file: file, item: item, inline_comments: inline_comments %>
+            <%= render "items/diff_cell", cell: row[:right], side: "RIGHT", file: file, item: item, inline_comments: inline_comments %>
+          </div>
+        <% end %>
+        <div class="hunk-separator"></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <template data-diff-comments-target="template">
+    <%= render "items/inline_comment_form", item: item %>
+  </template>
+</div>

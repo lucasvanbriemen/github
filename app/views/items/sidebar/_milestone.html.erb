@@ -1,0 +1,18 @@
+<% repository = item.repository %>
+<div class="item-details" id="<%= dom_id(item, :milestone) %>">
+  <h3>Milestone</h3>
+  <span class="detail-value"><%= item.milestone&.title || "No milestone" %></span>
+
+  <%= form_with url: item_path(repository.organization.name, repository.name, item.number), method: :patch, builder: CustomFormBuilder do |form| %>
+    <%= search_select(
+      name: "milestone",
+      title: "Milestone",
+      multiple: false,
+      auto_submit: true,
+      include_blank: "No milestone",
+      options: repository.milestones.order(created_at: :desc).map { |milestone| { value: milestone.number, label: milestone.title } },
+      selected: [ item.milestone&.number || "" ],
+      placeholder: "Set milestone",
+      form: form) %>
+  <% end %>
+</div>

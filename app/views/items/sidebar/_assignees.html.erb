@@ -1,0 +1,21 @@
+<% repository = item.repository %>
+<div class="item-details" id="<%= dom_id(item, :assignees) %>">
+  <h3>Assignees</h3>
+  <% item.assignees.each do |assignee| %>
+    <div class="person-row">
+      <%= image_tag assignee.avatar_url, class: "person-avatar", loading: "lazy", alt: "" %>
+      <span class="person-name"><%= assignee.display_name %></span>
+    </div>
+  <% end %>
+
+  <%= form_with url: item_assignees_path(repository.organization.name, repository.name, item.number), method: :put, builder: CustomFormBuilder do |form| %>
+    <%= search_select(
+      name: "assignees",
+      title: "Assignees",
+      auto_submit: true,
+      options: repository.contributor_pool.map { |user| { value: user.login, label: user.display_name, image: user.avatar_url } },
+      selected: item.assignees.map(&:login),
+      placeholder: "Assign people",
+      form: form) %>
+  <% end %>
+</div>

@@ -1,0 +1,9 @@
+<%# count is passed by the layout and by the broadcast; default to a query so
+    the partial also renders standalone. %>
+<% count = local_assigns.fetch(:count) { Notification.pending.count } %>
+<a id="notification_badge" class="notification-badge <%= "is-empty" if count.zero? %>" href="<%= notifications_path %>" title="Notifications">
+  <%= icon("bell") %>
+  <% if count.positive? %>
+    <span class="notification-badge-count"><%= count %></span>
+  <% end %>
+</a>

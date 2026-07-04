@@ -1,11 +1,12 @@
-<a class="item frosted-glass" href="<%= item_path(@organization.name, @repository.name, @item.number) %>">
-  <%= item_svg(@item) %>
+<% repository = item.repository %>
+<a class="item frosted-glass" href="<%= item_path(repository.organization.name, repository.name, item.number) %>">
+  <%= item_svg(item) %>
   <div class="item-content">
     <h3>
-      <%= @item.title %>
+      <%= item.title %>
     </h3>
-    <p>Created by <%= @item.created_by.display_name %>
-        <%= time_ago_in_words(@item.created_at) %>
+    <p>Created by <%= item.created_by.display_name %>
+        <%= time_ago_in_words(item.created_at) %>
     </p>
   </div>
 </a>

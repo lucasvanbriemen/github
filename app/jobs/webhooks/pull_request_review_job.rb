@@ -1,0 +1,48 @@
+module Webhooks
+  class PullRequestReviewJob < BaseJob
+    # States the pull_request_reviews enum can hold. "dismissed" is handled by
+    # the RequestedReviewer state machine instead — the review keeps showing
+    # its last verdict, matching GitHub's timeline.
+    STORABLE_STATES = %w[approved changes_requested commented].freeze
+
+    private
+
+    def process
+      review_data = payload["review"]
+      pr_data = payload["pull_request"]
+
+      repository = Repository.upsert_from_webhook(payload["repository"])
+      user = GithubUser.upsert_from_webhook(review_data["user"])
+
+      # Ensure the pull request exists before creating the review.
+      item = Item.upsert_pull_request_from_webhook(pr_data, repository)
+
+      base_comment = BaseComment.unscoped.where(comment_id: review_data["id"], type: "review").first_or_initialize
+      base_comment.assign_attributes(issue_id: item.id, user_id: user.id, body: review_data["body"] || "", type: "review")
+      base_comment.save!
+
+      incoming_state = review_data["state"].to_s.downcase
+
+      review = PullRequestReview.find_or_initialize_by(id: review_data["id"])
+      review.base_comment_id = base_comment.id
+      review.state = incoming_state if STORABLE_STATES.include?(incoming_state)
+      review.save!
+
+      RequestedReviewer.apply_review_state!(pull_request_id: item.id, user_id: user.id, incoming_state: incoming_state)
+
+      if configured_user?(user.id) && incoming_state != "commented"
+        NotificationAutoResolver.resolve_trigger("review_submitted", item.id)
+      end
+      NotificationAutoResolver.resolve_trigger("review_dismissed", item.id) if incoming_state == "dismissed"
+
+      if (item.assigned_to_configured_user? || configured_user?(item.opened_by_id)) &&
+         !configured_user?(user.id) &&
+         !Notification.exists?(type: "pr_review", related_id: review.id.to_s)
+        Notification.create!(type: "pr_review", related_id: review.id.to_s, triggered_by_id: user.id)
+      end
+
+      ItemBroadcaster.comment(item, base_comment)
+      ItemBroadcaster.sidebar(item)
+    end
+  end
+end

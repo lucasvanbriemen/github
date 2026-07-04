@@ -1,0 +1,28 @@
+<%# Shared comment card: header + optional diff hunk + markdown body + nested
+    replies. Used by the item body and every kind of comment so they all keep
+    the same look — and so Turbo Stream broadcasts can re-render any of them.
+    Optional locals: frame_id, state, code (diff hunk), replies, body_attrs,
+    header_extra (right side of the header), footer (after the replies),
+    extra_class. %>
+<div <%= tag.attributes(id: local_assigns[:frame_id]) %> class="<%= class_names("comment", "frosted-glass", local_assigns[:state].present? ? "review-#{local_assigns[:state]}" : nil, local_assigns[:extra_class]) %>">
+  <div class="comment-header">
+    <%= image_tag author.avatar_url, class: "comment-author-image" %>
+    <span class="author"><%= author.display_name %></span>
+    <span class="created-at"><%= action %> <%= time_ago_in_words(created_at) %></span>
+    <%= local_assigns[:header_extra] %>
+  </div>
+
+  <% if local_assigns[:code] %>
+    <%= render "base_comments/diff_hunk", code: local_assigns[:code] %>
+  <% end %>
+
+  <% if body.present? %>
+    <div class="comment-body markdown" <%= tag.attributes(local_assigns.fetch(:body_attrs, {})) %>><%= render_markdown(body) %></div>
+  <% end %>
+
+  <% Array(local_assigns[:replies]).each do |reply| %>
+    <%= render "base_comments/base_comment", base_comment: reply, render_hunk: false %>
+  <% end %>
+
+  <%= local_assigns[:footer] %>
+</div>

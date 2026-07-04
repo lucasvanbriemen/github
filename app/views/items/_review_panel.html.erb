@@ -1,0 +1,31 @@
+<%# Pending review: the line comments drafted so far plus the verdict form.
+    Replaced live as comments are added/removed. %>
+<% repository = item.repository %>
+<% pending = PendingReview.new(item) %>
+<% comments = pending.comments %>
+
+<div id="review_panel" class="review-panel frosted-glass">
+  <details class="review-panel-details" <%= "open" if comments.any? %>>
+    <summary>Review<% if comments.any? %> <span class="pending-count"><%= comments.size %></span><% end %></summary>
+
+    <% comments.each do |comment| %>
+      <div class="pending-comment">
+        <div class="pending-comment-meta">
+          <span class="pending-comment-loc"><%= short_file_name(comment.path) %>:<%= comment.line %></span>
+          <%= button_to "Remove", item_review_comment_path(repository.organization.name, repository.name, item.number, comment.key),
+                method: :delete, class: "pending-comment-remove", form_class: "pending-comment-remove-form" %>
+        </div>
+        <div class="pending-comment-body markdown"><%= render_markdown(comment.body) %></div>
+      </div>
+    <% end %>
+
+    <%= form_with url: item_review_path(repository.organization.name, repository.name, item.number), method: :post, builder: CustomFormBuilder do |form| %>
+      <%= form.text_area :body, markdown: true, label: "Review summary" %>
+      <div class="review-actions">
+        <button type="submit" name="event" value="APPROVE" class="button button-primary">Approve</button>
+        <button type="submit" name="event" value="REQUEST_CHANGES" class="button button-danger-outline">Request changes</button>
+        <button type="submit" name="event" value="COMMENT" class="button button-outline">Comment</button>
+      </div>
+    <% end %>
+  </details>
+</div>

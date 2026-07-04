@@ -1,0 +1,8 @@
+<div class="option-wrapper frosted-glass">
+  <%= render "items/sidebar/milestone", item: item %>
+  <%= render "items/sidebar/labels", item: item %>
+  <%= render "items/sidebar/assignees", item: item %>
+  <% if item.pull_request? %>
+    <%= render "items/sidebar/reviewers", item: item %>
+  <% end %>
+</div>

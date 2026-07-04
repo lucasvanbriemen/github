@@ -1,0 +1,17 @@
+<%# Cloned into a diff line by the diff-comments controller, which fills the
+    hidden path/line/side fields. "Start review" adds to the pending review;
+    "Add single comment" posts immediately. %>
+<% repository = item.repository %>
+<div class="inline-comment-form frosted-glass">
+  <%= form_with url: item_review_comments_path(repository.organization.name, repository.name, item.number), method: :post, builder: CustomFormBuilder, data: { diff_comments_target: "form", action: "turbo:submit-end->diff-comments#submitEnd" } do |form| %>
+    <%= form.hidden_field :path, data: { field: "path" } %>
+    <%= form.hidden_field :line, data: { field: "line" } %>
+    <%= form.hidden_field :side, data: { field: "side" } %>
+    <%= form.text_area :body, markdown: true, label: "Comment on this line" %>
+    <div class="inline-comment-actions">
+      <button type="submit" name="pending" value="1" class="button button-primary">Start review</button>
+      <button type="submit" class="button button-outline">Add single comment</button>
+      <button type="button" class="button button-outline" data-action="diff-comments#close">Cancel</button>
+    </div>
+  <% end %>
+</div>

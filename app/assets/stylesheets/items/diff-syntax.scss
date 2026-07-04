@@ -1,0 +1,36 @@
+// Syntax colors for the Rouge token classes emitted by DiffSyntaxHighlighter.
+// Hand-mapped to theme-aware CSS custom properties (no stock Rouge theme,
+// which is fixed light-or-dark) so the diff matches the rest of the app in
+// both schemes. Only the ~common token classes are styled; anything else
+// inherits the default text color.
+.file-diff .code {
+  // Fallbacks so the diff is readable before theme.js sets the tokens.
+  --syntax-keyword: #cf222e;
+  --syntax-string: #0a3069;
+  --syntax-comment: #6e7781;
+  --syntax-name: var(--on-surface);
+  --syntax-function: #8250df;
+  --syntax-constant: #0550ae;
+  --syntax-number: #0550ae;
+  --syntax-operator: #0550ae;
+
+  @media (prefers-color-scheme: dark) {
+    --syntax-keyword: #ff7b72;
+    --syntax-string: #a5d6ff;
+    --syntax-comment: #8b949e;
+    --syntax-function: #d2a8ff;
+    --syntax-constant: #79c0ff;
+    --syntax-number: #79c0ff;
+    --syntax-operator: #79c0ff;
+  }
+
+  .k, .kd, .kn, .kp, .kr, .kt, .kc, .kv { color: var(--syntax-keyword); }
+  .s, .s1, .s2, .sb, .sc, .sd, .se, .sh, .si, .sx, .sr, .ss, .dl { color: var(--syntax-string); }
+  .c, .c1, .cm, .cp, .cs, .cd { color: var(--syntax-comment); font-style: italic; }
+  .nf, .fm { color: var(--syntax-function); }
+  .nc, .nn, .no, .nb, .bp { color: var(--syntax-constant); }
+  .mi, .mf, .mh, .mo, .il, .m { color: var(--syntax-number); }
+  .o, .ow, .p { color: var(--syntax-operator); }
+  .nt { color: var(--syntax-keyword); }
+  .na { color: var(--syntax-function); }
+}

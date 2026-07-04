@@ -1,4 +1,23 @@
 class Label < ApplicationRecord
+  # Upserts the labels from a webhook payload and returns the local label ids,
+  # ready for item.label_ids = ... Matches on (repository_id, name) to align
+  # with the unique index.
+  def self.sync_from_github(repository_id, github_labels)
+    Array(github_labels).filter_map do |label_data|
+      name = label_data["name"]
+      next if name.nil?
+
+      label = find_or_initialize_by(repository_id: repository_id, name: name)
+      label.assign_attributes(
+        github_id: label_data["id"] || 0,
+        color: label_data["color"] || "000000",
+        description: label_data["description"]
+      )
+      label.save!
+      label.id
+    end
+  end
+
   # Expose the stored hex color (e.g. "d73a4a") as CSS custom properties so the
   # stylesheet can derive a readable foreground and a theme-appropriate
   # background/border from the color's perceived lightness — see the `.label`

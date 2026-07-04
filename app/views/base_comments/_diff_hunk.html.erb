@@ -1,0 +1,9 @@
+<table class="diff-hunk">
+  <% code.hunk_lines.each do |line| %>
+    <tr class="<%= class_names("diff-line", "diff-#{line.kind}", "diff-commented": code.commented_line?(line)) %>">
+      <td class="diff-line-number"><%= line.old_number %></td>
+      <td class="diff-line-number"><%= line.new_number %></td>
+      <td class="diff-line-text"><%= line.text %></td>
+    </tr>
+  <% end %>
+</table>

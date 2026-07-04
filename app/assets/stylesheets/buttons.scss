@@ -1,0 +1,26 @@
+// Local button variants layered on the shared .button (primary only).
+// Outline + danger treatments for the merge/close/reopen actions.
+.button-outline {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.button-danger-outline {
+  background-color: transparent;
+  color: var(--on-error-container);
+  border: 1px solid var(--error-container);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--error-container) 30%, transparent);
+  }
+}
+
+// button_to renders a wrapping form; keep those inline in flex panels.
+.panel-action,
+.re-request-form,
+.resolve-form,
+.notification-dismiss-form {
+  display: inline;
+  margin: 0;
+}

@@ -1,0 +1,64 @@
+<%# Renders a BaseComment according to its kind: plain issue comments, review
+    verdicts (approved/changes requested) and code comments with their diff
+    hunk. Replies to a code comment are rendered inside the comment they reply
+    to (render_hunk: false — the parent already shows the hunk). %>
+<% render_hunk = local_assigns.fetch(:render_hunk, true) %>
+
+<% case base_comment.kind %>
+<% when "review" %>
+  <% review = base_comment.pull_request_review %>
+  <%= render "base_comments/frame",
+    frame_id: dom_id(base_comment),
+    author: base_comment.github_user,
+    action: review&.action || "reviewed",
+    created_at: base_comment.created_at,
+    state: review&.state,
+    body: base_comment.body %>
+<% when "code" %>
+  <% code = base_comment.pull_request_comment %>
+  <% item = base_comment.item %>
+  <% org = item.repository.organization.name; repo = item.repository.name %>
+
+  <% resolve_button = capture do %>
+    <% if render_hunk %>
+      <%= button_to base_comment.resolved ? "Unresolve" : "Resolve",
+            item_comment_path(org, repo, item.number, id: base_comment.id),
+            method: :patch,
+            params: { resolved: !base_comment.resolved },
+            class: "resolve-toggle",
+            form_class: "resolve-form" %>
+    <% end %>
+  <% end %>
+
+  <% reply_form = capture do %>
+    <% if render_hunk %>
+      <details class="reply-form">
+        <summary>Reply…</summary>
+        <%= form_with url: item_review_comments_path(org, repo, item.number), method: :post, builder: CustomFormBuilder do |form| %>
+          <%= form.hidden_field :in_reply_to_id, value: code.id %>
+          <%= form.text_area :body, markdown: true, label: "Reply" %>
+          <%= form.submit text: "Reply" %>
+        <% end %>
+      </details>
+    <% end %>
+  <% end %>
+
+  <%= render "base_comments/frame",
+    frame_id: dom_id(base_comment),
+    author: base_comment.github_user,
+    action: "commented",
+    created_at: base_comment.created_at,
+    body: base_comment.body,
+    code: (code if render_hunk),
+    replies: code.replies.map(&:base_comment).compact,
+    extra_class: (base_comment.resolved ? "comment--resolved" : nil),
+    header_extra: resolve_button,
+    footer: reply_form %>
+<% else %>
+  <%= render "base_comments/frame",
+    frame_id: dom_id(base_comment),
+    author: base_comment.github_user,
+    action: "commented",
+    created_at: base_comment.created_at,
+    body: base_comment.body %>
+<% end %>

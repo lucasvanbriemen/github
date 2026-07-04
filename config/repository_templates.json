@@ -1,0 +1,34 @@
+[
+  {
+    "id": "general-pr-template",
+    "type": "pr",
+    "name": "General PR Template",
+    "body": "### Summary\nState the change and its purpose.\n\n### Tests\n- [ ] Relevant tests added or updated\n- [ ] Security-related coverage included\n\n### PR Checks\n- [ ] Migrations applied and schema updated\n- [ ] Measurement path defined if applicable\n- [ ] Self-review complete with clarifying comments\n- [ ] Follow-up issues created and assigned\n- [ ] Documentation updated\n- [ ] Reviewers notified\n- [ ] Team FYI posted if feature flags or similar are involved\n- [ ] UAT or hotfix flow considered\n- [ ] Mobile/small-screen check done for UI work\n\n### Issue Alignment\n- [ ] PR linked to Issue\n- [ ] Submodules updated appropriately\n- [ ] UAT instructions added if manual testing required\n- [ ] Documentation label and notes added if needed\n- [ ] Translation label added if needed\n- [ ] Deployment notes added if post-deploy actions exist"
+  },
+  {
+    "id": "hotfix-pr-template",
+    "type": "pr",
+    "name": "Hotfix Template",
+    "body": "### Summary\nState the defect and the direct fix.\n\n### Tests\n- [ ] Targeted tests updated\n- [ ] Security impact reviewed implicitly via diff size\n\n### PR Checks\n- [ ] Measurement path not applicable for hotfix\n- [ ] Self-review complete\n- [ ] Follow-up issue created if deeper work required\n- [ ] Documentation updated only if affected\n- [ ] Reviewers notified\n- [ ] Team FYI posted\n- [ ] Hotfix flow validated\n- [ ] Mobile/small-screen check done if UI affected\n\n### Issue Alignment\n- [ ] PR linked to Issue\n- [ ] Submodules not applicable unless UI framework updated\n- [ ] UAT instructions added\n- [ ] Documentation label added if needed\n- [ ] Translation label added if needed\n- [ ] Deployment notes added if UI cache-busting or CDN invalidation required"
+  },
+  {
+    "id": "styling-pr-template",
+    "type": "pr",
+    "name": "Styling Changes Template",
+    "body": "### Summary\nState the change and its purpose.\n\n### Tests\n- [ ] Component tests added or updated\n- [ ] Interaction coverage added as needed\n\n### PR Checks\n- [ ] No migrations required\n- [ ] Measurement path added if user-facing\n- [ ] Self-review complete\n- [ ] Follow-up issues created if needed\n- [ ] Documentation updated if UI behavior changed\n- [ ] Reviewers notified\n- [ ] Team FYI posted only if feature flags used\n- [ ] Mobile/small-screen check done\n\n### Issue Alignment\n- [ ] PR linked to Issue\n- [ ] Submodules updated only if shared UI packages changed\n- [ ] UAT instructions added\n- [ ] Documentation label added if needed\n- [ ] Translation label added if needed\n- [ ] Deployment notes added if UI-specific post-deploy actions exist"
+  },
+
+  {
+    "id": "general-issue-template",
+    "type": "issue",
+    "name": "General Issue Template",
+    "body": "### Summary\nState the objective, constraints, and required outcome.\n\n### Scope\nDefine boundaries, non-goals, assumptions, and acceptance criteria.\n\n### Time\nState expected size and relevant deadlines.\n\n### Sponsorship\nIdentify accountable domain owners.\n\n### Readiness Checklist\n- [ ] Scope and requirements complete\n- [ ] Implementation approach drafted and reviewed\n- [ ] Draft PR scaffolded for reviewer alignment\n\n### UAT Briefing\nState what changed and what must be validated.\n\n### UAT Instructions\nProvide explicit steps, expected outputs, and edge cases.\n\n### UAT Issues\nChecklist of issues found during UAT.\n\n### Documentation\nList all end-user or internal documentation changes.\n\n### Deploy Notes\nChecklist of actions required for a clean release such as commands, backups, or post-deploy validation."
+  },
+
+  {
+    "id": "hotfix-isssue-template",
+    "type": "issue",
+    "name": "Hotfix Issue Template",
+    "body": "### Summary\nState the objective, constraints, and required outcome.\n\n### Scope\nDefine boundaries, non-goals, assumptions, and acceptance criteria.\n\n### Time\nState expected size and relevant deadlines.\n\n### Sponsorship\nIdentify accountable domain owners.\n\n### Readiness Checklist\n- [ ] Scope and requirements complete\n- [ ] Implementation approach drafted and reviewed\n- [ ] Draft PR scaffolded for reviewer alignment\n\n### UAT Briefing\nState what changed and what must be validated.\n\n### UAT Instructions\nProvide explicit steps, expected outputs, and edge cases.\n\n### UAT Issues\nChecklist of issues found during UAT.\n\n### Documentation\nList all end-user or internal documentation changes.\n\n### Deploy Notes\nChecklist of actions required for a clean release such as commands, backups, or post-deploy validation."
+  }
+]

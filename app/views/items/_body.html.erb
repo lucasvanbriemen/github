@@ -1,0 +1,18 @@
+<%# The item's own description, rendered as the first comment card. Wrapped in
+    a stable id so webhook broadcasts can replace it when the body changes.
+    The markdown-checkboxes controller makes task-list checkboxes clickable —
+    a click flips the matching "- [ ]" line via the checkbox endpoint. %>
+<% repository = item.repository %>
+<div id="<%= dom_id(item, :body) %>">
+  <%= render "base_comments/frame",
+    author: item.github_user,
+    action: "commented",
+    created_at: item.created_at,
+    body: item.body,
+    body_attrs: {
+      data: {
+        controller: "markdown-checkboxes",
+        markdown_checkboxes_url_value: item_checkbox_path(repository.organization.name, repository.name, item.number)
+      }
+    } %>
+</div>

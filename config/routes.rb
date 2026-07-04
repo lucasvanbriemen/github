@@ -1,20 +1,31 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-
   root to: "organizations#index"
+
+  post "/incoming_hook", to: "incoming_webhooks#create"
 
   resources :organizations, only: [ :index ]
 
+  resources :notifications, only: [ :index ] do
+    member { post :complete }
+  end
+
   get "/:organization_name/:repository_name", to: "items#index", as: :items
-  get "/:organization_name/:repository_name/item/:number", to: "items#show", as: :item
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
+  scope "/:organization_name/:repository_name" do
+    get   "items/new",                 to: "items#new",             as: :new_item
+    post  "items",                     to: "items#create",          as: :create_item
+    get   "item/:number",              to: "items#show",            as: :item
+    patch "item/:number",              to: "items#update"
+    patch "item/:number/checkbox",     to: "items#toggle_checkbox", as: :item_checkbox
+    put   "item/:number/labels",       to: "item_labels#update",    as: :item_labels
+    put   "item/:number/assignees",    to: "item_assignees#update", as: :item_assignees
+    put   "item/:number/reviewers",    to: "item_reviewers#update", as: :item_reviewers
+    post  "item/:number/comments",     to: "base_comments#create",  as: :item_comments
+    patch "item/:number/comments/:id", to: "base_comments#update",  as: :item_comment
+    get   "item/:number/files",        to: "items#files",           as: :item_files
+    post   "item/:number/review_comments", to: "review_comments#create", as: :item_review_comments
+    delete "item/:number/review_comments/:key", to: "review_comments#destroy", as: :item_review_comment
+    post   "item/:number/review",       to: "reviews#create",        as: :item_review
+    post   "item/:number/merge",        to: "merges#create",         as: :item_merge
+  end
 end

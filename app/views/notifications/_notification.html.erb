@@ -1,0 +1,19 @@
+<% item = notification.item %>
+<div id="<%= dom_id(notification) %>" class="notification frosted-glass">
+  <% if notification.triggered_by %>
+    <%= image_tag notification.triggered_by.avatar_url, class: "person-avatar", loading: "lazy", alt: "" %>
+  <% end %>
+
+  <div class="notification-content">
+    <% if item %>
+      <% link = item_path(item.repository.organization.name, item.repository.name, item.number, notification_link_params(notification)) %>
+      <a class="notification-subject" href="<%= link %>"><%= notification.subject %></a>
+      <span class="notification-meta"><%= item.repository.full_name %> · <%= time_ago_in_words(notification.created_at) %> ago</span>
+    <% else %>
+      <span class="notification-subject"><%= notification.subject %></span>
+    <% end %>
+  </div>
+
+  <%= button_to "Done", complete_notification_path(notification),
+        class: "notification-dismiss", form_class: "notification-dismiss-form" %>
+</div>

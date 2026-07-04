@@ -1,0 +1,32 @@
+<%# One side of a diff row. Line number gutter + a "+" button to comment on
+    the line, the highlighted code, then any existing comments on this line and
+    a slot the inline comment form is cloned into. %>
+<% commentable = cell[:type] != "empty" && cell[:number] %>
+<% anchor = commentable ? diff_comment_anchor(file[:filename], side, cell[:number]) : nil %>
+<div class="diff-cell diff-line-<%= cell[:type] %>">
+  <div class="diff-line-number">
+    <% if commentable %>
+      <button type="button" class="add-comment-button"
+              data-action="diff-comments#open"
+              data-path="<%= file[:filename] %>"
+              data-line="<%= cell[:number] %>"
+              data-side="<%= side %>"
+              title="Comment on this line">+</button>
+    <% end %>
+    <span class="line-no"><%= cell[:number] %></span>
+  </div>
+
+  <div class="diff-line-content">
+    <pre class="code"><%= cell[:html] || cell[:content] %></pre>
+
+    <% if anchor %>
+      <% comments = inline_comments[[ file[:filename], cell[:number], side ]] || [] %>
+      <div class="inline-comments" id="<%= anchor %>">
+        <% comments.each do |comment| %>
+          <%= render "base_comments/base_comment", base_comment: comment, render_hunk: false %>
+        <% end %>
+      </div>
+      <div class="inline-comment-slot"></div>
+    <% end %>
+  </div>
+</div>

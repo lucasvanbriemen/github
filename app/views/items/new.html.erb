@@ -1,0 +1,60 @@
+<% content_for :title, "New #{@kind == "pr" ? "pull request" : "issue"} · #{@repository.name}" %>
+<img src="<%= @organization.banner_light_url %>" loading="lazy" class="background-image" data-theme-image="true" data-theme-image-dark="<%= @organization.banner_dark_url %>" data-theme-image-light="<%= @organization.banner_light_url %>">
+
+<div class="option-with-item-wrapper" data-controller="template-picker">
+  <%# Templates serialized once for the picker controller to read. %>
+  <script type="application/json" data-template-picker-target="data">
+    <%= raw @templates.to_h { |t| [ t.id, t.body ] }.to_json %>
+  </script>
+
+  <div class="option-wrapper frosted-glass">
+    <% if @templates.any? %>
+      <div class="item-details">
+        <h3>Template</h3>
+        <% @templates.each do |template| %>
+          <button type="button" class="template-option" data-action="template-picker#apply" data-template-id="<%= template.id %>">
+            <%= template.name %>
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @kind == "pr" %>
+      <div class="item-details">
+        <h3>Branches</h3>
+        <p class="detail-value">Base: <%= @base_branch %></p>
+        <p class="detail-value">Compare: <%= @head_branch || "—" %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="item-wrapper">
+    <div id="<%= dom_id(@item, :header) if @item %>">
+      <h1 class="new-item-title">New <%= @kind == "pr" ? "pull request" : "issue" %></h1>
+    </div>
+
+    <%= form_with url: create_item_path(@organization.name, @repository.name), method: :post, builder: CustomFormBuilder, class: "new-item-form frosted-glass" do |form| %>
+      <%= form.hidden_field :kind, value: @kind %>
+      <%= form.text_field :title, label: "Title", required: true %>
+
+      <% if @kind == "pr" %>
+        <%= search_select(
+          name: "base_branch", title: "Base branch", multiple: false,
+          options: @branches.map { |b| { value: b.name, label: b.name } },
+          selected: [ @base_branch ], placeholder: "Base branch", form: form) %>
+        <%= search_select(
+          name: "head_branch", title: "Compare branch", multiple: false,
+          options: @branches.map { |b| { value: b.name, label: b.name } },
+          selected: [ @head_branch ].compact, placeholder: "Compare branch", form: form) %>
+      <% end %>
+
+      <%= search_select(
+        name: "assignee", title: "Assignee", multiple: false,
+        options: @repository.contributor_pool.map { |u| { value: u.login, label: u.display_name, image: u.avatar_url } },
+        selected: [ GithubConfig::USERNAME ], placeholder: "Assign someone", form: form) %>
+
+      <%= form.text_area :body, markdown: true, label: "Description", data: { template_picker_target: "body" } %>
+      <%= form.submit text: "Create #{@kind == "pr" ? "pull request" : "issue"}" %>
+    <% end %>
+  </div>
+</div>

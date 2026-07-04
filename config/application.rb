@@ -21,8 +21,11 @@ module LoginRuby
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # The shared MySQL database is also written by the Laravel app, which
+    # stores Europe/Amsterdam wall-clock times (not UTC). Match that so rows
+    # written from Rails sort/compare correctly against existing data.
+    config.time_zone = "Europe/Amsterdam"
+    config.active_record.default_timezone = :local
 
     # Dart Sass compiles app/assets/stylesheets/*.scss into app/assets/builds/.
     # Keep Propshaft from also serving the raw .scss source files publicly.

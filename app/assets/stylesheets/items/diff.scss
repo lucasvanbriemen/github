@@ -1,0 +1,152 @@
+.file-list {
+  h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+
+  .file-list-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: var(--on-surface);
+    font-size: 0.85rem;
+
+    &:hover { background-color: var(--surface-at-1); }
+    &.current { background-color: var(--surface-at-2); }
+
+    .file-short-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-counts { flex-shrink: 0; font-size: 0.75rem; }
+  }
+}
+
+.additions { color: var(--on-success-container); }
+.deletions { color: var(--on-error-container); }
+
+.file-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--outline-variant);
+
+  .file-nav-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+  .file-nav-info { display: flex; flex-direction: column; gap: 0.25rem; }
+  .file-nav-controls { display: flex; align-items: center; gap: 0.5rem; }
+  .file-nav-position { color: var(--secondary); font-size: 0.85rem; }
+}
+
+.file-diff {
+  border-radius: 1rem;
+  border: 1px solid var(--outline-variant);
+  overflow: hidden;
+
+  .file-diff-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--outline-variant);
+
+    .file-diff-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; flex: 1; }
+    .file-diff-status { font-size: 0.75rem; color: var(--secondary); text-transform: capitalize; }
+    .whitespace-toggle-control { font-size: 0.8rem; color: var(--secondary); display: flex; align-items: center; gap: 0.25rem; }
+  }
+
+  .diff-body {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+
+  .svg-preview {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    img { max-width: 100%; max-height: 30rem; }
+  }
+}
+
+.changed-line-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  .diff-cell {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    min-width: 0;
+    border-right: 1px solid var(--outline-variant);
+
+    .diff-line-number {
+      position: relative;
+      text-align: right;
+      padding: 0 0.5rem;
+      color: var(--secondary);
+      user-select: none;
+      background-color: var(--surface);
+
+      .add-comment-button {
+        position: absolute;
+        left: 0.1rem;
+        display: none;
+        width: 1.1rem;
+        height: 1.1rem;
+        line-height: 1;
+        border: none;
+        border-radius: 0.25rem;
+        background-color: var(--primary);
+        color: var(--on-primary);
+        cursor: pointer;
+      }
+    }
+
+    &:hover .diff-line-number .add-comment-button { display: inline-block; }
+
+    .diff-line-content {
+      min-width: 0;
+
+      .code {
+        margin: 0;
+        padding: 0 0.5rem;
+        white-space: pre;
+        overflow: visible;
+        font-family: inherit;
+      }
+    }
+
+    &.diff-line-add { background-color: color-mix(in srgb, var(--success-container) 30%, transparent); }
+    &.diff-line-del { background-color: color-mix(in srgb, var(--error-container) 30%, transparent); }
+    &.diff-line-empty { background-color: var(--surface-at-1); }
+  }
+
+  // Intra-line changed span, tinted stronger than the row background.
+  .diff-line-add .segment-change { background-color: color-mix(in srgb, var(--success-container) 70%, transparent); }
+  .diff-line-del .segment-change { background-color: color-mix(in srgb, var(--error-container) 70%, transparent); }
+}
+
+.hunk-separator {
+  height: 0.5rem;
+  background-color: var(--surface-at-1);
+  border-top: 1px solid var(--outline-variant);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+// Whitespace toggle: de-emphasize indent-only rows.
+.file-diff.hide-whitespace .changed-line-pair[data-whitespace-only="true"] {
+  .diff-line-add, .diff-line-del { background-color: transparent; }
+  .segment-change { background-color: transparent; }
+}
+
+.inline-comments:not(:empty) {
+  grid-column: 1 / -1;
+  padding: 0.5rem;
+}
+
+.inline-comment-slot:not(:empty) {
+  grid-column: 1 / -1;
+  padding: 0.5rem;
+}

@@ -1,0 +1,35 @@
+<% repository = item.repository %>
+<% reviewers = item.requested_reviewers.includes(:user).order(:created_at) %>
+<% pending_logins = reviewers.select { |reviewer| reviewer.state == "pending" }.map { |reviewer| reviewer.user.login } %>
+
+<div class="item-details" id="<%= dom_id(item, :reviewers) %>">
+  <h3>Reviewers</h3>
+  <% reviewers.each do |reviewer| %>
+    <div class="person-row">
+      <%= image_tag reviewer.user.avatar_url, class: "person-avatar", loading: "lazy", alt: "" %>
+      <span class="person-name"><%= reviewer.user.display_name %></span>
+      <%= icon(reviewer.state, class: "reviewer-state reviewer-state-#{reviewer.state}", title: reviewer.state.humanize) %>
+      <% unless reviewer.state == "pending" %>
+        <%= button_to item_reviewers_path(repository.organization.name, repository.name, item.number),
+              method: :put,
+              params: { reviewers: pending_logins + [ reviewer.user.login ] },
+              class: "re-request-button",
+              form_class: "re-request-form",
+              title: "Re-request review" do %>
+          <%= icon("sync") %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= form_with url: item_reviewers_path(repository.organization.name, repository.name, item.number), method: :put, builder: CustomFormBuilder do |form| %>
+    <%= search_select(
+      name: "reviewers",
+      title: "Reviewers",
+      auto_submit: true,
+      options: repository.contributor_pool.map { |user| { value: user.login, label: user.display_name, image: user.avatar_url } },
+      selected: pending_logins,
+      placeholder: "Request review",
+      form: form) %>
+  <% end %>
+</div>

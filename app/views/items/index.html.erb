@@ -5,6 +5,11 @@
   <%= render partial: "filters" %>
 
   <div class="item-wrapper">
+    <div class="new-item-actions">
+      <%= link_to "New issue", new_item_path(@organization.name, @repository.name, kind: "issue"), class: "button button-primary" %>
+      <%= link_to "New PR", new_item_path(@organization.name, @repository.name, kind: "pr"), class: "button button-outline" %>
+    </div>
+
     <% @items.each do |item| %>
       <%= render partial: "item", locals: { item: item } %>
     <% end %>
