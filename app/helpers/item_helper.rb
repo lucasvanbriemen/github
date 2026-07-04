@@ -30,10 +30,7 @@ module ItemHelper
       concat(capture { yield }) if block_given?
       concat(content_tag(:div, GitHub::Markup.render("item.md", body.to_s).html_safe, class: "comment-body markdown")) if body.present?
       replies.each do |reply|
-        concat(content_tag(:div, class: "comment-reply") do
-          concat(comment_header(author: reply.github_user, action: "replied", created_at: reply.created_at))
-          concat(content_tag(:div, GitHub::Markup.render("item.md", reply.body.to_s).html_safe, class: "comment-body markdown"))
-        end)
+        concat(base_comment(reply, render_diff_hunk: false))
       end
     end
   end
@@ -41,8 +38,7 @@ module ItemHelper
   # Renders a BaseComment according to its kind: plain issue comments, review
   # verdicts (approved/changes requested) and code comments with their diff
   # hunk. Replies to a code comment are rendered inside the comment they reply
-  # to, so they return nothing at the top level.
-  def base_comment(comment)
+  def base_comment(comment, render_diff_hunk: true)
     common = { body: comment.body, author: comment.github_user, created_at: comment.created_at }
 
     case comment.kind
@@ -51,10 +47,13 @@ module ItemHelper
       item_comment(**common, action: review&.action || "reviewed", state: review&.state)
     when "code"
       code = comment.pull_request_comment
-      return if code.reply?
 
       replies = code.replies.map(&:base_comment).compact
-      item_comment(**common, action: "commented", replies: replies) { diff_hunk(code) }
+      item_comment(**common, action: "commented", replies: replies) {
+        if render_diff_hunk
+          concat(diff_hunk(code))
+        end
+      }
     else
       item_comment(**common)
     end

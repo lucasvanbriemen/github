@@ -35,9 +35,8 @@
     padding: 1rem;
   }
 
-  .comment-reply {
-    border: 1px solid var(--outline-variant);
-    margin: 0 1.5rem 1.5rem 1.5rem;
+  .comment {
+    margin: 0 1rem 1rem;
   }
 
   &.review-approved .comment-header .created-at {
