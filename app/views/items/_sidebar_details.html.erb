@@ -1,16 +1,22 @@
 <div class="option-wrapper frosted-glass">
   <div class="item-details">
-    <h3>milestone</h3>
+    <h3>Milestone</h3>
     <%= @item.milestone&.title %>
   </div>
 
   <div class="item-details">
-    <h3>labels</h3>
-    <%= @item.labels.map { |label| label.name }.join(", ") %>
+    <h3>Labels</h3>
+    <div class="labels-wrapper">
+      <% @item.labels.each do |label| %>
+        <span class="label" style="<%= label.style_variables %>">
+          <%= label.name %>
+        </span>
+      <% end %>
+    </div>
   </div>
 
   <div class="item-details">
-    <h3>assignees</h3>
+    <h3>Assignees</h3>
     <%= @item.assignees.map { |assignee| assignee.display_name }.join(", ") %>
   </div>
 </div>
