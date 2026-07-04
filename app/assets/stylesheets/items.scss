@@ -168,3 +168,9 @@
   object-fit: cover;
   opacity: 0.5;
 }
+
+.option-with-item-wrapper .option-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

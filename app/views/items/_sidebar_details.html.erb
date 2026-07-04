@@ -1,7 +1,17 @@
 <div class="option-wrapper frosted-glass">
+  <div class="option-header">
+    <h3>milestone</h3>
   <%= @item.milestone&.title %>
+  </div>
 
+  <div class="option-header">
+    <h3>labels</h3>
   <%= @item.labels.map { |label| label.name }.join(", ") %>
-  <%= @item.assignees.map { |assignee| assignee.display_name }.join(", ") %>
+  </div>
 
+  <div class="option-header">
+
+    <h3>assignees</h3>
+    <%= @item.assignees.map { |assignee| assignee.display_name }.join(", ") %>
+</div>
 </div>
