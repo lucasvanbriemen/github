@@ -7,7 +7,7 @@
   <div class="item-wrapper">
     <%= render partial: "header" %>
 
-    <%= item_comment(body: @item.body, author: @item.github_user, created_at: @item.created_at) %>
+    <%= base_comment(@item) %>
 
     <% @item.base_comments.each do |comment| %>
       <%= base_comment(comment) %>
