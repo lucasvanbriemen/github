@@ -54,7 +54,7 @@ module ItemHelper
       return if code.reply?
 
       replies = code.replies.map(&:base_comment).compact
-      item_comment(**common, action: "commented on #{code.path}", replies: replies) { diff_hunk(code) }
+      item_comment(**common, action: "commented", replies: replies) { diff_hunk(code) }
     else
       item_comment(**common)
     end
