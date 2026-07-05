@@ -29,7 +29,6 @@
     <% if @file.nil? %>
       <p class="null-value">No file changes to show.</p>
     <% else %>
-      <%= render "items/file_navigation", file: @file, index: @file_index, total: @files.size %>
       <%= render "items/review_panel", item: @item %>
       <%= render "items/file_diff", file: @file, item: @item, inline_comments: @inline_comments %>
     <% end %>

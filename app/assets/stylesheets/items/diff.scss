@@ -34,21 +34,6 @@
 .additions { color: var(--on-success-container); }
 .deletions { color: var(--on-error-container); }
 
-.file-navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 1rem;
-  border: 1px solid var(--outline-variant);
-
-  .file-nav-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
-  .file-nav-info { display: flex; flex-direction: column; gap: 0.25rem; }
-  .file-nav-controls { display: flex; align-items: center; gap: 0.5rem; }
-  .file-nav-position { color: var(--secondary); font-size: 0.85rem; }
-}
-
 .file-diff {
   border-radius: 1rem;
   border: 1px solid var(--outline-variant);
