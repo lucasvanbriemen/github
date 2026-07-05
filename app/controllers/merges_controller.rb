@@ -2,7 +2,9 @@ class MergesController < ApplicationController
   include ItemLoading
 
   def create
-    GithubApi.merge_pull(@repository.full_name, @item.number, commit_title: @item.title, sha: @item.head_sha)
+    # GitHub's merge endpoint requires `sha` to match the current head, or the
+    # merge is rejected with "Head branch was modified".
+    GithubApi.merge_pull(@repository.full_name, @item.number, commit_title: @item.title, sha: live_head_sha)
 
     # Optimistic; the pull_request webhook confirms.
     @item.update!(state: "merged")

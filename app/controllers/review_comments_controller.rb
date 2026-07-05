@@ -51,7 +51,7 @@ class ReviewCommentsController < ApplicationController
   def create_single_comment(body)
     response = GithubApi.create_review_comment(@repository.full_name, @item.number, {
       body: body,
-      commit_id: @item.head_sha,
+      commit_id: live_head_sha,
       path: params[:path],
       line: params[:line].to_i,
       side: params[:side] || "RIGHT"

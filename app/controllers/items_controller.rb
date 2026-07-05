@@ -138,19 +138,35 @@ class ItemsController < ApplicationController
     GithubApi.update_issue(@repository.full_name, number, assignees: [ assignee ]) if assignee
   end
 
-  # Cached per head/merge-base pair: the compare API call plus the whole diff
-  # render + syntax highlight is the expensive part of the Files tab.
+  # The Files tab uses GitHub's live PR files endpoint (the source of truth for
+  # what GitHub's own "Files changed" tab shows) rather than the mirrored
+  # head_sha, which can lag behind until webhooks sync. The render + highlight
+  # is cached on the live head sha so navigating between files stays fast while
+  # a new push (new head sha) busts the cache automatically.
   def pull_request_diff
-    base = @item.merge_base_sha.presence || @item.base_branch
-    head = @item.head_sha.presence || @item.head_branch
-    return [] if base.blank? || head.blank?
+    head_sha = live_head_sha
+    return [] if head_sha.blank?
 
-    Rails.cache.fetch([ "pr_diff", @repository.id, base, head ], expires_in: 1.hour) do
-      compare = GithubApi.try_get("/repos/#{@repository.full_name}/compare/#{base}...#{head}")
-      files = DiffRenderer.new(compare&.dig("files")).files
+    Rails.cache.fetch([ "pr_diff", @repository.id, @item.number, head_sha ], expires_in: 1.hour) do
+      files = DiffRenderer.new(pull_request_files).files
       files.each { |file| DiffSyntaxHighlighter.new(file[:filename], file[:hunks]).highlight! }
       files
     end
+  end
+
+  # All changed files with their patches, paginated (GitHub caps per_page at
+  # 100; stop after 20 pages / 2000 files as a safety valve).
+  def pull_request_files
+    files = []
+    page = 1
+    loop do
+      batch = GithubApi.try_get("/repos/#{@repository.full_name}/pulls/#{@item.number}/files?per_page=100&page=#{page}") || []
+      files.concat(batch)
+      break if batch.size < 100 || page >= 20
+
+      page += 1
+    end
+    files
   end
 
   # Top-level code comments grouped by [path, line, side] so each diff row can

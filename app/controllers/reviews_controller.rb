@@ -16,7 +16,7 @@ class ReviewsController < ApplicationController
       event: event,
       body: params[:body].to_s,
       comments: pending.api_comments,
-      commit_id: @item.head_sha)
+      commit_id: live_head_sha)
 
     pending.clear
     NotificationAutoResolver.resolve_trigger("review_submitted", @item.id)

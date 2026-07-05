@@ -28,12 +28,16 @@ class IncomingWebhooksController < ActionController::API
 
     hook = IncomingWebhook.create!(event: event, payload: raw)
 
+    # Every delivery is stored; only events we have a job for are processed.
+    # Unmapped events (and GitHub's initial "ping") still return 2xx so the
+    # webhook's delivery log stays green — safe to subscribe to all events.
     job = EVENT_JOBS[event]
-    return render json: { message: "Event class not found", event: event }, status: :bad_request if job.nil?
-
-    job.perform_later(hook.id)
-
-    render json: { message: "received", event: event }
+    if job
+      job.perform_later(hook.id)
+      render json: { message: "received", event: event }
+    else
+      render json: { message: "ignored", event: event }
+    end
   end
 
   private
