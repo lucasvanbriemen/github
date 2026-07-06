@@ -1,0 +1,28 @@
+# Standalone ActionCable (WebSocket) server for git.ltvb.nl.
+#
+# Apache + Passenger strips the hop-by-hop `Connection` header from the 101
+# upgrade response, which browsers reject. This dedicated Puma serves the cable
+# app (cable/config.ru) and Apache proxies /cable to it via mod_proxy_wstunnel
+# (see deploy/README-cable.md), which preserves the upgrade headers.
+#
+# Install as root:
+#   install -o root -g root -m 0644 deploy/git-ltvb-cable.service /etc/systemd/system/git-ltvb-cable.service
+#   systemctl daemon-reload && systemctl enable --now git-ltvb-cable
+#   systemctl status git-ltvb-cable
+#
+[Unit]
+Description=git.ltvb.nl ActionCable server
+After=network.target
+
+[Service]
+Type=simple
+User=ltvb
+Group=psacln
+WorkingDirectory=/var/www/vhosts/ltvb.nl/git.ltvb.nl
+Environment=HOME=/var/www/vhosts/ltvb.nl
+ExecStart=/bin/bash -lc 'export RBENV_ROOT=/var/www/vhosts/ltvb.nl/.rbenv; export PATH=$RBENV_ROOT/shims:$RBENV_ROOT/bin:$PATH; export RAILS_ENV=production; exec bundle exec puma -e production -b tcp://127.0.0.1:28082 cable/config.ru'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
