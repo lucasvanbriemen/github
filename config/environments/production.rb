@@ -53,6 +53,11 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 
+  # ActionCable: allow the app's own host(s) to open the /cable WebSocket.
+  # Without this, production refuses every connection with a 404 (the browser
+  # reports it as "'Connection' header is missing"), breaking Turbo Streams.
+  config.action_cable.allowed_request_origins = [ %r{\Ahttps?://[a-z0-9.-]+\.ltvb\.nl\z} ]
+
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
