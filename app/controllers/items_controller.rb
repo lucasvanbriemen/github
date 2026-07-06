@@ -62,15 +62,15 @@ class ItemsController < ApplicationController
     redirect_to_item_with_error(e)
   end
 
-  # Files-changed tab. Renders one file's diff at a time (?file=N) to keep big
-  # PRs cheap; navigation is plain links between file indexes.
+  # Files-changed tab. Renders every file's diff into the page; a Stimulus
+  # controller shows one at a time and handles prev/next navigation.
   def files
     @item = @repository.items.find_by!(number: params[:number])
     return redirect_to item_path(@organization.name, @repository.name, @item.number) unless @item.pull_request?
 
     @files = pull_request_diff
-    @file_index = params[:file].to_i.clamp(0, [ @files.size - 1, 0 ].max)
-    @file = @files[@file_index]
+    @total_additions = @files.sum { |file| file[:additions].to_i }
+    @total_deletions = @files.sum { |file| file[:deletions].to_i }
     @inline_comments = inline_code_comments
   end
 

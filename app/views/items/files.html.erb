@@ -3,16 +3,27 @@
 
 <%= turbo_stream_from @item %>
 
-<div class="option-with-item-wrapper files-layout">
+<%# All files render into the page; file-navigation shows one at a time. %>
+<div class="option-with-item-wrapper files-layout" data-controller="file-navigation">
   <div class="option-wrapper frosted-glass file-list">
-    <h3><%= @files.size %> changed files</h3>
+    <div class="file-list-summary">
+      <span class="files-changed-count"><%= @files.size %> <%= "file".pluralize(@files.size) %> changed</span>
+      <span class="file-counts">
+        <span class="additions">+<%= @total_additions %></span>
+        <span class="deletions">−<%= @total_deletions %></span>
+      </span>
+    </div>
+
     <% @files.each_with_index do |file, index| %>
-      <a class="file-list-entry <%= "current" if index == @file_index %>"
-         href="<%= item_files_path(@organization.name, @repository.name, @item.number, file: index) %>"
-         title="<%= file[:filename] %>">
+      <button type="button"
+              class="file-list-entry <%= "current" if index.zero? %>"
+              data-file-navigation-target="link"
+              data-index="<%= index %>"
+              data-action="file-navigation#show"
+              title="<%= file[:filename] %>">
         <span class="file-short-name"><%= short_file_name(file[:filename]) %></span>
         <span class="file-counts"><span class="additions">+<%= file[:additions] %></span> <span class="deletions">−<%= file[:deletions] %></span></span>
-      </a>
+      </button>
     <% end %>
   </div>
 
@@ -26,11 +37,17 @@
       { label: "Files changed", active: true, href: item_files_path(@organization.name, @repository.name, @item.number) }
     ]) %>
 
-    <% if @file.nil? %>
+    <% if @files.empty? %>
       <p class="null-value">No file changes to show.</p>
     <% else %>
+      <%= render "items/file_navigation", files: @files, additions: @total_additions, deletions: @total_deletions %>
       <%= render "items/review_panel", item: @item %>
-      <%= render "items/file_diff", file: @file, item: @item, inline_comments: @inline_comments %>
+
+      <% @files.each_with_index do |file, index| %>
+        <div class="file-diff-wrapper" data-file-navigation-target="file" data-index="<%= index %>" <%= "hidden" unless index.zero? %>>
+          <%= render "items/file_diff", file: file, item: @item, inline_comments: @inline_comments %>
+        </div>
+      <% end %>
     <% end %>
   </div>
 </div>

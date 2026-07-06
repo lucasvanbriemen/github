@@ -10,16 +10,31 @@
 }
 
 .file-list {
-  h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+  .file-list-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--outline-variant);
+
+    .files-changed-count { font-weight: 500; }
+    .file-counts { font-size: 0.8rem; }
+  }
 
   .file-list-entry {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
+    width: 100%;
     padding: 0.35rem 0.5rem;
+    border: none;
     border-radius: 0.5rem;
-    text-decoration: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
     color: var(--on-surface);
     font-size: 0.85rem;
 
@@ -29,6 +44,16 @@
     .file-short-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .file-counts { flex-shrink: 0; font-size: 0.75rem; }
   }
+}
+
+.file-navigation .file-nav-summary {
+  color: var(--secondary);
+  font-size: 0.85rem;
+}
+
+.file-navigation .button[disabled] {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .additions { color: var(--on-success-container); }

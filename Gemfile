@@ -45,6 +45,11 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
+# Pin stringio to Ruby 3.3.8's default gem version. Phusion Passenger's pure-Ruby
+# loader pre-activates the default stringio before bundler setup; if the lock
+# resolves to a different version the app spawn dies with Gem::LoadError.
+gem "stringio", "3.1.1"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
