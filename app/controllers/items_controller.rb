@@ -1,10 +1,10 @@
 class ItemsController < ApplicationController
   include ItemLoading
 
-  # index/show/files are read-only and resolve the item themselves; new/create
-  # have no item to load but still require write access.
-  skip_before_action :load_item, only: [ :index, :show, :files, :new, :create ]
-  skip_before_action :require_write_access, only: [ :index, :show, :files ]
+  # index/show/files/head_sha are read-only and resolve the item themselves;
+  # new/create have no item to load but still require write access.
+  skip_before_action :load_item, only: [ :index, :show, :files, :head_sha, :new, :create ]
+  skip_before_action :require_write_access, only: [ :index, :show, :files, :head_sha ]
 
   def index
     kind_filter = Item::ALLOWED_FILTER_KINDS.include?(params[:kind]) ? params[:kind] : nil
@@ -68,10 +68,18 @@ class ItemsController < ApplicationController
     @item = @repository.items.find_by!(number: params[:number])
     return redirect_to item_path(@organization.name, @repository.name, @item.number) unless @item.pull_request?
 
-    @files = pull_request_diff
+    @head_sha = live_head_sha
+    @files = pull_request_diff(@head_sha)
     @total_additions = @files.sum { |file| file[:additions].to_i }
     @total_deletions = @files.sum { |file| file[:deletions].to_i }
     @inline_comments = inline_code_comments
+  end
+
+  # Cheap current-head lookup the Files page polls to detect new pushes without
+  # depending on webhooks/cable (which need a job worker Passenger doesn't run).
+  def head_sha
+    @item = @repository.items.find_by!(number: params[:number])
+    render json: { sha: live_head_sha }
   end
 
   # New issue / PR form. ?kind=issue|pr, optional ?branch= to prefill a PR head.
@@ -143,8 +151,7 @@ class ItemsController < ApplicationController
   # head_sha, which can lag behind until webhooks sync. The render + highlight
   # is cached on the live head sha so navigating between files stays fast while
   # a new push (new head sha) busts the cache automatically.
-  def pull_request_diff
-    head_sha = live_head_sha
+  def pull_request_diff(head_sha)
     return [] if head_sha.blank?
 
     Rails.cache.fetch([ "pr_diff", @repository.id, @item.number, head_sha ], expires_in: 1.hour) do

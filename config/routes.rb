@@ -23,6 +23,7 @@ Rails.application.routes.draw do
     post  "item/:number/comments",     to: "base_comments#create",  as: :item_comments
     patch "item/:number/comments/:id", to: "base_comments#update",  as: :item_comment
     get   "item/:number/files",        to: "items#files",           as: :item_files
+    get   "item/:number/head_sha",     to: "items#head_sha",        as: :item_head_sha
     post   "item/:number/review_comments", to: "review_comments#create", as: :item_review_comments
     delete "item/:number/review_comments/:key", to: "review_comments#destroy", as: :item_review_comment
     post   "item/:number/review",       to: "reviews#create",        as: :item_review

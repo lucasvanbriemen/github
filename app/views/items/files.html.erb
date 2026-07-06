@@ -3,8 +3,12 @@
 
 <%= turbo_stream_from @item %>
 
-<%# All files render into the page; file-navigation shows one at a time. %>
-<div class="option-with-item-wrapper files-layout" data-controller="file-navigation">
+<%# All files render into the page; file-navigation shows one at a time, and
+    diff-poll reloads the tab when new commits are pushed. %>
+<div class="option-with-item-wrapper files-layout"
+     data-controller="file-navigation diff-poll"
+     data-diff-poll-url-value="<%= item_head_sha_path(@organization.name, @repository.name, @item.number) %>"
+     data-diff-poll-head-value="<%= @head_sha %>">
   <div class="option-wrapper frosted-glass file-list">
     <div class="file-list-summary">
       <span class="files-changed-count"><%= @files.size %> <%= "file".pluralize(@files.size) %> changed</span>
