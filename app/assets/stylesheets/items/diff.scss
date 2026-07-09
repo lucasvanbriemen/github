@@ -46,11 +46,6 @@
   }
 }
 
-.file-navigation .button[disabled] {
-  opacity: 0.4;
-  cursor: default;
-}
-
 .additions { color: var(--on-success-container); }
 .deletions { color: var(--on-error-container); }
 
