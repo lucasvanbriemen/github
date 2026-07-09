@@ -4,7 +4,7 @@
 <div class="file-diff frosted-glass" data-controller="whitespace-toggle diff-comments"
      data-diff-comments-url-value="<%= item_review_comments_path(@repository.organization.name, @repository.name, item.number) %>">
   <div class="file-diff-header">
-    <span class="file-diff-name"><%= file[:filename] %></span>
+    <span class="file-diff-name"><%= file[:filename] %> (+<%= file[:additions] %> −<%= file[:deletions] %>)</span>
     <span class="file-diff-status status-<%= file[:status] %>"><%= file[:status] %></span>
     <label class="whitespace-toggle-control">
       <input type="checkbox" data-action="whitespace-toggle#toggle"> Hide whitespace
