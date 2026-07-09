@@ -2,14 +2,6 @@
     file-navigation controller (buttons call it; the name/position update as you
     move between files). %>
 <div class="file-navigation frosted-glass">
-  <div class="file-nav-info">
-    <span class="file-nav-name" data-file-navigation-target="name"><%= files.first[:filename] %></span>
-    <span class="file-nav-summary">
-      <%= files.size %> <%= "file".pluralize(files.size) %> changed
-      <span class="additions">+<%= additions %></span>
-      <span class="deletions">−<%= deletions %></span>
-    </span>
-  </div>
   <div class="file-nav-controls">
     <button type="button" class="button button-outline" data-action="file-navigation#prev" data-file-navigation-target="prev">Previous</button>
     <span class="file-nav-position" data-file-navigation-target="position">1 / <%= files.size %></span>
