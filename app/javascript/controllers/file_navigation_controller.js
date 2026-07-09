@@ -2,31 +2,46 @@ import { Controller } from "@hotwired/stimulus"
 
 // All file diffs are rendered into the page; this shows one at a time and
 // drives prev/next + the file-list sidebar without any server round-trip.
+// The current file is kept in the URL hash (by filename) so it survives the
+// reloads diff-poll and Turbo refresh broadcasts trigger.
 export default class extends Controller {
   static targets = ["file", "link", "name", "position", "prev", "next"]
 
   connect() {
-    this.index = 0
+    this.index = this.restoredIndex()
     this.render()
   }
 
   show(event) {
-    this.index = Number(event.currentTarget.dataset.index)
-    this.render()
+    this.navigate(Number(event.currentTarget.dataset.index))
   }
 
   prev() {
-    if (this.index > 0) {
-      this.index--
-      this.render()
-    }
+    if (this.index > 0) this.navigate(this.index - 1)
   }
 
   next() {
-    if (this.index < this.fileTargets.length - 1) {
-      this.index++
-      this.render()
+    if (this.index < this.fileTargets.length - 1) this.navigate(this.index + 1)
+  }
+
+  navigate(index) {
+    this.index = index
+    const filename = this.fileTargets[index]?.dataset.filename
+    // Preserve history.state — Turbo keeps its restoration identifier there.
+    if (filename) history.replaceState(history.state, "", `#${encodeURIComponent(filename)}`)
+    this.render()
+  }
+
+  restoredIndex() {
+    let filename
+    try {
+      filename = decodeURIComponent(window.location.hash.slice(1))
+    } catch {
+      return 0
     }
+    if (!filename) return 0
+    const index = this.fileTargets.findIndex((el) => el.dataset.filename === filename)
+    return index >= 0 ? index : 0
   }
 
   render() {
