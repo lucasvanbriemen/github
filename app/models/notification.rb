@@ -79,7 +79,6 @@ class Notification < ApplicationRecord
   private
 
   def broadcast_created
-    broadcast_badge
     broadcast_append_to :notifications,
       target: "notifications",
       partial: "notifications/notification",
@@ -88,16 +87,8 @@ class Notification < ApplicationRecord
   end
 
   def broadcast_completed
-    broadcast_badge
     broadcast_remove_to :notifications, target: ActionView::RecordIdentifier.dom_id(self)
     broadcast_item_banner
-  end
-
-  def broadcast_badge
-    broadcast_replace_to :notifications,
-      target: "notification_badge",
-      partial: "notifications/badge",
-      locals: { count: Notification.pending.count }
   end
 
   # Refresh the per-item banner on any open item page.

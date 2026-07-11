@@ -12,12 +12,6 @@ class NotificationsController < ApplicationController
     notification.update!(completed: true)
 
     respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: [
-          turbo_stream.remove(helpers.dom_id(notification)),
-          turbo_stream.replace("notification_badge", partial: "notifications/badge")
-        ]
-      end
       format.html { redirect_back fallback_location: notifications_path, status: :see_other }
     end
   end
