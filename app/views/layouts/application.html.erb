@@ -28,7 +28,9 @@
   <body>
     <%= turbo_stream_from :notifications %>
     <%= header(title: "Git", items: header_items) do %>
-      <%= render "notifications/badge", count: Notification.pending.count %>
+      <% if can?(:read, :github, :notifications) %>
+        <%= render "notifications/badge", count: Notification.pending.count %>
+      <% end %>
     <% end %>
 
     <%= yield %>
