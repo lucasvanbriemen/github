@@ -32,10 +32,6 @@
   </div>
 
   <div class="item-wrapper">
-    <div id="<%= dom_id(@item, :header) %>">
-      <%= render "items/header", item: @item %>
-    </div>
-
     <%= tabs(items: [
       { label: "Conversation", active: false, href: item_path(@organization.name, @repository.name, @item.number) },
       { label: "Files changed", active: true, href: item_files_path(@organization.name, @repository.name, @item.number) }
