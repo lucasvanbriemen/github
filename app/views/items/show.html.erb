@@ -7,8 +7,6 @@
   <%= render "items/sidebar", item: @item %>
 
   <div class="item-wrapper">
-
-  
     <% if @item.pull_request? %>
       <%= tabs(items: [
         { label: "Conversation", active: true, href: item_path(@organization.name, @repository.name, @item.number) },
