@@ -1,12 +1,12 @@
 class NotificationsController < ApplicationController
   def index
-    forbidden and return if cannot?(:read, :github, :repositories)
+    forbidden and return if cannot?(:read, :github, :notifications)
 
     @notifications = Notification.pending.includes(:triggered_by).order(created_at: :desc)
   end
 
   def complete
-    forbidden and return if cannot?(:read, :github, :repositories)
+    forbidden and return if cannot?(:read, :github, :notifications)
 
     notification = Notification.find(params[:id])
     notification.update!(completed: true)
