@@ -3,11 +3,5 @@
 <div class="notifications-page">
   <h1>Notifications</h1>
 
-  <div id="notifications" class="notifications-list">
-    <% if @notifications.any? %>
-      <%= render partial: "notifications/notification", collection: @notifications %>
-    <% else %>
-      <p class="null-value">You're all caught up.</p>
-    <% end %>
-  </div>
+  
 </div>
