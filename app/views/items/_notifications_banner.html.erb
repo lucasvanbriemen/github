@@ -11,8 +11,7 @@
             <%= image_tag notification.triggered_by.avatar_url, class: "person-avatar", loading: "lazy", alt: "" %>
           <% end %>
           <span class="notification-subject"><%= notification.subject %></span>
-          <%= button_to "Dismiss", complete_notification_path(notification),
-                class: "notification-dismiss", form_class: "notification-dismiss-form" %>
+          <%= button(text: "Dismiss",  href: complete_notification_path(notification), variant: :outline) %>
         </div>
       <% end %>
     </div>
