@@ -8,16 +8,17 @@
 
   <div class="item-wrapper">
 
-    <div id="<%= dom_id(@item, :header) %>">
-      <%= render "items/header", item: @item %>
-    </div>
-
+  
     <% if @item.pull_request? %>
       <%= tabs(items: [
         { label: "Conversation", active: true, href: item_path(@organization.name, @repository.name, @item.number) },
         { label: "Files changed", active: false, href: item_files_path(@organization.name, @repository.name, @item.number) }
       ]) %>
     <% end %>
+
+    <div id="<%= dom_id(@item, :header) %>">
+      <%= render "items/header" , item: @item %>
+    </div>
 
     <%= render "items/notifications_banner" , item: @item %>
 
