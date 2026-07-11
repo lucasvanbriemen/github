@@ -42,7 +42,6 @@
   }
 }
 
-// Per-item banner at the top of the item page.
 .notifications-banner {
   display: flex;
   flex-direction: column;
@@ -69,6 +68,11 @@
       cursor: pointer;
       font-size: 0.75rem;
     }
+  }
+
+  .notification-row + .notification-row {
+    border-top: 1px solid var(--outline-variant);
+    padding-top: 0.5rem;
   }
 }
 
