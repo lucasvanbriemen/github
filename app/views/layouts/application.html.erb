@@ -27,8 +27,7 @@
 
   <body>
     <%= turbo_stream_from :notifications %>
-    <%= header(title: "Git", items: header_items) do %>
-    <% end %>
+    <%= header(title: "Git", items: header_items) %>
 
     <%= yield %>
   </body>

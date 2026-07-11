@@ -24,19 +24,6 @@
   }
 }
 
-.notifications-page {
-  width: calc(min(90%, 60rem));
-  margin: 1rem auto;
-
-  h1 { margin-bottom: 1rem; }
-
-  .notifications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
-
 .notification {
   display: flex;
   align-items: center;
