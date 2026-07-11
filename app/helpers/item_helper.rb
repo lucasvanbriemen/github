@@ -34,6 +34,14 @@ module ItemHelper
     "diff-comments-#{Digest::SHA1.hexdigest(path.to_s)[0, 8]}-#{side}-#{line}"
   end
 
+  # Stable id for a file's diff wrapper, doubling as the URL hash that keeps
+  # the current file selected across reloads. It must match an element id:
+  # Turbo only restores snapshots from cache when the anchor resolves, and the
+  # hex digest keeps the anchor safe inside Turbo's querySelector.
+  def file_diff_anchor(path)
+    "file-#{Digest::SHA1.hexdigest(path.to_s)[0, 8]}"
+  end
+
   # A newly-added SVG is worth previewing rather than diffing line by line.
   def svg_preview?(file)
     file[:status] == "added" && file[:filename].to_s.end_with?(".svg")

@@ -2,8 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 
 // All file diffs are rendered into the page; this shows one at a time and
 // drives prev/next + the file-list sidebar without any server round-trip.
-// The current file is kept in the URL hash (by filename) so it survives the
-// reloads diff-poll and Turbo refresh broadcasts trigger.
+// The current file is kept in the URL hash (as the wrapper's element id) so
+// it survives the reloads diff-poll and Turbo refresh broadcasts trigger.
 export default class extends Controller {
   static targets = ["file", "link", "name", "position", "prev", "next"]
 
@@ -26,21 +26,16 @@ export default class extends Controller {
 
   navigate(index) {
     this.index = index
-    const filename = this.fileTargets[index]?.dataset.filename
-    // Preserve history.state — Turbo keeps its restoration identifier there.
-    if (filename) history.replaceState(history.state, "", `#${encodeURIComponent(filename)}`)
     this.render()
+    const anchor = this.fileTargets[index]?.id
+    // Preserve history.state — Turbo keeps its restoration identifier there.
+    if (anchor) history.replaceState(history.state, "", `#${anchor}`)
   }
 
   restoredIndex() {
-    let filename
-    try {
-      filename = decodeURIComponent(window.location.hash.slice(1))
-    } catch {
-      return 0
-    }
-    if (!filename) return 0
-    const index = this.fileTargets.findIndex((el) => el.dataset.filename === filename)
+    const anchor = window.location.hash.slice(1)
+    if (!anchor) return 0
+    const index = this.fileTargets.findIndex((el) => el.id === anchor)
     return index >= 0 ? index : 0
   }
 

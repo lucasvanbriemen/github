@@ -48,7 +48,7 @@
       <%= render "items/review_panel", item: @item %>
 
       <% @files.each_with_index do |file, index| %>
-        <div class="file-diff-wrapper" data-file-navigation-target="file" data-index="<%= index %>" data-filename="<%= file[:filename] %>" <%= "hidden" unless index.zero? %>>
+        <div class="file-diff-wrapper" id="<%= file_diff_anchor(file[:filename]) %>" data-file-navigation-target="file" data-index="<%= index %>" <%= "hidden" unless index.zero? %>>
           <%= render "items/file_diff", file: file, item: @item, inline_comments: @inline_comments %>
         </div>
       <% end %>
