@@ -14,6 +14,5 @@
     <% end %>
   </div>
 
-  <%= button_to "Done", complete_notification_path(notification),
-        class: "notification-dismiss", form_class: "notification-dismiss-form" %>
+  <%= button(text: "Done", href: complete_notification_path(notification), variant: :outline) %>
 </div>
