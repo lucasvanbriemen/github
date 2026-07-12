@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   get "/proxy/image", to: "images#show", as: :image_proxy
 
   # Browser-extension endpoint: maps a github.com URL to the GUI equivalent.
-  post "/api/check_end_point", to: "redirects#check"
+  post "/check_end_point", to: "redirects#check"
 
   resources :organizations, only: [ :index ]
 
