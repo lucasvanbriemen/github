@@ -3,6 +3,12 @@ Rails.application.routes.draw do
 
   post "/incoming_hook", to: "incoming_webhooks#create"
 
+  # Authenticated proxy for GitHub-hosted images in rendered markdown.
+  get "/proxy/image", to: "images#show", as: :image_proxy
+
+  # Browser-extension endpoint: maps a github.com URL to the GUI equivalent.
+  post "/api/check_end_point", to: "redirects#check"
+
   resources :organizations, only: [ :index ]
 
   resources :notifications, only: [ :index ] do

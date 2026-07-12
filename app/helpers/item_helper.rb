@@ -21,7 +21,18 @@ module ItemHelper
   MARKDOWN_EXTS = [ :tagfilter, :autolink, :table, :strikethrough, :tasklist ].freeze
 
   def render_markdown(body)
-    GitHub::Markup.render("item.md", body.to_s, options: { commonmarker_exts: MARKDOWN_EXTS }).html_safe
+    html = GitHub::Markup.render("item.md", body.to_s, options: { commonmarker_exts: MARKDOWN_EXTS })
+    proxy_github_images(html).html_safe
+  end
+
+  # GitHub-hosted images (private repos, user-attachments) need the app token to
+  # load, so rewrite their <img> src through the authenticated image proxy.
+  GITHUB_IMAGE_SRC = %r{(<img\b[^>]*\bsrc=")(https://(?:github\.com|[a-z0-9-]+\.githubusercontent\.com)/[^"]+)(")}i
+
+  def proxy_github_images(html)
+    html.gsub(GITHUB_IMAGE_SRC) do
+      "#{Regexp.last_match(1)}#{image_proxy_path(url: Regexp.last_match(2))}#{Regexp.last_match(3)}"
+    end
   end
 
   # Last two path segments, like GitHub's file list ("dir/file.rb").

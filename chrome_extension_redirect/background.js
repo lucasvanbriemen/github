@@ -7,6 +7,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const urlObj = new URL(url);
   const stayParam = urlObj.searchParams.get("stay");
 
+  // ?stay=1 (used by links from the GUI) suppresses the redirect for this tab.
   if (stayParam === "1") {
     stayTabs.add(details.tabId);
   }
@@ -15,7 +16,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     return;
   }
 
-  const response = await fetch("https://git.ltvb.nl/check_end_point", {
+  const response = await fetch("https://git.ltvb.nl/api/check_end_point", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url })

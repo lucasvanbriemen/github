@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Redirect",
+  "version": "1.0",
+  "description": "Redirects GitHub URLs to the git.ltvb.nl GUI based on API response",
+  "permissions": [
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://git.ltvb.nl/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

@@ -64,6 +64,32 @@ class GithubApi
       raise Error.new("Too many redirects for #{path}")
     end
 
+    # Fetches an image with the GitHub token so private-repo / user-attachment
+    # images resolve. Returns [body, content_type] or nil. The token is only
+    # sent to GitHub hosts — GitHub redirects attachments to a pre-signed
+    # storage URL that rejects an extra Authorization header (curl strips it on
+    # cross-host redirects too).
+    def fetch_image(url, hops = MAX_REDIRECTS)
+      uri = URI(url)
+      request = Net::HTTP::Get.new(uri)
+      request["User-Agent"] = "github-gui"
+      if github_host?(uri.host)
+        request["Authorization"] = "Bearer #{ENV["GITHUB_ACCESS_TOKEN"]}"
+      end
+
+      response = perform(request)
+      case response
+      when Net::HTTPRedirection
+        hops.positive? ? fetch_image(response["location"], hops - 1) : nil
+      when Net::HTTPSuccess
+        [ response.body, response["content-type"] ]
+      end
+    end
+
+    def github_host?(host)
+      host&.end_with?("github.com") || host&.end_with?("githubusercontent.com")
+    end
+
     def graphql(query, variables = {})
       response = post("/graphql", { query: query, variables: variables })
       if response.is_a?(Hash) && response["errors"].present?
