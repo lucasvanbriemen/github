@@ -28,5 +28,13 @@ Rails.application.routes.draw do
     delete "item/:number/review_comments/:key", to: "review_comments#destroy", as: :item_review_comment
     post   "item/:number/review",       to: "reviews#create",        as: :item_review
     post   "item/:number/merge",        to: "merges#create",         as: :item_merge
+
+    # Lazy-loaded sidebar sections (Turbo Frames) + their write actions.
+    get    "item/:number/links",        to: "item_links#show",       as: :item_links
+    patch  "item/:number/links",        to: "item_links#update"
+    get    "item/:number/projects",     to: "item_projects#show",    as: :item_projects
+    post   "item/:number/projects",     to: "item_projects#create"
+    patch  "item/:number/projects",     to: "item_projects#update"
+    delete "item/:number/projects",     to: "item_projects#destroy"
   end
 end

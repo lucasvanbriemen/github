@@ -1,0 +1,48 @@
+<% org = item.repository.organization.name; repo = item.repository.name %>
+<% by_id = projects.index_by { |project| project[:id] } %>
+<% current_ids = current.map { |membership| membership[:id] } %>
+<%= turbo_frame_tag dom_id(item, :projects) do %>
+  <div class="item-details">
+    <h3>Projects</h3>
+    <% if error %><span class="detail-value"><%= error %></span><% end %>
+
+    <% current.each do |membership| %>
+      <% project = by_id[membership[:id]] %>
+      <div class="project-row">
+        <span class="project-title"><%= membership[:title] %></span>
+
+        <% if project && project[:status_field_id].present? %>
+          <%= form_with url: item_projects_path(org, repo, item.number), method: :patch, data: { controller: "auto-submit" } do |form| %>
+            <%= form.hidden_field :project_id, value: membership[:id] %>
+            <%= form.hidden_field :item_id, value: membership[:item_id] %>
+            <%= form.hidden_field :field_id, value: project[:status_field_id] %>
+            <select name="status_value" class="project-status" data-action="change->auto-submit#submit">
+              <option value="">— status —</option>
+              <% project[:status_options].each do |option| %>
+                <option value="<%= option["id"] %>" <%= "selected" if option["name"] == membership[:status] %>><%= option["name"] %></option>
+              <% end %>
+            </select>
+          <% end %>
+        <% elsif membership[:status] %>
+          <span class="project-status-text"><%= membership[:status] %></span>
+        <% end %>
+
+        <%= button_to "×", item_projects_path(org, repo, item.number), method: :delete,
+              params: { project_id: membership[:id], item_id: membership[:item_id] },
+              class: "project-remove", form_class: "project-remove-form", title: "Remove from project" %>
+      </div>
+    <% end %>
+
+    <% available = projects.reject { |project| current_ids.include?(project[:id]) } %>
+    <% if available.any? %>
+      <%= form_with url: item_projects_path(org, repo, item.number), method: :post, data: { controller: "auto-submit" } do |form| %>
+        <select name="project_id" class="project-add" data-action="change->auto-submit#submit">
+          <option value="">Add to project…</option>
+          <% available.each do |project| %>
+            <option value="<%= project[:id] %>"><%= project[:title] %></option>
+          <% end %>
+        </select>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

@@ -1,8 +1,19 @@
+<% org = item.repository.organization.name; repo = item.repository.name %>
 <div class="option-wrapper frosted-glass">
   <%= render "items/sidebar/milestone", item: item %>
   <%= render "items/sidebar/labels", item: item %>
   <%= render "items/sidebar/assignees", item: item %>
   <% if item.pull_request? %>
     <%= render "items/sidebar/reviewers", item: item %>
+  <% end %>
+
+  <%# Links + projects hit the GitHub GraphQL API, so they load lazily into
+      Turbo Frames to keep the item page fast and isolate API failures. %>
+  <%= turbo_frame_tag dom_id(item, :links), src: item_links_path(org, repo, item.number), loading: :lazy do %>
+    <div class="item-details"><h3>Linked items</h3><span class="detail-value">Loading…</span></div>
+  <% end %>
+
+  <%= turbo_frame_tag dom_id(item, :projects), src: item_projects_path(org, repo, item.number), loading: :lazy do %>
+    <div class="item-details"><h3>Projects</h3><span class="detail-value">Loading…</span></div>
   <% end %>
 </div>

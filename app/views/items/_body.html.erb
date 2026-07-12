@@ -1,18 +1,32 @@
 <%# The item's own description, rendered as the first comment card. Wrapped in
     a stable id so webhook broadcasts can replace it when the body changes.
-    The markdown-checkboxes controller makes task-list checkboxes clickable —
-    a click flips the matching "- [ ]" line via the checkbox endpoint. %>
+    The markdown-checkboxes controller makes task-list checkboxes clickable; the
+    editable-body controller swaps in a markdown composer to edit the body. %>
 <% repository = item.repository %>
-<div id="<%= dom_id(item, :body) %>">
-  <%= render "base_comments/frame",
-    author: item.github_user,
-    action: "commented",
-    created_at: item.created_at,
-    body: item.body,
-    body_attrs: {
-      data: {
-        controller: "markdown-checkboxes",
-        markdown_checkboxes_url_value: item_checkbox_path(repository.organization.name, repository.name, item.number)
-      }
-    } %>
+<% org = repository.organization.name; repo = repository.name %>
+<div id="<%= dom_id(item, :body) %>" data-controller="editable-body">
+  <div data-editable-body-target="display">
+    <%= render "base_comments/frame",
+      author: item.github_user,
+      action: "commented",
+      created_at: item.created_at,
+      body: item.body,
+      header_extra: content_tag(:button, "Edit", type: "button", class: "body-edit-button", data: { action: "editable-body#edit" }),
+      body_attrs: {
+        data: {
+          controller: "markdown-checkboxes",
+          markdown_checkboxes_url_value: item_checkbox_path(org, repo, item.number)
+        }
+      } %>
+  </div>
+
+  <div class="comment frosted-glass body-edit-form" data-editable-body-target="form" hidden>
+    <%= form_with url: item_path(org, repo, item.number), method: :patch, builder: CustomFormBuilder do |form| %>
+      <%= form.text_area :body, markdown: true, value: item.body, label: "Edit description" %>
+      <div class="body-edit-actions">
+        <%= form.submit text: "Save" %>
+        <button type="button" class="button button-outline" data-action="editable-body#cancel">Cancel</button>
+      </div>
+    <% end %>
+  </div>
 </div>

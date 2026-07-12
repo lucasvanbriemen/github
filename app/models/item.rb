@@ -47,6 +47,30 @@ class Item < ApplicationRecord
     type == "pull_request"
   end
 
+  # Linking is expressed as "Closes #N" keywords in the PR body (GitHub's
+  # auto-close syntax). These operate on this item's own body.
+  CLOSE_KEYWORDS = %w[Closes Fixes Resolves Close Fix Resolve].freeze
+
+  def linked_numbers_from_body
+    pattern = /\b(?:#{CLOSE_KEYWORDS.join("|")})\s+#(\d+)\b/i
+    body.to_s.scan(pattern).flatten.map(&:to_i).uniq
+  end
+
+  def body_with_link_added(number)
+    keyword = "Closes ##{number}"
+    return body.to_s if body.to_s.match?(/\bCloses\s+##{number}\b/i)
+
+    "#{body}\n\n#{keyword}".strip
+  end
+
+  def body_with_link_removed(number)
+    result = body.to_s
+    %w[Closes Fixes Resolves].each do |keyword|
+      result = result.gsub(/\n*#{keyword}\s+##{number}\b/i, "")
+    end
+    result.strip
+  end
+
   # items.id is the GitHub-assigned id — set explicitly on create.
   def self.upsert_from_webhook(github_id, attrs)
     item = find_or_initialize_by(id: github_id)

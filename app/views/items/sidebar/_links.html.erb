@@ -1,0 +1,24 @@
+<% org = item.repository.organization.name; repo = item.repository.name %>
+<%= turbo_frame_tag dom_id(item, :links) do %>
+  <div class="item-details">
+    <h3>Linked items</h3>
+
+    <% linked.each do |linked_item| %>
+      <a class="linked-item" href="<%= item_path(org, repo, linked_item.number) %>">
+        <%= item_svg(linked_item) %>
+        <span class="linked-item-title">#<%= linked_item.number %> <%= linked_item.title %></span>
+      </a>
+    <% end %>
+
+    <%= form_with url: item_links_path(org, repo, item.number), method: :patch, builder: CustomFormBuilder do |form| %>
+      <%= search_select(
+        name: "links",
+        title: item.pull_request? ? "Issues" : "Pull requests",
+        auto_submit: true,
+        options: linkable.map { |candidate| { value: candidate.number, label: "##{candidate.number} #{candidate.title}" } },
+        selected: linked.map(&:number),
+        placeholder: "Link items",
+        form: form) %>
+    <% end %>
+  </div>
+<% end %>

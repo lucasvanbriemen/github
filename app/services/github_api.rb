@@ -161,6 +161,117 @@ class GithubApi
       raw_get("/repos/#{repo}/actions/jobs/#{job_id}/logs")
     end
 
+    # --- Projects (ProjectV2) & linked items, all GraphQL ---
+
+    # The item's GraphQL node id plus its current project memberships.
+    def item_projects(owner, name, number, pull_request:)
+      field = pull_request ? "pullRequest" : "issue"
+      data = graphql(<<~GRAPHQL, { owner: owner, name: name, number: number.to_i })
+        query($owner: String!, $name: String!, $number: Int!) {
+          repository(owner: $owner, name: $name) {
+            #{field}(number: $number) {
+              id
+              projectItems(first: 20) {
+                nodes {
+                  id
+                  project { id title number }
+                  fieldValueByName(name: "Status") {
+                    ... on ProjectV2ItemFieldSingleSelectValue { name }
+                  }
+                }
+              }
+            }
+          }
+        }
+      GRAPHQL
+      node = data.dig("data", "repository", field) || {}
+      projects = Array(node.dig("projectItems", "nodes")).map do |pi|
+        { id: pi.dig("project", "id"), title: pi.dig("project", "title"), number: pi.dig("project", "number"),
+          item_id: pi["id"], status: pi.dig("fieldValueByName", "name") }
+      end
+      { node_id: node["id"], projects: projects }
+    end
+
+    # All ProjectV2 boards on the repo, with their Status field + options.
+    def repository_projects(owner, name)
+      data = graphql(<<~GRAPHQL, { owner: owner, name: name })
+        query($owner: String!, $name: String!) {
+          repository(owner: $owner, name: $name) {
+            projectsV2(first: 100) {
+              nodes {
+                id title number
+                field(name: "Status") {
+                  ... on ProjectV2SingleSelectField {
+                    id
+                    options { id name }
+                  }
+                }
+              }
+            }
+          }
+        }
+      GRAPHQL
+      Array(data.dig("data", "repository", "projectsV2", "nodes")).map do |p|
+        { id: p["id"], title: p["title"], number: p["number"],
+          status_field_id: p.dig("field", "id"),
+          status_options: Array(p.dig("field", "options")) }
+      end
+    end
+
+    # Numbers of items linked to this one, from the timeline (connected /
+    # cross-referenced / referenced events).
+    def linked_item_numbers(owner, name, number, pull_request:)
+      field = pull_request ? "pullRequest" : "issue"
+      data = graphql(<<~GRAPHQL, { owner: owner, name: name, number: number.to_i })
+        query($owner: String!, $name: String!, $number: Int!) {
+          repository(owner: $owner, name: $name) {
+            #{field}(number: $number) {
+              timelineItems(first: 100, itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT, REFERENCED_EVENT]) {
+                nodes {
+                  __typename
+                  ... on ConnectedEvent { subject { ... on Issue { number } ... on PullRequest { number } } }
+                  ... on CrossReferencedEvent { source { ... on Issue { number } ... on PullRequest { number } } }
+                  ... on ReferencedEvent { subject { ... on Issue { number } ... on PullRequest { number } } }
+                }
+              }
+            }
+          }
+        }
+      GRAPHQL
+      Array(data.dig("data", "repository", field, "timelineItems", "nodes")).filter_map do |n|
+        (n["subject"] || n["source"] || {})["number"]
+      end.uniq
+    end
+
+    def add_to_project(project_id:, content_id:, field_id: nil, status_value: nil)
+      result = graphql(<<~GRAPHQL, { projectId: project_id, contentId: content_id })
+        mutation($projectId: ID!, $contentId: ID!) {
+          addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+            item { id }
+          }
+        }
+      GRAPHQL
+      item_id = result.dig("data", "addProjectV2ItemById", "item", "id")
+      update_project_status(project_id: project_id, item_id: item_id, field_id: field_id, status_value: status_value) if field_id && status_value
+      item_id
+    end
+
+    def update_project_status(project_id:, item_id:, field_id:, status_value:)
+      graphql(<<~GRAPHQL, { input: { projectId: project_id, itemId: item_id, fieldId: field_id, value: { singleSelectOptionId: status_value } } })
+        mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+          updateProjectV2ItemFieldValue(input: $input) { projectV2Item { id } }
+        }
+      GRAPHQL
+    end
+
+    def remove_from_project(project_id:, item_id:)
+      graphql(<<~GRAPHQL, { input: { projectId: project_id, itemId: item_id } })
+        mutation($input: DeleteProjectV2ItemInput!) {
+          deleteProjectV2Item(input: $input) { deletedItemId }
+        }
+      GRAPHQL
+    end
+
     private
 
     def request(method, path, payload = nil)
