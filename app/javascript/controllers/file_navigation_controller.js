@@ -5,7 +5,7 @@ import { Controller } from "@hotwired/stimulus"
 // The current file is kept in the URL hash (as the wrapper's element id) so
 // it survives the reloads diff-poll and Turbo refresh broadcasts trigger.
 export default class extends Controller {
-  static targets = ["file", "link", "name", "position", "prev", "next"]
+  static targets = ["file", "link", "name", "prev", "next"]
 
   connect() {
     this.index = this.restoredIndex()
@@ -49,7 +49,6 @@ export default class extends Controller {
 
     const active = this.linkTargets[this.index]
     if (active && this.hasNameTarget) this.nameTarget.textContent = active.title
-    if (this.hasPositionTarget) this.positionTarget.textContent = `${this.index + 1} / ${this.fileTargets.length}`
     if (this.hasPrevTarget) this.prevTarget.disabled = this.index === 0
     if (this.hasNextTarget) this.nextTarget.disabled = this.index === this.fileTargets.length - 1
 
