@@ -9,6 +9,25 @@
   .item-wrapper { width: auto; flex: 1; min-width: 0; }
 }
 
+.files-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .file-navigation {
+    padding: 0.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--outline-variant);
+  }
+}
+
 .file-list {
   .file-list-summary {
     display: flex;

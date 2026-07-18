@@ -37,17 +37,15 @@
       { label: "Files changed", active: true, href: item_files_path(@organization.name, @repository.name, @item.number) }
     ]) %>
 
-    <% if @files.empty? %>
-      <p class="null-value">No file changes to show.</p>
-    <% else %>
+    <div class="files-options">
       <%= render "items/file_navigation", files: @files, additions: @total_additions, deletions: @total_deletions %>
       <%= render "items/review_panel", item: @item %>
+    </div>
 
-      <% @files.each_with_index do |file, index| %>
-        <div class="file-diff-wrapper" id="<%= file_diff_anchor(file[:filename]) %>" data-file-navigation-target="file" data-index="<%= index %>" <%= "hidden" unless index.zero? %>>
-          <%= render "items/file_diff", file: file, item: @item, inline_comments: @inline_comments %>
-        </div>
-      <% end %>
+    <% @files.each_with_index do |file, index| %>
+      <div class="file-diff-wrapper" id="<%= file_diff_anchor(file[:filename]) %>" data-file-navigation-target="file" data-index="<%= index %>" <%= "hidden" unless index.zero? %>>
+        <%= render "items/file_diff", file: file, item: @item, inline_comments: @inline_comments %>
+      </div>
     <% end %>
   </div>
 </div>
