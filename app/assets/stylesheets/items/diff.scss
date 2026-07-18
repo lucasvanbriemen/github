@@ -53,6 +53,10 @@
   border-radius: 1rem;
   border: 1px solid var(--outline-variant);
   overflow: hidden;
+  // Solid background instead of .frosted-glass: backdrop-filter re-blurs on
+  // every scroll frame, which is too slow for large diffs.
+  background-color: var(--surface);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 
   .file-diff-header {
     display: flex;
