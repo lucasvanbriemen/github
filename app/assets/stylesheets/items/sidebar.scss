@@ -111,6 +111,11 @@
   flex-direction: column;
   gap: 0.5rem;
 
+  // display: flex would otherwise override the hidden attribute.
+  &[hidden] {
+    display: none;
+  }
+
   .body-edit-actions {
     display: flex;
     gap: 0.5rem;
