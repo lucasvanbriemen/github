@@ -24,7 +24,10 @@ module Webhooks
       incoming_state = review_data["state"].to_s.downcase
 
       review = PullRequestReview.find_or_initialize_by(id: review_data["id"])
-      review.base_comment_id = base_comment.id
+      # Assign the object, not the id: the belongs_to presence validation would
+      # otherwise re-query through BaseComment's default_scope, which hides
+      # empty-body comments until this very review row exists.
+      review.base_comment = base_comment
       review.state = incoming_state if STORABLE_STATES.include?(incoming_state)
       review.save!
 
