@@ -47,6 +47,12 @@ class Item < ApplicationRecord
     type == "pull_request"
   end
 
+  # ?stay=1 opts the link out of the github.com redirect into this app,
+  # matching the workflow links in MergeHelper.
+  def github_url
+    "https://github.com/#{repository.full_name}/#{pull_request? ? "pull" : "issues"}/#{number}?stay=1"
+  end
+
   # Linking is expressed as "Closes #N" keywords in the PR body (GitHub's
   # auto-close syntax). These operate on this item's own body.
   CLOSE_KEYWORDS = %w[Closes Fixes Resolves Close Fix Resolve].freeze

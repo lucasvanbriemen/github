@@ -93,6 +93,17 @@
   .project-add { width: 100%; }
 }
 
+.copy-github-link {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--outline-variant);
+  border-radius: 0.5rem;
+  color: var(--primary);
+  padding: 0.4rem 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
 // Inline body editor.
 .body-edit-button {
   margin-left: auto;

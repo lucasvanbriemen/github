@@ -16,4 +16,8 @@
   <%= turbo_frame_tag dom_id(item, :projects), src: item_projects_path(org, repo, item.number), loading: :lazy do %>
     <div class="item-details"><h3>Projects</h3><span class="detail-value">Loading…</span></div>
   <% end %>
+
+  <div data-controller="clipboard" data-clipboard-text-value="<%= item.github_url %>">
+    <button type="button" class="copy-github-link" data-action="clipboard#copy" data-clipboard-target="button">Copy GitHub link</button>
+  </div>
 </div>
