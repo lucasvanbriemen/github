@@ -39,12 +39,19 @@ class Notification < ApplicationRecord
     @related_review ||= PullRequestReview.find_by(id: related_id)
   end
 
+  # The review's comment is empty-bodied for plain verdicts and inline-only
+  # reviews, so the belongs_to reader (scoped) would return nil — look it up
+  # unscoped like related_comment does.
+  def review_comment
+    @review_comment ||= BaseComment.unscoped.find_by(id: related_review&.base_comment_id)
+  end
+
   # The item this notification belongs to, whatever the related record is.
   def item
     case type
     when *ITEM_TYPES then Item.find_by(id: related_id)
     when *COMMENT_TYPES then related_comment&.item
-    when "pr_review" then related_review&.base_comment&.item
+    when "pr_review" then review_comment&.item
     end
   end
 
@@ -67,7 +74,7 @@ class Notification < ApplicationRecord
     when "review_requested"
       "You were requested to review #{item&.title}"
     when "pr_review"
-      reviewer = related_review&.base_comment&.github_user&.display_name
+      reviewer = review_comment&.github_user&.display_name
       "#{reviewer} #{REVIEW_STATE_LABELS.fetch(related_review&.state, "reviewed")} on #{item&.title}"
     when "workflow_failed"
       "CI failed on #{item&.title}"
