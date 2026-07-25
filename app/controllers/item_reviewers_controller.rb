@@ -14,9 +14,9 @@ class ItemReviewersController < ApplicationController
     GithubApi.request_reviewers(@repository.full_name, @item.number, additions) if additions.any?
     GithubApi.remove_reviewers(@repository.full_name, @item.number, removals) if removals.any?
 
-    # Optimistic local sync; the pull_request webhook confirms additions.
-    # (GitHub doesn't echo removals — Laravel ignored review_request_removed —
-    # so cleaning up here is what keeps the list accurate.)
+    # Optimistic local sync for instant feedback; the pull_request webhooks
+    # (review_requested / review_request_removed) confirm both directions via
+    # RequestedReviewer.sync_pending_from_webhook.
     additions.each do |login|
       user = GithubUser.find_by(login: login)
       next if user.nil?

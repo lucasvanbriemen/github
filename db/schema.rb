@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_25_120000) do
   create_table "accounts", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -18,6 +18,34 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.string "password_digest", null: false
     t.string "name", null: false
     t.index ["email"], name: "index_accounts_on_email", unique: true
+  end
+
+  create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "base_comments", id: { type: :bigint, unsigned: true }, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -39,7 +67,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.timestamp "updated_at"
     t.string "name", null: false
     t.bigint "repository_id", null: false, unsigned: true
-    t.index ["repository_id"], name: "branches_repository_id_foreign"
+    t.index ["repository_id", "name"], name: "branches_repository_id_name_unique", unique: true
   end
 
   create_table "cache", primary_key: "key", id: :string, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -108,7 +136,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.bigint "label_id", null: false, unsigned: true
     t.timestamp "created_at"
     t.timestamp "updated_at"
-    t.index ["item_id"], name: "item_labels_item_id_foreign"
+    t.index ["item_id", "label_id"], name: "item_labels_item_id_label_id_unique", unique: true
     t.index ["label_id"], name: "item_labels_label_id_foreign"
   end
 
@@ -120,7 +148,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.string "title"
     t.text "body"
     t.column "state", "enum('open','closed','draft','merged')", default: "open", null: false
-    t.text "labels", size: :long, default: "[]", collation: "utf8mb4_bin"
     t.bigint "opened_by_id", unsigned: true
     t.column "type", "enum('issue','pull_request')", null: false
     t.bigint "milestone_id"
@@ -129,7 +156,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.index ["opened_by_id"], name: "items_opened_by_id_foreign"
     t.index ["repository_id", "number"], name: "items_repository_id_number_index"
     t.index ["repository_id", "type", "state", "created_at"], name: "items_repo_type_state_created_idx"
-    t.check_constraint "json_valid(`labels`)", name: "labels"
   end
 
   create_table "job_batches", id: :string, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -299,7 +325,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.bigint "user_id", null: false, unsigned: true
     t.column "state", "enum('pending','approved','changes_requested','commented')", default: "pending", null: false
     t.column "last_state_before_dismiss", "enum('approved','changes_requested','commented')"
-    t.index ["pull_request_id"], name: "requested_reviewers_pull_request_id_foreign"
+    t.index ["pull_request_id", "user_id"], name: "requested_reviewers_pr_user_unique", unique: true
     t.index ["user_id"], name: "requested_reviewers_user_id_foreign"
   end
 
@@ -354,6 +380,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_13_111439) do
     t.string "conclusion"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "base_comments", "github_users", column: "user_id", name: "issue_comments_user_id_foreign", on_delete: :cascade
   add_foreign_key "base_comments", "items", column: "issue_id", name: "issue_comments_issue_id_foreign", on_delete: :cascade
   add_foreign_key "branches", "repositories", name: "branches_repository_id_foreign", on_delete: :cascade

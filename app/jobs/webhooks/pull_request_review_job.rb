@@ -22,6 +22,7 @@ module Webhooks
       base_comment.save!
 
       incoming_state = review_data["state"].to_s.downcase
+      action = payload["action"].to_s
 
       review = PullRequestReview.find_or_initialize_by(id: review_data["id"])
       # Assign the object, not the id: the belongs_to presence validation would
@@ -31,18 +32,27 @@ module Webhooks
       review.state = incoming_state if STORABLE_STATES.include?(incoming_state)
       review.save!
 
-      RequestedReviewer.apply_review_state!(pull_request_id: item.id, user_id: user.id, incoming_state: incoming_state)
+      # Only submitted/dismissed events carry a state *transition*. An edited
+      # event replays the review's original state — applying it would resurrect
+      # a stale verdict (e.g. flip a re-requested reviewer back to approved)
+      # and re-fire the notification side effects.
+      if %w[submitted dismissed].include?(action)
+        RequestedReviewer.apply_review_state!(pull_request_id: item.id, user_id: user.id, incoming_state: incoming_state)
 
-      if configured_user?(user.id) && incoming_state != "commented"
-        NotificationAutoResolver.resolve_trigger("review_submitted", item.id)
-      end
-      NotificationAutoResolver.resolve_trigger("review_dismissed", item.id) if incoming_state == "dismissed"
+        if action == "submitted" && configured_user?(user.id) && incoming_state != "commented"
+          NotificationAutoResolver.resolve_trigger("review_submitted", item.id)
+        end
+        NotificationAutoResolver.resolve_trigger("review_dismissed", item.id) if action == "dismissed"
 
-      if (item.assigned_to_configured_user? || configured_user?(item.opened_by_id)) &&
-         !configured_user?(user.id) &&
-         !Notification.exists?(type: "pr_review", related_id: review.id.to_s)
-        Notification.create!(type: "pr_review", related_id: review.id.to_s, triggered_by_id: user.id)
+        if action == "submitted" &&
+           (item.assigned_to_configured_user? || configured_user?(item.opened_by_id)) &&
+           !configured_user?(user.id) &&
+           !Notification.exists?(type: "pr_review", related_id: review.id.to_s)
+          Notification.create!(type: "pr_review", related_id: review.id.to_s, triggered_by_id: user.id)
+        end
       end
+
+      ImportanceScoreService.update_item_score(item)
 
       ItemBroadcaster.comment(item, base_comment)
       ItemBroadcaster.sidebar(item)
