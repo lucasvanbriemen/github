@@ -4,6 +4,9 @@ pin "application"
 pin "@hotwired/turbo-rails", to: "turbo.min.js"
 pin "@hotwired/stimulus", to: "stimulus.min.js"
 pin "@hotwired/stimulus-loading", to: "stimulus-loading.js"
+# Direct uploads for the markdown editor's image button/paste/drop
+# (the JS ships inside the activestorage gem).
+pin "@rails/activestorage", to: "activestorage.esm.js"
 pin_all_from "app/javascript/controllers", under: "controllers"
 
 # Shared UI Stimulus controllers (same directory auto-discovered in
