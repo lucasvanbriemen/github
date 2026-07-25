@@ -25,9 +25,12 @@ module ItemHelper
     proxy_github_images(html).html_safe
   end
 
-  # GitHub-hosted images (private repos, user-attachments) need the app token to
-  # load, so rewrite their <img> src through the authenticated image proxy.
-  GITHUB_IMAGE_SRC = %r{(<img\b[^>]*\bsrc=")(https://(?:github\.com|[a-z0-9-]+\.githubusercontent\.com)/[^"]+)(")}i
+  # GitHub-hosted images (private repos, user-attachments) need the app token
+  # to load, so rewrite their <img> src through the authenticated image proxy.
+  # Only the hosts the proxy accepts — public CDN hosts (avatars., camo.)
+  # previously matched a catch-all here, got proxied, and 403'd as broken
+  # images even though they load fine directly.
+  GITHUB_IMAGE_SRC = %r{(<img\b[^>]*\bsrc=")(https://(?:#{GithubApi::IMAGE_PROXY_HOSTS.map { |host| Regexp.escape(host) }.join("|")})/[^"]+)(")}i
 
   def proxy_github_images(html)
     html.gsub(GITHUB_IMAGE_SRC) do

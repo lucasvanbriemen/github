@@ -11,6 +11,19 @@ class GithubApi
   READ_TIMEOUT = 30
   MAX_REDIRECTS = 5
 
+  # Hosts whose images require the app token (private-repo assets,
+  # user-attachments). Public CDN hosts (avatars.githubusercontent.com,
+  # camo.githubusercontent.com) are deliberately absent — they load fine
+  # directly and the proxy would reject them. Shared by ImagesController
+  # (allowlist) and ItemHelper (markdown <img> rewrite) so they can't drift.
+  IMAGE_PROXY_HOSTS = %w[
+    github.com
+    raw.githubusercontent.com
+    user-images.githubusercontent.com
+    private-user-images.githubusercontent.com
+    objects.githubusercontent.com
+  ].freeze
+
   class Error < StandardError
     attr_reader :status, :body
 

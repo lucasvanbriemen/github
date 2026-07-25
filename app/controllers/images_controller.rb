@@ -3,13 +3,7 @@
 # to point here (see ItemHelper#render_markdown). Gated by SSO — the browser
 # sends the auth cookie on same-origin <img> requests.
 class ImagesController < ApplicationController
-  ALLOWED_HOSTS = %w[
-    github.com
-    raw.githubusercontent.com
-    user-images.githubusercontent.com
-    private-user-images.githubusercontent.com
-    objects.githubusercontent.com
-  ].freeze
+  ALLOWED_HOSTS = GithubApi::IMAGE_PROXY_HOSTS
 
   def show
     return forbidden if cannot?(:read, :github, :repositories)
