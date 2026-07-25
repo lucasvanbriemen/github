@@ -27,11 +27,13 @@
 
   <% if can?(:read, :github, :notifications) %>
     <div class="notifications">
-      <% if @notifications.any? %>
+      <%# The id is the live-append target for Notification#broadcast_created —
+          the empty state lives outside it (hidden via :has once rows exist)
+          so appended rows land in the list, not after the placeholder. %>
+      <div id="notifications" class="notifications-list">
         <%= render partial: "notifications/notification" , collection: @notifications %>
-      <% else %>
-        <p class="null-value">You're all caught up.</p>
-      <% end %>
+      </div>
+      <p class="null-value notifications-empty">You're all caught up.</p>
     </div>
   <% end %>
 </div>

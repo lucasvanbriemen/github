@@ -1,3 +1,15 @@
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// Hide the "all caught up" placeholder once rows exist — including rows
+// appended live by the :notifications stream.
+.notifications:has(.notification) .notifications-empty {
+  display: none;
+}
+
 .notification {
   display: flex;
   align-items: center;

@@ -8,7 +8,8 @@
     <% if item %>
       <% link = item_path(item.repository.organization.name, item.repository.name, item.number, notification_link_params(notification)) %>
       <a class="notification-subject" href="<%= link %>"><%= notification.subject %></a>
-      <span class="notification-meta"><%= item.repository.full_name %> · <%= time_ago_in_words(notification.created_at) %> ago</span>
+      <%# The shared time_ago_in_words already appends "ago". %>
+      <span class="notification-meta"><%= item.repository.full_name %> · <time title="<%= notification.created_at.strftime("%-d %b %Y, %H:%M") %>"><%= time_ago_in_words(notification.created_at) %></time></span>
     <% else %>
       <span class="notification-subject"><%= notification.subject %></span>
     <% end %>

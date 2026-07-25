@@ -11,7 +11,8 @@ Rails.application.routes.draw do
 
   resources :organizations, only: [ :index ]
 
-  resources :notifications, only: [ :index ] do
+  # No index action exists — the list lives on the home page.
+  resources :notifications, only: [] do
     member { post :complete }
   end
 
