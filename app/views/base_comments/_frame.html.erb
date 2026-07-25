@@ -8,7 +8,7 @@
   <div class="comment-header">
     <%= image_tag author.avatar_url, class: "comment-author-image" %>
     <span class="author"><%= author.display_name %></span>
-    <span class="created-at"><%= action %> <%= time_ago_in_words(created_at) %></span>
+    <span class="created-at"><%= action %> <time title="<%= created_at.strftime("%-d %b %Y, %H:%M") %>"><%= time_ago_in_words(created_at) %></time></span>
     <%= local_assigns[:header_extra] %>
   </div>
 

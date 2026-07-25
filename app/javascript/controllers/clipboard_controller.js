@@ -9,11 +9,18 @@ export default class extends Controller {
   copy() {
     navigator.clipboard.writeText(this.textValue).then(() => {
       if (!this.hasButtonTarget) return
-      const original = this.buttonTarget.textContent
+      // Remember the true label once — a rapid second click would otherwise
+      // capture "Copied" as the label to restore.
+      this.original ??= this.buttonTarget.textContent
+      clearTimeout(this.timeout)
       this.buttonTarget.textContent = "Copied"
-      setTimeout(() => {
-        this.buttonTarget.textContent = original
+      this.timeout = setTimeout(() => {
+        this.buttonTarget.textContent = this.original
       }, 1500)
     })
+  }
+
+  disconnect() {
+    clearTimeout(this.timeout)
   }
 }

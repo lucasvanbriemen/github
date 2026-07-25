@@ -18,5 +18,13 @@ export default class extends Controller {
     target.scrollIntoView({ behavior: "smooth", block: "center" })
     target.classList.add("flash-highlight")
     setTimeout(() => target.classList.remove("flash-highlight"), 2000)
+
+    // One-shot: strip the params so refresh morphs and back/forward
+    // restorations don't scroll and flash all over again.
+    params.delete("comment")
+    params.delete("highlight")
+    const query = params.toString()
+    history.replaceState(history.state, "",
+      window.location.pathname + (query ? `?${query}` : "") + window.location.hash)
   }
 }

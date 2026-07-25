@@ -13,10 +13,14 @@ export default class extends Controller {
   }
 
   connect() {
+    this.stopped = false
     this.timer = setInterval(() => this.check(), this.intervalValue)
   }
 
   disconnect() {
+    // An in-flight check must not fire Turbo.visit after the user navigated
+    // away — it would reload whatever page they're on now.
+    this.stopped = true
     clearInterval(this.timer)
   }
 
@@ -27,6 +31,7 @@ export default class extends Controller {
     fetch(this.urlValue, { headers: { Accept: "application/json" } })
       .then((response) => (response.ok ? response.json() : null))
       .then((data) => {
+        if (this.stopped) return
         if (data && data.sha && data.sha !== this.headValue) this.reload()
       })
       .catch(() => {})

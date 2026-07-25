@@ -32,7 +32,7 @@
 
   <% reply_form = capture do %>
     <% if render_hunk %>
-      <details class="reply-form">
+      <details class="reply-form" data-controller="details-focus" data-action="toggle->details-focus#toggle">
         <summary>Reply…</summary>
         <%= form_with url: item_review_comments_path(org, repo, item.number), method: :post, builder: CustomFormBuilder do |form| %>
           <%= form.hidden_field :in_reply_to_id, value: code.id %>
