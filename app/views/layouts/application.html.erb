@@ -7,6 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%# Turbo 8 refresh broadcasts morph the page in place instead of
+        replacing the whole body — keeps scroll position and typed-in forms. %>
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
 
     <%= yield :head %>
 
@@ -28,6 +31,18 @@
   <body>
     <%= turbo_stream_from :notifications %>
     <%= header(title: "Git", items: header_items) %>
+
+    <%# Controllers set flash on GitHub API errors — without this they were
+        silently dropped and every failure looked like success. %>
+    <div class="flash-messages">
+      <% { notice: flash[:notice], alert: flash[:alert] }.each do |kind, message| %>
+        <% next if message.blank? %>
+        <div class="flash flash-<%= kind %>" data-controller="flash" data-flash-autohide-value="<%= kind == :notice %>" role="alert">
+          <span><%= message %></span>
+          <button type="button" class="flash-dismiss" data-action="flash#dismiss" aria-label="Dismiss">&times;</button>
+        </div>
+      <% end %>
+    </div>
 
     <%= yield %>
   </body>
