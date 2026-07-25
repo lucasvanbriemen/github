@@ -37,6 +37,13 @@
       { label: "Files changed", active: true, href: item_files_path(@organization.name, @repository.name, @item.number) }
     ]) %>
 
+    <% if @diff_error %>
+      <div class="diff-error frosted-glass">
+        <p>Couldn't load the diff from GitHub — it may be unreachable or rate-limited.</p>
+        <%= link_to "Retry", item_files_path(@organization.name, @repository.name, @item.number), class: "button button-outline" %>
+      </div>
+    <% end %>
+
     <div class="files-options">
       <%= render "items/file_navigation", files: @files, additions: @total_additions, deletions: @total_deletions %>
       <%= render "items/review_panel", item: @item %>

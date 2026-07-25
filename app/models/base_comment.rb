@@ -14,6 +14,10 @@ class BaseComment < ApplicationRecord
   # The column kept Laravel's issue_id name even though it points at items.
   belongs_to :item, foreign_key: :issue_id
 
+  # Top-level cards for the conversation page: reply code comments render
+  # nested inside their root comment's card, not as cards of their own.
+  scope :thread_roots, -> { where.not(id: PullRequestComment.where.not(in_reply_to_id: nil).select(:base_comment_id)) }
+
   def kind
     type
   end

@@ -14,6 +14,17 @@
       <%= render partial: "item", locals: { item: item } %>
     <% end %>
 
+    <% if @items.empty? %>
+      <%# The default filter is "assigned to me, open" — make it obvious the
+          filters (not the repo) are why the list is empty. %>
+      <div class="empty-state frosted-glass">
+        <p>No items match the current filters.</p>
+        <%= link_to "View all open items",
+              items_path(@organization.name, @repository.name, assignee: [ "all" ]),
+              class: "button button-outline" %>
+      </div>
+    <% end %>
+
     <div class="pagination">
       <%= paginate @items %>
     </div>

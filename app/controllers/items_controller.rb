@@ -16,6 +16,8 @@ class ItemsController < ApplicationController
     # draft items, matching the defaults shown in the filter UI.
     author_ids = filter_ids(:author)
     assignee_ids = filter_ids(:assignee).presence || Item::DEFAULT_FILTER_USER_ID
+    # "all" opts out of the default current-user filter (empty-state link).
+    assignee_ids = [] if assignee_ids == [ "all" ]
     states = filter_ids(:state).presence || Item::DEFAULT_FILTER_STATES
 
     items = items.by_author(author_ids) if author_ids.any?
@@ -30,7 +32,13 @@ class ItemsController < ApplicationController
   end
 
   def show
-    @item = @repository.items.includes(:github_user, :assignees, :labels, :milestone, base_comments: [ :github_user, :pull_request_review, { pull_request_comment: { replies: { base_comment: :github_user } } } ]).find_by!(number: params[:number])
+    @item = @repository.items.includes(:github_user, :assignees, :labels, :milestone).find_by!(number: params[:number])
+
+    # thread_roots: replies render nested inside their root comment's card —
+    # including them in the collection would render each reply twice (with
+    # duplicate DOM ids, breaking targeted broadcasts).
+    @comments = @item.base_comments.thread_roots
+      .includes(:github_user, :pull_request_review, pull_request_comment: { replies: { base_comment: :github_user } })
 
     load_pull_request_status if @item.pull_request?
   end
@@ -69,7 +77,15 @@ class ItemsController < ApplicationController
     return redirect_to item_path(@organization.name, @repository.name, @item.number) unless @item.pull_request?
 
     @head_sha = live_head_sha
-    @files = pull_request_diff(@head_sha)
+    # A failed GitHub fetch renders an error banner instead of masquerading
+    # as "no file changes" (and is never cached — see pull_request_files).
+    @files = begin
+      @head_sha.presence && pull_request_diff(@head_sha)
+    rescue GithubApi::Error
+      nil
+    end
+    @diff_error = @files.nil?
+    @files ||= []
     @total_additions = @files.sum { |file| file[:additions].to_i }
     @total_deletions = @files.sum { |file| file[:deletions].to_i }
     @inline_comments = inline_code_comments
@@ -162,12 +178,14 @@ class ItemsController < ApplicationController
   end
 
   # All changed files with their patches, paginated (GitHub caps per_page at
-  # 100; stop after 20 pages / 2000 files as a safety valve).
+  # 100; stop after 20 pages / 2000 files as a safety valve). Raises on API
+  # errors — a swallowed failure here would be cached for an hour as an
+  # empty/truncated diff under the current head_sha.
   def pull_request_files
     files = []
     page = 1
     loop do
-      batch = GithubApi.try_get("/repos/#{@repository.full_name}/pulls/#{@item.number}/files?per_page=100&page=#{page}") || []
+      batch = GithubApi.get("/repos/#{@repository.full_name}/pulls/#{@item.number}/files?per_page=100&page=#{page}")
       files.concat(batch)
       break if batch.size < 100 || page >= 20
 

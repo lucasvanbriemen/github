@@ -23,7 +23,7 @@
     <%= render "items/body", item: @item %>
 
     <div id="<%= dom_id(@item, :comments) %>">
-      <%= render partial: "base_comments/base_comment", collection: @item.base_comments %>
+      <%= render partial: "base_comments/base_comment", collection: @comments %>
     </div>
 
     <div id="<%= dom_id(@item, :panel) %>">
