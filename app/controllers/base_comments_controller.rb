@@ -39,6 +39,9 @@ class BaseCommentsController < ApplicationController
     comment.update!(resolved: resolved)
     NotificationAutoResolver.resolve_for_comment(comment.id) if resolved
 
+    # Resolving is local-only (no webhook echo), so recalc the score here —
+    # async, since scoring may call the GitHub API.
+    RecalculateImportanceScoreJob.perform_later(@item.id)
     ItemBroadcaster.comment(@item, comment)
 
     respond_to do |format|
