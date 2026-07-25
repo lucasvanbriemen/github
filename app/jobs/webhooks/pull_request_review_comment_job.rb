@@ -13,6 +13,7 @@ module Webhooks
 
       if payload["action"] == "deleted"
         delete_comment(item, comment_data)
+        ImportanceScoreService.update_item_score(item)
         return
       end
 
@@ -23,6 +24,7 @@ module Webhooks
 
       NotificationAutoResolver.resolve_trigger("user_commented", item.id) if configured_user?(comment_data.dig("user", "id"))
 
+      ImportanceScoreService.update_item_score(item)
       ItemBroadcaster.comment(item, base_comment)
     end
 
@@ -30,6 +32,14 @@ module Webhooks
       code_comment = PullRequestComment.find_by(id: comment_data["id"])
       base_comment = BaseComment.unscoped.find_by(comment_id: comment_data["id"], type: "code")
       root = code_comment&.root
+
+      if base_comment
+        Notification.where(type: Notification::COMMENT_TYPES, related_id: base_comment.id.to_s).destroy_all
+      end
+
+      # Deleting a thread root while replies survive (GitHub keeps them):
+      # promote the first reply to root so the thread isn't orphaned.
+      new_root = promote_first_reply(code_comment) if code_comment && root && root.id == code_comment.id
 
       code_comment&.destroy!
       base_comment&.destroy!
@@ -42,7 +52,21 @@ module Webhooks
         ItemBroadcaster.comment(item, root_base) if root_base
       else
         ItemBroadcaster.remove_comment(item, base_comment.id)
+        if new_root
+          new_root_base = BaseComment.unscoped.find_by(id: new_root.base_comment_id)
+          ItemBroadcaster.comment(item, new_root_base) if new_root_base
+        end
       end
+    end
+
+    def promote_first_reply(code_comment)
+      replies = code_comment.replies.to_a
+      new_root = replies.shift
+      return nil if new_root.nil?
+
+      new_root.update!(in_reply_to_id: nil)
+      replies.each { |reply| reply.update!(in_reply_to_id: new_root.id) }
+      new_root
     end
   end
 end

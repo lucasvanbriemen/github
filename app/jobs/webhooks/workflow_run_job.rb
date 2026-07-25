@@ -16,7 +16,9 @@ module Webhooks
       # against "failed", so this notification never fired there).
       notify_failure(head_sha) if run_data["conclusion"] == "failure" && head_sha
 
-      broadcast_ci(head_sha) if head_sha && run_data["conclusion"].present?
+      # Broadcast every status change (requested/in_progress/completed) so the
+      # merge panel doesn't keep showing the previous run's verdict while CI runs.
+      broadcast_ci(head_sha) if head_sha
     end
 
     def notify_failure(head_sha)
@@ -26,7 +28,9 @@ module Webhooks
       PullRequestDetail.where(head_sha: head_sha).find_each do |detail|
         item = Item.find_by(id: detail.id)
         next unless item&.assigned_to_configured_user?
-        next if Notification.exists?(type: "workflow_failed", related_id: item.id.to_s)
+        # pending, not exists: a new push auto-completes the old CI failure,
+        # so a completed row must not swallow the next failure.
+        next if Notification.pending.exists?(type: "workflow_failed", related_id: item.id.to_s)
 
         sender = GithubUser.upsert_from_webhook(payload["sender"])
         Notification.create!(type: "workflow_failed", related_id: item.id.to_s, triggered_by_id: sender&.id)

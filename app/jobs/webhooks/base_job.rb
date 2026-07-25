@@ -30,7 +30,9 @@ module Webhooks
       if currently_assigned && !previously_assigned
         sender = GithubUser.upsert_from_webhook(payload["sender"])
         return if sender && configured_user?(sender.id)
-        return if Notification.exists?(type: "item_assigned", related_id: item.id.to_s)
+        # pending, not exists: an unassign auto-completes the notification, so
+        # a completed row must not block the next assignment's notification.
+        return if Notification.pending.exists?(type: "item_assigned", related_id: item.id.to_s)
 
         Notification.create!(type: "item_assigned", related_id: item.id.to_s, triggered_by_id: sender&.id)
       elsif !currently_assigned && previously_assigned

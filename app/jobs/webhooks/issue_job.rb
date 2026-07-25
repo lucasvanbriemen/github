@@ -11,14 +11,28 @@ module Webhooks
       # PRs also arrive as "issues" events — the pull_request event handles them.
       return if issue_data["pull_request"]
 
+      # Deleted (or transferred away) issues must disappear from the mirror,
+      # not be re-upserted from the payload's final snapshot.
+      if %w[deleted transferred].include?(payload["action"])
+        Item.find_by(id: issue_data["id"])&.destroy_mirror!
+        return
+      end
+
       previously_assigned = Item.find_by(id: issue_data["id"])&.assigned_to_configured_user? || false
 
       item = Item.upsert_issue_from_webhook(issue_data, repository)
 
       NotificationAutoResolver.resolve_trigger("item_closed", item.id) if item.state == "closed"
       handle_assignment_change(item, previously_assigned)
+      ImportanceScoreService.update_item_score(item)
 
-      ItemBroadcaster.details(item)
+      # A state change affects the closed/reopen panel, which only a full
+      # refresh re-renders (details only targets header/body/sidebar).
+      if item.previous_changes.key?("state")
+        ItemBroadcaster.refresh(item)
+      else
+        ItemBroadcaster.details(item)
+      end
     end
   end
 end

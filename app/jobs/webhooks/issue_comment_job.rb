@@ -31,6 +31,7 @@ module Webhooks
         end
       end
 
+      ImportanceScoreService.update_item_score(item)
       ItemBroadcaster.comment(item, comment)
     end
 
@@ -53,6 +54,10 @@ module Webhooks
     def delete_comment(item, comment_data)
       comment = BaseComment.unscoped.find_by(comment_id: comment_data["id"], type: "issue")
       return if comment.nil?
+
+      # Notifications pointing at the deleted comment would otherwise dangle
+      # on the home list forever (their subject renders blank).
+      Notification.where(type: Notification::COMMENT_TYPES, related_id: comment.id.to_s).destroy_all
 
       comment.destroy!
       ItemBroadcaster.remove_comment(item, comment.id)

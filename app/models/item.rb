@@ -87,6 +87,7 @@ class Item < ApplicationRecord
 
   def self.upsert_issue_from_webhook(issue_data, repository)
     author = GithubUser.upsert_from_webhook(issue_data["user"])
+    milestone = Milestone.upsert_from_webhook(issue_data["milestone"], repository.id)
 
     item = upsert_from_webhook(issue_data["id"],
       type: "issue",
@@ -95,7 +96,7 @@ class Item < ApplicationRecord
       number: issue_data["number"],
       title: issue_data["title"],
       body: issue_data["body"] || "",
-      milestone_id: issue_data.dig("milestone", "id"),
+      milestone_id: milestone&.id,
       state: issue_data["state"])
 
     item.assignee_ids = Array(issue_data["assignees"]).map { |data| GithubUser.upsert_from_webhook(data).id }
@@ -105,9 +106,12 @@ class Item < ApplicationRecord
 
   def self.upsert_pull_request_from_webhook(pr_data, repository)
     author = GithubUser.upsert_from_webhook(pr_data["user"])
+    milestone = Milestone.upsert_from_webhook(pr_data["milestone"], repository.id)
 
+    # Draft only applies to open PRs — a draft closed without merging must
+    # mirror as closed, or it lingers in the default open+draft list forever.
     state = pr_data["state"]
-    state = "draft" if pr_data["draft"]
+    state = "draft" if pr_data["draft"] && state == "open"
     state = "merged" if pr_data["state"] == "closed" && (pr_data["merged_at"].present? || pr_data["merged"])
     closed_at = state == "merged" || pr_data["state"] == "closed" ? pr_data["closed_at"] : nil
 
@@ -118,10 +122,12 @@ class Item < ApplicationRecord
       number: pr_data["number"],
       title: pr_data["title"],
       body: pr_data["body"] || "",
+      milestone_id: milestone&.id,
       state: state)
 
     item.assignee_ids = Array(pr_data["assignees"]).map { |data| GithubUser.upsert_from_webhook(data).id }
     item.label_ids = Label.sync_from_github(repository.id, pr_data["labels"])
+    RequestedReviewer.sync_pending_from_webhook(item.id, pr_data["requested_reviewers"])
 
     detail = PullRequestDetail.find_or_initialize_by(id: item.id)
     detail.assign_attributes(
@@ -162,6 +168,25 @@ class Item < ApplicationRecord
 
   def assigned_to_configured_user?
     assignees.exists?(id: GithubConfig::USER_ID)
+  end
+
+  # Removes the mirrored item and everything hanging off it (issues "deleted"
+  # / "transferred" webhook). The FK cascades take care of comments, reviews,
+  # assignees, labels, pull_requests and requested_reviewers — only
+  # pull_request_comments (no FK) and notifications (varchar related_id)
+  # need explicit cleanup.
+  def destroy_mirror!
+    comment_ids = BaseComment.unscoped.where(issue_id: id).pluck(:id)
+    review_ids = PullRequestReview.where(base_comment_id: comment_ids).pluck(:id)
+
+    transaction do
+      Notification.where(type: Notification::COMMENT_TYPES, related_id: comment_ids.map(&:to_s))
+        .or(Notification.where(type: "pr_review", related_id: review_ids.map(&:to_s)))
+        .or(Notification.where(type: Notification::ITEM_TYPES, related_id: id.to_s))
+        .destroy_all
+      PullRequestComment.where(base_comment_id: comment_ids).delete_all
+      destroy!
+    end
   end
 
   # A markdown line that commonmarker's tasklist extension turns into a checkbox.

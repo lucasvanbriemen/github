@@ -9,6 +9,8 @@ class IncomingWebhooksController < ActionController::API
     "pull_request" => Webhooks::PullRequestJob,
     "pull_request_review" => Webhooks::PullRequestReviewJob,
     "pull_request_review_comment" => Webhooks::PullRequestReviewCommentJob,
+    "pull_request_review_thread" => Webhooks::PullRequestReviewThreadJob,
+    "label" => Webhooks::LabelJob,
     "push" => Webhooks::PushJob,
     "workflow_run" => Webhooks::WorkflowRunJob,
     "workflow_job" => Webhooks::WorkflowJobEventJob,

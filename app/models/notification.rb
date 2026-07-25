@@ -21,6 +21,8 @@ class Notification < ApplicationRecord
   # Keep the header badge, the home list and any open item banner in sync live.
   after_create_commit :broadcast_created
   after_update_commit :broadcast_completed, if: :saved_change_to_completed?
+  # Rows destroyed by cleanup (deleted comments/items) leave the list too.
+  after_destroy_commit :broadcast_completed
 
   def self.pending_for_item(item)
     comment_ids = BaseComment.unscoped.where(issue_id: item.id).pluck(:id).map(&:to_s)
