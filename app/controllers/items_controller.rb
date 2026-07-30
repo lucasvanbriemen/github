@@ -1,10 +1,10 @@
 class ItemsController < ApplicationController
   include ItemLoading
 
-  # index/show/files/head_sha are read-only and resolve the item themselves;
+  # index/show/files/diff/head_sha are read-only and resolve the item themselves;
   # new/create have no item to load but still require write access.
-  skip_before_action :load_item, only: [ :index, :show, :files, :head_sha, :new, :create ]
-  skip_before_action :require_write_access, only: [ :index, :show, :files, :head_sha ]
+  skip_before_action :load_item, only: [ :index, :show, :files, :diff, :head_sha, :new, :create ]
+  skip_before_action :require_write_access, only: [ :index, :show, :files, :diff, :head_sha ]
 
   def index
     kind_filter = Item::ALLOWED_FILTER_KINDS.include?(params[:kind]) ? params[:kind] : nil
@@ -73,22 +73,20 @@ class ItemsController < ApplicationController
   # Files-changed tab. Renders every file's diff into the page; a Stimulus
   # controller shows one at a time and handles prev/next navigation.
   def files
-    @item = @repository.items.find_by!(number: params[:number])
-    return redirect_to item_path(@organization.name, @repository.name, @item.number) unless @item.pull_request?
+    load_diff
+  end
 
-    @head_sha = live_head_sha
-    # A failed GitHub fetch renders an error banner instead of masquerading
-    # as "no file changes" (and is never cached — see pull_request_files).
-    @files = begin
-      @head_sha.presence && pull_request_diff(@head_sha)
-    rescue GithubApi::Error
-      nil
-    end
-    @diff_error = @files.nil?
-    @files ||= []
-    @total_additions = @files.sum { |file| file[:additions].to_i }
-    @total_deletions = @files.sum { |file| file[:deletions].to_i }
-    @inline_comments = inline_code_comments
+  # diff-poll's target once it sees a new head sha: the same data as #files,
+  # rendered as a stream that swaps only the regions a push changes.
+  #
+  # A separate action rather than a format on #files, because Accept can't tell
+  # the two apart — Turbo follows a form-submission redirect with
+  # text/vnd.turbo-stream.html still in the header, and review_comments#create
+  # redirects here, so #files has to stay HTML whatever the Accept header says.
+  def diff
+    return unless load_diff
+
+    render :diff, formats: [ :turbo_stream ]
   end
 
   # Cheap current-head lookup the Files page polls to detect new pushes without
@@ -226,22 +224,31 @@ class ItemsController < ApplicationController
   # Live PR data for the merge panel: mergeability from GitHub, plus the list
   # of conflicting files when the branch is dirty.
   def load_pull_request_status
-    @latest_commit = @item.latest_commit
-    pr_data = GithubApi.try_get("/repos/#{@repository.full_name}/pulls/#{@item.number}")
-    return if pr_data.nil?
-
-    @mergeable = pr_data["mergeable"]
-    @mergeable_state = pr_data["mergeable_state"]
-    @conflict_files = conflict_files if @mergeable == false || @mergeable_state == "dirty"
+    @pull_request_status = PullRequestStatus.for(@item)
   end
 
-  def conflict_files
-    files = GithubApi.try_get("/repos/#{@repository.full_name}/pulls/#{@item.number}/files?per_page=100") || []
-    conflicted = files.select { |file| file["patch"].to_s.include?("<<<<<<< HEAD") }.map { |file| file["filename"] }
-    return conflicted if conflicted.any?
+  # Everything the Files tab and its diff-poll stream both need. Returns false
+  # once it has redirected, so the caller knows not to render.
+  def load_diff
+    @item = @repository.items.find_by!(number: params[:number])
+    unless @item.pull_request?
+      redirect_to item_path(@organization.name, @repository.name, @item.number)
+      return false
+    end
 
-    # Dirty but no conflict markers in the visible patches (e.g. binary or
-    # truncated diffs) — show every changed file as potentially conflicting.
-    @mergeable_state == "dirty" ? files.map { |file| file["filename"] } : []
+    @head_sha = live_head_sha
+    # A failed GitHub fetch renders an error banner instead of masquerading
+    # as "no file changes" (and is never cached — see pull_request_files).
+    @files = begin
+      @head_sha.presence && pull_request_diff(@head_sha)
+    rescue GithubApi::Error
+      nil
+    end
+    @diff_error = @files.nil?
+    @files ||= []
+    @total_additions = @files.sum { |file| file[:additions].to_i }
+    @total_deletions = @files.sum { |file| file[:deletions].to_i }
+    @inline_comments = inline_code_comments
+    true
   end
 end

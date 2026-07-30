@@ -55,10 +55,17 @@ class ItemBroadcaster
       Turbo::StreamsChannel.broadcast_remove_to(item, target: "base_comment_#{base_comment_id}")
     end
 
-    # Fallback for parts without a targeted partial yet (merge/CI panel):
-    # a Turbo 8 page refresh re-renders the whole page in place.
-    def refresh(item)
-      Turbo::StreamsChannel.broadcast_refresh_to(item)
+    # The PR merge panel / issue close panel: CI status, conflicts, and the
+    # merge/close/reopen buttons. This used to be a whole-page refresh
+    # broadcast, which made every open viewer re-request the page just to get
+    # its two live mergeability calls made — fetching them once here and
+    # replacing the one panel costs the same API calls no matter how many
+    # viewers are watching.
+    def panel(item)
+      locals = { item: item }
+      locals.merge!(PullRequestStatus.for(item).to_locals) if item.pull_request?
+      partial = item.pull_request? ? "items/merge_panel" : "items/closed_panel"
+      replace(item, dom_id(item, :panel), partial, locals)
     end
 
     private

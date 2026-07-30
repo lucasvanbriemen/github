@@ -1,7 +1,9 @@
+<%# Issue close/reopen panel. The id matches items/_merge_panel so
+    ItemBroadcaster.panel can target either one. %>
 <% repository = item.repository %>
 <% org = repository.organization.name; repo = repository.name %>
 
-<div class="merge-panel frosted-glass">
+<div class="merge-panel frosted-glass" id="<%= dom_id(item, :panel) %>">
   <% if item.state == "open" %>
     <%= button_to "Close issue", item_path(org, repo, item.number),
           method: :patch, params: { state: "closed" },

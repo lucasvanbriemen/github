@@ -31,6 +31,8 @@ Rails.application.routes.draw do
     patch "item/:number/comments/:id", to: "base_comments#update",  as: :item_comment
     get   "item/:number/files",        to: "items#files",           as: :item_files
     get   "item/:number/head_sha",     to: "items#head_sha",        as: :item_head_sha
+    # diff-poll: head_sha detects a new push, diff swaps the changed regions.
+    get   "item/:number/diff",         to: "items#diff",            as: :item_diff
     post   "item/:number/review_comments", to: "review_comments#create", as: :item_review_comments
     delete "item/:number/review_comments/:key", to: "review_comments#destroy", as: :item_review_comment
     post   "item/:number/review",       to: "reviews#create",        as: :item_review

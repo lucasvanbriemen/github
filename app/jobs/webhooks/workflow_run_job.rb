@@ -41,7 +41,7 @@ module Webhooks
     def broadcast_ci(head_sha)
       PullRequestDetail.where(head_sha: head_sha).find_each do |detail|
         item = Item.find_by(id: detail.id)
-        ItemBroadcaster.refresh(item) if item
+        ItemBroadcaster.panel(item) if item
       end
     end
   end

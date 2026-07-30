@@ -77,30 +77,32 @@ class GithubApi
       raise Error.new("Too many redirects for #{path}")
     end
 
+    # The only image hosts that gate on the API token. Every other host the
+    # proxy touches serves pre-signed URLs that answer 400 when an unexpected
+    # Authorization header comes along — the legacy user-images CDN does, and so
+    # does the S3 bucket github.com redirects user-attachments to. Matching all
+    # of *.githubusercontent.com here is what broke those images.
+    IMAGE_AUTH_HOSTS = %w[github.com raw.githubusercontent.com].freeze
+
     # Fetches an image with the GitHub token so private-repo / user-attachment
-    # images resolve. Returns [body, content_type] or nil. The token is only
-    # sent to GitHub hosts — GitHub redirects attachments to a pre-signed
-    # storage URL that rejects an extra Authorization header (curl strips it on
-    # cross-host redirects too).
-    def fetch_image(url, hops = MAX_REDIRECTS)
+    # images resolve. Returns [body, content_type] or nil. Only the first hop is
+    # ever authenticated: the redirect target is already signed, and curl drops
+    # the header across hosts for the same reason.
+    def fetch_image(url, hops = MAX_REDIRECTS, authenticate: true)
       uri = URI(url)
       request = Net::HTTP::Get.new(uri)
       request["User-Agent"] = "github-gui"
-      if github_host?(uri.host)
+      if authenticate && IMAGE_AUTH_HOSTS.include?(uri.host)
         request["Authorization"] = "Bearer #{ENV["GITHUB_ACCESS_TOKEN"]}"
       end
 
       response = perform(request)
       case response
       when Net::HTTPRedirection
-        hops.positive? ? fetch_image(response["location"], hops - 1) : nil
+        hops.positive? ? fetch_image(response["location"], hops - 1, authenticate: false) : nil
       when Net::HTTPSuccess
         [ response.body, response["content-type"] ]
       end
-    end
-
-    def github_host?(host)
-      host&.end_with?("github.com") || host&.end_with?("githubusercontent.com")
     end
 
     def graphql(query, variables = {})

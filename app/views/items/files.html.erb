@@ -4,32 +4,15 @@
 <%= turbo_stream_from @item %>
 
 <%# All files render into the page; file-navigation shows one at a time, and
-    diff-poll reloads the tab when new commits are pushed. %>
+    diff-poll swaps the file list and the diffs when new commits are pushed
+    (see items#diff / diff.turbo_stream.erb) — everything outside those regions,
+    including the review panel's pending comments, stays put. %>
 <div class="option-with-item-wrapper files-layout"
      data-controller="file-navigation diff-poll"
      data-diff-poll-url-value="<%= item_head_sha_path(@organization.name, @repository.name, @item.number) %>"
+     data-diff-poll-refresh-url-value="<%= item_diff_path(@organization.name, @repository.name, @item.number) %>"
      data-diff-poll-head-value="<%= @head_sha %>">
-  <div class="option-wrapper frosted-glass file-list">
-    <div class="file-list-summary">
-      <span class="files-changed-count"><%= @files.size %> <%= "file".pluralize(@files.size) %> changed</span>
-      <span class="file-counts">
-        <span class="additions">+<%= @total_additions %></span>
-        <span class="deletions">−<%= @total_deletions %></span>
-      </span>
-    </div>
-
-    <% @files.each_with_index do |file, index| %>
-      <button type="button"
-              class="file-list-entry <%= "current" if index.zero? %>"
-              data-file-navigation-target="link"
-              data-index="<%= index %>"
-              data-action="file-navigation#show"
-              title="<%= file[:filename] %>">
-        <span class="file-short-name"><%= short_file_name(file[:filename]) %></span>
-        <span class="file-counts"><span class="additions">+<%= file[:additions] %></span> <span class="deletions">−<%= file[:deletions] %></span></span>
-      </button>
-    <% end %>
-  </div>
+  <%= render "items/diff_file_list", files: @files, additions: @total_additions, deletions: @total_deletions %>
 
   <div class="item-wrapper">
     <%= tabs(items: [
@@ -37,22 +20,13 @@
       { label: "Files changed", active: true, href: item_files_path(@organization.name, @repository.name, @item.number) }
     ]) %>
 
-    <% if @diff_error %>
-      <div class="diff-error frosted-glass">
-        <p>Couldn't load the diff from GitHub — it may be unreachable or rate-limited.</p>
-        <%= link_to "Retry", item_files_path(@organization.name, @repository.name, @item.number), class: "button button-outline" %>
-      </div>
-    <% end %>
+    <%= render "items/diff_error", item: @item, diff_error: @diff_error %>
 
     <div class="files-options">
       <%= render "items/file_navigation", files: @files, additions: @total_additions, deletions: @total_deletions %>
       <%= render "items/review_panel", item: @item %>
     </div>
 
-    <% @files.each_with_index do |file, index| %>
-      <div class="file-diff-wrapper" id="<%= file_diff_anchor(file[:filename]) %>" data-file-navigation-target="file" data-index="<%= index %>" <%= "hidden" unless index.zero? %>>
-        <%= render "items/file_diff", file: file, item: @item, inline_comments: @inline_comments %>
-      </div>
-    <% end %>
+    <%= render "items/diff_files", files: @files, item: @item, inline_comments: @inline_comments %>
   </div>
 </div>

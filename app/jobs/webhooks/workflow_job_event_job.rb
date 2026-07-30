@@ -29,14 +29,14 @@ module Webhooks
 
       Commit.where(sha: head_sha).update_all(workflow_id: run_id) if head_sha
 
-      # The merge panel lists these jobs — refresh open viewers.
+      # The merge panel lists these jobs — re-render it for open viewers.
       broadcast_ci(head_sha) if head_sha
     end
 
     def broadcast_ci(head_sha)
       PullRequestDetail.where(head_sha: head_sha).find_each do |detail|
         item = Item.find_by(id: detail.id)
-        ItemBroadcaster.refresh(item) if item
+        ItemBroadcaster.panel(item) if item
       end
     end
   end

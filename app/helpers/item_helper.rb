@@ -20,9 +20,28 @@ module ItemHelper
   # would leave "- [ ]" as literal text instead of a checkbox.
   MARKDOWN_EXTS = [ :tagfilter, :autolink, :table, :strikethrough, :tasklist ].freeze
 
+  # :UNSAFE keeps raw HTML in the output. GitHub's composer writes pasted
+  # screenshots as literal <img> tags rather than markdown image syntax, so
+  # commonmarker's default safe mode replaced nearly every image in a comment
+  # body with an "<!-- raw HTML omitted -->" comment — they never reached the
+  # image proxy because they never reached the DOM. SAFE_TAGS sanitizing below
+  # is what makes keeping the raw HTML safe.
+  MARKDOWN_OPTS = [ :UNSAFE ].freeze
+
+  # The sanitizer's defaults already cover markdown's own output (including
+  # <img> with src/alt/width/height); these are the extras real comment bodies
+  # use: tables, <details> disclosures, and the disabled checkboxes :tasklist
+  # emits for "- [x]" lists.
+  SAFE_TAGS = (Rails::HTML5::SafeListSanitizer.allowed_tags +
+    %w[table thead tbody tfoot tr th td input details summary]).to_a.freeze
+  SAFE_ATTRIBUTES = (Rails::HTML5::SafeListSanitizer.allowed_attributes +
+    %w[type checked disabled start align colspan rowspan open rel target]).to_a.freeze
+
   def render_markdown(body)
-    html = GitHub::Markup.render("item.md", body.to_s, options: { commonmarker_exts: MARKDOWN_EXTS })
-    proxy_github_images(html).html_safe
+    html = GitHub::Markup.render("item.md", body.to_s,
+      options: { commonmarker_opts: MARKDOWN_OPTS, commonmarker_exts: MARKDOWN_EXTS })
+    sanitized = sanitize(html, tags: SAFE_TAGS, attributes: SAFE_ATTRIBUTES)
+    proxy_github_images(sanitized).html_safe
   end
 
   # GitHub-hosted images (private repos, user-attachments) need the app token
@@ -33,8 +52,12 @@ module ItemHelper
   GITHUB_IMAGE_SRC = %r{(<img\b[^>]*\bsrc=")(https://(?:#{GithubApi::IMAGE_PROXY_HOSTS.map { |host| Regexp.escape(host) }.join("|")})/[^"]+)(")}i
 
   def proxy_github_images(html)
-    html.gsub(GITHUB_IMAGE_SRC) do
-      "#{Regexp.last_match(1)}#{image_proxy_path(url: Regexp.last_match(2))}#{Regexp.last_match(3)}"
+    html.to_s.gsub(GITHUB_IMAGE_SRC) do
+      # The src is HTML-escaped at this point, so a signed URL's "?jwt=a&b"
+      # arrives as "&amp;" — decode before handing it to the query builder,
+      # which escapes it again on the way into ?url=.
+      url = CGI.unescapeHTML(Regexp.last_match(2))
+      "#{Regexp.last_match(1)}#{image_proxy_path(url: url)}#{Regexp.last_match(3)}"
     end
   end
 

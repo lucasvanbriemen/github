@@ -1,0 +1,16 @@
+<%# items#diff — diff-poll's response when a new head sha appears: swap the three
+    regions a push actually changes instead of re-rendering the tab. Scroll
+    position, the tabs, and the review panel's pending comments survive;
+    file-navigation re-derives the selected file from the URL hash once its
+    targets change. %>
+<%= turbo_stream.replace "diff_error" do %>
+  <%= render "items/diff_error", item: @item, diff_error: @diff_error %>
+<% end %>
+
+<%= turbo_stream.replace "diff_file_list" do %>
+  <%= render "items/diff_file_list", files: @files, additions: @total_additions, deletions: @total_deletions %>
+<% end %>
+
+<%= turbo_stream.replace "diff_files" do %>
+  <%= render "items/diff_files", files: @files, item: @item, inline_comments: @inline_comments %>
+<% end %>

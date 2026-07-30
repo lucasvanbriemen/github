@@ -31,11 +31,12 @@ module Webhooks
         commit.save!
       end
 
-      # Refresh open PRs on this branch so their diff/CI state updates live
-      # (this replaces the Laravel app's Ably "pr.{repo}.{number}" publish).
+      # Re-render the merge panel on open PRs for this branch: a push resets CI
+      # and can turn the branch dirty (this replaces the Laravel app's Ably
+      # "pr.{repo}.{number}" publish). The Files tab has its own diff-poll.
       PullRequestDetail.where(head_branch: branch_name, closed_at: nil).find_each do |detail|
         item = Item.find_by(id: detail.id)
-        ItemBroadcaster.refresh(item) if item && item.repository_id == repository.id
+        ItemBroadcaster.panel(item) if item && item.repository_id == repository.id
       end
     end
   end

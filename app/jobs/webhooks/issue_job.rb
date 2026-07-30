@@ -26,13 +26,10 @@ module Webhooks
       handle_assignment_change(item, previously_assigned)
       ImportanceScoreService.update_item_score(item)
 
-      # A state change affects the closed/reopen panel, which only a full
-      # refresh re-renders (details only targets header/body/sidebar).
-      if item.previous_changes.key?("state")
-        ItemBroadcaster.refresh(item)
-      else
-        ItemBroadcaster.details(item)
-      end
+      # details only targets header/body/sidebar, so a state change needs the
+      # close/reopen panel broadcast too.
+      ItemBroadcaster.details(item)
+      ItemBroadcaster.panel(item) if item.previous_changes.key?("state")
     end
   end
 end

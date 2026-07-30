@@ -26,13 +26,11 @@
       <%= render partial: "base_comments/base_comment", collection: @comments %>
     </div>
 
-    <div id="<%= dom_id(@item, :panel) %>">
-      <% if @item.pull_request? %>
-        <%= render "items/merge_panel", item: @item, conflict_files: @conflict_files, mergeable: @mergeable, mergeable_state: @mergeable_state %>
-      <% else %>
-        <%= render "items/closed_panel", item: @item %>
-      <% end %>
-    </div>
+    <% if @item.pull_request? %>
+      <%= render "items/merge_panel", item: @item, **@pull_request_status.to_locals %>
+    <% else %>
+      <%= render "items/closed_panel", item: @item %>
+    <% end %>
 
     <%= render "base_comments/form", item: @item %>
   </div>

@@ -25,14 +25,10 @@ module Webhooks
       handle_review_request_removed(item) if payload["action"] == "review_request_removed"
       ImportanceScoreService.update_item_score(item)
 
-      # A state change (merged/closed/reopened/ready) affects the merge panel,
-      # which only a full refresh re-renders — its mergeability locals come
-      # from live API calls in the controller, so a targeted replace can't.
-      if item.previous_changes.key?("state")
-        ItemBroadcaster.refresh(item)
-      else
-        ItemBroadcaster.details(item)
-      end
+      # A state change (merged/closed/reopened/ready) swaps the merge panel's
+      # buttons as well as the header badge, so both get broadcast.
+      ItemBroadcaster.details(item)
+      ItemBroadcaster.panel(item) if item.previous_changes.key?("state")
     end
 
     # The RequestedReviewer row itself is synced from the payload's

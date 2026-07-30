@@ -1,0 +1,12 @@
+<%# Banner for a failed GitHub diff fetch. Locals: item, diff_error. Renders an
+    empty container when there's no error so diff-poll's swap target survives
+    (and so a poll that starts failing can put the banner back). %>
+<div id="diff_error">
+  <% if diff_error %>
+    <% repository = item.repository %>
+    <div class="diff-error frosted-glass">
+      <p>Couldn't load the diff from GitHub — it may be unreachable or rate-limited.</p>
+      <%= link_to "Retry", item_files_path(repository.organization.name, repository.name, item.number), class: "button button-outline" %>
+    </div>
+  <% end %>
+</div>

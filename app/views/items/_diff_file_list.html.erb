@@ -1,0 +1,24 @@
+<%# Sidebar list of changed files. Locals: files, additions, deletions.
+    The id is one of diff-poll's swap targets, so it has to stay on the root
+    element for the next poll to find it again. %>
+<div class="option-wrapper frosted-glass file-list" id="diff_file_list">
+  <div class="file-list-summary">
+    <span class="files-changed-count"><%= files.size %> <%= "file".pluralize(files.size) %> changed</span>
+    <span class="file-counts">
+      <span class="additions">+<%= additions %></span>
+      <span class="deletions">−<%= deletions %></span>
+    </span>
+  </div>
+
+  <% files.each_with_index do |file, index| %>
+    <button type="button"
+            class="file-list-entry <%= "current" if index.zero? %>"
+            data-file-navigation-target="link"
+            data-index="<%= index %>"
+            data-action="file-navigation#show"
+            title="<%= file[:filename] %>">
+      <span class="file-short-name"><%= short_file_name(file[:filename]) %></span>
+      <span class="file-counts"><span class="additions">+<%= file[:additions] %></span> <span class="deletions">−<%= file[:deletions] %></span></span>
+    </button>
+  <% end %>
+</div>

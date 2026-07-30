@@ -1,7 +1,10 @@
 <%# PR action panel: CI status, merge conflicts, blocked state and the
-    merge/close/ready buttons. Locals: item, and (from items#show) the live
-    mergeable/mergeable_state/conflict_files. Broadcasts re-render via a Turbo 8
-    page refresh, where those live locals aren't available — guard on them. %>
+    merge/close/ready buttons. Locals: item, plus the live
+    mergeable/mergeable_state/conflict_files from PullRequestStatus. Those come
+    back nil when the GitHub call fails, so guard on them.
+
+    The id lives here rather than on a wrapper so ItemBroadcaster.panel's
+    replace keeps the target in place for the next broadcast. %>
 <% repository = item.repository %>
 <% org = repository.organization.name; repo = repository.name %>
 <% workflow = item.latest_commit&.workflow %>
@@ -9,7 +12,7 @@
 <% mergeable = local_assigns[:mergeable] %>
 <% mergeable_state = local_assigns[:mergeable_state] %>
 
-<div class="merge-panel frosted-glass">
+<div class="merge-panel frosted-glass" id="<%= dom_id(item, :panel) %>">
   <% if workflow %>
     <div class="workflow <%= workflow.conclusion %>">
       <span class="workflow-name"><%= workflow.name %></span>
