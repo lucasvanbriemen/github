@@ -44,7 +44,9 @@ class IsLoggedIn
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($httpCode === 200) {
+        $session = json_decode((string) $responseBody, true);
+
+        if ($httpCode === 200 && ($session['isloggedin'] ?? false) === true) {
 
             if ($request->query('auth_token')) {
                 setcookie('auth_token', $authToken, time() + 10 * 24 * 60 * 60, '/', '.lucasvanbriemen.nl', true, true);
